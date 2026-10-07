@@ -18,3 +18,19 @@ services:
       - .:/app
       - ${DATA_DIR:-/mnt/f/data}:/data:ro
     command: ["python", "--version"]
+
+  # ComfyUI GPU 서비스(P01-04 생성). GPU 점유 정책에 따라 profile 로 수동 기동:
+  #   docker compose --profile gpu up -d comfyui
+  # 모델은 소유자 Windows 설치(F:\AI\ComfyUI-models)를 읽기 전용 마운트해 재사용.
+  comfyui:
+    build:
+      context: .
+      dockerfile: Dockerfile.comfyui
+    image: tracepecter/comfyui
+    profiles: ["gpu"]
+    gpus: all
+    ports:
+      - "8188:8188"
+    volumes:
+      - /mnt/f/AI/ComfyUI-models:/ComfyUI/models:ro
+      - ${HOME:-/root}/data/tracepector/comfy_output:/output

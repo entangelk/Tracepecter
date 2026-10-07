@@ -142,15 +142,19 @@ def _save_tail(decode_output: str) -> dict:
 
 
 def build_workflow_qwen_image_21(prompt: str, seed: int, width: int, height: int) -> dict:
-    """Qwen-Image 2.1 int8 + viggle turbo 6step — 소유자 워크플로우(2026-10-02 핸드오프) 기준."""
+    """Qwen-Image 2.1 int8 + viggle turbo 6step — 소유자 워크플로우(2026-10-02 핸드오프) 기준.
+
+    ViggleTurboLora(런타임 side-branch, weight-merge 아님 — int8에서 merge는 손실)와
+    ViggleTurboSigmas(latent 입력 필수 — 해상도 시프트)는 viggle_turbo 커스텀 노드.
+    """
     return {
         "1": {"class_type": "UNETLoader", "inputs": {"unet_name": "qwen_image_2.1_int8_convrot.safetensors", "weight_dtype": "default"}},
-        "2": {"class_type": "LoraLoaderModelOnly", "inputs": {"lora_name": "Qwen-Image-2.1-viggle-turbo-v0.3-6step-lora-r128.safetensors", "strength_model": 1.0, "model": ["1", 0]}},
+        "2": {"class_type": "ViggleTurboLora", "inputs": {"model": ["1", 0], "lora_name": "Qwen-Image-2.1-viggle-turbo-v0.3-6step-lora-r128.safetensors", "strength": 1.0}},
         "3": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen3vl_8b_int8_convrot.safetensors", "type": "qwen_image", "device": "default"}},
         "4": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_2.1_vae_bf16.safetensors"}},
         "5": {"class_type": "TextEncodeQwenImage21", "inputs": {"text": prompt, "clip": ["3", 0], "vae": ["4", 0]}},
         "6": {"class_type": "EmptySD3LatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
-        "7": {"class_type": "ViggleTurboSigmas", "inputs": {"sigmas": "1.0, 0.9375, 0.875, 0.75, 0.5, 0.25"}},
+        "7": {"class_type": "ViggleTurboSigmas", "inputs": {"latent": ["6", 0], "nodes": "1.0, 0.9375, 0.875, 0.75, 0.5, 0.25"}},
         "8": {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler"}},
         "9": {"class_type": "RandomNoise", "inputs": {"noise_seed": seed}},
         "10": {"class_type": "BasicGuider", "inputs": {"model": ["2", 0], "conditioning": ["5", 0]}},
