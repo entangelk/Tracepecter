@@ -127,6 +127,35 @@ def test_metadata_rows_match_schema_v12(tmp_path):
         assert row[1] == f"images/real/스트리트/{row[0]}.jpg"
 
 
+def test_extract_images_opens_each_zip_once(tmp_path, monkeypatch):
+    """zip 경로당 1회만 open — setdefault 함정 회귀 가드(2026-10-07 야간 결함).
+
+    under-strict: dict.setdefault(k, ZipFile(k)) 형태로 돌아오면(매 반복마다
+    중앙 디렉터리 재파싱 — 3,000장 추출이 수 시간 걸리던 원인) 재실패.
+    """
+    import build_metadata as bm
+
+    label_zip, _ = _make_fixture(tmp_path)
+    candidates = load_candidates(str(label_zip))
+    selected = stratified_select(candidates, 2, 42)
+    style_to_zip = index_source_zips(str(tmp_path))
+
+    calls = []
+    real_zipfile = bm.zipfile.ZipFile
+
+    class CountingZipFile(real_zipfile):
+        def __init__(self, path):
+            calls.append(str(path))
+            super().__init__(path)
+
+    monkeypatch.setattr(bm.zipfile, "ZipFile", CountingZipFile)
+    written, errors = extract_images(
+        selected, style_to_zip, tmp_path / "images"
+    )
+    assert errors == 0 and written == len(selected)
+    assert len(calls) == 1  # 전 행이 같은 zip → 정확히 1회 open
+
+
 def test_extraction_writes_images_and_look_group(tmp_path):
     """선택적 추출 실물 검증 + look_group 파일명 유래 도출."""
     _, selected, images_dir, _, written, errors = _run_pipeline(tmp_path, per_category=2)

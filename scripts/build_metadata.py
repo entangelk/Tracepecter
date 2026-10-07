@@ -107,7 +107,12 @@ def index_source_zips(source_dir: str) -> dict[str, str]:
 def extract_images(
     selected: list[dict], style_to_zip: dict[str, str], images_dir: Path
 ) -> tuple[int, int]:
-    """선별 이미지를 원천 zip에서 images_dir/real/<스타일>/<식별자>.jpg 로 추출."""
+    """선별 이미지를 원천 zip에서 images_dir/real/<스타일>/<식별자>.jpg 로 추출.
+
+    zip은 경로당 정확히 한 번만 연다 — dict.setdefault(key, ZipFile(path))는
+    default 인자가 매 호출마다 평가되어 반복마다 중앙 디렉터리(전체 엔트리)를
+    다시 파싱한다(2026-10-07 야간 발견 — 3,000장 추출이 수 시간 걸리던 원인).
+    """
     written, errors = 0, 0
     open_zips: dict[str, zipfile.ZipFile] = {}
     try:
@@ -116,7 +121,9 @@ def extract_images(
             if zip_path is None:
                 errors += 1
                 continue
-            zf = open_zips.setdefault(zip_path, zipfile.ZipFile(zip_path))
+            if zip_path not in open_zips:
+                open_zips[zip_path] = zipfile.ZipFile(zip_path)
+            zf = open_zips[zip_path]
             entry = f"{record['style']}/{record['stem']}.jpg"
             out_path = images_dir / "real" / record["style"] / f"{record['stem']}.jpg"
             out_path.parent.mkdir(parents=True, exist_ok=True)
