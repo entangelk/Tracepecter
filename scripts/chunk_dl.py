@@ -4,15 +4,19 @@
 청크 단위 resume 지원(.chunkN 파일), 완료 시 병합 + 크기 검증.
 
 히스토리:
-- 2026-10-07 야간: curl -C -(resume) + -r(range) 조합이 범위 겹침 어펜드를
-  일으켜 청크 오염(3.15GB×8 > 원본 13.9GB) → v3 "정확한 범위 재개"로 교체.
-  -C -와 -r의 조합은 금지.
+- 2026-10-07 야간: 청크 오염(3.15GB×8 > 원본 13.9GB) — 당시 -C -+-r 조합 탓으로
+  진단하고 v3 "정확한 범위 재개"로 교체.
+- 2026-10-08 재발으로 근본 원인 정정: 범인은 curl 내부 --retry — 재시도마다
+  range 시작부터 전체를 재스트리밍하는데 출력이 append라 겹침 데이터가 쌓임.
+  -C -+-r 은 악화 요인이었을 뿐 필수 조건이 아니었다. v4: curl --retry 제거,
+  재시도를 Python 루프(매 시도마다 수신량 재측정 → start 조정)로 이동.
 - 2026-10-08: 전원 단절(00:00 KST)로 /tmp 원본 유실 — 세션 로그의
   원문+패치 전문으로 복원, scripts/ 에 보관해 재유실 방지.
   clip_g는 단독 처리(전량 수신 상태에서 꼬리만 이어받기).
 """
 import concurrent.futures
 import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -26,28 +30,32 @@ def head_size(url: str) -> int:
         return int(r.headers["Content-Length"])
 
 
-def fetch_chunk(url: str, start: int, end: int, path: str) -> int:
+def fetch_chunk(url: str, start: int, end: int, path: str, attempts: int = 10) -> int:
     want = end - start + 1
-    have = os.path.getsize(path) if os.path.exists(path) else 0
-    if have == want:
-        return want
-    if have > want:  # 오염(-C - + -r 시대 유물) — 재시작
-        os.remove(path)
-        have = 0
-    # 범위 재개: 이미 받은 만큼 start를 옮기고 파일에 append. -C -와 -r의
-    # 조합은 범위 겹침 어펜드를 일으키므로 사용 금지(2026-10-07 야간 사고).
-    import subprocess
-    with open(path, "ab" if have else "wb") as out:
-        subprocess.run(
-            ["curl", "-sSL", "--fail", "--retry", "5", "--retry-all-errors",
-             "--speed-time", "30", "--speed-limit", "20000",
-             "-r", f"{start + have}-{end}", url],
-            check=True, timeout=14400, stdout=out,
-        )
-    got = os.path.getsize(path)
-    if got != want:
-        raise IOError(f"청크 불완전 {path}: {got}/{want}")
-    return got
+    for attempt in range(1, attempts + 1):
+        have = os.path.getsize(path) if os.path.exists(path) else 0
+        if have == want:
+            return want
+        if have > want:  # 오염(재스트리밍 겹침 유물) — 재시작
+            os.remove(path)
+            have = 0
+        # curl --retry 금지: 내부 재시도가 range 시작부터 재스트리밍하며 append
+        # 출력에 겹침을 쌓는다(2026-10-08 오염, 10-07 야간 사고의 진짜 원인).
+        # 재시도가 없으면 한 호출의 부분 수신은 항상 진짜 연속 접두사이므로
+        # 크기 기반 재개가 안전하다(오염은 반드시 과대로 나타나 아래에서 리셋).
+        # 실패한 시도의 부분 수신은 유지하고 다음 시도에서 start+have부터 이어받는다.
+        with open(path, "ab" if have else "wb") as out:
+            rc = subprocess.call(
+                ["curl", "-sSL", "--fail",
+                 "--speed-time", "30", "--speed-limit", "20000",
+                 "-r", f"{start + have}-{end}", url],
+                stdout=out, timeout=3600,
+            )
+        have = os.path.getsize(path) if os.path.exists(path) else 0
+        if rc == 0 and have == want:
+            return want
+        print(f"  재시도 {attempt}/{attempts} {os.path.basename(path)} rc={rc} {have}/{want}", flush=True)
+    raise IOError(f"청크 실패 {path}: {attempts}회 재시도 후에도 불완전")
 
 
 def download(url: str, out: str, chunks: int = 8) -> None:
