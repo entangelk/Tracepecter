@@ -2,7 +2,8 @@
 
 라벨 zip(스타일 폴더 → JSON per image)을 전수 파싱해 카테고리 설계에 필요한
 분포를 산출한다. 확정된 카테고리 규칙(대표 부위 = 원피스 > 아우터 > 상의 >
-하의 우선순위)의 검증 수단이기도 하다. 표준 라이브러리만 사용한다.
+하의 우선순위)의 검증 수단이기도 하다. 표준 라이브러리만 사용하고, 부위·
+파일명 규칙은 kfashion_common(공유 정의)을 따른다.
 
 사용:
     python scripts/analyze_kfashion_labels.py <라벨링데이터.zip 경로> [--out stats.json]
@@ -13,17 +14,20 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 import zipfile
 from collections import Counter
+from pathlib import Path
 
-# 대표 부위 우선순위 — docs/plan/phase_1_data_pipeline.md "카테고리 목록 확정 제안"
-PARTS = ("원피스", "아우터", "상의", "하의")
-# 쇼핑몰 출처 3단 파일명(예: LIME_193_00.jpg) — look_group 키 후보 패턴.
-# jpg/jpeg/png 대소문자 무관(독립검증 H4 — 현재 코퍼스는 jpg/JPG 뿐이나
-# P01-03 look_group 생성에서 패턴을 재사용할 경우를 대비).
-MALL_FILENAME = re.compile(r"^[A-Za-z0-9]+_\d+_\d+\.(?:[Jj][Pp][Ee]?[Gg]|[Pp][Nn][Gg])$")
+# -I 격리 모드에서도 공용 모듈을 찾을 수 있게 스크립트 디렉터리를 명시적으로 추가.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from kfashion_common import (
+    MALL_FILENAME,
+    PARTS,
+    extract_part_entries,
+    parse_image_name,
+)
 
 
 def analyze(label_zip: str) -> dict:
@@ -63,17 +67,10 @@ def analyze(label_zip: str) -> dict:
             else:
                 style_from_label["<없음/이상>"] += 1
 
-            present = []
-            for part in PARTS:
-                entries = labeling.get(part)
-                if not isinstance(entries, list):
-                    part_attr_anomaly[f"{part}:list아님"] += 1
-                    continue
-                nonempty = [e for e in entries if isinstance(e, dict) and e]
-                if not nonempty:
-                    continue
-                present.append(part)
-                for entry in nonempty:
+            entries_by_part = extract_part_entries(labeling)
+            present = [p for p in PARTS if p in entries_by_part]
+            for part, entries in entries_by_part.items():
+                for entry in entries:
                     if entry.get("카테고리"):
                         part_category_values[part][entry["카테고리"]] += 1
                     else:
@@ -82,12 +79,7 @@ def analyze(label_zip: str) -> dict:
             part_combo["+".join(present) if present else "<전부없음>"] += 1
             primary_category[present[0] if present else "<라벨없음>"] += 1
 
-            file_name = (
-                data.get("데이터셋 정보", {}).get("파일 이름")
-                or data.get("이미지 정보", {}).get("이미지 파일명")
-                or ""
-            )
-            if MALL_FILENAME.match(file_name):
+            if MALL_FILENAME.match(parse_image_name(data)):
                 mall_pattern += 1
 
             if (i + 1) % 200000 == 0:

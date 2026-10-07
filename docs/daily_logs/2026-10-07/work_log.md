@@ -158,6 +158,23 @@
 - 구현 결정: "zip 해제" 산출물을 **전량 해제가 아닌 선택적 추출**로 조정 — 필요량 Real ≤5,000장(§7)인데 1.2M장 60GB 전량 해제는 불필요. 완료 기준(불일치 보고·유효 수 확정)은 충족. 조정 사유는 계획서 비고에 기록.
 - 파일 변경: `docs/plan/phase_1_data_pipeline.md`(P01-01 완료 처리·비고 3건), `HANDOFF.md`, `CHANGELOG.md`, 본 로그.
 
+### (세션 3) P01-03 완료 — REAL 선별·metadata 빌드(씨드 500)
+
+- 설명: 부위 층화 샘플링으로 씨드 500장을 선별·추출하고 §12 v1.2 REAL 행 metadata를 생성했다.
+- 파일 변경:
+  - `scripts/kfashion_common.py` (신규) — 부위 우선순위·3단 파일명 look_group 등 라벨 파싱 규칙의 공유 정의(스크립트 간 복제 방지)
+  - `scripts/analyze_kfashion_labels.py` — 공용 모듈 import로 리팩터 + `-I` 격리 모드 대응 sys.path bootstrap. **전수 재실행으로 기존 통계와 byte-identical 입증**(검증자 baseline과 diff 0)
+  - `scripts/build_metadata.py` (신규) — 후보 적재(라벨없음 제외) → 부위별 층화(seed 고정) → 원천 zip 선택적 추출 → §12 v1.2 CSV 기록. split은 미배정(빈 값)
+  - `tests/test_build_metadata.py` (신규) — 회귀 가드 4셀(라벨없음 제외·우선순위 / 층화 수·결정성 / §12 v1.2 행 리터럴 / 추출 실물·look_group)
+  - `data/metadata_real.csv` (신규, 추적) — 씨드 500 REAL 행
+  - `.gitignore` — `data/images`(심볼릭 링크) 추가
+- 실행 결과: 후보 964,224(= 967,806 − 라벨없음 3,582, 분석과 일치) → 500장 선별(상의·아우터·원피스·하의 125씩) → 추출 성공 500·실패 0. 필수 필드 결측 0, 이미지 샘플 50/50 정상, 스타일 자연 분포(스트리트 45.6%), look_group 커버 25.8%·동일 룩 중복 1종.
+- 검증: 컨테이너 pytest 15 passed(신규 4셀 포함). 합성 fixture zip으로 파이프라인 전 과정(선별→추출→CSV) 가드.
+- 구현 결정:
+  - split 배정은 P01-03이 아니라 P01-06(split_dataset)이 전담 — build_metadata는 빈 값으로 남긴다. 계획서 완료 확인 문구를 이에 맞게 정정("split 행 생성"→"행 생성, split 배정은 P01-06"). 슬라이스 간 책임 중복 제거.
+  - 이미지 실제 저장은 ext4(`~/data/tracepector/images`), repo `data/images` 심볼릭 링크 연결(9p 회피). path 컬럼은 CSV 디렉터리 기준 상대 경로 계약 유지.
+  - 라벨 zip /mnt/f 직접 스캔은 수십 분 소요 — 재실행 시 ext4 복사본 사용(계획서 비고 기록).
+
 
 ## Issues found
 

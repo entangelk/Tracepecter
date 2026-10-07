@@ -59,6 +59,7 @@ Thumbs.db
 data/raw/
 data/processed/
 data/smoke/
+data/images
 checkpoints/
 
 # Local W0 analysis output: reproducible from the pinned container sources.

@@ -55,7 +55,7 @@ DB-01 후속("상품 가정 필드 조정")에 따라 개정했다. `docs/projec
 | --- | --- | --- | --- | --- | --- |
 | P01-01 | 원천 데이터 수신 확인·정합 검증 | 다운로드 완료 | zip 해제(`data/raw/real/` — 선택적 추출로 조정, 비고 참조), 라벨↔이미지 파일명 매핑 검증, 스타일 폴더·개수 정합 보고 | 매핑 불일치 이미지 비율 보고 + 유효 이미지 수 확정 | 완료 (2026-10-07) |
 | P01-02 | 카테고리·metadata schema 확정 | 본 계획서 승인 | `scripts/analyze_kfashion_labels.py` repo 등록, `docs/project.md` §12 v1.2 갱신, 인덱스·SoT 버전 로그 | 스크립트 재실행 결과 = 본 문서 수치와 일치 + §12 개정 반영 | 완료 (2026-10-07) |
-| P01-03 | REAL 선별·metadata 빌드 | P01-01 | `scripts/build_metadata.py`(라벨→행 변환, 부위 층화 샘플링, 씨드 500 우선) | REAL 씨드 500장 split 행 생성 + 필드 결측 0 | Planned |
+| P01-03 | REAL 선별·metadata 빌드 | P01-01 | `scripts/build_metadata.py`(라벨→행 변환, 부위 층화 샘플링, 씨드 500 우선) | REAL 씨드 500장 행 생성 + 필수 필드 결측 0 + 추출 이미지 검증 (split 배정은 P01-06 — 2026-10-07 문구 정정, 근거는 work log) | 완료 (2026-10-07) |
 | P01-04 | AI 생성 파이프라인 | DB-02(Resolved)·GPU 여유 | `scripts/generate_ai.py`(생성기별 어댑터, §9 프롬프트·배경 변형) | 생성기 ≥3종에서 500장(씨드) 생성 + `prompt_id` 기록 | Planned |
 | P01-05 | 중복 제거·그룹핑 | P01-03 | `scripts/deduplicate.py`(pHash + embedding 유사도, §13) | 근사중복 클러스터링 결과로 `look_group` 채움 + 동일 그룹 split 배정 검증 | Planned |
 | P01-06 | Dataset split | P01-03·P01-04·P01-05 | `scripts/split_dataset.py`(§14 group split: look_group·generator·source_domain + unseen generator test) | train/val/test 70/15/15 + Test B(unseen) 구성 파일 + 그룹 누출 검사 통과 | Planned |
@@ -92,6 +92,9 @@ unseen_generator_test 생성
 - P01-01 결과(2026-10-07): 원천 Training 3파트(17.8+28+13.6GB)·Validation 수신 완료. 정합 검증 — 스타일 집합 24종 일치, 확장자 전부 `.jpg`, 라벨 stem 967,806 == 이미지 stem 967,806, **매핑 불일치 0.0000%**(양방향 차집합 0). 무결성 샘플(각 zip 10장 PIL verify) 30/30 정상, 이미지 800px 기준. 유효 이미지 수 **967,806장 확정**.
 - zip 샤딩 구성(재추출 시 참조): 원천데이터_1 = 9개 스타일(리조트·모던·로맨틱·소피스트케이티드·매니시·레트로·섹시·기타·밀리터리), 원천데이터_2 = 스트리트 단독(449,494), 원천데이터_3 = 나머지 14개 스타일. 각 스타일은 하나의 zip에 전량 수록. AIHub Validation 분할은 본 파이프라인에서 미사용(Training 967,806장 중 ≤5,000장 선별).
 - 산출물 조정(2026-10-07): "zip 해제"를 **전량 해제가 아닌 선택적 추출**로 수행한다 — 데이터셋 필요량은 Real ≤5,000장(§7)인데 1.2M장·60GB 전량 해제는 불필요하다. P01-03 선별 확정 시 해당 멤버만 추출해 `data/raw/real/<스타일>/<식별자>.jpg`로 적재한다. 성공 기준(매핑 불일치 보고·유효 이미지 수 확정)은 이미 충족됐다.
+- P01-03 결과(2026-10-07): 씨드 500장(부위별 125×4, seed 42) 선별·추출 완료 — `data/metadata_real.csv`(§12 v1.2 REAL 행, split 미배정), 추출 실패 0, 필수 필드 결측 0, 이미지 샘플 50/50 정상. 후보 964,224장(라벨없음 3,582 제외 — 분석 수치와 일치). look_group 파일명 유래 25.8%, 동일 룩 중복 그룹 1종 포착(같은 split 배정 대상). 스타일은 자연 분포 유지(스트리트 45.6%). 전체 규모 확장은 P01-07에서 `--per-category 750` 재실행으로 수행한다.
+- 이미지 저장소(이 머신): 실제 파일은 ext4 `~/data/tracepector/images/real/...` 에 적재하고 repo `data/images` 를 심볼릭 링크로 연결한다(9p I/O 회피 — P00 venv 교훈). `data/images`는 .gitignore 추가. CSV의 path는 `images/real/...`(CSV 디렉터리 기준 상대)로 §12·src/dataset.py 계약 유지.
+- 라벨 zip 전수 스캔은 /mnt/f 직접 읽기 시 수십 분 걸린다(2026-10-07 관측) — 대량 재실행 시 ext4 복사본(예: /tmp/kfashion_labels.zip, sha256 `63b9fb8a…`)을 사용한다.
 - P01-02 독립검증: 초회 조건부 합격(B1 수치 불일치) → 보강(B1+H1~H6) → 재검증 **합격**(2026-10-07). 기록: `docs/verifications/2026-10-07/p01_plan_schema_docker.md`. §12 v1.2 12열은 테스트 리터럴로 고정 잠금 — 스키마 확장 시 셀·리터럴·§12를 같은 변경으로 갱신한다.
 - 실행 환경: **Docker Compose 체계**(소유자 결정 2026-10-07, venv 대체) — `Dockerfile` + `compose.yaml`. 검증·학습 명령은 `docker compose run --rm dev ...`로 실행한다. `requirements.txt`는 의존성 canonical으로 유지된다. P00의 venv 절차는 P00 머신 기준 역사 기록으로 남는다.
 - **GPU 사용 정책(소유자 지시 2026-10-07)**: RTX 3060은 소유자의 다른 AI 모델 작업이 점유 중이다. 학습·이미지 생성 등 GPU 작업은 그 작업이 끝난 뒤 **남는 시간에만** 수행하고, GPU에 여유가 생기기 전에는 큐에 쌓거나 실행하지 않는다. DB-02의 로컬 생성과 P02 학습 스케줄은 이 제약을 전제로 한다. GPU 서비스(profile)는 필요 시점에 compose에 추가한다.
