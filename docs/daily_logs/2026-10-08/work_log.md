@@ -42,6 +42,8 @@
 - chunk_dl.py를 `/tmp` → `scripts/`(git 추적)로 이동. 근거: 실제 유실 발생(전원 단절 + WSL `/tmp` wipe). 세션 4 v3와 byte 수준 동일 복원 + 히스토리 주석.
 - clip_g는 z_image 그래프에 불필요 확인(`generate_ai.py`의 CLIPLoader type=lumina2가 `qwen_3_4b_fp8_mixed` 단독 사용) — 다운로드 큐에서 제외하고 전량 수신 상태에서 마무리만 수행.
 - 소유자 결정(2026-10-08 아침): 단절 원인 불명이어도 복구·진행 지시 — 기록 보강과 동시에 파이프라인 재개 진행.
+- **Generated `gen_ID`는 생성기 전역 연속 번호** — qwen 1-124에 이어 z_image 125부터(`--start-index 125`), sdxl 250·playground 375·sd35 500. 근거: §12 예시가 평형 네임스페이스(`images/generated/gen_000001.png`)로 gen_id 전역 유일성을 함의하는데, 구현이 생성기별 서브디렉터리를 쓰므로 전역 연속 번호가 양쪽을 모두 만족(병합 시 `image_id` 유일). 참고: §12 예시의 path 표기(서브디렉터리 없음)는 구현과 미세하게 어긋남 — P01-06 최종화 시 정리 예정.
+- `generate_ai.py`에 **재개 가드 추가**(`is_complete_png` — PNG 매직 + >1KB 확인 후 기존 파일 스킵): 직전 실행이 완료 수신한 이미지는 재생성하지 않는다. 근거: 이 머신의 반복 전원 단절 — 124장 1~2시간 생성이 단절로 통째로 재실행되는 위험 차단. 합성 파일 양방향 검증(정상 PNG 스킵 / 잘린·junk·부재 재수신) 통과, dry-run 회귀 없음.
 
 ## Next steps
 

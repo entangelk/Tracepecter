@@ -285,6 +285,15 @@ def download_image(base_url: str, image_meta: dict, out_path: Path) -> None:
         f.write(resp.read())
 
 
+def is_complete_png(path: Path) -> bool:
+    """재개 판정 — PNG 매직 + 최소 크기(전원 단절로 잘린 수신 파일 배제, 2026-10-08)."""
+    try:
+        with open(path, "rb") as f:
+            return f.read(8) == b"\x89PNG\r\n\x1a\n" and path.stat().st_size > 1024
+    except OSError:
+        return False
+
+
 def write_metadata_rows(jobs: list[dict], generator: str, start_index: int, out_csv: str) -> None:
     """§12 v1.2 Generated 행 기록. split 미배정(P01-06)."""
     out_path = Path(out_csv)
@@ -357,12 +366,15 @@ def main() -> int:
     images_dir = Path(args.images_dir)
     done = []
     for i, job in enumerate(jobs):
+        image_id = f"gen_{args.start_index + i:06d}"
+        out_path = images_dir / "generated" / job["generator"] / f"{image_id}.png"
+        if is_complete_png(out_path):  # 재개: 직전 실행이 수신 완료한 이미지 스킵
+            done.append(job)
+            continue
         workflow = WORKFLOW_BUILDERS[job["generator"]](
             job["prompt"], job["seed"], job["width"], job["height"]
         )
         image_meta = run_job(args.comfyui_url, workflow)[0]
-        image_id = f"gen_{args.start_index + i:06d}"
-        out_path = images_dir / "generated" / job["generator"] / f"{image_id}.png"
         download_image(args.comfyui_url, image_meta, out_path)
         done.append(job)
         if (i + 1) % 10 == 0:
