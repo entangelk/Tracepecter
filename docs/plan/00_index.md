@@ -4,7 +4,7 @@
 
 | ID | 페이즈 | 상태 | 선행 조건 | 완료 근거 | 결정 브리프 |
 | --- | --- | --- | --- | --- | --- |
-| P00 | 프로젝트 초기화 — repo/환경/README/config/skeleton | In Progress | — | 학습 skeleton이 `python -m src.train --config configs/baseline.yaml --smoke` 실행으로 정상 종료 + pytest 통과 (독립검증 합격 후 Complete) | — |
+| P00 | 프로젝트 초기화 — repo/환경/README/config/skeleton | Complete | — | `python -m src.train --config configs/baseline.yaml --smoke` 정상 종료 + pytest 10 passed — 독립검증 합격(초회+재검증, [기록](../verifications/2026-10-07/p00_initialization.md)) | — |
 | P01 | 데이터 파이프라인 — 수집/생성/메타데이터/dedup/split | Planned | P00: 실행 환경 + 소유자의 K-Fashion 다운로드 완료 | `metadata.csv` + train/val/test split + unseen generator test 생성, 최소 6,000장(Real ≥ 3,000, Generated ≥ 3,000)·축소된 패션 category 기준 충족 | [DB-01](../decision_briefs/DB-01_P01_real-data-domain.md) |
 | P02 | Baseline 모델 — frozen encoder + MLP head | Planned | P01: 씨드 데이터(Real 500 + Generated 500) split 확보 | 1-명령 학습 + checkpoint 저장 + validation metric + test evaluation 동작 | — |
 | P03 | Baseline 비교 — SigLIP vs DINO | Planned | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split 기준 비교 report + primary encoder 선정 기록 | — |

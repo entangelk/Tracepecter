@@ -84,9 +84,13 @@
 - 구현 결정: `model.encoder: stub` — 실제 encoder 연결은 P02 범위(§27 Phase 2 'Vision Encoder 연결'). skeleton 은 구조·파이프라인만 검증.
 - 구현 결정: venv 를 `~/.venvs/tracepecter`(ext4)에 생성하고 CPU torch wheel 로 설치 — WSL2 /mnt/d 9p I/O 병목 회피 + skeleton 단계에는 CUDA 불필요. CUDA 전환은 P02 에서 결정.
 
+### P00 재검증 결과 및 Complete 처리
+
+- 재검증(동일 검증자, 커밋 범위 `f787fe4..01fa039`): **합격** — H1~H7 전부 해소 확인, 신규 가드 3종 확정 재실패 입증(R1 Sigmoid 제거 10/10, R2 Normalize 제거·R3 loss 교체 단독 재실패), R4로 H7 리팩터 후에도 초회 가드 유지 확인. self-mutation 짝표는 독립 재현으로 전부 일치.
+- 잔여 관찰 2건(H2 잠금이 mean 중심이라 std 리터럴 변형은 통과·`torch.manual_seed(0)` 전역 RNG)은 검증자가 조치 불필요로 판정 — 기록(`docs/verifications/2026-10-07/p00_initialization.md` §잔여 관찰)에만 유지하고 코드 변경 없음.
+- P00 상태 Complete 처리(`docs/plan/00_index.md`·phase_0 비고).
+
 ## Next steps
 
-- P00 독립검증(서브에이전트) → 검증기록 확인 → 보강 → 합격 시 P00 Complete 처리
-- 소유자: AIHub K-Fashion 다운로드 (P01 선행 조건)
 - 소유자: AIHub K-Fashion 다운로드 (P01 선행 조건)
 - P01 상세 계획 수립 시: 축소 카테고리 목록 확정, AI 생성기(≥3종) 접근 수단 확인, 얼굴 영역 처리 정책(DB-01 후속 고려사항)

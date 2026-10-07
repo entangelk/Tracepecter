@@ -12,6 +12,7 @@
   - 절차 SoT: `docs/guides/verification.md`
 - 검증 대상 소스: commit `f7362e6` ("P00: 프로젝트 초기화 — 환경·골격·config·학습 skeleton·회귀 테스트")
   - 단, working tree 가 clean 하지 않았음: `git status --short` → ` M HANDOFF.md` (미커밋 1줄 메타데이터 수정, "21줄"→"22줄"). 아래 Methodology·Outstanding items 참고.
+- 재검증: 동일 검증자가 2026-10-07 hardening 7건 보강 후 재검증 수행 — 커밋 범위 `f787fe4` → `01fa039` (HEAD). 결과는 하단 "재검증(보강 후)" 절. 최종 판정은 해당 절의 Verdict.
 
 ## Scope
 
@@ -154,7 +155,7 @@ mutation: 각 case마다 `cp src/<파일> /tmp/backup/` → 소스 edit → `~/.
 6. **의존성 exact pin**: P02 재현성 검토 시 `>=` 하한만의 고정을 재검토.
 7. **실패 경로 임시디렉터리 누수(경미)**: main() 이 학습 루프에서 예외로 죽으면 `mkdtemp` 디렉터리가 남는다(`src/train.py:67`, M4 실행 흔적으로 관찰). /tmp 의 사소한 위생 문제로 우선순위 낮음.
 
-## Verdict
+## Verdict — 초회 검증(2026-10-07, f7362e6 · 보존)
 
 **합격**
 
@@ -193,4 +194,99 @@ cp src/model.py /tmp/bak_model.py
 ~/.venvs/tracepecter/bin/python -m pytest tests/test_model.py::test_unknown_encoder_rejected -q   # FAILED(DID NOT RAISE)
 cp /tmp/bak_model.py src/model.py && cmp src/model.py /tmp/bak_model.py     # byte 동일
 git status --short                # " M HANDOFF.md" 만
+
+---
+
+# 재검증(보강 후) — 2026-10-07, HEAD 01fa039
+
+초회 검증의 Hardening 7건(H1~H7)을 구현자가 보강(`73b66a2`)하고, 보강 중 발생한 H7 회귀를 복원(`8c336b7`)하였으며 기록을 문서 반영(`01fa039`)한 최종 상태에 대한 재검증이다. 초회 판정·mutation 짝표는 위에 보존되어 있다.
+
+## Subject metadata (재검증)
+
+- 검증 일자: 2026-10-07 (재검증)
+- 검증자: 초회 검증과 동일한 독립 검증 서브에이전트
+- 검증 대상 소스: commit `01fa039` (범위 `f787fe4..01fa039`: `73b66a2` H1~H7 보강, `8c336b7` H7 회귀 복원, `01fa039` 기록)
+- pre-flight: `git status --short` 빈 출력 — **clean tree**. 가이드 clean-tree branch 로 mutation 복원에 `git checkout -- <path>` 사용, 복원마다 status 재확인.
+- 변경 표면: `src/dataset.py`(docstring H3), `src/train.py`(build_loss H4·run_training/main 분리 및 실패경로 정리 H7), `tests/test_model.py`(H1), `tests/test_dataset.py`(H2), `tests/test_train_smoke.py`(H4 셀), `docs/plan/phase_0_initialization.md`(H3·H5), `docs/plan/00_index.md`(H6), work log·CHANGELOG(기록).
+
+## H1~H7 해소 확인
+
+| 항 | 확인 방법 | 결과 |
+|---|---|---|
+| H1 `test_output_is_probability` 결정화 | 코드 확인(`tests/test_model.py:24-28` — `torch.manual_seed(0)` + `randn(8,3,64,64)*100`, shape (8,)) + R1 mutation 10회 반복 | **해소** — 초회 55%(11/20) → 10/10 확정 재실패 |
+| H2 Normalize 값 잠금 | 코드 확인(`tests/test_dataset.py:60-71` — 회색 128 기대값 `abs(mean) < 0.05`, Normalize 시 ≈0.0078) + R2 mutation | **해소** — 미정규 0.502 로 확정 재실패(단독 셀) |
+| H3 §15 문구 정정 + 페이즈 비고 | `src/dataset.py:63-67` docstring 이 "§15 전처리 중 P00 구현분(Resize·HFlip·JPEG·Normalization)"으로 정정, 잔여 op P02 위임 명시. `docs/plan/phase_0_initialization.md` 비고 §15 행 추가 | **해소** |
+| H4 BCE 리터럴 잠금 | `src/train.py:32-35` `build_loss()`(`nn.BCELoss()`) 추출, `run_training` 이 사용(`src/train.py:76`). `tests/test_train_smoke.py:17-19` 신규 셀 + R3 mutation | **해소** — MSELoss 교체 시 확정 재실패(단독 셀) |
+| H5 §24 잎 위임 명시 | `docs/plan/phase_0_initialization.md` 비고 — scripts→P01, src/evaluate·experiments 하위→P02, lora.yaml→P04, inference.yaml·api·demo→P07, metadata.csv→P01, reports→P02/P06 | **해소** |
+| H6 exact pin P02 등록 | `docs/plan/00_index.md` 비고 — "의존성 exact pin 재검토는 P02 실학습 환경 확정 시 수행"(현재 `>=` 명시) | **해소** |
+| H7 run_training/main 분리 + 실패경로 정리 | 구조 확인(`src/train.py:54-100` 분리, `src/train.py:104-116` smoke 경로 `except BaseException: rmtree; raise`) + R4 mutation 중 /tmp 임시디렉터리 수 관찰 | **해소** — 실패 실행 후에도 잔여 0(17→17), 가드 2셀 재실패 유지 |
+
+H7 회귀 이력 검증: work log 기록대로 분리 과정에서 `print("smoke ok")` 가 누락되어 CLI 계약 셀 2개가 재실패했고 `8c336b7` 로 복원되었다. 최종 상태에서 재실행: `python -m src.train --config configs/baseline.yaml --smoke` exit 0, `epoch 1/1 train_loss=0.697475` + checkpoint 저장 + `smoke ok` 출력 확인 — 회귀 해소 확인. 기존 가드가 보강 변경 자체의 회귀를 잡은 사례로, 가드 체인이 의도대로 작동했다.
+
+## Mutation 짝표 (재검증)
+
+각 mutation 후 해당 셀만 실행, `git checkout -- <path>` 복원, `git status --short` 빈 출력 확인. 최종 전체 스위트 10 passed.
+
+| Mutation | 내용 | 재실패한 셀 | 판정 |
+|---|---|---|---|
+| R1 | head 스택에서 `nn.Sigmoid()` 제거 | `test_output_is_probability` — 10회 실행 10/10 실패(확정) + `test_head_structure_matches_spec`(확정) | H1 결정화 입증 |
+| R2 | `transforms.Normalize` 제거 | `test_transform_resizes_and_normalizes`(확정, 단독 — dataset 나머지 2셀 통과) | H2 잠금 입증 |
+| R3 | `build_loss()` → `nn.MSELoss()` | `test_loss_is_binary_cross_entropy`(확정, 단독 — smoke 2셀은 통과: MSE 는 수치상 계산되므로 이 셀만 loss 식별을 잠금) | H4 잠금 입증 |
+| R4 | dtype 정렬 되돌림(`labels.to(...)` 제거) | `test_train_smoke_creates_checkpoint` + `test_train_cli_command_runs_clean`(양쪽, dtype RuntimeError) | H7 리팩터 후에도 초회 가드 유지 + 실패경로 임시디렉터리 정리 실증(/tmp 17→17) |
+
+구현자가 work log 에 자체 수행해 기록한 self-mutation 짝표(M1'·M7'·M-BCE)는 본 재검증의 독립 재현 결과와 전부 일치했다(주장만으로 채택하지 않고 재실행으로 확인).
+
+## 재실행 수치 (재검증)
+
+- `~/.venvs/tracepecter/bin/python -m pytest`: **10 passed**, exit 0. 측정 10.82s(안정)·17.37s / 일시적 부하 시 72~78s 관측 — `torch` import 자체가 6.2s(9p 콜드), 최대 기여 셀은 subprocess CLI 셀(부하 시 25.9s). 가이드 §"Test execution time" 에 따라 측정값·원인을 기록하며, 현재 규모에서 분할 불필요.
+- CLI smoke: exit 0 + `smoke ok`(위 H7 항목).
+- 테스트 수: 9 → 10(H4 셀 추가).
+
+## 잔여 관찰 (재검증, 비차단)
+
+- H2 의 잠금은 mean 중심이다: `abs(mean) < 0.05` 는 Normalize 의 mean=0.5 를 ±0.025 로 잠그지만, std 리터럴만 바꾸는 변형(예: std=1.0 → 0.00196)은 통과한다. "Normalize 제거 재실패"라는 H2 요건 자체는 확정 충족이므로 잔여 기록만 남긴다(초회 M7 흡수 사항의 재발 아님).
+- `torch.manual_seed(0)` 가 프로세스 전역 RNG 를 설정한다(test 순서 의존 가능성 이론상 존재). 현재 스위트는 전 셀이 결정적·안정적으로 통과하므로 조치 불필요.
+
+## Verdict (재검증 최종)
+
+**합격**
+
+- 이유(하중 요인):
+  1. 초회 Hardening 7건(H1~H7)이 전부 해소되었음을 코드·문서 대조와 mutation 재실행으로 입증했다. 계약상 요구된 lock 의 부재·공백은 없다(초회 blocking 0건 상태 유지).
+  2. 신규·강화된 가드 셀 3종이 전부 확정적(확률 아님)으로 재실패함을 R1(10/10)·R2·R3 mutation 으로 확인했다.
+  3. H7 재구성 이후에도 초회 mutation 의 전 가드(R4 양 셀)가 유지되며, 보강 중 회귀('smoke ok' 누락)는 기존 CLI 계약 셀이 포착·복원되었다. 전체 스위트 10 passed·CLI smoke exit 0 재확인.
+- 잔여 관찰 2건은 모두 현 계약이 요구하지 않는 사항이며 판정에 영향 없음.
+
+## Outstanding items (재검증 시점)
+
+- 본 기록의 재검증 섹션 갱신분은 미커밋 상태다(검증자는 커밋 금지). 구현자 검토 후 커밋할 것.
+- 초회 Outstanding 의 HANDOFF.md 미커밋 수정은 `f787fe4` 에서 정리되었음을 확인(현재 tree clean).
+- P00 Complete 처리(`docs/plan/00_index.md` 갱신)는 본 재검증 합격을 조건으로 수행 가능한 상태다.
+- 검증 세션 중 /tmp 에 남아 있던 tracepecter_smoke_* 잔여(초회 실패 경로 흔적)는 그대로다(repo 외부·무해). R4 검증으로 신규 잔여는 발생하지 않았다.
+
+## Reproduction (재검증)
+
+```bash
+cd /mnt/d/devel/에베베/Tracepecter
+git status --short                # 빈 출력(clean) 확인
+git rev-parse HEAD                # 01fa03935b62...
+
+# 최종 상태 재실행
+~/.venvs/tracepecter/bin/python -m pytest                                   # 10 passed
+~/.venvs/tracepecter/bin/python -m src.train --config configs/baseline.yaml --smoke   # exit 0, "smoke ok"
+
+# R1: src/model.py head 스택에서 nn.Sigmoid() 줄 제거 후
+~/.venvs/tracepecter/bin/python -m pytest tests/test_model.py -q            # 2 failed(범위 셀 포함)
+git checkout -- src/model.py
+# R2: src/dataset.py 에서 transforms.Normalize 줄 제거 후
+~/.venvs/tracepecter/bin/python -m pytest tests/test_dataset.py::test_transform_resizes_and_normalizes -q   # 1 failed
+git checkout -- src/dataset.py
+# R3: src/train.py build_loss 의 nn.BCELoss() 를 nn.MSELoss() 로 변경 후
+~/.venvs/tracepecter/bin/python -m pytest tests/test_train_smoke.py::test_loss_is_binary_cross_entropy -q  # 1 failed
+git checkout -- src/train.py
+# R4: src/train.py 의 labels.to(probabilities.dtype) 를 labels 로 되돌린 후
+~/.venvs/tracepecter/bin/python -m pytest tests/test_train_smoke.py -q      # 2 failed (dtype)
+git checkout -- src/train.py
+git status --short                # 빈 출력
+```
 ```

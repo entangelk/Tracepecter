@@ -46,6 +46,7 @@ Training skeleton 생성
 - `--smoke` 플래그: 실데이터 부재 시에도 완료 확인 명령이 동작하도록, tiny synthetic dataset(8장)을 생성해 1 epoch 실행한다(§35 thin-slice 원칙). 원래 완료 확인 문구에서 `--smoke` 없이 적었던 것은 실데이터 경로가 존재해야 성립하는 조건이라 정정했다.
 - `model.encoder: stub`: P00 skeleton 은 임시 경량 encoder. 실제 SigLIP/DINO encoder 연결은 P02(§27 Phase 2).
 - venv 는 WSL2 의 /mnt/d(9p) I/O 병목을 피해 ext4 경로 `~/.venvs/tracepecter` 에 생성했다. P00 은 CPU torch wheel 사용 — CUDA 빌드 전환 여부는 P02 에서 GPU 학습 시점에 결정한다.
-- 구현 완료 상태(2026-10-07): pytest 9 passed, CLI smoke 정상 종료, `configs/baseline.yaml` 파싱 성공. 페이즈 Complete 처리는 독립검증(`docs/verifications/`) 합격 후 한다.
+- 구현 완료 상태(2026-10-07): CLI smoke 정상 종료, `configs/baseline.yaml` 파싱 성공, pytest 10 passed.
+- 독립검증: 초회 합격(blocking 0건, hardening 7건) → 보강 → 재검증 합격(2026-10-07). 기록: `docs/verifications/2026-10-07/p00_initialization.md`. 페이즈 Complete 처리 완료.
 - §24 잎 노드의 위상 위임(검증 H5): `scripts/*.py`는 P01, `src/evaluate.py`·`experiments/` 하위는 P02, `configs/lora.yaml`은 P04, `configs/inference.yaml`·`api/`·`demo/`는 P07, `data/metadata.csv`는 P01, `reports/` 산출물은 P02/P06에서 생성한다. P00 골격은 디렉터리 + `baseline.yaml`까지만 담당한다.
 - §15 잔여 전처리 op(검증 H3): Center/Random Crop, Minor Crop/Resize, Brightness/Contrast variation은 P02 DataLoader 완성 시점에 구현한다. P00 구현분은 `src/dataset.py` docstring에 명시된 대로 Resize·HorizontalFlip·JPEG 재압축·Normalization이다.
