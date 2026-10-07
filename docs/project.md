@@ -48,7 +48,7 @@ SAM은 객체 영역 분석이나 지역별 artifact 분석을 추가할 때 Pha
 
 초기에는 패션 착용 이미지만 대상으로 한다(소유자 결정 2026-10-07, DB-01).
 
-카테고리는 기존 권장 5개(Shoes/Bags/Cosmetics/Electronics/Furniture)에서 패션 의류 중심으로 축소한다. 1차 후보는 K-Fashion 부위 라벨 기반(상의·하의·아우터·원피스 등)이며, 최종 목록은 P01에서 라벨 분포를 확인한 뒤 확정한다.
+카테고리는 기존 권장 5개(Shoes/Bags/Cosmetics/Electronics/Furniture)에서 패션 의류 중심으로 축소한다. 최종 목록은 K-Fashion 라벨 분포 전수 분석으로 **4개 부위(상의·하의·아우터·원피스)로 확정**했다(2026-10-07 승인 — 대표 부위 우선순위 규칙은 §12 필드 규칙, 분석 근거는 `docs/plan/phase_1_data_pipeline.md`).
 
 카테고리를 제한하는 이유는 일반적인 AI 이미지 탐지보다 문제 범위를 좁혀 빠르게 의미 있는 baseline을 확보하기 위함이다.
 

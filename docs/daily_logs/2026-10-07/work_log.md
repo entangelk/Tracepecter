@@ -103,7 +103,7 @@
   - `scripts/analyze_kfashion_labels.py` (신규) — 라벨 zip 전수 분석 스크립트(stdlib만 사용, 경로 인자 방식). 대표 부위 규칙(원피스>아우터>상의>하의) 분포·look_group 후보 3단 파일명 패턴 비율 포함
   - `docs/project.md` (v1.1 → v1.2) — §12 metadata schema 개정: `product_id` 제거, `parts`·`style`·`look_group`·`prompt_id` 추가, 필드 규칙 명시
   - `src/dataset.py` — docstring의 CSV 컬럼 나열을 §12 v1.2로 갱신(동작 변경 없음)
-  - `tests/test_dataset.py` — fixture 헤더·행을 v1.2 12열로 갱신(스키마 호환성 가드 유지)
+  - `tests/test_dataset.py` — fixture 헤더·행을 v1.2 12열로 갱신 + 12열 리터럴 잠금 셀 추가(독립검증 H1 — 기존 3셀은 read_metadata가 소비하는 5열만 잠금, 나머지 7열은 미잠금이었음)
   - `docs/sot.md` — project.md v1.2 버전 로그 추가
   - `Dockerfile`·`compose.yaml`·`.dockerignore` (신규) — Docker Compose 실행 환경(dev 서비스, /data 읽기전용 마운트, DATA_DIR 오버라이드)
   - `README.md` — Training 방법 Docker 명령으로 교체, Dataset 구성에 카테고리 4부위·DB-02/DB-03 반영
@@ -146,7 +146,6 @@
 
 ## Next steps
 
-- 소유자: P01 계획서 검토·승인 + DB-02(생성기 수단)·DB-03(얼굴 처리) 결정
-- 소유자(진행 중): K-Fashion 원천 이미지 다운로드 완료
-- 작업자(승인 후): P01-02 즉시 착수 가능(이미지 불필요) — 스키마 확정·분석 스크립트 repo 등록·§12 v1.2 갱신
-- 관측(이 머신, 2026-10-07): P00 venv 부재 — P01 코드 슬라이스 착수 시 venv 재구성 필요. `/mnt/f/data` 다운로드 진행 중(원천데이터_1 부분 수신 상태).
+- 소유자(진행 중): K-Fashion 원천 이미지 다운로드 완료 — P01-01(원천 정합 검증)·P01-03(REAL metadata 빌드) 착수 조건
+- P01-04 설계(생성기 5종 구성·VRAM 12GB 적합성 보고) — 본 생성은 GPU 여유 시점에만
+- 관측(이 머신, 2026-10-07): `/mnt/f/data` 다운로드 진행 중(원천데이터_1 부분 수신 상태).

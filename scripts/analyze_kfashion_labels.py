@@ -20,8 +20,10 @@ from collections import Counter
 
 # 대표 부위 우선순위 — docs/plan/phase_1_data_pipeline.md "카테고리 목록 확정 제안"
 PARTS = ("원피스", "아우터", "상의", "하의")
-# 쇼핑몰 출처 3단 파일명(예: LIME_193_00.jpg) — look_group 키 후보 패턴
-MALL_FILENAME = re.compile(r"^[A-Za-z0-9]+_\d+_\d+\.[JjPp][PpNn][Gg]$")
+# 쇼핑몰 출처 3단 파일명(예: LIME_193_00.jpg) — look_group 키 후보 패턴.
+# jpg/jpeg/png 대소문자 무관(독립검증 H4 — 현재 코퍼스는 jpg/JPG 뿐이나
+# P01-03 look_group 생성에서 패턴을 재사용할 경우를 대비).
+MALL_FILENAME = re.compile(r"^[A-Za-z0-9]+_\d+_\d+\.(?:[Jj][Pp][Ee]?[Gg]|[Pp][Nn][Gg])$")
 
 
 def analyze(label_zip: str) -> dict:
@@ -128,6 +130,10 @@ def print_summary(stats: dict) -> None:
         ))
     print(f"\n[파일명 3단 패턴(look_group 후보)] {stats['mall_filename_pattern']} "
           f"({stats['mall_filename_pattern'] / total:.1%})")
+    if stats["part_attr_anomaly"]:
+        print("\n[부위 엔트리 이상] (카테고리 없는 항목 등 — 부위 존재 집계에는 포함)")
+        for key, count in stats["part_attr_anomaly"].items():
+            print(f"  {key}: {count}")
     print("\n[스타일 상위 10]")
     for style, count in list(stats["style_from_label"].items())[:10]:
         print(f"  {style}: {count} ({count / total:.1%})")
