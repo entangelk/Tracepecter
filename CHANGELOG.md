@@ -6,3 +6,4 @@
 | --- | --- | --- |
 | 2026-10-07 | 프로젝트 부트스트랩 — SoT 문서, 페이즈 인덱스, P00 계획서, 결정 브리프 체계 생성 | [2026-10-07 work log](docs/daily_logs/2026-10-07/work_log.md) |
 | 2026-10-07 | [DB-01] Fashion Photo Realism Scorer로 재정의 — REAL 데이터 AIHub K-Fashion 확정, 카테고리 패션 중심 축소 방향 확정 (project.md v1.1) | [2026-10-07 work log](docs/daily_logs/2026-10-07/work_log.md) |
+| 2026-10-07 | P00 구현 — git repo·Python 환경·디렉터리 골격·README·baseline config·학습 skeleton(stub encoder)·회귀 테스트 9종 | [2026-10-07 work log](docs/daily_logs/2026-10-07/work_log.md) |

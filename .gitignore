@@ -54,6 +54,13 @@ Thumbs.db
 *.log
 *.tmp
 
+# 대량 데이터·체크포인트 (P00-01 정책): 원시/처리 이미지와 checkpoint 바이너리는
+# Git 비추적. metadata.csv 등 data/ 의 텍스트 산출물은 추적한다.
+data/raw/
+data/processed/
+data/smoke/
+checkpoints/
+
 # Local W0 analysis output: reproducible from the pinned container sources.
 # artifacts 전역(소유자 결정 2026-08-31): 저기는 생성 동영상 저장 장소다. 폴더 전체를
 # 무시한다. 이미 추적된 showcase 영상·run README는 .gitignore가 건드리지 않으므로

@@ -33,9 +33,18 @@
 - 주요 변경: 코드 없는 문서 변경. K-Fashion 채택에 따른 정의 변경이 governing spec에 반영됨.
 - 효과: P01 상세 계획의 전제(도메인·소스)가 확정됨.
 
+### P00 구현 (P00-01 ~ P00-03)
+
+- 설명: 페이즈 초기화 슬라이스 3개를 구현했다. 소유자 지시에 따라 구현 후 독립검증(서브에이전트 1개) → 검증기록 확인 → 차단/비차단 전부 보강 → 합격까지 진행하는 흐름으로 작업한다.
+- 파일 변경:
+  - P00-01: `.gitignore`(data/raw·data/processed·checkpoints 비추적 정책 추가), `pyproject.toml`(신규 — 메타데이터+pytest 설정), `requirements.txt`(신규 — 의존성 canonical), git init 및 초기 커밋 2건(유저 first commit + docs 부트스트랩)
+  - P00-02: §24 디렉터리 골격(configs/data/scripts/src/experiments/api/demo/checkpoints/reports/tests), `README.md`(§29 필수 항목), `configs/baseline.yaml`(§25 5개 최상위 키 준수)
+  - P00-03: `src/model.py`(StubEncoder + RealismScorer §16 스택 + set_encoder_frozen), `src/dataset.py`(§12 메타데이터 Dataset + §15 transform/JPEG 증강), `src/train.py`(config 구동 학습 루프 + `--smoke`), `tests/test_model.py`·`tests/test_dataset.py`·`tests/test_train_smoke.py`(회귀 가드 9개)
+- 검증: `pytest` 9 passed / `python -m src.train --config configs/baseline.yaml --smoke` 정상 종료(epoch loss 출력 + checkpoint 저장 + "smoke ok") / baseline.yaml 파싱 성공 / venv 내 전 의존성 import 성공.
+
 ## Issues found
 
-- 없음.
+- **BCELoss dtype 불일치 (해결)**: DataLoader 가 python float label 을 float64 로 collate해 `BCELoss` 가 `Found dtype Double but expected Float` 로 실패. `src/train.py` 학습 루프에서 `labels.to(probabilities.dtype)` 로 수정. 발견 경로: 최초 smoke 실행 실패(pytest 2 failed) → 수정 후 9 passed.
 
 ## Decisions
 
@@ -46,9 +55,13 @@
 - 사용자 결정: REAL 데이터 = AIHub K-Fashion 이미지(dataSetSn=51, 약 120만 장, 부위별 rect/polygon 좌표 라벨). 이유: 패션 이미지 대량 확보 + 라벨 활용 가능. 카테고리는 패션 중심으로 축소(목록은 P01에서 확정).
 - 사용자 결정(DB-01, 옵션 A): 도메인을 착용컷 패션으로 재정의. 이유: 크롭 전처리·crop artifact confound를 피하고 데이터 품질·단순성 우선. 상품컷(e-commerce) 도메인은 Phase 2 확장으로 분리.
 - 데이터 접근 상태: AIHub 승인 완료·다운로드 전 → P01 착수 전 소유자 액션 필요.
+- 구현 결정: `--smoke` 플래그 — 실데이터 없이 완료 확인 명령이 동작해야 하므로 tiny synthetic dataset 으로 1 epoch 검증 경로를 만들었다. 페이즈 문서의 완료 확인 문구도 같이 정정.
+- 구현 결정: `model.encoder: stub` — 실제 encoder 연결은 P02 범위(§27 Phase 2 'Vision Encoder 연결'). skeleton 은 구조·파이프라인만 검증.
+- 구현 결정: venv 를 `~/.venvs/tracepecter`(ext4)에 생성하고 CPU torch wheel 로 설치 — WSL2 /mnt/d 9p I/O 병목 회피 + skeleton 단계에는 CUDA 불필요. CUDA 전환은 P02 에서 결정.
 
 ## Next steps
 
-- P00-01~P00-03 착수 (`docs/plan/phase_0_initialization.md`)
+- P00 독립검증(서브에이전트) → 검증기록 확인 → 보강 → 합격 시 P00 Complete 처리
+- 소유자: AIHub K-Fashion 다운로드 (P01 선행 조건)
 - 소유자: AIHub K-Fashion 다운로드 (P01 선행 조건)
 - P01 상세 계획 수립 시: 축소 카테고리 목록 확정, AI 생성기(≥3종) 접근 수단 확인, 얼굴 영역 처리 정책(DB-01 후속 고려사항)

@@ -1,0 +1,24 @@
+# 학습 기본 설정 (project.md §25).
+# model.encoder: stub — P00 skeleton 용 임시 encoder.
+# 실제 SigLIP/DINO encoder 연결은 P02(§27 Phase 2)에서 추가한다.
+model:
+  encoder: stub
+  embedding_dim: 64
+  image_size: 224
+  freeze_encoder: true
+
+training:
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.0001
+
+data:
+  train_csv: data/train.csv
+  val_csv: data/val.csv
+
+augmentation:
+  horizontal_flip: true
+  jpeg_aug: true
+
+output:
+  checkpoint_dir: checkpoints/baseline
