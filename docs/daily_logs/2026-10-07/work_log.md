@@ -140,6 +140,12 @@
 - 잔여 관찰(비차단): 12열 리터럴 고정은 의도된 잠금 — 스키마 v1.3 확장 시 셀·리터럴·§12를 같은 변경으로 갱신. GPU 패스스루 사전 검증 주장은 GPU 점유 정책상 검증자 재현 불가 — P01-04 GPU 서비스 추가 시점 실동작 확인.
 - 기록: `docs/verifications/2026-10-07/p01_plan_schema_docker.md`(초회 조건부 합격 보존 + 재검증 최종 합격).
 
+### (세션 2) 원격 SSH 전환·push (소유자 지시)
+
+- 소유자가 SSH 설정 전환과 push 를 명시적으로 지시했다(2026-10-07). CLAUDE.md §6 "Never push" 는 소유자가 push 시점을 통제하기 위한 규칙이므로 명시적 지시에 의한 push 는 규칙의 의도와 충돌하지 않는다(2026-10-07 P00 세션과 동일한 해석).
+- 이 머신(=P01 작업 머신)은 HTTPS 로 clone 되어 있었다. 기존 SSH 키(`~/.ssh/id_ed25519` 등)로 `ssh -T git@github.com` 인증 성공(entangelk) 확인 → origin URL 을 `git@github.com:entangelk/Tracepecter.git` 로 전환.
+- push: `f3981d1..7628f56 main -> main`(fast-forward, 세션 2 커밋 6건 — P01 계획서·P01-02·독립검증 보강·재검증 기록). push 후 main 과 origin/main 동기화 확인.
+
 
 ## Issues found
 
