@@ -42,6 +42,19 @@
   - P00-03: `src/model.py`(StubEncoder + RealismScorer §16 스택 + set_encoder_frozen), `src/dataset.py`(§12 메타데이터 Dataset + §15 transform/JPEG 증강), `src/train.py`(config 구동 학습 루프 + `--smoke`), `tests/test_model.py`·`tests/test_dataset.py`·`tests/test_train_smoke.py`(회귀 가드 9개)
 - 검증: `pytest` 9 passed / `python -m src.train --config configs/baseline.yaml --smoke` 정상 종료(epoch loss 출력 + checkpoint 저장 + "smoke ok") / baseline.yaml 파싱 성공 / venv 내 전 의존성 import 성공.
 
+### P00 독립검증 결과 반영 (hardening 7건)
+
+- 설명: 독립검증(서브에이전트) 판정 **합격** — blocking 0건, 비차단 hardening 7건. 소유자 지시에 따라 비차단 항목까지 전부 보강했다. 기록: `docs/verifications/2026-10-07/p00_initialization.md`.
+- 보강 내역 (H1~H7):
+  - H1 `tests/test_model.py` — `test_output_is_probability` 를 seed 고정 + 입력 100배 스케일로 결정화(기존 55% 확률 재실패 → 확정 재실패).
+  - H2 `tests/test_dataset.py` — `test_transform_resizes_and_normalizes` 에 Normalize 값 검증 추가(회색 128 → ≈0.0078, 미정규 시 ≈0.502 재실패). 기존 부등호 체인은 Normalize 제거를 흡수했음(M7).
+  - H3 `src/dataset.py` docstring — §15 구현 범위를 P00 분(Resize·HFlip·JPEG·Normalize)으로 정정, 잔여 op 는 P02 위임 명시 + 페이즈 비고 반영.
+  - H4 `src/train.py` — `build_loss()` 추출 + `tests/test_train_smoke.py::test_loss_is_binary_cross_entropy` 로 §16 BCE 리터럴 잠금.
+  - H5 `docs/plan/phase_0_initialization.md` 비고 — §24 잎 노드의 페이즈별 위임 명시.
+  - H6 `docs/plan/00_index.md` 비고 — 의존성 exact pin 재검토를 P02 과제로 등록.
+  - H7 `src/train.py` — smoke 실패 경로에서 임시디렉터리 정리(`except BaseException: rmtree; raise`), `run_training` 분리.
+- 효과: 검증이 지적한 셀 주장↔실제 lock 간 격차 제거. 보강 후 재검증은 동일 검증자에게 요청해 기록을 갱신한다.
+
 ## Issues found
 
 - **BCELoss dtype 불일치 (해결)**: DataLoader 가 python float label 을 float64 로 collate해 `BCELoss` 가 `Found dtype Double but expected Float` 로 실패. `src/train.py` 학습 루프에서 `labels.to(probabilities.dtype)` 로 수정. 발견 경로: 최초 smoke 실행 실패(pytest 2 failed) → 수정 후 9 passed.

@@ -58,9 +58,12 @@ def test_dataset_returns_image_and_float_label(tmp_path):
 
 
 def test_transform_resizes_and_normalizes():
+    """§15 Resize(shape) + Normalization(mean=0.5, std=0.5) 값 검증(검증 H2).
+
+    균일 회색(128)은 Normalize 후 ≈0.0078. Normalize 가 제거되면 ≈0.502 가 나와
+    재실패한다."""
     transform = build_transform(image_size=64, horizontal_flip=False, jpeg_aug=False)
     image = Image.new("RGB", (100, 40), color=(128, 128, 128))
     tensor = transform(image)
     assert tensor.shape == (3, 64, 64)
-    # Normalize(mean=0.5, std=0.5) → 값이 [-1,1] 부근에 머무는지 확인.
-    assert -1.0 <= float(tensor.min()) <= float(tensor.max()) <= 1.0
+    assert abs(float(tensor.mean())) < 0.05

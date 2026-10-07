@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -28,6 +29,11 @@ def load_config(path: str | Path) -> dict:
         return yaml.safe_load(handle)
 
 
+def build_loss() -> nn.Module:
+    """§16: Loss = Binary Cross Entropy."""
+    return nn.BCELoss()
+
+
 def build_smoke_dataset(directory: Path) -> Path:
     """tiny synthetic dataset — 실데이터 없이 전체 파이프라인을 관통시킨다(§35 thin-slice 원칙)."""
     images_dir = directory / "images"
@@ -43,6 +49,53 @@ def build_smoke_dataset(directory: Path) -> Path:
         encoding="utf-8",
     )
     return csv_path
+
+
+def run_training(config: dict, train_csv: str, epochs: int, checkpoint_dir: Path) -> Path:
+    """config 대로 dataset·model·optimizer 를 구성해 학습하고 checkpoint 를 저장한다."""
+    train_dataset = MetadataDataset(
+        train_csv,
+        image_size=config["model"]["image_size"],
+        horizontal_flip=config["augmentation"]["horizontal_flip"],
+        jpeg_aug=config["augmentation"]["jpeg_aug"],
+    )
+    train_loader = DataLoader(
+        train_dataset, batch_size=config["training"]["batch_size"], shuffle=True
+    )
+
+    model = RealismScorer(
+        encoder=build_encoder(config["model"]["encoder"], config["model"]["embedding_dim"]),
+        embedding_dim=config["model"]["embedding_dim"],
+    )
+    set_encoder_frozen(model, frozen=config["model"]["freeze_encoder"])
+
+    optimizer = torch.optim.Adam(
+        (param for param in model.parameters() if param.requires_grad),
+        lr=config["training"]["learning_rate"],
+    )
+    loss_fn = build_loss()
+
+    model.train()
+    for epoch in range(1, epochs + 1):
+        total_loss = 0.0
+        for images, labels in train_loader:
+            optimizer.zero_grad()
+            probabilities = model(images)
+            # DataLoader 가 python float label 을 float64 로 collate 하므로 맞춘다.
+            loss = loss_fn(probabilities, labels.to(probabilities.dtype))
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+        print(f"epoch {epoch}/{epochs} train_loss={total_loss / len(train_loader):.6f}")
+
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = checkpoint_dir / "baseline.pt"
+    torch.save(
+        {"model_state": model.state_dict(), "config": config, "epochs_done": epochs},
+        checkpoint_path,
+    )
+    print(f"checkpoint saved: {checkpoint_path}")
+    return checkpoint_path
 
 
 def main(argv: list[str] | None = None) -> Path:
@@ -65,55 +118,18 @@ def main(argv: list[str] | None = None) -> Path:
 
     if args.smoke:
         smoke_root = Path(tempfile.mkdtemp(prefix="tracepecter_smoke_"))
-        train_csv = str(build_smoke_dataset(smoke_root / "train"))
-        epochs = 1
-        checkpoint_dir = smoke_root / "checkpoints"
-
-    train_dataset = MetadataDataset(
-        train_csv,
-        image_size=config["model"]["image_size"],
-        horizontal_flip=config["augmentation"]["horizontal_flip"],
-        jpeg_aug=config["augmentation"]["jpeg_aug"],
-    )
-    train_loader = DataLoader(
-        train_dataset, batch_size=config["training"]["batch_size"], shuffle=True
-    )
-
-    model = RealismScorer(
-        encoder=build_encoder(config["model"]["encoder"], config["model"]["embedding_dim"]),
-        embedding_dim=config["model"]["embedding_dim"],
-    )
-    set_encoder_frozen(model, frozen=config["model"]["freeze_encoder"])
-
-    optimizer = torch.optim.Adam(
-        (param for param in model.parameters() if param.requires_grad),
-        lr=config["training"]["learning_rate"],
-    )
-    loss_fn = nn.BCELoss()
-
-    model.train()
-    for epoch in range(1, epochs + 1):
-        total_loss = 0.0
-        for images, labels in train_loader:
-            optimizer.zero_grad()
-            probabilities = model(images)
-            # DataLoader 가 python float label 을 float64 로 collate 하므로 맞춘다.
-            loss = loss_fn(probabilities, labels.to(probabilities.dtype))
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
-        print(f"epoch {epoch}/{epochs} train_loss={total_loss / len(train_loader):.6f}")
-
-    checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    checkpoint_path = checkpoint_dir / "baseline.pt"
-    torch.save(
-        {"model_state": model.state_dict(), "config": config, "epochs_done": epochs},
-        checkpoint_path,
-    )
-    print(f"checkpoint saved: {checkpoint_path}")
-    if args.smoke:
-        print("smoke ok")
-    return checkpoint_path
+        try:
+            return run_training(
+                config,
+                train_csv=str(build_smoke_dataset(smoke_root / "train")),
+                epochs=1,
+                checkpoint_dir=smoke_root / "checkpoints",
+            )
+        except BaseException:
+            # 학습 실패 시 임시디렉터리가 남지 않도록 정리 후 재발생(검증 H7).
+            shutil.rmtree(smoke_root, ignore_errors=True)
+            raise
+    return run_training(config, train_csv, epochs, checkpoint_dir)
 
 
 if __name__ == "__main__":

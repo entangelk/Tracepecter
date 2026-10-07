@@ -61,7 +61,11 @@ class RandomJPEG:
 
 
 def build_transform(image_size: int, horizontal_flip: bool, jpeg_aug: bool) -> transforms.Compose:
-    """§15 기본 전처리 + training augmentation. 강한 augmentation 은 사용하지 않는다(§15 주의)."""
+    """§15 전처리 중 P00 구현분: Resize·HorizontalFlip·JPEG 재압축·Normalization.
+
+    Center/Random Crop, Minor Crop/Resize, Brightness/Contrast variation 은
+    P02 DataLoader 완성 시점에 추가한다(검증 H3). 강한 augmentation(blur·heavy noise
+    등)은 §15 주의에 따라 사용하지 않는다."""
     layers: list = [transforms.Resize((image_size, image_size))]
     if horizontal_flip:
         layers.append(transforms.RandomHorizontalFlip())

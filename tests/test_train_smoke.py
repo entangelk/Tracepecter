@@ -9,7 +9,14 @@ import shutil
 import subprocess
 import sys
 
-from src.train import main
+import torch
+
+from src.train import build_loss, main
+
+
+def test_loss_is_binary_cross_entropy():
+    """§16 Loss 리터럴 잠금(검증 H4) — BCELoss 가 아닌 loss 로 교체 시 재실패."""
+    assert isinstance(build_loss(), torch.nn.BCELoss)
 
 
 def test_train_smoke_creates_checkpoint(capsys):

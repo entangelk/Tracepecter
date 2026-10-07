@@ -18,12 +18,16 @@ def _model() -> RealismScorer:
 
 
 def test_output_is_probability():
-    """forward 출력은 [B] shape 이고 모든 값이 [0,1] 범위 (§16 Sigmoid)."""
+    """forward 출력은 [B] shape 이고 모든 값이 [0,1] 범위 (§16 Sigmoid).
+
+    결정성(검증 H1): seed 고정 + 입력 100배 스케일로 로짓을 극단화해,
+    Sigmoid 가 없으면 반드시 [0,1] 밖 값이 관측된다."""
+    torch.manual_seed(0)
     model = _model().eval()
-    images = torch.randn(4, 3, 64, 64)
+    images = torch.randn(8, 3, 64, 64) * 100
     with torch.no_grad():
         output = model(images)
-    assert output.shape == (4,)
+    assert output.shape == (8,)
     assert torch.all(output >= 0.0)
     assert torch.all(output <= 1.0)
 
