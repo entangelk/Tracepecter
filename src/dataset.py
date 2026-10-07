@@ -1,7 +1,8 @@
-"""메타데이터 기반 Dataset — project.md §12 스키마, §15 전처리.
+"""메타데이터 기반 Dataset — project.md §12 스키마(v1.2), §15 전처리.
 
-CSV 컬럼(§12): image_id, path, label, category, source_type, source_domain,
-generator, product_id, split. path 는 CSV 파일이 있는 디렉터리 기준 상대 경로로 해석한다.
+CSV 컬럼(§12 v1.2): image_id, path, label, category, parts, source_type,
+source_domain, generator, style, look_group, prompt_id, split. path 는 CSV 파일이
+있는 디렉터리 기준 상대 경로로 해석한다.
 """
 from __future__ import annotations
 

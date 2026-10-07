@@ -1,0 +1,20 @@
+# Tracepecter 실행 환경 — Docker Compose (소유자 결정 2026-10-07, venv 대체).
+#
+# 사용:
+#   docker compose run --rm dev python -m pytest
+#   docker compose run --rm dev python -m src.train --config configs/baseline.yaml --smoke
+#
+# 데이터셋은 DATA_DIR 환경변수로 지정한 호스트 경로를 /data(읽기 전용)로 마운트한다.
+# /mnt/f(Windows 드라이브)는 9p 로 느리므로 대량 읽기 작업은 서브셋을 ext4 로
+# 복사해 진행한다(P00 venv 교훈과 동일).
+# GPU 서비스(생성·학습)는 P01-04/P02 에서 profile 과 함께 추가한다 — GPU 는
+# 소유자의 다른 AI 작업이 점유 중이므로 필요 시점에만 붙인다.
+services:
+  dev:
+    build: .
+    image: tracepecter/dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ${DATA_DIR:-/mnt/f/data}:/data:ro
+    command: ["python", "--version"]

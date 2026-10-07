@@ -1,6 +1,6 @@
 # DB-03 — 착용컷 이미지의 얼굴 영역 처리 정책
 
-**Status:** Open
+**Status:** Resolved
 **Related phase:** P01 (데이터 설계 전제)
 
 ## Decision needed
@@ -39,3 +39,8 @@ DB-01(옵션 A)로 도메인을 착용컷 패션으로 확정하면서 REAL·AI 
 - 사람 평가 데이터(§21)의 얼굴 관련 설계.
 
 ## Resolution
+
+- 선택: **A(무처리)**
+- 일자: 2026-10-07
+- 근거: 소유자 결정(추천 수용). 얼굴 shortcut 위험은 프롬프트 정합(P01-04) + P06 failure analysis 재검 트리거로 관리한다.
+- 반영: `docs/plan/phase_1_data_pipeline.md`(제외 항목 — "결정 전 어떤 얼굴 전처리도 구현하지 않는다" 조항은 결정으로 소멸, 무처리 확정), `README.md` Known limitations, `docs/decision_briefs/00_index.md`.

@@ -89,6 +89,28 @@
   - `CHANGELOG.md` — 엔트리 추가
 - 효과: 소유자 결정 2건(DB-02·DB-03)과 계획 승인만으로 P01 착수 가능한 상태가 됨. 원천 다운로드와 병렬로 P01-02는 즉시 실행 가능.
 
+### (세션 2) 소유자 결정 — P01 계획 승인·DB-02·DB-03·Docker Compose
+
+- 사용자 결정: P01 계획서 승인(카테고리 4부위 확정 + metadata schema v1.2 포함) → P01 In Progress, P01-02 착수.
+- 사용자 결정(DB-02): 생성기 접근 수단 = 전량 로컬 오픈소스 무비용. 로컬에 Qwen-Image 보유, 필요 시 Z-Image 설치. 5종(train 4 + unseen 1) 구성은 P01-04 설계 시 VRAM 적합성 보고 후 확정. 외부 AI 데이터셋 보완도 허용(라이선스·provenance 확인 조건).
+- 사용자 결정(DB-03): 얼굴 처리 정책 = 옵션 A 무처리. 프롬프트 정합 + P06 재검 트리거로 위험 관리.
+- 사용자 결정(환경 체계): venv 대신 Docker Compose로 전환. 계기: 이 머신에 P00 venv이 없어 재현성 문제를 직접 확인 + 소유자 제안. GPU 패스스루(`--gpus all` 컨테이너에서 3060 인식) 사전 검증 완료. `requirements.txt` 의존성 canonical 유지, Dockerfile이 이를 설치하므로 계약 변경 없음. 도중 venv 재구성을 시작했으나 완료 직후 결정으로 대체됨(설치 잔존물은 무해).
+
+### (세션 2) P01-02 완료 — 카테고리·metadata schema 확정
+
+- 설명: 계획 승인에 따라 P01-02 슬라이스를 수행했다.
+- 파일 변경:
+  - `scripts/analyze_kfashion_labels.py` (신규) — 라벨 zip 전수 분석 스크립트(stdlib만 사용, 경로 인자 방식). 대표 부위 규칙(원피스>아우터>상의>하의) 분포·look_group 후보 3단 파일명 패턴 비율 포함
+  - `docs/project.md` (v1.1 → v1.2) — §12 metadata schema 개정: `product_id` 제거, `parts`·`style`·`look_group`·`prompt_id` 추가, 필드 규칙 명시
+  - `src/dataset.py` — docstring의 CSV 컬럼 나열을 §12 v1.2로 갱신(동작 변경 없음)
+  - `tests/test_dataset.py` — fixture 헤더·행을 v1.2 12열로 갱신(스키마 호환성 가드 유지)
+  - `docs/sot.md` — project.md v1.2 버전 로그 추가
+  - `Dockerfile`·`compose.yaml`·`.dockerignore` (신규) — Docker Compose 실행 환경(dev 서비스, /data 읽기전용 마운트, DATA_DIR 오버라이드)
+  - `README.md` — Training 방법 Docker 명령으로 교체, Dataset 구성에 카테고리 4부위·DB-02/DB-03 반영
+  - `docs/plan/phase_1_data_pipeline.md`·`docs/plan/00_index.md`·`docs/decision_briefs/00_index.md`·DB-02·DB-03 — 결정 해결·P01-02 완료·수치 정정 반영
+- 검증: 스크립트 전수 재실행(967,806 JSON, 오류 0) 결과가 계획서 수치와 일치 — 대표 부위 상의 54.4%/원피스 19.0%/아우터 17.4%/하의 8.9%/라벨없음 0.4%, 부위별 카테고리 21종. 정정 2건: 스타일 스트리트 비중 46.5%→46.4%(반올림), 파일명 3단 패턴 비율을 샘플 기준 42%(접두사 매치)에서 전수 23.1%(3단 패턴 매치)로 교체 — 재현 가능한 스크립트 기준 수치로 통일.
+- 효과: P01 데이터 설계의 전제(카테고리·스키마·생성기·얼굴 정책)가 전부 확정. 다음 슬라이스는 원천 이미지 수신 완료 후 P01-01·P01-03.
+
 
 ## Issues found
 

@@ -1,6 +1,6 @@
 # DB-02 — AI 생성 데이터의 생성기 접근 수단 확정
 
-**Status:** Open
+**Status:** Resolved
 **Related phase:** P01 (P01-04)
 
 ## Decision needed
@@ -39,3 +39,8 @@ Generated 데이터는 최소 3개 이상의 서로 다른 생성 source로 구�
 - 생성 이미지 업스케일·후보정 변형(Hard negative §11의 HYBRID 계열)은 P01 MVP 분량에 포함하지 않는다. P06 이후 개선 분량.
 
 ## Resolution
+
+- 선택: **A(전량 로컬 오픈소스, 무비용)** — 소유자 변형: 보유 모델 중심으로 구성. 로컬에 Qwen-Image 가 이미 있고, 필요 시 Z-Image 를 추가 설치할 수 있다. 5종(train 4 + unseen 1) 구성은 이들 + 무료 오픈소스(SDXL·FLUX.1-schnell 등)에서 P01-04 설계 시 VRAM 12GB 적합성을 보고 확정한다.
+- 일자: 2026-10-07
+- 근거: 소유자 결정 — "돈이 들지 않는 것으로 한다". 추가로 외부 AI 생성 데이터셋 보완 확보도 허용(라이선스·provenance 확인 조건, §8). GPU 실행은 소유자의 다른 AI 작업 종료 후 남는 시간에만(큐잉 금지).
+- 반영: `docs/plan/phase_1_data_pipeline.md` P01-04 전제 해소, `docs/decision_briefs/00_index.md`.

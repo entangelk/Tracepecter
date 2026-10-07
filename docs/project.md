@@ -402,18 +402,23 @@ HYBRID
 
 # 12. 데이터 메타데이터
 
-각 이미지마다 최소 다음 정보를 저장한다.
+각 이미지마다 최소 다음 정보를 저장한다. 스키마 v1.2(2026-10-07, P01 계획 승인) — 상품 가정 필드(`product_id`)를 제거하고 K-Fashion 라벨 구조를 반영했다(`docs/plan/phase_1_data_pipeline.md`).
+
+REAL(K-Fashion):
 
 ```json
 {
-  "image_id": "img_000001",
-  "path": "images/shoes/real/img_000001.jpg",
+  "image_id": "1075886",
+  "path": "images/real/스트리트/REIGN_001_04.jpg",
   "label": 1,
-  "category": "shoes",
+  "category": "상의",
+  "parts": "상의|하의",
   "source_type": "real",
-  "source_domain": "source_a",
+  "source_domain": "kfashion",
   "generator": null,
-  "product_id": "shoe_028",
+  "style": "스트리트",
+  "look_group": "REIGN_001",
+  "prompt_id": null,
   "split": "train"
 }
 ```
@@ -422,17 +427,27 @@ AI 이미지:
 
 ```json
 {
-  "image_id": "img_005821",
-  "path": "images/shoes/generated/img_005821.png",
+  "image_id": "gen_000001",
+  "path": "images/generated/gen_000001.png",
   "label": 0,
-  "category": "shoes",
+  "category": "원피스",
+  "parts": "원피스",
   "source_type": "generated",
   "source_domain": null,
-  "generator": "generator_b",
-  "product_id": null,
+  "generator": "qwen_image",
+  "style": null,
+  "look_group": null,
+  "prompt_id": "p03",
   "split": "train"
 }
 ```
+
+필드 규칙:
+
+- `category` — 대표 부위 1개. 우선순위 원피스 > 아우터 > 상의 > 하의(P01 확정).
+- `parts` — 라벨된(또는 생성 타겟) 전체 부위. CSV에서는 `|` 구분 다중값.
+- `look_group` — 동일 인물·룩 그룹 키(파일명 유래 또는 pHash 클러스터). §13·§14 split 기준.
+- `style` — K-Fashion 스타일 라벨(provenance·편향 분석).
 
 이 metadata를 반드시 유지한다.
 

@@ -10,12 +10,13 @@ from PIL import Image
 from src.dataset import MetadataDataset, build_transform, read_metadata
 
 HEADER = (
-    "image_id,path,label,category,source_type,source_domain,generator,product_id,split\n"
+    "image_id,path,label,category,parts,source_type,source_domain,generator,"
+    "style,look_group,prompt_id,split\n"
 )
 
 
 def _write_dataset(root, count=4):
-    """§12 스키마를 따르는 tiny dataset 을 만들고 metadata.csv 경로를 반환한다."""
+    """§12 v1.2 스키마를 따르는 tiny dataset 을 만들고 metadata.csv 경로를 반환한다."""
     images_dir = root / "images"
     images_dir.mkdir(parents=True)
     lines = [HEADER]
@@ -26,8 +27,12 @@ def _write_dataset(root, count=4):
         )
         source_type = "real" if i % 2 else "generated"
         generator = "" if i % 2 else "gen_a"
+        style = "스트리트" if i % 2 else ""
+        look_group = f"look_{i // 2}" if i % 2 else ""
+        prompt_id = "" if i % 2 else "p01"
         lines.append(
-            f"{image_id},images/{image_id}.png,{i % 2},smoke,{source_type},src,{generator},,train\n"
+            f"{image_id},images/{image_id}.png,{i % 2},smoke,상의|하의,"
+            f"{source_type},src,{generator},{style},{look_group},{prompt_id},train\n"
         )
     csv_path = root / "metadata.csv"
     csv_path.write_text("".join(lines), encoding="utf-8")
