@@ -30,6 +30,12 @@
 - clip_g 완료 처리: HEAD 검증 결과 수신 1,389,382,176B = Content-Length와 일치(전량 수신, v1 다운로더가 마지막 mv만 못 한 상태) → rename + `.done`. 현재 로스터 그래프는 미사용(예비 공통분).
 - 다운로드 재개 확인: qwen_3_4b 청크가 137MB→160MB대로 정상 성장(범위 재개 동작).
 
+### P01-04 z_image_turbo 씨드 생성 완료
+
+- 진행: qwen_3_4b_fp8(5.63GB) 다운로드 완료(4.2MB/s) → ComfyUI 재기동으로 모델 인식 → z_image 그래프 live `/object_info` 검증(노드 10종·`lumina2` type·`res_multistep` sampler 전부 확인) → 생성 실행(~70분).
+- 결과: **124장 + `data/metadata_gen_z_image_turbo.csv` 커밋** — 카테고리 31×4, gen_ID `gen_000125`~`gen_000248`(전역 연속, qwen과 교집합 0), prompt_id 71종, 이미지 샘플 20/20 PIL 정상(832×1216/832×832 혼합). VRAM 12GB에서 int8 DiT+fp8 인코더 구성 안정 확인.
+- sdxl 체이닝: sdxl(6.94GB) 다운로드 완료와 동시에 컨테이너 재기동 → `--start-index 250` 생성 시작(30스텝 dpmpp_2m — z_image보다 장당 소요 큼).
+
 ## Issues found
 
 - 문제: 이 머신 예기치 않은 전원 단절 반복(09-21, 09-24, 10-08 — 이벤트 로그 41+6008 쌍).
