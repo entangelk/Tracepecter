@@ -1,11 +1,11 @@
 
-# Product Photo Realism Scorer
+# Fashion Photo Realism Scorer
 
 ## MVP 개발 작업 계획서
 
 ### 1. 프로젝트 개요
 
-본 프로젝트의 목적은 상품 이미지를 입력받아 해당 이미지가 **실제 제품을 카메라로 촬영한 사진처럼 얼마나 자연스럽게 보이는지**를 점수화하는 비전 모델을 개발하는 것이다.
+본 프로젝트의 목적은 패션 착용 이미지(룩북·스트릿 패션 등 옷을 입은 사람이 담긴 사진)를 입력받아 해당 이미지가 **실제 착용 촬영 사진처럼 얼마나 자연스럽게 보이는지**를 점수화하는 비전 모델을 개발하는 것이다. (도메인 재정의: 소유자 결정 2026-10-07, DB-01)
 
 모델은 이미지가 실제 촬영인지 AI 생성인지 절대적인 사실을 판정하는 forensic detector로 정의하지 않는다. 대신 시각적 사실성에 초점을 맞춰 `Photographic Realism Score`를 출력한다.
 
@@ -28,7 +28,7 @@ MVP에서는 우선 단일 점수만 제공하며, 이후 필요하면 Texture, 
 
 MVP의 핵심 목표는 다음과 같다.
 
-1. 실제 상품 사진과 AI 생성 상품 사진으로 학습 데이터셋 구축
+1. 실제 패션 착용 사진과 AI 생성 패션 사진으로 학습 데이터셋 구축
 2. Pretrained Vision Encoder 기반 baseline 모델 구축
 3. 이미지 입력 → 0~100 Realism Score 출력
 4. 학습에 포함되지 않은 AI 생성 방식에 대한 일반화 성능 측정
@@ -46,24 +46,18 @@ SAM은 객체 영역 분석이나 지역별 artifact 분석을 추가할 때 Pha
 
 ## 대상 이미지
 
-초기에는 상품 이미지만 대상으로 한다.
+초기에는 패션 착용 이미지만 대상으로 한다(소유자 결정 2026-10-07, DB-01).
 
-권장 카테고리는 다음 5개다.
-
-- Shoes
-- Bags
-- Cosmetics
-- Electronics
-- Furniture
+카테고리는 기존 권장 5개(Shoes/Bags/Cosmetics/Electronics/Furniture)에서 패션 의류 중심으로 축소한다. 1차 후보는 K-Fashion 부위 라벨 기반(상의·하의·아우터·원피스 등)이며, 최종 목록은 P01에서 라벨 분포를 확인한 뒤 확정한다.
 
 카테고리를 제한하는 이유는 일반적인 AI 이미지 탐지보다 문제 범위를 좁혀 빠르게 의미 있는 baseline을 확보하기 위함이다.
 
 ## MVP 대상
 
 ```text
-Real Product Photo
+Real Fashion Photo (착용)
         vs
-AI-generated Product Photo
+AI-generated Fashion Photo
 ```
 
 모델 출력은 binary label 자체보다는 다음 값을 중심으로 사용한다.
@@ -103,7 +97,7 @@ MVP에서는 다음 기능을 구현하지 않는다.
 즉 모델은 다음 질문에 답하는 것을 목표로 한다.
 
 ```text
-"이 상품 사진은 실제 제품 촬영처럼 보이는가?"
+"이 패션 사진은 실제 착용 촬영처럼 보이는가?"
 ```
 
 다음 질문에 답한다고 주장해서는 안 된다.
@@ -222,7 +216,7 @@ Generated Images   5,000
 Total             10,000
 ```
 
-카테고리별 데이터가 지나치게 편향되지 않게 구성한다.
+카테고리별 데이터가 지나치게 편향되지 않게 구성한다. 아래 표는 균형 구성의 형태 예시이며, 카테고리 명칭은 P01에서 확정되는 패션 카테고리 목록으로 대체한다.
 
 예:
 
@@ -238,9 +232,9 @@ Total             10,000
 
 # 8. Real 데이터 수집
 
-실제 상품 이미지는 가능한 한 여러 출처를 섞는다.
+실제 데이터는 AIHub K-Fashion 이미지 데이터셋(dataSetSn=51, 약 120만 장, 부위별 rect/polygon 좌표 라벨 포함)으로 확정했다(소유자 결정 2026-10-07, DB-01).
 
-중요한 것은 특정 쇼핑몰의 디자인을 모델이 학습하지 않게 하는 것이다.
+단일 데이터셋 안에서도 수집 스타일 편향을 metadata로 관리한다. 중요한 것은 모델이 realism이 아니라 특정 수집·편집 스타일을 학습하는 것이다.
 
 잘못된 데이터 구성:
 
@@ -251,7 +245,7 @@ AI   → 생성 모델 B
 
 이 경우 모델이 실제성과 AI artifact가 아니라 쇼핑몰 A의 이미지 스타일을 학습할 수 있다.
 
-가능하면 다음과 같이 구성한다.
+다수 출처를 쓰는 경우의 권장 구성(참고):
 
 ```text
 REAL
@@ -264,7 +258,7 @@ Public Dataset
 직접 촬영 / 허용된 이미지
 ```
 
-동일한 상품의 거의 같은 이미지는 train과 test에 동시에 들어가면 안 된다.
+동일 인물·동일 룩의 거의 같은 이미지는 train과 test에 동시에 들어가면 안 된다.
 
 데이터 수집 시 반드시 원본 출처, 라이선스 또는 사용 가능 범위를 기록한다.
 
@@ -300,24 +294,24 @@ Generator D
 예:
 
 ```text
-studio product photography
-commercial product photo
-white background catalog photography
-luxury advertising photography
-natural daylight product photography
-e-commerce listing photography
+street style fashion photography
+lookbook outfit photography
+fashion editorial photography
+casual full-body outfit snapshot
+natural daylight street fashion
+e-commerce model wearing photography
 ```
 
 배경 역시 다양화한다.
 
 ```text
-white studio
-gray studio
+urban street
 indoor
-outdoor
-lifestyle
-high-gloss advertising
-minimal product shot
+outdoor natural
+simple studio backdrop
+lifestyle scene
+high-gloss editorial
+minimal background
 ```
 
 ---
@@ -448,7 +442,7 @@ AI 이미지:
 
 # 13. 중복 제거
 
-인터넷 상품 사진은 동일 이미지 또는 resize/crop 버전이 매우 많다.
+웹에서 수집한 패션 사진은 동일 이미지 또는 resize/crop 버전이 매우 많다.
 
 따라서 train/test leakage 방지를 위해 이미지 중복 제거를 수행한다.
 
@@ -462,7 +456,7 @@ embedding similarity
 
 유사 이미지가 발견되면 동일 그룹으로 묶고 동일 split에 배정한다.
 
-동일 제품의 여러 각도 이미지도 가능하면 동일 split으로 배정한다.
+동일 인물·동일 룩의 여러 컷 이미지도 가능하면 동일 split으로 배정한다.
 
 ---
 
@@ -479,7 +473,7 @@ Test        15%
 단순 random split 대신 다음 기준으로 group split한다.
 
 ```text
-product_id
+동일 인물·룩 그룹
 source
 near-duplicate cluster
 generator
@@ -689,7 +683,7 @@ Unseen Generator ROC-AUC
 단, 수치 자체보다 다음 조건을 더 중요하게 본다.
 
 ```text
-실제 상품 카테고리별 성능 편차가 과도하지 않음
+실제 패션 카테고리별 성능 편차가 과도하지 않음
 
 특정 source만 보고 판단하지 않음
 
@@ -708,7 +702,7 @@ MVP 1차 완료 후 200~500쌍 정도의 pairwise dataset을 추가한다.
 
 ```text
 A와 B 중 어느 이미지가
-실제 상품 촬영처럼 더 자연스러운가?
+실제 착용 촬영처럼 더 자연스러운가?
 ```
 
 데이터:
@@ -795,7 +789,7 @@ UI 예:
 ```text
 ┌──────────────────────────────┐
 │                              │
-│        PRODUCT IMAGE         │
+│        FASHION IMAGE         │
 │                              │
 └──────────────────────────────┘
 
@@ -807,7 +801,7 @@ Photographic Realism
 82 / 100
 
 
-실제 상품 촬영과 유사한 이미지입니다.
+실제 착용 촬영과 유사한 이미지입니다.
 ```
 
 UI에는 반드시 다음 성격의 문구를 표시한다.
@@ -822,7 +816,7 @@ UI에는 반드시 다음 성격의 문구를 표시한다.
 # 24. 권장 Repository 구조
 
 ```text
-product-photo-realism/
+tracepecter/
 
 ├── README.md
 ├── requirements.txt
@@ -978,7 +972,7 @@ Dataset split
 Real >= 3,000
 Generated >= 3,000
 
-5개 category 포함
+축소된 패션 category 구성(목록은 P01 확정) 포함
 
 metadata.csv 생성
 
@@ -1385,7 +1379,7 @@ Realism Scorer
 
 이 프로젝트를 외부에 설명할 때는 `AI Image Detector`보다는 다음과 같이 정의한다.
 
-> Product Photo Realism Scorer는 상품 이미지가 실제 제품 촬영 사진과 얼마나 유사한 시각적 특성을 가지는지 평가하는 vision model이다. 실제 촬영 여부를 증명하는 forensic detector가 아니라, 상품 이미지의 photographic realism을 연속적인 score로 평가하는 것을 목표로 한다.
+> Fashion Photo Realism Scorer는 패션 착용 이미지가 실제 착용 촬영 사진과 얼마나 유사한 시각적 특성을 가지는지 평가하는 vision model이다. 실제 촬영 여부를 증명하는 forensic detector가 아니라, 패션 이미지의 photographic realism을 연속적인 score로 평가하는 것을 목표로 한다.
 
 이 정의를 README, Demo, Portfolio 설명에 동일하게 사용한다.
 
@@ -1412,6 +1406,6 @@ Frozen encoder baseline
 
 첫 번째 milestone은 다음 한 문장으로 정의한다.
 
-> 상품 이미지 1장을 넣으면 학습된 모델이 0~100 Photographic Realism Score를 반환하고, 별도의 test dataset에서 baseline metric을 확인할 수 있다.
+> 패션 착용 이미지 1장을 넣으면 학습된 모델이 0~100 Photographic Realism Score를 반환하고, 별도의 test dataset에서 baseline metric을 확인할 수 있다.
 
 이 상태가 만들어지면 이후 작업은 데이터 품질과 일반화 성능을 개선하는 반복 과정으로 진행한다.
