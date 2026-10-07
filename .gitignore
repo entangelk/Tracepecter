@@ -1,0 +1,65 @@
+# Agent / local assistant state
+.agents/
+.claude/
+.codex/
+.serena/
+.guides/
+*.guides/
+guides/
+docs/guides/*
+CLAUDE.md
+AGENTS.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment / local config
+.env
+.env.*
+!.env.example
+!.env.compose.example
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Frontend. node_modules and the bundle are build output; package-lock.json and
+# the generated src/api/schema.d.ts ARE committed (the image build has no Python
+# to regenerate the schema from the FastAPI app).
+node_modules/
+*.tsbuildinfo
+frontend/openapi.json
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs / temporary files
+*.log
+*.tmp
+
+# Local W0 analysis output: reproducible from the pinned container sources.
+# artifacts 전역(소유자 결정 2026-08-31): 저기는 생성 동영상 저장 장소다. 폴더 전체를
+# 무시한다. 이미 추적된 showcase 영상·run README는 .gitignore가 건드리지 않으므로
+# 그대로 남는다. 이제 새 run의 텍스트 근거(README 등)도 기본 무시되므로 남기려면
+# 명시적으로 git add -f로 추적해야 한다.
+artifacts/
+
+# 리서치 레퍼런스 데이터(비교 이미지·수치·검사 스크립트 원자료) — 로컬 보관, Git 비추적
+docs/research/research_reference_data/
