@@ -55,9 +55,21 @@
   - H7 `src/train.py` — smoke 실패 경로에서 임시디렉터리 정리(`except BaseException: rmtree; raise`), `run_training` 분리.
 - 효과: 검증이 지적한 셀 주장↔실제 lock 간 격차 제거. 보강 후 재검증은 동일 검증자에게 요청해 기록을 갱신한다.
 
+### 보강 가드 self-mutation 확인 (커밋 후 실시)
+
+절차: 커밋 후 `git status --short` clean 확인 → mutate → 해당 셀만 실행 → 재실패 확인 → `git checkout -- <path>` 복원 → clean 확인. 최종 전체 스위트 10 passed.
+
+| mutation | 적용 위치 | 재실패한 셀 |
+| --- | --- | --- |
+| M1' head 스택에서 `nn.Sigmoid()` 제거 | `src/model.py` (head) | `test_output_is_probability` (확정 — H1 결정화 확인) |
+| M7' `transforms.Normalize` 제거 | `src/dataset.py` (build_transform) | `test_transform_resizes_and_normalizes` (확정 — H2 잠금 확인) |
+| M-BCE `build_loss()` → `nn.MSELoss()` | `src/train.py` (build_loss) | `test_loss_is_binary_cross_entropy` (확정 — H4 잠금 확인) |
+
 ## Issues found
 
 - **BCELoss dtype 불일치 (해결)**: DataLoader 가 python float label 을 float64 로 collate해 `BCELoss` 가 `Found dtype Double but expected Float` 로 실패. `src/train.py` 학습 루프에서 `labels.to(probabilities.dtype)` 로 수정. 발견 경로: 최초 smoke 실행 실패(pytest 2 failed) → 수정 후 9 passed.
+- **H7 재구성 회귀 (해결)**: `run_training` 분리 중 `smoke ok` 출력이 누락되어 CLI 계약 셀 2개(`test_train_smoke_creates_checkpoint`·`test_train_cli_command_runs_clean`) 재실패 — 보강 변경 자체의 회귀를 기존 가드가 포착한 사례. 출력 복원 커밋으로 해결, 10 passed.
+- **프로세스 교훈**: `pytest | tail` 파이프로 exit code 가 가려진 채 실패 상태에서 커밋이 진행됨(직후 발견·수정). 이후 pytest 실행은 exit code 를 명시적으로 확인한다.
 
 ## Decisions
 
