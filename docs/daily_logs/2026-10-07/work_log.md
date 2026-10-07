@@ -237,3 +237,14 @@
 - **환경 제약 발견 — WSL에서 Windows python 직접 기동 불가**: OPENSSL_Applink 크래시. 1차 원인은 Windows 사용자 env의 `SSLKEYLOGFILE`(OneDrive 경로) — 소유자 bat이 `set SSLKEYLOGFILE=`로 지우는 이유. 값을 지워도(quoted set) `start /b`의 stdio 상속 등 WSL 런칭 맥락에서 재현 → schtasks/WMIC 전환은 권한 분류기가 거부(persistence). **해결: ComfyUI를 Docker GPU 서비스로 구동** — `Dockerfile.comfyui`(소유자 설치와 동일 커밋 fa98a189 클론 + `docker/viggle_turbo.py` 복사), compose `comfyui` 서비스(gpu profile, 모델 ro 마운트). GPU 패스스루는 본 세션 초반 이미 검증.
 - `generate_ai.py` 워크플로우 정정(노드 소스 직접 확인): `ViggleTurboSigmas`는 `latent` 입력 필수·파라미터명 `nodes`, LoRA는 런타임 노드 `ViggleTurboLora`(int8 weight-merge 손실 방지 — 노드 docstring 근거). Z-Image 그래프는 ComfyUI v0.38 blueprint에서 추출(CLIPLoader type=lumina2·ModelSamplingAuraFlow shift 3·KSampler 8step cfg1).
 - P01-07 선행: REAL 3,000장(`--per-category 750`) 빌드+dedup를 detached로 실행(첫 시도는 백그라운드 태스크가 조용히 죽어 setsid 재실행). 씨드 500 상태는 git 이력에 보존.
+
+### (세션 4) 야간 결함 발견·수정 — extract_images setdefault 함정 + REAL 3,000 완료
+
+- 문제: REAL 3,000장 빌드가 세 차례 "죽은 것처럼" 보임(스캔 83% 지점 정지). 관측형 재실행(-u·faulthandler·단계 로그)으로 진단 — 프로세스는 state=R로 CPU만 소진(680초+), I/O 정지. py-spy는 ptrace 권한 불가 → /proc 진단으로 원인 특정.
+- 원인: `scripts/build_metadata.py`의 `open_zips.setdefault(zip_path, zipfile.ZipFile(zip_path))` — setdefault의 default 인자가 **매 반복마다 평가**되어, 캐시가 있어도 이미지마다 ZipFile을 새로 열고 중앙 디렉터리(최대 45만 엔트리)를 재파싱. 3,000장 기준 수 시간짜리 CPU 낭비. 씨드 500장은 이 defect로도 ~35분에 끝나 위장됐었다.
+- 수정: 경로당 1회 lazy open(`if zip_path not in open_zips`). 가드: `test_extract_images_opens_each_zip_once`(ZipFile 인스턴스화 카운트 잠금). mutation 입증: setdefault형 재주입 → 가드 확정 재실패(1 failed) → 복원 clean. 커밋 d6a3c2f.
+- 결과: 수정본 파이프라인 즉시 완료 — REAL 3,000장(750×4) look_group 100%, 근사중복 55클러스터, 이미지 샘플 60/60 정상. 커밋 7e07636.
+- 환경: 원천 zip 3개(60GB)를 ext4(~/data/kfashion_zips)로 복사해 9p 병목 제거. 라벨 zip도 /tmp 복사본 사용.
+- ComfyUI 이미지: torch 2.5.1 베이스에서 v0.38 코드가 `torch.library` schema 미지원으로 크래시 → torch 2.9.0-cuda12.8 베이스로 재빌드(커밋 4ea5758).
+- 구현 결정(자율): Playground v2.5 단일 체크포인트가 실측 13.9GB(fp16)로 12GB VRAM 초과 — fp8 미러 부재 확인. **--lowvram 스트리밍으로 로스터 유지**하고 성능 노트만 남김(소유자 승인 로스터 변경 없이 진행). 아침 리뷰 사항으로 기록.
+- 다운로더 강화: 청크 재개(-C -)·타임아웃 4시간·스톨 감지(curl --speed-time). 스톨된 clip_g 단일 스트림도 resume 교체.
