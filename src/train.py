@@ -119,7 +119,7 @@ def main(argv: list[str] | None = None) -> Path:
     if args.smoke:
         smoke_root = Path(tempfile.mkdtemp(prefix="tracepecter_smoke_"))
         try:
-            return run_training(
+            checkpoint_path = run_training(
                 config,
                 train_csv=str(build_smoke_dataset(smoke_root / "train")),
                 epochs=1,
@@ -129,6 +129,8 @@ def main(argv: list[str] | None = None) -> Path:
             # 학습 실패 시 임시디렉터리가 남지 않도록 정리 후 재발생(검증 H7).
             shutil.rmtree(smoke_root, ignore_errors=True)
             raise
+        print("smoke ok")
+        return checkpoint_path
     return run_training(config, train_csv, epochs, checkpoint_dir)
 
 
