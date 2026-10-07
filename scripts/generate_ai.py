@@ -152,7 +152,7 @@ def build_workflow_qwen_image_21(prompt: str, seed: int, width: int, height: int
         "2": {"class_type": "ViggleTurboLora", "inputs": {"model": ["1", 0], "lora_name": "Qwen-Image-2.1-viggle-turbo-v0.3-6step-lora-r128.safetensors", "strength": 1.0}},
         "3": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen3vl_8b_int8_convrot.safetensors", "type": "qwen_image", "device": "default"}},
         "4": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_2.1_vae_bf16.safetensors"}},
-        "5": {"class_type": "TextEncodeQwenImage21", "inputs": {"text": prompt, "clip": ["3", 0], "vae": ["4", 0]}},
+        "5": {"class_type": "TextEncodeQwenImage21", "inputs": {"prompt": prompt, "negative_prompt": "", "resolution": 1024, "clip": ["3", 0], "vae": ["4", 0]}},
         "6": {"class_type": "EmptySD3LatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
         "7": {"class_type": "ViggleTurboSigmas", "inputs": {"latent": ["6", 0], "nodes": "1.0, 0.9375, 0.875, 0.75, 0.5, 0.25"}},
         "8": {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler"}},
@@ -174,7 +174,7 @@ def build_workflow_z_image_turbo(prompt: str, seed: int, width: int, height: int
         "33": {"class_type": "ConditioningZeroOut", "inputs": {"conditioning": ["27", 0]}},
         "13": {"class_type": "EmptySD3LatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
         "11": {"class_type": "ModelSamplingAuraFlow", "inputs": {"shift": 3, "model": ["28", 0]}},
-        "3": {"class_type": "KSampler", "inputs": {"seed": seed, "control_after_generate": "fixed", "steps": 8, "cfg": 1.0, "sampler_name": "res_multistep", "scheduler": "simple", "denoise": 1.0, "model": ["11", 0], "positive": ["27", 0], "negative": ["33", 0], "latent_image": ["13", 0]}},
+        "3": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": 8, "cfg": 1.0, "sampler_name": "res_multistep", "scheduler": "simple", "denoise": 1.0, "model": ["11", 0], "positive": ["27", 0], "negative": ["33", 0], "latent_image": ["13", 0]}},
         "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["29", 0]}},
         **_save_tail("8"),
     }
@@ -188,7 +188,7 @@ def build_workflow_sdxl(prompt: str, seed: int, width: int, height: int) -> dict
         "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["1", 1]}},
         "3": {"class_type": "CLIPTextEncode", "inputs": {"text": negative, "clip": ["1", 1]}},
         "4": {"class_type": "EmptyLatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
-        "5": {"class_type": "KSampler", "inputs": {"seed": seed, "control_after_generate": "fixed", "steps": 30, "cfg": 6.0, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1.0, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
+        "5": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": 30, "cfg": 6.0, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1.0, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
         "6": {"class_type": "VAEDecode", "inputs": {"samples": ["5", 0], "vae": ["1", 2]}},
         **_save_tail("6"),
     }
@@ -202,7 +202,7 @@ def build_workflow_playground_25(prompt: str, seed: int, width: int, height: int
         "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["1", 1]}},
         "3": {"class_type": "CLIPTextEncode", "inputs": {"text": negative, "clip": ["1", 1]}},
         "4": {"class_type": "EmptyLatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
-        "5": {"class_type": "KSampler", "inputs": {"seed": seed, "control_after_generate": "fixed", "steps": 30, "cfg": 3.0, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1.0, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
+        "5": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": 30, "cfg": 3.0, "sampler_name": "dpmpp_2m", "scheduler": "karras", "denoise": 1.0, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
         "6": {"class_type": "VAEDecode", "inputs": {"samples": ["5", 0], "vae": ["1", 2]}},
         **_save_tail("6"),
     }
@@ -216,7 +216,7 @@ def build_workflow_sd35_medium(prompt: str, seed: int, width: int, height: int) 
         "2": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["1", 1]}},
         "3": {"class_type": "CLIPTextEncode", "inputs": {"text": negative, "clip": ["1", 1]}},
         "4": {"class_type": "EmptySD3LatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
-        "5": {"class_type": "KSampler", "inputs": {"seed": seed, "control_after_generate": "fixed", "steps": 28, "cfg": 4.5, "sampler_name": "dpmpp_2m", "scheduler": "sgm_uniform", "denoise": 1.0, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
+        "5": {"class_type": "KSampler", "inputs": {"seed": seed, "steps": 28, "cfg": 4.5, "sampler_name": "dpmpp_2m", "scheduler": "sgm_uniform", "denoise": 1.0, "model": ["1", 0], "positive": ["2", 0], "negative": ["3", 0], "latent_image": ["4", 0]}},
         "6": {"class_type": "VAEDecode", "inputs": {"samples": ["5", 0], "vae": ["1", 2]}},
         **_save_tail("6"),
     }
@@ -255,7 +255,7 @@ def check_server(base_url: str) -> dict:
     return {"system": stats["system"], "nodes_available": len(known), "object_info_keys": known}
 
 
-def run_job(base_url: str, workflow: dict, poll_interval: float = 2.0, timeout: float = 600.0) -> list[dict]:
+def run_job(base_url: str, workflow: dict, poll_interval: float = 2.0, timeout: float = 1800.0) -> list[dict]:
     """작업 제출 → 완료 대기 → 결과 이미지 메타 반환(다운로드는 caller)."""
     client_id = str(uuid.uuid4())
     result = api_post(base_url, "/prompt", {"prompt": workflow, "client_id": client_id})
