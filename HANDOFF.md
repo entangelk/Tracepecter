@@ -5,7 +5,7 @@
 ## 현재 상태
 
 - P00(프로젝트 초기화) **Complete** — 독립검증 초회+재검증 합격. 기록: `docs/verifications/2026-10-07/p00_initialization.md`.
-- P01(데이터 파이프라인) **In Progress** — 계획서 승인(2026-10-07), P01-02 완료(카테고리 4부위·metadata schema §12 v1.2 확정). DB-02(생성기=로컬 오픈소스 무비용)·DB-03(얼굴=무처리) Resolved. 라벨링데이터 수신·전수 분석 완료(967,806장).
+- P01(데이터 파이프라인) **In Progress** — 계획서 승인(2026-10-07), P01-02 완료(카테고리 4부위·metadata schema §12 v1.2 확정)·독립검증 재검증 합격([기록](docs/verifications/2026-10-07/p01_plan_schema_docker.md)). DB-02(생성기=로컬 오픈소스 무비용)·DB-03(얼굴=무처리) Resolved. 라벨링데이터 수신·전수 분석 완료(967,806장).
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07, venv 대체) — `Dockerfile`·`compose.yaml`. `docker compose run --rm dev python -m pytest`(10 cells), `... python -m src.train --config configs/baseline.yaml --smoke` 로 검증. 의존성 canonical은 `requirements.txt`.
 - `model.encoder: stub` — 실제 SigLIP/DINO 연결, CUDA 프로파일, §15 잔여 전처리, 의존성 exact pin 은 P02.
 

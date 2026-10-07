@@ -89,6 +89,7 @@ unseen_generator_test 생성
 
 ## 비고
 
+- P01-02 독립검증: 초회 조건부 합격(B1 수치 불일치) → 보강(B1+H1~H6) → 재검증 **합격**(2026-10-07). 기록: `docs/verifications/2026-10-07/p01_plan_schema_docker.md`. §12 v1.2 12열은 테스트 리터럴로 고정 잠금 — 스키마 확장 시 셀·리터럴·§12를 같은 변경으로 갱신한다.
 - 실행 환경: **Docker Compose 체계**(소유자 결정 2026-10-07, venv 대체) — `Dockerfile` + `compose.yaml`. 검증·학습 명령은 `docker compose run --rm dev ...`로 실행한다. `requirements.txt`는 의존성 canonical으로 유지된다. P00의 venv 절차는 P00 머신 기준 역사 기록으로 남는다.
 - **GPU 사용 정책(소유자 지시 2026-10-07)**: RTX 3060은 소유자의 다른 AI 모델 작업이 점유 중이다. 학습·이미지 생성 등 GPU 작업은 그 작업이 끝난 뒤 **남는 시간에만** 수행하고, GPU에 여유가 생기기 전에는 큐에 쌓거나 실행하지 않는다. DB-02의 로컬 생성과 P02 학습 스케줄은 이 제약을 전제로 한다. GPU 서비스(profile)는 필요 시점에 compose에 추가한다.
 - 다운로드 상태(2026-10-07 관측): `/mnt/f/data/K-Fashion 이미지/Training/` — 라벨링데이터.zip 완료, 원천데이터 수신 중(부분 파일 존재). `/mnt/f/data/014.KFashion/03.저작도구`(라벨링 도구)도 수신 완료 — 본 파이프라인에서 불필요.

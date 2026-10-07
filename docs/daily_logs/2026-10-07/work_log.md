@@ -133,6 +133,13 @@
 | MU-A' `style` 컬럼 제거(HEADER+REAL/GEN 행 — 검증자 MU1과 동일 변형) | `tests/test_dataset.py` (HEADER·row) | `test_metadata_fixture_locks_schema_v12_columns` (확정 — H1 셀이 잠금) |
 | MU-B' 헤더에서 `parts`↔`source_type` 순서 교환 | `tests/test_dataset.py` (HEADER) | `test_metadata_fixture_locks_schema_v12_columns` (확정 — 순서 잠금) |
 
+### (세션 2) P01 재검증 결과 — 최종 합격
+
+- 재검증(동일 검증자, 커밋 범위 `b3754fb..78d27c3`): **합격** — B1·H1~H6 전건 해소 확인(계획서 잔여 46.5% 0건), 스크립트 전수 재실행 수치 불변(H4 정규식 확장에도 3단 패턴 224,002/23.1%), 컨테이너 pytest 11 passed(exit 0).
+- 가드 독립 재입증: 검증자가 구현자 self-mutation과 **다른 변형** 3종을 재유도 — RV1 `prompt_id` 컬럼 제거·RV2 13열(`product_id`) 추가·RV3 REAL 행만 `split` 필드 결손 — 전부 신규 잠금 셀 단독 확정 재실패(제거·추가·행 수준 방향 각각 입증).
+- 잔여 관찰(비차단): 12열 리터럴 고정은 의도된 잠금 — 스키마 v1.3 확장 시 셀·리터럴·§12를 같은 변경으로 갱신. GPU 패스스루 사전 검증 주장은 GPU 점유 정책상 검증자 재현 불가 — P01-04 GPU 서비스 추가 시점 실동작 확인.
+- 기록: `docs/verifications/2026-10-07/p01_plan_schema_docker.md`(초회 조건부 합격 보존 + 재검증 최종 합격).
+
 
 ## Issues found
 

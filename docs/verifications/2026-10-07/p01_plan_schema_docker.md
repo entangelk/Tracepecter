@@ -208,3 +208,87 @@ docker compose run --rm dev python -m pytest -q                   # 복원 후 1
 
 # 4) 마크다운 링크 전수 검사(상대 링크 추출 → 파일 존재 확인 스크립트) → 64개 전부 해결
 ```
+
+---
+
+# 재검증 (보강 후) — 2026-10-07, HEAD 78d27c3
+
+초회 판정 **조건부 합격**(B1 1건)의 조건과 hardening H1~H6을 구현자가 보강(`2912777`)하고 work log에 self-mutation 짝표를 반영(`78d27c3`)한 최종 상태에 대한 재검증이다. 초회 판정·수치 대조표·mutation 짝표는 위에 보존되어 있다. 재검증은 P00 관례에 따라 동일 검증자가 본 기록을 갱신한다.
+
+## Subject metadata (재검증)
+
+- 검증 일자: 2026-10-07 (재검증)
+- 검증자: 초회 검증과 동일한 독립 검증 서브에이전트
+- 검증 대상 소스: commit `78d27c3` (HEAD, 범위 `b3754fb..78d27c3`: `2912777` B1+H1~H6 보강, `78d27c3` work log 기록)
+- pre-flight: `git status --short` 빈 출력 — clean tree. mutation 복원에 `git checkout -- <path>` 사용, 복원마다 status 재확인.
+- 제약 준수(재검증 구간): GPU 미사용, `/mnt/f/data` 쓰기 없음, commit/push 없음(본 기록 갱신만).
+
+## B1·H1~H6 해소 확인
+
+| 항 | 확인 방법 | 결과 |
+|---|---|---|
+| B1 계획서 :30 46.5%→46.4% | `git diff b3754fb HEAD -- docs/plan/phase_1_data_pipeline.md` — :30 "스트리트 편중(46.4%)"로 정정, 문서 내 46.5% 잔여 0건(grep 확인) | **해소** |
+| H1 §12 v1.2 12열 리터럴 잠금 셀 | `tests/test_dataset.py:59-72` 신규 셀 `test_metadata_fixture_locks_schema_v12_columns` — `SCHEMA_V1_2_COLUMNS` 리터럴(:18-21, §12 순서 그대로 12열)과 헤더 행 완전 일치 + 데이터 행 필드 수 == 12 검증. 모듈 docstring(:7-9)에 schema 가드 방향 등재. RV1~RV3 mutation(하단)으로 실효성 입증 | **해소** |
+| H2 work log Next steps 재작성 | `docs/daily_logs/2026-10-07/work_log.md` — 스테일 3항(승인 대기·P01-02 착수 대기·venv 재구성) 삭제, 현재 상태 3항(원천 수신 대기·P01-04 설계·다운로드 관측)으로 교체. 머신 로컬 관측 날짜 표기 유지 | **해소** |
+| H3 fixture 값 §12 규약 정합 | `tests/test_dataset.py:43-52` — REAL 행 `1,상의,상의|하의,real,kfashion,,스트리트,look_N,,train`, Generated 행 `0,원피스,원피스,generated,,gen_a,,,p01,train` — §12 예시의 값 규약(label 1/0, source_domain kfashion/공백, generator/스타일/look_group/prompt_id 배치)과 정합. `test_read_metadata_parses_all_rows`(:75-83)의 label 0/1·real/generated 단언도 새 fixture 값과 일치 | **해소** |
+| H4 MALL_FILENAME 확장 | `scripts/analyze_kfashion_labels.py:26` → `^[A-Za-z0-9]+_\d+_\d+\.(?:[Jj][Pp][Ee]?[Gg]|[Pp][Nn][Gg])$` — jpg/jpeg/png 대소문자 무관. 기존 jng/ppg 허위 매치도 소멸. 전수 재실행으로 수치 불변 확인(하단) | **해소** |
+| H5 이상 항목 요약 출력 | `scripts/analyze_kfashion_labels.py:133-136` `[부위 엔트리 이상]` 출력 — 재실행 결과 하의 32,906·상의 29,857·아우터 9,550·원피스 5,441(총 77,754)로 초회 검증자 전수 스캔 수치와 정확히 일치 | **해소** |
+| H6 project.md §3 확정 역참조 | `docs/project.md:51` — 위임형 문구를 "4개 부위(상의·하의·아우터·원피스)로 확정(2026-10-07 승인)" + §12 필드 규칙·계획서 역참조로 대체. §3↔§12↔계획서 체인 완결 | **해소** |
+
+기록 위생: 구현자의 self-mutation 짝표(work log 신규 섹션)는 mutation↔셀 짝을 행 단위로 기록 — records-and-handoff.md의 짝표 규칙 준수.
+
+## Mutation 짝표 (재검증 — 검증자 재유도)
+
+요청대로 구현자 self-mutation(MU-A' `style` 제거·MU-B' `parts`↔`source_type` 헤더 교환)과 **다른 변형**으로 재유도했다. 각 mutation 후 신규 셀만 컨테이너 실행, `git checkout -- tests/test_dataset.py` 복원, `git status --short` 빈 출력 확인.
+
+| Mutation | 방향 | 내용 | 재실패한 셀 | 판정 |
+|---|---|---|---|---|
+| RV1 | under-strict | `prompt_id` 컬럼 제거(HEADER+양 행 템플릿 — 초회 MU1의 `style`과 다른 열) | `test_metadata_fixture_locks_schema_v12_columns`(확정, 단독) | H1 셀이 초회 미잠금 7열 영역을 실제로 잠금 |
+| RV2 | over-strict | 13열 추가(`product_id` 부활 — HEADER+양 행) | `test_metadata_fixture_locks_schema_v12_columns`(확정, 단독) | 열 추가도 거부 — §12 12열 고정 잠금 |
+| RV3 | 행 수준 | 헤더 12열 유지, REAL 행에서만 `split` 필드 제거(행 11필드) | `test_metadata_fixture_locks_schema_v12_columns`(확정, 단독) | 헤더 비교와 무관하게 행 필드 수 검증이 독립 작동 |
+
+## 재실행 수치 (재검증)
+
+- 무결성 재확인: 원본 `/mnt/f/data/K-Fashion 이미지/Training/라벨링데이터.zip` 재해시 = /tmp 복사본 = `63b9fb8a4e94b73cc696c4a595b127e86dc476894a94e5d0f720c8bece708dba`(초회와 동일).
+- 스크립트 전수 재실행(H4 정규식 반영본): **수치 전항목 불변** — JSON 총 967,806·오류 0, 대표 부위 상의 526,450(54.4%)·원피스 183,572(19.0%)·아우터 168,380(17.4%)·하의 85,822(8.9%)·라벨없음 3,582(0.4%), 부위 존재 617,304/557,589/183,572/179,274, 조합 16종·최다 상의+하의 368,336(38.1%), 3단 패턴 **224,002(23.1%) — H4 확장에도 불변(코퍼스에 jpeg/png 부재 재확인)**, 스트리트 449,494(46.4%). 신규 `[부위 엔트리 이상]` 출력 4값(32,906·29,857·9,550·5,441)은 초회 검증자 독립 스캔과 일치.
+- `docker compose run --rm dev python -m pytest -q` → **11 passed, exit 0**(신규 셀 포함, 10→11).
+- 최종 전체 스위트(RV1~RV3 복원 후) 11 passed·exit 0, 트리 clean 재확인.
+
+## Verdict (재검증 최종)
+
+**합격**
+
+- 이유(하중 요인):
+  1. 초회 조건(B1 — 계획서 :30 46.5%)이 정정됐고, 계획서 전체에서 스크립트 재현 수치와 불일치하는 수치는 더 이상 존재하지 않다(전수 재실행 재확인).
+  2. H1~H6이 전부 반영됐고, 신규 스키마 잠금 셀은 검증자가 구현자 self-mutation과 다른 3변형(RV1 컬럼 제거·RV2 13열 추가·RV3 행 수준 필드 결손)으로 재유도해 전부 확정 재실패 — §12 v1.2 12열의 제거·추가·순서·행 불일치 방향이 실제로 잠겼다.
+  3. H4 정규식 확장이 기존 수치를 전혀 흔들지 않음(224,002/23.1% 불변)을 전수 재실행으로 입증했고, H5 이상 항목 출력값이 검증자 독립 스캔과 정확히 일치한다.
+  4. 전체 스위트 11 passed·exit 0, 모든 mutation 복원 후 트리 clean.
+- 잔여 관찰(비차단): RV2가 입증하듯 12열은 리터럴로 고정되어 있어 스키마 v1.3 확장 시 셀·리터럴·§12를 같은 변경으로 갱신해야 한다 — 이는 의도된 잠금 동작이며 조치 불필요.
+
+## Outstanding items (재검증 시점)
+
+- 본 기록의 재검증 섹션 갱신분은 미커밋 상태다(검증자는 커밋 금지). 구현자 검토 후 커밋할 것.
+- 초회 Outstanding과 동일: GPU 패스스루 사전 검증 주장(work log)은 GPU 점유 정책상 검증자 재현 불가 — P01-04 GPU 서비스 추가 시점 실동작 확인. 원천 이미지 다운로드 진행 중(P01-01/P01-03 대기).
+- 검증 산출물(/tmp): 재실행 stdout 로그, RV1~RV3 mutation 실행 로그. 세션 종료 시 소실 무방.
+
+## Reproduction (재검증)
+
+```bash
+cd /mnt/f/devel/Tracepecter
+git status --short                # 빈 출력(clean) 확인
+git rev-parse HEAD                # 78d27c301764...
+
+# B1·H 해소 확인
+grep -n "46.5" docs/plan/phase_1_data_pipeline.md        # 무출력(46.4%로 정정됨)
+docker compose run --rm dev python -m pytest -q; echo $?  # exit 0, 11 passed
+python3 -I scripts/analyze_kfashion_labels.py /tmp/kfashion_labels.zip \
+  | grep -E "3단 패턴|부위 엔트리" -A5                     # 224002(23.1%) 불변 + 이상 4값 출력
+
+# mutation(각 case: git status --short 빈 출력 확인 → edit → 신규 셀만 실행 → git checkout 복원 → clean 확인)
+# RV1: tests/test_dataset.py에서 prompt_id 컬럼 제거(HEADER+양 행) 후
+docker compose run --rm dev python -m pytest tests/test_dataset.py::test_metadata_fixture_locks_schema_v12_columns -q  # 1 failed
+git checkout -- tests/test_dataset.py
+# RV2: HEADER+양 행에 13열(product_id) 추가 후 → 동일 셀 1 failed → 복원
+# RV3: HEADER 유지, REAL 행의 split 필드만 제거(11필드) 후 → 동일 셀 1 failed → 복원
+docker compose run --rm dev python -m pytest -q           # 복원 후 11 passed
+```
