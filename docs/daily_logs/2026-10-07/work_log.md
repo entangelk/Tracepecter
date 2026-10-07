@@ -111,6 +111,28 @@
 - 검증: 스크립트 전수 재실행(967,806 JSON, 오류 0) 결과가 계획서 수치와 일치 — 대표 부위 상의 54.4%/원피스 19.0%/아우터 17.4%/하의 8.9%/라벨없음 0.4%, 부위별 카테고리 21종. 정정 2건: 스타일 스트리트 비중 46.5%→46.4%(반올림), 파일명 3단 패턴 비율을 샘플 기준 42%(접두사 매치)에서 전수 23.1%(3단 패턴 매치)로 교체 — 재현 가능한 스크립트 기준 수치로 통일. 환경 검증: `docker compose run --rm dev` 에서 pytest 10 passed(exit 0) + smoke 정상 종료(checkpoint 저장·"smoke ok") — venv 임시 검증(10 passed) 후 컨테이너 기준 최종 확인.
 - 효과: P01 데이터 설계의 전제(카테고리·스키마·생성기·얼굴 정책)가 전부 확정. 다음 슬라이스는 원천 이미지 수신 완료 후 P01-01·P01-03.
 
+### (세션 2) P01 독립검증(초회) 결과 반영 — B1 정정 + hardening H1~H6
+
+- 설명: 소유자 지시로 독립검증(서브에이전트 1개, 검증 대상 미작성)을 수행했다. 판정 **조건부 합격** — blocking 1건(B1), 비차단 hardening 6건(H1~H6). P00 관례에 따라 비차단 항목까지 전부 보강했다. 기록: `docs/verifications/2026-10-07/p01_plan_schema_docker.md`.
+- 보강 내역:
+  - B1: `docs/plan/phase_1_data_pipeline.md`:30 "스트리트 편중(46.5%)" → 46.4% 정정. 정정 커밋(28189d8)이 :20만 고치고 :30을 누락했던 것.
+  - H1: `tests/test_dataset.py` — §12 v1.2 12열 리터럴 잠금 셀(`test_metadata_fixture_locks_schema_v12_columns`) 추가. 검증자 MU1이 기존 3셀은 소비 5열만 잠금(나머지 7열 미잠금)임을 입증.
+  - H2: work log Next steps 스테일 3항(승인 대기·P01-02 대기·venv 재구성) 재작성.
+  - H3: fixture 값을 §12 규약에 정합(REAL=kfashion/상의/스트리트/look_group, Generated=gen_a/prompt_id).
+  - H4: `scripts/analyze_kfashion_labels.py` MALL_FILENAME 정규식을 jpg/jpeg/png 대소문자 무관으로 확장(현 코퍼스는 jpg/JPG뿐 — 수치 불변 확인).
+  - H5: `part_attr_anomaly`(카테고리 없는 부위 항목 77,754건) stdout 요약 출력 추가.
+  - H6: `docs/project.md` §3 — 카테고리 확정 결과(4부위) 역참조 추가(위임형 문구 대체).
+- 검증(보강 후): 컨테이너 pytest 11 passed(신규 셀 포함) + 분석 스크립트 재실행 수치 불변(3단 패턴 224,002/23.1%, 이상 항목 하의 32,906·상의 29,857·아우터 9,550·원피스 5,441 — 검증자 수치와 일치).
+
+### (세션 2) 보강 가드 self-mutation 확인 (커밋 2912777 후 실시)
+
+절차: 커밋 후 `git status --short` clean 확인 → mutate → 잠금 셀만 컨테이너 실행(`docker compose run --rm dev python -m pytest tests/test_dataset.py::test_metadata_fixture_locks_schema_v12_columns -q`) → 재실패 확인 → `git checkout -- tests/test_dataset.py` 복원 → clean 확인. 최종 전체 스위트 11 passed.
+
+| mutation | 적용 위치 | 재실패한 셀 |
+| --- | --- | --- |
+| MU-A' `style` 컬럼 제거(HEADER+REAL/GEN 행 — 검증자 MU1과 동일 변형) | `tests/test_dataset.py` (HEADER·row) | `test_metadata_fixture_locks_schema_v12_columns` (확정 — H1 셀이 잠금) |
+| MU-B' 헤더에서 `parts`↔`source_type` 순서 교환 | `tests/test_dataset.py` (HEADER) | `test_metadata_fixture_locks_schema_v12_columns` (확정 — 순서 잠금) |
+
 
 ## Issues found
 
