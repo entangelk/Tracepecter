@@ -90,6 +90,12 @@
 - 잔여 관찰 2건(H2 잠금이 mean 중심이라 std 리터럴 변형은 통과·`torch.manual_seed(0)` 전역 RNG)은 검증자가 조치 불필요로 판정 — 기록(`docs/verifications/2026-10-07/p00_initialization.md` §잔여 관찰)에만 유지하고 코드 변경 없음.
 - P00 상태 Complete 처리(`docs/plan/00_index.md`·phase_0 비고).
 
+### GitHub 원격 연결 및 push (소유자 지시)
+
+- 소유자가 `https://github.com/entangelk/Tracepecter.git` 연결과 push 를 명시적으로 지시했다(2026-10-07). CLAUDE.md §6 "Never push" 는 소유자가 push 시점을 통제하기 위한 규칙이므로, 소유자의 명시적 지시에 의한 이번 push 는 규칙의 의도와 충돌하지 않는다. 향후 push 도 소유자 지시 시에만 수행한다.
+- 원격은 이미 origin 으로 등록되어 있었다(HTTPS). HTTPS push 는 credential 부재 + 깨진 VS Code askpass 소켓으로 실패 → SSH key 인증(`ssh -T git@github.com` 성공)을 확인해 origin URL 을 `git@github.com:entangelk/Tracepecter.git` 로 전환 후 `git push -u origin main` 성공(HEAD 10c561d).
+- push 범위: 8개 커밋 전체. `docs/guides/`, `CLAUDE.md`, `AGENTS.md` 는 .gitignore 로 제외(로컬 작업 지침).
+
 ## Next steps
 
 - 소유자: AIHub K-Fashion 다운로드 (P01 선행 조건)
