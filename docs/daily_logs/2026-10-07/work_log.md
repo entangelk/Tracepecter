@@ -5,6 +5,7 @@
 - 프로젝트 부트스트랩: `docs/project.md`를 기준으로 SoT 문서와 초기 페이즈 계획 체계를 구축한다.
 - (세션 2) P01 상세 계획 수립 — 라벨 분포 분석 기반 카테고리 확정 제안, 생성기·얼굴 처리 결정 브리프 작성. 원천 이미지 다운로드와 독립적인 작업만 수행.
 - (세션 3) P01-01 — 원천 이미지 다운로드 완료 확인·정합 검증. 이어 P01-03(REAL 선별·metadata 빌드) 착수.
+- (세션 4·야간 자율) 소유자 지시: "GPU 프리 — 다운로드 다 받으면 결정 기다리지 말고 진행"(2026-10-07 저녁). 생성기 로스터 확정·모델 다운로드·씨드 생성·P01-06 split·가능하면 P01-07 확장까지.
 
 ## Completed work
 
@@ -227,3 +228,12 @@
 - 소유자(진행 중): K-Fashion 원천 이미지 다운로드 완료 — P01-01(원천 정합 검증)·P01-03(REAL metadata 빌드) 착수 조건
 - P01-04 설계(생성기 5종 구성·VRAM 12GB 적합성 보고) — 본 생성은 GPU 여유 시점에만
 - 관측(이 머신, 2026-10-07): `/mnt/f/data` 다운로드 진행 중(원천데이터_1 부분 수신 상태).
+
+### (세션 4) 생성기 로스터 확정·모델 다운로드·ComfyUI 컨테이너 구동로 전환
+
+- 사용자 결정(DB-02 후속): train 4종 = Qwen-Image 2.1(보유·int8+viggle turbo)·Z-Image Turbo·SDXL·Playground v2.5, unseen = SD 3.5 Medium. FLUX.1-schnell은 제외 — Comfy-Org fp8 단일 파일이 17.2GB로 12GB VRAM 초과 + VAE가 BFL 라이선스 게이트(비게이트 미러 없음). GGUF 경로는 커스텀 노드+게이트 VAE 필요해 기각. Playgroud v2.5(비게이트·6GB·CLIP-L/G)로 대체(소유자 승인).
+- 소유자의 로컬 생성 스택 확인(F:\AI): ComfyUI v0.38.0(Windows) + Qwen-Image 2.1 int8 convrot·qwen3vl_8b 인코더·VAE·viggle turbo LoRA 전부 보유 완료 상태. 소유자 핸드오프(2026-10-02)에 6-step turbo 워크플로우 그래프 문서화됨.
+- 모델 다운로드(신규 5종·약 38GB → F:\AI\ComfyUI-models): HF CDN 단일 스트림이 ~1.1MB/s로 throttle → 소유자 pdl.sh 방식(8중 병렬 청크)으로 전환해 ~9MB/s 확보. z_image DiT/VAE·qwen_3_4b_fp8·clip_l/g·sdxl·playground·sd3.5_medium.
+- **환경 제약 발견 — WSL에서 Windows python 직접 기동 불가**: OPENSSL_Applink 크래시. 1차 원인은 Windows 사용자 env의 `SSLKEYLOGFILE`(OneDrive 경로) — 소유자 bat이 `set SSLKEYLOGFILE=`로 지우는 이유. 값을 지워도(quoted set) `start /b`의 stdio 상속 등 WSL 런칭 맥락에서 재현 → schtasks/WMIC 전환은 권한 분류기가 거부(persistence). **해결: ComfyUI를 Docker GPU 서비스로 구동** — `Dockerfile.comfyui`(소유자 설치와 동일 커밋 fa98a189 클론 + `docker/viggle_turbo.py` 복사), compose `comfyui` 서비스(gpu profile, 모델 ro 마운트). GPU 패스스루는 본 세션 초반 이미 검증.
+- `generate_ai.py` 워크플로우 정정(노드 소스 직접 확인): `ViggleTurboSigmas`는 `latent` 입력 필수·파라미터명 `nodes`, LoRA는 런타임 노드 `ViggleTurboLora`(int8 weight-merge 손실 방지 — 노드 docstring 근거). Z-Image 그래프는 ComfyUI v0.38 blueprint에서 추출(CLIPLoader type=lumina2·ModelSamplingAuraFlow shift 3·KSampler 8step cfg1).
+- P01-07 선행: REAL 3,000장(`--per-category 750`) 빌드+dedup를 detached로 실행(첫 시도는 백그라운드 태스크가 조용히 죽어 setsid 재실행). 씨드 500 상태는 git 이력에 보존.
