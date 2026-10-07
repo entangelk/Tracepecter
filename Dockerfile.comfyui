@@ -2,7 +2,7 @@
 # WSL에서 Windows python을 직접 기동하면 OPENSSL_Applink 로 죽는 환경 제약 때문에
 # 컨테이너로 구동한다. 모델은 기존 F:\AI\ComfyUI-models 를 마운트해 재사용.
 # 버전은 소유자 Windows 설치와 동일 계열(v0.38.0 이후 main)로 clone 한다.
-FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+FROM pytorch/pytorch:2.9.0-cuda12.8-cudnn9-runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
