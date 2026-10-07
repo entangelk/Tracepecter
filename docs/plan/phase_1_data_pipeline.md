@@ -56,7 +56,7 @@ DB-01 후속("상품 가정 필드 조정")에 따라 개정했다. `docs/projec
 | P01-01 | 원천 데이터 수신 확인·정합 검증 | 다운로드 완료 | zip 해제(`data/raw/real/` — 선택적 추출로 조정, 비고 참조), 라벨↔이미지 파일명 매핑 검증, 스타일 폴더·개수 정합 보고 | 매핑 불일치 이미지 비율 보고 + 유효 이미지 수 확정 | 완료 (2026-10-07) |
 | P01-02 | 카테고리·metadata schema 확정 | 본 계획서 승인 | `scripts/analyze_kfashion_labels.py` repo 등록, `docs/project.md` §12 v1.2 갱신, 인덱스·SoT 버전 로그 | 스크립트 재실행 결과 = 본 문서 수치와 일치 + §12 개정 반영 | 완료 (2026-10-07) |
 | P01-03 | REAL 선별·metadata 빌드 | P01-01 | `scripts/build_metadata.py`(라벨→행 변환, 부위 층화 샘플링, 씨드 500 우선) | REAL 씨드 500장 행 생성 + 필수 필드 결측 0 + 추출 이미지 검증 (split 배정은 P01-06 — 2026-10-07 문구 정정, 근거는 work log) | 완료 (2026-10-07) |
-| P01-04 | AI 생성 파이프라인 | DB-02(Resolved)·GPU 여유 | `scripts/generate_ai.py`(생성기별 어댑터, §9 프롬프트·배경 변형) | 생성기 ≥3종에서 500장(씨드) 생성 + `prompt_id` 기록 | Planned |
+| P01-04 | AI 생성 파이프라인 | DB-02(Resolved)·GPU 여유 | `scripts/generate_ai.py`(생성기별 어댑터, §9 프롬프트·배경 변형) | 생성기 ≥3종에서 500장(씨드) 생성 + `prompt_id` 기록 | 진행 중 (2026-10-08 — qwen_image_21 씨드 124장 커밋, 잔여 4종 순차 진행) |
 | P01-05 | 중복 제거·그룹핑 | P01-03 | `scripts/deduplicate.py`(pHash 1차 — embedding 유사도는 P02+ 위임, 비고 참조) | 근사중복 클러스터링 결과로 `look_group` 채움(동일 그룹 → 동일 split 배정 검증은 P01-06이 소관 — 2026-10-07 문구 정정) | 완료 (2026-10-07) |
 | P01-06 | Dataset split | P01-03·P01-04·P01-05 | `scripts/split_dataset.py`(§14 group split: look_group·generator·source_domain + unseen generator test) | train/val/test 70/15/15 + Test B(unseen) 구성 파일 + 그룹 누출 검사 통과 | Planned |
 | P01-07 | 전체 규모 확장·완료 확인 | P01-06 | Real ≥3,000 + Generated ≥3,000, `metadata.csv` 최종화 | §27 Phase 1 완료 조건 전부 충족 보고 | Planned |

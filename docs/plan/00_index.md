@@ -15,7 +15,7 @@
 
 ## 비고
 
-- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인, P01-02 완료).
+- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
 - `docs/project.md` §35의 thin-slice 원칙에 따라, P02는 P01 전체 완료 전에도 씨드 데이터(1,000장 규모)로 착수할 수 있다. P01은 병렬로 규모 확장을 계속한다.
 - 페이즈 상태·선행 조건·완료 근거가 바뀌면 본 인덱스와 해당 페이즈 문서를 같은 변경에서 함께 갱신한다. 규칙: `docs/guides/phase-and-decision-briefs.md`.
 - 의존성 exact pin 재검토는 P02 실학습 환경 확정 시 수행한다(2026-10-07 P00 검증 H6 — 현재 `>=` 하한만 고정).
