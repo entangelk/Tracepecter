@@ -175,6 +175,20 @@
   - 이미지 실제 저장은 ext4(`~/data/tracepector/images`), repo `data/images` 심볼릭 링크 연결(9p 회피). path 컬럼은 CSV 디렉터리 기준 상대 경로 계약 유지.
   - 라벨 zip /mnt/f 직접 스캔은 수십 분 소요 — 재실행 시 ext4 복사본 사용(계획서 비고 기록).
 
+### (세션 3) P01-05 완료 — 근사중복 제거·룩 그룹핑(씨드 500)
+
+- 설명: pHash 기반 근사중복 클러스터링으로 씨드 500장의 look_group을 100% 채웠다.
+- 파일 변경:
+  - `scripts/deduplicate.py` (신규) — 64-bit DCT pHash(PIL+numpy, 외부 의존성 없음)·해밍 거리 union-find 클러스터링·look_group 채움(기존 파일명 그룹 우선·클러스터 내 기존 그룹 채택·없으면 `phash_<k>` 발급)
+  - `tests/test_deduplicate.py` (신규) — 회귀 가드 3셀(동일·밝기변형 클러스터링 / 빈 그룹 채움·채택·보존 / 이질 이미지 병합 금지)
+  - `data/metadata_real.csv` — look_group 371개 셀 갱신(129→500 커버)
+- 실행 결과: 500장 → 499 클러스터(복수 멤버 1: `Forme_351`에 빈 그룹 채택). 같은 룩이 스타일 폴더 이중 라벨링된 `cocobenny_019`(로맨틱+모던 2장)도 동일 그룹 — 무그룹이었으면 split 누출이 될 사례.
+- 검증: 컨테이너 pytest 18 passed(신규 3셀). CSV 무결성(500행·12열, look_group 컬럼만 변경 — git diff 371 줄 치환 확인).
+- 구현 결정:
+  - embedding 유사도 층(§13)은 실제 encoder 연결(P02+) 시점으로 위임 — stub encoder로 유의미한 유사도 불가. pHash는 근사동일만 커버, 포즈가 다른 동일 룩은 파일명 그룹이 보완.
+  - "동일 그룹 split 배정 검증"은 P01-06 소관으로 문구 정정(슬라이스 책임 분리 — P01-03과 동일 패턴).
+  - pHash 구현은 in-repo(외부 imagehash 의존성 미추가) — requirements.txt 변경 없음.
+
 
 ## Issues found
 
