@@ -70,15 +70,13 @@ class RandomJPEG:
 def build_transform(image_size: int, horizontal_flip: bool, jpeg_aug: bool,
                     minor_crop: bool = False, color_jitter: bool = False) -> transforms.Compose:
     """§15: 약한 train augmentation, 평가에는 결정적 resize/정규화만 적용."""
-    layers: list = []
+    layers: list = [transforms.Resize((image_size, image_size),
+                    interpolation=transforms.InterpolationMode.BICUBIC)]
     if minor_crop:
         layers.append(transforms.RandomResizedCrop(
             image_size, scale=(0.95, 1.0), ratio=(0.95, 1.05),
             interpolation=transforms.InterpolationMode.BICUBIC,
         ))
-    else:
-        layers.append(transforms.Resize((image_size, image_size),
-                      interpolation=transforms.InterpolationMode.BICUBIC))
     if color_jitter:
         layers.append(transforms.ColorJitter(brightness=0.05, contrast=0.05))
     if horizontal_flip:

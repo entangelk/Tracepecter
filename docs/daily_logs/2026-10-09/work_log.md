@@ -86,3 +86,7 @@
 - 공식 pretrained 가중치 로드 성공(vision 차원 768, vision 누락 key 없음; 원본의 text_model/logit key는 vision-only 로딩에서 제외). 모델 revision을 `7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed`로 고정했다.
 
 - 최종 CUDA 환경 전체 **34 passed**(기존 Pillow 경고 12건), CPU exact pin 이미지 빌드도 성공. 실학습 provenance를 고정하기 위해 구현·계획·결정을 먼저 커밋한 뒤 실험을 실행한다. 이는 mutation 검증용 커밋이 아니며 mutation은 수행하지 않는다.
+
+- CPU exact pin 환경도 전체 34 passed. Python 3.12에서 2-worker DataLoader가 멀티스레드 fork 경고를 내므로 학습/평가 worker를 spawn으로 명시하고 smoke는 worker 0으로 고정한다. CUDA 초기화 후 fork도 피하는 동일 원인의 국소 보강이다.
+
+- 전처리 검토 보강: 세로 원본에 square RandomResizedCrop을 바로 적용하면 fallback 중앙 crop이 면적 5% 제한을 벗어날 수 있다. SigLIP의 square resize 후 약한 crop을 적용하도록 순서를 수정하고 세로 이미지 회귀 가드를 추가했다.

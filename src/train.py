@@ -79,7 +79,8 @@ def run_training(config: dict, train_csv: str, epochs: int, checkpoint_dir: Path
         raise ValueError("train and validation datasets must be nonempty")
     loader_options = dict(batch_size=config["training"]["batch_size"],
                           num_workers=config["training"].get("num_workers", 0),
-                          pin_memory=device.startswith("cuda"))
+                          pin_memory=device.startswith("cuda"),
+                          multiprocessing_context="spawn" if config["training"].get("num_workers", 0) else None)
     train_loader = DataLoader(train_dataset, shuffle=True, **loader_options)
     val_loader = DataLoader(val_dataset, **loader_options)
     encoder = build_encoder(mc["encoder"], mc.get("embedding_dim", 64), mc.get("model_id"), mc.get("revision"))
@@ -179,7 +180,7 @@ def main(argv: list[str] | None = None) -> Path:
         smoke_root = Path(tempfile.mkdtemp(prefix="tracepecter_smoke_"))
         config = copy.deepcopy(config)
         config["model"].update(encoder="stub", embedding_dim=64)
-        config["training"]["device"] = "cpu"
+        config["training"].update(device="cpu", num_workers=0)
         smoke_csv = str(build_smoke_dataset(smoke_root / "train"))
         config["data"] = {"train_csv": smoke_csv, "val_csv": smoke_csv}
         try:

@@ -12,7 +12,7 @@ import torch
 from PIL import Image
 from transformers import SiglipVisionConfig, SiglipVisionModel
 
-from src.dataset import MetadataDataset
+from src.dataset import MetadataDataset, build_transform
 from src.model import RealismScorer, SiglipEncoder, build_encoder, set_encoder_frozen
 from src.evaluate import binary_metrics, evaluation_indices
 from src.train import run_training
@@ -164,3 +164,14 @@ def test_resume_matches_uninterrupted_training(tmp_path):
     changed = dict(config, training=dict(config['training'], learning_rate=0.02))
     with pytest.raises(ValueError, match='same config'):
         run_training(changed, str(path), 3, tmp_path / 'resumed', resume=True)
+
+
+def test_minor_crop_resizes_before_sampling():
+    """세로 착용컷의 과도한 중앙 crop을 막고 정상 약한 crop은 유지한다."""
+    from torchvision import transforms
+    transform = build_transform(224, False, False, minor_crop=True)
+    assert isinstance(transform.transforms[0], transforms.Resize)
+    assert isinstance(transform.transforms[1], transforms.RandomResizedCrop)
+    resized = transform.transforms[0](Image.new('RGB', (400, 900)))
+    assert resized.size == (224, 224)
+    assert transform.transforms[1].scale == (0.95, 1.0)

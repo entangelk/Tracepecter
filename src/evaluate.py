@@ -106,7 +106,8 @@ def main(argv=None) -> dict:
     for name, indices in [('standard', standard), ('unseen', unseen)]:
         loader = DataLoader(Subset(dataset, indices), batch_size=config['training']['batch_size'],
                             num_workers=config['training'].get('num_workers', 0),
-                            pin_memory=args.device.startswith('cuda'))
+                            pin_memory=args.device.startswith('cuda'),
+                            multiprocessing_context='spawn' if config['training'].get('num_workers', 0) else None)
         labels, probabilities = predict(model, loader, args.device)
         result[name] = grouped_metrics([dataset.rows[i] for i in indices], labels, probabilities)
     output = Path(args.checkpoint).parent / 'test_metrics.json'
