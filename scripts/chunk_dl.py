@@ -44,13 +44,18 @@ def fetch_chunk(url: str, start: int, end: int, path: str, attempts: int = 10) -
         # 재시도가 없으면 한 호출의 부분 수신은 항상 진짜 연속 접두사이므로
         # 크기 기반 재개가 안전하다(오염은 반드시 과대로 나타나 아래에서 리셋).
         # 실패한 시도의 부분 수신은 유지하고 다음 시도에서 start+have부터 이어받는다.
-        with open(path, "ab" if have else "wb") as out:
-            rc = subprocess.call(
-                ["curl", "-sSL", "--fail",
-                 "--speed-time", "30", "--speed-limit", "20000",
-                 "-r", f"{start + have}-{end}", url],
-                stdout=out, timeout=3600,
-            )
+        # 타임아웃도 재시도 대상 — subprocess가 예외를 던지므로 잡아서 rc≠0 취급
+        # (2026-10-08 오후 사고: 미처리로 청크 스레드 사망·다운로드 중단).
+        try:
+            with open(path, "ab" if have else "wb") as out:
+                rc = subprocess.call(
+                    ["curl", "-sSL", "--fail",
+                     "--speed-time", "30", "--speed-limit", "20000",
+                     "-r", f"{start + have}-{end}", url],
+                    stdout=out, timeout=1800,
+                )
+        except subprocess.TimeoutExpired:
+            rc = 124
         have = os.path.getsize(path) if os.path.exists(path) else 0
         if rc == 0 and have == want:
             return want
