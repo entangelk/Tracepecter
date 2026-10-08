@@ -149,12 +149,17 @@ def test_same_look_group_stays_together():
 
 
 def test_main_smoke_unseen_partition_and_output(tmp_path, monkeypatch):
-    """H6: main 오케스트레이션 — unseen 전량 test_unseen 파티션 + 출력 기록 + 0 반환."""
+    """H6/H8: main 오케스트레이션 — unseen 파티션·출력·종료 0.
+
+    H8: 입력 unseen 행은 split 빈 값으로 기록한다(실 파이프라인 입력 형태) —
+    main 의 unseen 파티션 루프를 제거하면 u001 split 이 빈 채로 남아 이 셀이
+    재실패한다(추적 검증 mutation KC 의 우회 경로 폐쇄).
+    """
     real_csv = tmp_path / "real.csv"
     gen_csv = tmp_path / "gen.csv"
     out_csv = tmp_path / "metadata.csv"
     _write_csv(real_csv, [_real_row("r001", "look_001"), _real_row("r002", "look_002")])
-    _write_csv(gen_csv, [_gen_row("g001"), _unseen_row("u001")])
+    _write_csv(gen_csv, [_gen_row("g001"), _gen_row("u001", generator="sd35_medium")])
     monkeypatch.setattr(
         sys, "argv",
         ["split_dataset.py", "--inputs", str(real_csv), str(gen_csv), "--out", str(out_csv)],
@@ -168,3 +173,21 @@ def test_main_smoke_unseen_partition_and_output(tmp_path, monkeypatch):
     assert by_id["u001"] == "test_unseen"
     assert by_id["r001"] in ("train", "val", "test") and by_id["r002"] in ("train", "val", "test")
     assert check_leakage(produced) == []
+
+
+def test_main_leakage_gate_exits_without_output(tmp_path, monkeypatch):
+    """H8 권장: 누출 게이트 — check_leakage 가 문제를 보고하면 exit 1 · 미기록."""
+    import split_dataset
+
+    real_csv = tmp_path / "real.csv"
+    out_csv = tmp_path / "metadata.csv"
+    _write_csv(real_csv, [_real_row("r001", "look_001")])
+    monkeypatch.setattr(
+        sys, "argv",
+        ["split_dataset.py", "--inputs", str(real_csv), "--out", str(out_csv)],
+    )
+    monkeypatch.setattr(
+        split_dataset, "check_leakage", lambda rows: ["가짜 누출(게이트 셀용)"]
+    )
+    assert main() == 1
+    assert not out_csv.exists(), "누출 시 출력을 기록하면 안 된다"
