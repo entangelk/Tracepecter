@@ -116,9 +116,10 @@ pre-flight `git status --short` 빈 출력 확인 후 수행. 각 mutation 후 `
 
 ## Verdict
 
-**조건부 합격** — 조건: H8 — H6 스모크 가드 fixture 수정(unseen 입력행을 split 빈 값으로 기록해 `main` 파티션 경로를 실제로 잠금) 후 재확인
+**합격**
 
-- 판정 이력: 1차(2026-10-08, `71bf48d` 기준) **합격** → 아래 "추적 검증(보강 라운드)"에서 보강 커밋 `c4388b8` 추적 결과 H6 반영 가드의 fixture 결함(mutation KC 미물림)이 발견되어 갱신. 최종 경위·근거는 해당 섹션.
+- 판정 이력: 1차(2026-10-08, `71bf48d`) **합격** → 추적 검증(보강 라운드, `c4388b8`)에서 H6 가드 fixture 결함(H8, mutation KC 미물림) 발견으로 **조건부 합격** → H8 해소 커밋 `c7538d3`(fixture 빈값화 + 게이트 셀) 재확인으로 **합격 확정**(아래 "H8 해소 재확인(최종)" 서브섹션).
+- 1차 근거(유효성 유지): ① 계약-구현-테스트 경계 행렬에서 계약 요구 경로의 빈 셀 없음(유일 공석 #5는 현 데이터에서 행동 차이 0·실패 방향이 안전 쪽이라 비차단, H5로 추적). ② 데이터 무결성 — 3,620행 병합 정합(키 집합 일치·비-split 필드 불변), 누출 0(독립 로직 재검증), unseen 완전 분리(sd35_medium 124/124). ③ 비율 — 셀별 최대 편차 0.5pp(§14 70/15/15 부합, unseen은 별도 예산). ④ 결정성 — 재실행 byte 재현. ⑤ mutation 전건 재실패, 짝 기록(1차 4건 + 추적 5건 + 최종 2건). ⑥ 복잡도 O(n + G log G), 무한·비결정 루프 없음. ⑦ 계약 갭(H3·H4)은 해소 또는 소유자 보류로 명시적 처리.
 - 1차 근거(유효성 유지): ① 계약-구현-테스트 경계 행렬에서 계약 요구 경로의 빈 셀 없음(유일 공석 #5는 현 데이터에서 행동 차이 0·실패 방향이 안전 쪽이라 비차단, H5로 추적). ② 데이터 무결성 — 3,620행 병합 정합(키 집합 일치·비-split 필드 불변), 누출 0(독립 로직 재검증), unseen 완전 분리(sd35_medium 124/124). ③ 비율 — 셀별 최대 편차 0.5pp(§14 70/15/15 부합, unseen은 별도 예산). ④ 결정성 — 재실행 byte 재현. ⑤ mutation 4건(under/over 양방향 각 2건) 전건 재실패, 짝 기록. ⑥ 복잡도 O(n + G log G), 무한·비결정 루프 없음. ⑦ 계약 갭 2건(H3·H4)은 명시적으로 분리·비차단 분류.
 - 단, `verification.md`의 "green bar ≠ 계약 검증" 구분 원칙에 따라: 위 ②-⑤는 스위트 통과가 아니라 원천(스펙·코드·데이터) 재도출로 확보한 증거이다.
 
@@ -264,4 +265,57 @@ p.write_text(s, encoding="utf-8")
 EOF
 docker compose run --rm dev python -m pytest tests/test_split_dataset.py -q   # 5 passed(미물림)
 git checkout -- scripts/split_dataset.py && git status --short                # 복원·클린
+```
+
+### H8 해소 재확인(최종) — 2026-10-08, commits `c7538d3`·`4532982`·`00427f8`
+
+- 요청: 소유자(H8 수정 완료 — 최종 재확인·판정 확정 지시). 검증 방침 동일 — 구현자 설명·보고를 신뢰하지 않고 diff·코드·실행에서 재도출.
+- 대상 커밋: `c7538d3`(H8 본수정 + 게이트 셀), `4532982`(본 검증기록 추적 섹션 수록 — 수록본이 검증자 작성분과 동일 확인), `00427f8`(work log·CHANGELOG 문서).
+
+#### H8 본수정 실증
+
+- diff 재확인: 스모크 fixture의 unseen 입력행이 `_gen_row("u001", generator="sd35_medium")`(split 빈 값)로 변경 — 실 파이프라인 입력 형태(1차 §Findings 2: 입력 6종 split 열 전부 빈 값)와 일치. docstring에 H8/KC 경위 명시. 검증자가 제시한 1줄 처방과 동일.
+- **mutation KC 재주입(검증자 독립 수행, pre-flight 클린 확인)**: `main`의 unseen 파티션 루프 제거 → `test_main_smoke_unseen_partition_and_output` **확정 재실패**(1 failed, 5 passed). 실패 지점: 파티션 부재 시 u001 split 빈 채 잔류 → `check_leakage` 순방향 검사가 포착 → `main`이 1 반환 → `assert main() == 0` 실패. 1차 라운드에서의 우회 경로(fixture 선기입)가 폐쇄되었음을 입증.
+- 부수 확인: `scripts/split_dataset.py`·`data/metadata.csv`는 `c4388b8` 이후 불변(`git diff --stat c4388b8..HEAD` 빈 출력) — 추적 라운드의 byte 동일 재현 결론이 그대로 승계된다(동일 코드·동일 데이터의 재실행이므로 재실행 불요).
+
+#### 신규 게이트 셀 감사 — `test_main_leakage_gate_exits_without_output`
+
+- 구조: `monkeypatch.setattr(split_dataset, "check_leakage", lambda rows: ["가짜 누출(게이트 셀용)"])` 후 `main()` == 1 및 출력 파일 미생성(`not out_csv.exists()`)을 주장.
+- **seam 적절성 판정: 적절.** `main`은 모듈 전역 `check_leakage`를 호출하므로 속성 교체가 정확히 main의 호출 지점에 적용되고, 이 셀은 "검출기가 문제를 보고했을 때 main이 차단한다"는 게이트 계약만을 격리 잠금한다. 검출 품질 자체는 별도 셀들이 잠근다(test_unseen_generator_separated·test_unseen_scope_guards — M2/KA 이력). 탐지와 차단의 관심사 분리가 명확하고, fake가 무조건 문제를 반환하므로 셀이 실제 검출 의미론에 우연히 의존하지 않는다.
+- **mutation KG(방어 제거 방향)**: 게이트 조건 `if problems:` → `if problems and False:` → 본 셀 **확정 재실패**(1 failed, 5 passed — 게이트가 누출 무시·출력 기록·0 반환 시 잡힘). over-strict 방향(정상 데이터에서 게이트 미발화 → main 0·출력 기록)은 스모크 셀이 잠금(기존 M3'에서 check_leakage 어설션 포함 4셀 재실패 이력).
+
+#### 종합
+
+- 스위트: `tests/test_split_dataset.py` 6 passed, 전체 `tests/` **28 passed** — 주장과 일치(mutation 복원 후 재확인 포함).
+- H8 조건 해소 확인, 신규 셀 양방향 잠금 입증, 신규 결함 미발견. 잔여 조건 없음 → 판정 **합격** 확정.
+- 잔여(비조건): H3 소유자 보류(HANDOFF 등록, P02+), P01-07 확장 시 재실행·비율/누출 재검증(기존 Outstanding 승계).
+
+#### Reproduction(최종 라운드 추가분)
+
+```bash
+cd /mnt/f/devel/Tracepecter
+git status --short                                          # 빈 출력(클린)
+docker compose run --rm dev python -m pytest tests/ -q      # 28 passed
+
+# KC 재주입 — 파티션 제거 시 스모크 재실패
+python3 - <<'EOF'
+import pathlib
+p = pathlib.Path("scripts/split_dataset.py")
+s = p.read_text(encoding="utf-8").replace(
+    '    for row in unseen_rows:\n        row["split"] = "test_unseen"',
+    '    pass  # KC')
+p.write_text(s, encoding="utf-8")
+EOF
+docker compose run --rm dev python -m pytest tests/test_split_dataset.py -q  # 1 failed(스모크)
+git checkout -- scripts/split_dataset.py
+
+# KG — 게이트 제거 시 게이트 셀 재실패
+python3 - <<'EOF'
+import pathlib
+p = pathlib.Path("scripts/split_dataset.py")
+s = p.read_text(encoding="utf-8").replace("    if problems:\n", "    if problems and False:\n")
+p.write_text(s, encoding="utf-8")
+EOF
+docker compose run --rm dev python -m pytest tests/test_split_dataset.py -q  # 1 failed(게이트 셀)
+git checkout -- scripts/split_dataset.py && git status --short               # 복원·클린
 ```
