@@ -7,7 +7,7 @@
 | P00 | 프로젝트 초기화 — repo/환경/README/config/skeleton | Complete | — | `python -m src.train --config configs/baseline.yaml --smoke` 정상 종료 + pytest 10 passed — 독립검증 합격(초회+재검증, [기록](../verifications/2026-10-07/p00_initialization.md)) | — |
 | P01 | 데이터 파이프라인 — 수집/생성/메타데이터/dedup/split | Complete | P00: 실행 환경 + 소유자의 K-Fashion 다운로드 완료(라벨링데이터는 2026-10-07 수신 완료) | `metadata.csv` + train/val/test split + unseen generator test 생성, 최소 6,000장(Real ≥ 3,000, Generated ≥ 3,000)·축소된 패션 category 기준 충족 | [DB-01](../decision_briefs/DB-01_P01_real-data-domain.md)(Resolved) · [DB-02](../decision_briefs/DB-02_P01_ai-generators.md)(Resolved) · [DB-03](../decision_briefs/DB-03_P01_face-policy.md)(Resolved) |
 | P02 | Baseline 모델 — frozen encoder + MLP head | Complete | P01: 씨드 데이터(Real 500 + Generated 500) split 확보 | 10 epoch 실학습 + best/last checkpoint + validation/Test A/B metric ([실험 기록](../../experiments/p02_siglip_baseline/README.md)) | [DB-04](../decision_briefs/DB-04_P02_unseen-real.md)(Resolved) |
-| P03 | Baseline 비교 — SigLIP vs DINO | In Progress | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split 기준 비교 report + primary encoder 선정 기록 | — |
+| P03 | Baseline 비교 — SigLIP vs DINO | Complete | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split DINO 10 epoch + latency/크기 비교 + primary SigLIP 선정([report](../../experiments/p03_comparison/README.md)) | — |
 | P04 | LoRA (조건부) | Planned | P03 (진입 조건: `docs/project.md` §17) | LoRA vs frozen 비교 결과 문서 — 유의미하지 않으면 baseline 유지 | — |
 | P05 | Score calibration | Planned | P03: primary encoder 선정 | validation 기반 calibration parameter + threshold + 0~100 score 정의 기록 | — |
 | P06 | Failure analysis | Planned | P05 | `reports/errors/` 자동 저장 + failure case 100개 이상 수동 검토 + 오류 패턴 문서 | — |
@@ -22,3 +22,5 @@
 - REAL 데이터는 AIHub K-Fashion으로 확정(DB-01). 카테고리 4부위(상의·하의·아우터·원피스)·metadata schema v1.2 확정 — [P01 계획서](phase_1_data_pipeline.md) 참조. 생성기 수단(DB-02: 로컬 오픈소스 무비용)·얼굴 처리(DB-03: 무처리) Resolved.
 - 실행 환경 체계: Docker Compose(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`. 의존성 canonical은 `requirements.txt` 유지.
 - GPU 사용 정책(소유자 지시 2026-10-07): RTX 3060은 소유자의 다른 AI 작업이 점유 중. 학습·생성 등 GPU 작업은 여유 생긴 뒤에만 수행(큐잉 금지).
+
+- P03 선정 모델은 `configs/primary.yaml`의 SigLIP. 현재 frozen baseline 지표에 §17 LoRA 진입 근거가 없어 P04는 실행하지 않으며, 다음 실행 대상은 P05 calibration이다(P04는 조건 발생 시 재검토).

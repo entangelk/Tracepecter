@@ -86,3 +86,13 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 - 특정 생성 모델 탐지·EXIF/워터마크 판별·영상·얼굴 deepfake 탐지·artifact 영역 segmentation 은 범위 외(§4).
 - 착용컷에는 얼굴이 포함된다 — 무처리 정책(DB-03)이므로 점수에 얼굴 특성이 기여할 수 있으며, 얼굴 deepfake 판별이나 얼굴만의 위변조 증명은 범위 외다.
 - 모든 종류의 사진으로의 일반화는 보장하지 않는다(§4).
+
+## Primary encoder
+
+P03 비교에서 SigLIP을 primary로 선정했다. 실행 설정은 `configs/primary.yaml`, 현재 checkpoint는 `checkpoints/baseline/best.pt`다. 동일 split의 DINO baseline은 `configs/dino.yaml`로 학습하며 checkpoint를 `checkpoints/dino/`에 분리한다. [비교 report](experiments/p03_comparison/README.md)에 validation/Test A/B·category 성능·GPU latency·모델 크기와 선정 규칙을 보관한다.
+
+```bash
+docker compose --profile training run --rm train python -m scripts.compare_baselines \
+  --checkpoints checkpoints/baseline/best.pt checkpoints/dino/best.pt \
+  --output experiments/p03_comparison/comparison.json --device cuda
+```

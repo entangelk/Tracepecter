@@ -1,6 +1,6 @@
 # P03 — SigLIP vs DINO baseline 비교
 
-**상태:** In Progress
+**상태:** Complete (2026-10-09)
 
 ## 목표·선행 조건
 
@@ -33,4 +33,12 @@ LoRA는 P04 조건부, calibration은 P05. GEN 근사중복 및 독립 최종 ho
 
 Test B 구성은 [DB-04](../decision_briefs/DB-04_P02_unseen-real.md) 유지. 신규 소유자 결정은 없다.
 
-DINO의 [공식 processor 설정](https://huggingface.co/facebook/dinov2-base/blob/main/preprocessor_config.json) 및 [Transformers 문서](https://huggingface.co/docs/transformers/model_doc/dinov2)를 확인했다.
+DINO의 [공식 processor 설정](https://huggingface.co/facebook/dinov2-base/blob/f9e44c814b77203eaa57a6bdbbd535f21ede1415/preprocessor_config.json) 및 [Transformers 문서](https://huggingface.co/docs/transformers/model_doc/dinov2)를 확인했다.
+
+## 완료 근거
+
+- DINO 10 epoch CUDA 학습·validation 기반 best 저장·Test A/B 평가. P02와 metadata hash 및 공통 학습 설정 동일.
+- [비교 report](../../experiments/p03_comparison/README.md)와 원시 benchmark JSON에 Standard/Unseen·category별 AUC·GPU latency·parameter 수·checkpoint 크기를 보관한다.
+- 사전 기준으로 primary **SigLIP** 선정: validation AUC 차이 0.000102 <0.001, median forward latency 9.633ms vs DINO 12.407ms. 실행 설정은 `configs/primary.yaml`, checkpoint는 기존 `checkpoints/baseline/best.pt`.
+- CPU 전체 38 passed, CUDA 집중 4 passed, 실제 DINO checkpoint의 config/epoch 및 encoder 전체 tensor가 pretrained 값과 동일함 확인. 독립검증·mutation은 미수행.
+- §17의 LoRA 진입 근거가 현재 지표에는 없으므로 다음 실행 대상은 P05 calibration이다. GEN 근사중복·독립 최종 holdout은 후속 항목이다.

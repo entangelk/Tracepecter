@@ -128,3 +128,18 @@
 - pretrained 로드와 전체 회귀 확인, GPU 여유 확인 후 DINO 10 epoch 학습·Test A/B 평가·latency 비교.
 
 - 전체 CPU 회귀 **38 passed**(기존 Pillow 경고 12건). 불완전한 정규화 `{}`는 기본값으로 숨기지 않고 거부하며 필드 누락만 기존 기본값을 사용한다. 공식 DINO pretrained 로드 성공, revision `f9e44c814b77203eaa57a6bdbbd535f21ede1415`, 차원 768.
+
+### P03 결과·검증
+
+- 구현 commit `c6ab048`에서 DINO 10 epoch CUDA 학습, best epoch 10(validation BCE 0.015003, ROC-AUC 0.999772). P02와 metadata SHA256·공통 학습 설정 동일, P02 checkpoint/snapshot 보존.
+- DINO Test A: AUC 0.999937 / Accuracy 0.996250. Test B: AUC 0.998618 / Accuracy 0.979008. 카테고리·generator·source별 지표와 config·checkpoint hash를 `experiments/p03_dino_baseline/`에 보관한다.
+- 동일 RTX 3060에서 float32 batch 1, warmup 10·측정 100·CUDA 동기화로 비교: SigLIP median 9.633ms, DINO 12.407ms. parameter 93,475,585 vs 87,171,841, checkpoint 356.65 vs 332.61MiB. decode/전처리/HTTP는 측정 범위 밖이다.
+- validation ROC-AUC 차이 0.000102 <0.001이므로 사전 latency 규칙으로 **SigLIP primary** 선정. DINO의 더 작은 모델 크기 tradeoff도 report에 보존. Test 결과를 보고 규칙을 변경하거나 추가 튜닝하지 않았다.
+- 실제 DINO checkpoint의 config가 `configs/dino.yaml`과 동일하고 epoch 10임을 확인. encoder 전체 tensor는 같은 revision의 pretrained 원본과 일치한다. 최종 training 이미지 빌드 성공. CPU 전체 38 passed 및 최종 CUDA 집중 4 passed, 독립검증·mutation 미수행.
+- [P03 비교](../../../experiments/p03_comparison/README.md)·원시 benchmark JSON·primary config 생성, P03/인덱스 Complete 동시 갱신. 현재 baseline 결과로는 §17 LoRA에 진입하지 않으며 P05 calibration이 다음 실행 대상이다.
+
+### 후속 항목
+
+- P05 계획/score calibration. 최종 제품 일반화는 별도 미사용 REAL/FAKE holdout과 GEN 근사중복 점검 후 확인해야 한다. 현재 지표는 개발 데이터 비교이며 전체 encoder 계열의 일반적 우열을 증명하지 않는다.
+
+- 최종 확인: 변경 문서 링크, benchmark warmup/repeats/latency 표본 100개, 두 모델의 공통 training config·224 입력, metadata hash 불변, Compose config 및 `git diff --check` 통과. Tracepecter 학습/평가/비교 컨테이너 잔여 없음.

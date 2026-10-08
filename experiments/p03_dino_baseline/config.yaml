@@ -1,0 +1,31 @@
+# P03 frozen DINOv2 baseline. --smoke는 다운로드 없이 stub/CPU로 실행한다.
+model:
+  encoder: dino
+  model_id: facebook/dinov2-base
+  revision: f9e44c814b77203eaa57a6bdbbd535f21ede1415
+  image_size: 224
+  freeze_encoder: true
+  normalization:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+
+training:
+  epochs: 10
+  batch_size: 32
+  num_workers: 2
+  learning_rate: 0.0001
+  device: cuda
+  seed: 42
+
+data:
+  metadata_csv: data/metadata.csv
+  image_root: /images
+
+augmentation:
+  horizontal_flip: true
+  jpeg_aug: true
+  minor_crop: true
+  color_jitter: true
+
+output:
+  checkpoint_dir: checkpoints/dino

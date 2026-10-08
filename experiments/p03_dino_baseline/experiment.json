@@ -1,0 +1,384 @@
+{
+  "experiment_name": "dino",
+  "git_commit": "c6ab0480c7dcb501b7c6992cde1b92680aa11d21",
+  "dataset_version": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+  "model": {
+    "encoder": "dino",
+    "model_id": "facebook/dinov2-base",
+    "revision": "f9e44c814b77203eaa57a6bdbbd535f21ede1415",
+    "image_size": 224,
+    "freeze_encoder": true,
+    "normalization": {
+      "mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    }
+  },
+  "train_sample_count": 3780,
+  "validation_sample_count": 820,
+  "config": {
+    "model": {
+      "encoder": "dino",
+      "model_id": "facebook/dinov2-base",
+      "revision": "f9e44c814b77203eaa57a6bdbbd535f21ede1415",
+      "image_size": 224,
+      "freeze_encoder": true,
+      "normalization": {
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      }
+    },
+    "training": {
+      "epochs": 10,
+      "batch_size": 32,
+      "num_workers": 2,
+      "learning_rate": 0.0001,
+      "device": "cuda",
+      "seed": 42
+    },
+    "data": {
+      "metadata_csv": "data/metadata.csv",
+      "image_root": "/images"
+    },
+    "augmentation": {
+      "horizontal_flip": true,
+      "jpeg_aug": true,
+      "minor_crop": true,
+      "color_jitter": true
+    },
+    "output": {
+      "checkpoint_dir": "checkpoints/dino"
+    }
+  },
+  "checkpoint": "checkpoints/dino/best.pt",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.13782458979064827,
+      "val_loss": 0.05102628469467163,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9878048780487805,
+        "precision": 0.9846491228070176,
+        "recall": 0.9933628318584071,
+        "f1": 0.9889867841409692,
+        "roc_auc": 0.9982324932666411,
+        "pr_auc": 0.9983977602823104
+      }
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.036691196795513546,
+      "val_loss": 0.031417179852724075,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9926829268292683,
+        "precision": 0.9933628318584071,
+        "recall": 0.9933628318584071,
+        "f1": 0.9933628318584071,
+        "roc_auc": 0.9993927953058869,
+        "pr_auc": 0.9994893795236243
+      }
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.023440232600464864,
+      "val_loss": 0.033120859414339066,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9890243902439024,
+        "precision": 0.9825708061002179,
+        "recall": 0.9977876106194691,
+        "f1": 0.9901207464324918,
+        "roc_auc": 0.9992004136206233,
+        "pr_auc": 0.9992962530499998
+      }
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.014288415608769924,
+      "val_loss": 0.021877354010939598,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9951219512195122,
+        "precision": 0.995575221238938,
+        "recall": 0.995575221238938,
+        "f1": 0.995575221238938,
+        "roc_auc": 0.9994529145825318,
+        "pr_auc": 0.9995250330152303
+      }
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.01186107239612346,
+      "val_loss": 0.01973675563931465,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9975609756097561,
+        "precision": 0.9977876106194691,
+        "recall": 0.9977876106194691,
+        "f1": 0.9977876106194691,
+        "roc_auc": 0.9996032127741438,
+        "pr_auc": 0.9996649229268428
+      }
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.007999792574641847,
+      "val_loss": 0.019698522984981537,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9975609756097561,
+        "precision": 0.9977876106194691,
+        "recall": 0.9977876106194691,
+        "f1": 0.9977876106194691,
+        "roc_auc": 0.999555117352828,
+        "pr_auc": 0.999619409120795
+      }
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.005723977116522966,
+      "val_loss": 0.01874683052301407,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9963414634146341,
+        "precision": 0.9955849889624724,
+        "recall": 0.9977876106194691,
+        "f1": 0.9966850828729282,
+        "roc_auc": 0.9996212485571374,
+        "pr_auc": 0.9996711188740393
+      }
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.005450487495326097,
+      "val_loss": 0.017587559297680855,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9939024390243902,
+        "precision": 0.9977728285077951,
+        "recall": 0.9911504424778761,
+        "f1": 0.9944506104328524,
+        "roc_auc": 0.9997655348210851,
+        "pr_auc": 0.9998059013455046
+      }
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.003806743197261341,
+      "val_loss": 0.016130296513438225,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9975609756097561,
+        "precision": 0.9977876106194691,
+        "recall": 0.9977876106194691,
+        "f1": 0.9977876106194691,
+        "roc_auc": 0.9997294632550981,
+        "pr_auc": 0.9997713508024204
+      }
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.0035886570606784535,
+      "val_loss": 0.015002545900642872,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9975609756097561,
+        "precision": 0.9977876106194691,
+        "recall": 0.9977876106194691,
+        "f1": 0.9977876106194691,
+        "roc_auc": 0.9997715467487496,
+        "pr_auc": 0.9998070869525846
+      }
+    }
+  ],
+  "test_sample_count": 800,
+  "unseen_sample_count": 1048,
+  "test_metrics": {
+    "shared_real_count": 448,
+    "unseen_real_policy": "standard_test_real_reuse",
+    "pr_auc_method": "trapezoidal",
+    "standard": {
+      "count": 800,
+      "accuracy": 0.99625,
+      "precision": 0.9977628635346756,
+      "recall": 0.9955357142857143,
+      "f1": 0.9966480446927374,
+      "roc_auc": 0.9999365868506493,
+      "pr_auc": 0.9999508427389172,
+      "category_wise": {
+        "상의": {
+          "count": 200,
+          "accuracy": 0.995,
+          "precision": 0.9911504424778761,
+          "recall": 1.0,
+          "f1": 0.9955555555555555,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "아우터": {
+          "count": 200,
+          "accuracy": 0.995,
+          "precision": 1.0,
+          "recall": 0.9910714285714286,
+          "f1": 0.9955156950672646,
+          "roc_auc": 0.999898538961039,
+          "pr_auc": 0.9999206333528987
+        },
+        "원피스": {
+          "count": 200,
+          "accuracy": 0.995,
+          "precision": 1.0,
+          "recall": 0.9910714285714286,
+          "f1": 0.9955156950672646,
+          "roc_auc": 0.9998985389610389,
+          "pr_auc": 0.9999206333528987
+        },
+        "하의": {
+          "count": 200,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        }
+      },
+      "generator_wise": {
+        "playground_25": {
+          "count": 536,
+          "accuracy": 0.996268656716418,
+          "precision": 1.0,
+          "recall": 0.9955357142857143,
+          "f1": 0.9977628635346756,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "qwen_image_21": {
+          "count": 536,
+          "accuracy": 0.9944029850746269,
+          "precision": 0.9977628635346756,
+          "recall": 0.9955357142857143,
+          "f1": 0.9966480446927374,
+          "roc_auc": 0.9998478084415584,
+          "pr_auc": 0.999970270797074
+        },
+        "sdxl": {
+          "count": 536,
+          "accuracy": 0.996268656716418,
+          "precision": 1.0,
+          "recall": 0.9955357142857143,
+          "f1": 0.9977628635346756,
+          "roc_auc": 0.9999492694805194,
+          "pr_auc": 0.9999900683176017
+        },
+        "z_image_turbo": {
+          "count": 536,
+          "accuracy": 0.996268656716418,
+          "precision": 1.0,
+          "recall": 0.9955357142857143,
+          "f1": 0.9977628635346756,
+          "roc_auc": 0.9999492694805194,
+          "pr_auc": 0.9999900683176017
+        }
+      },
+      "source_wise": {
+        "kfashion": {
+          "count": 800,
+          "accuracy": 0.99625,
+          "precision": 0.9977628635346756,
+          "recall": 0.9955357142857143,
+          "f1": 0.9966480446927374,
+          "roc_auc": 0.9999365868506493,
+          "pr_auc": 0.9999508427389172
+        }
+      }
+    },
+    "unseen": {
+      "count": 1048,
+      "accuracy": 0.9790076335877863,
+      "precision": 0.9570815450643777,
+      "recall": 0.9955357142857143,
+      "f1": 0.975929978118162,
+      "roc_auc": 0.9986179315476191,
+      "pr_auc": 0.9980294235890854,
+      "category_wise": {
+        "상의": {
+          "count": 262,
+          "accuracy": 0.9732824427480916,
+          "precision": 0.9411764705882353,
+          "recall": 1.0,
+          "f1": 0.9696969696969697,
+          "roc_auc": 0.9992261904761904,
+          "pr_auc": 0.9989196306462069
+        },
+        "아우터": {
+          "count": 262,
+          "accuracy": 0.9618320610687023,
+          "precision": 0.925,
+          "recall": 0.9910714285714286,
+          "f1": 0.956896551724138,
+          "roc_auc": 0.9944642857142857,
+          "pr_auc": 0.9910991940208643
+        },
+        "원피스": {
+          "count": 262,
+          "accuracy": 0.9923664122137404,
+          "precision": 0.9910714285714286,
+          "recall": 0.9910714285714286,
+          "f1": 0.9910714285714286,
+          "roc_auc": 0.9994047619047619,
+          "pr_auc": 0.9992651257088665
+        },
+        "하의": {
+          "count": 262,
+          "accuracy": 0.9885496183206107,
+          "precision": 0.9739130434782609,
+          "recall": 1.0,
+          "f1": 0.986784140969163,
+          "roc_auc": 0.9998214285714286,
+          "pr_auc": 0.9997660591696633
+        }
+      },
+      "generator_wise": {
+        "sd35_medium": {
+          "count": 1048,
+          "accuracy": 0.9790076335877863,
+          "precision": 0.9570815450643777,
+          "recall": 0.9955357142857143,
+          "f1": 0.975929978118162,
+          "roc_auc": 0.9986179315476191,
+          "pr_auc": 0.9980294235890854
+        }
+      },
+      "source_wise": {
+        "kfashion": {
+          "count": 1048,
+          "accuracy": 0.9790076335877863,
+          "precision": 0.9570815450643777,
+          "recall": 0.9955357142857143,
+          "f1": 0.975929978118162,
+          "roc_auc": 0.9986179315476191,
+          "pr_auc": 0.9980294235890854
+        }
+      }
+    }
+  },
+  "checkpoint_sha256": "456c9950e8297e0564a686f2f3869829a2cb54ffa423338d2aa54f46d9f58ced"
+}
