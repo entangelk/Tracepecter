@@ -10,7 +10,10 @@ data/metadata.csv(§12 v1.2, split 열 채움)에 기록한다.
 독립검증 H5 반영), Generated → gen:<generator>:<image_id>(합성 이미지는 개별
 그룹 — 시드 충돌에 의한 근사중복은 P01-05 pHash가 대규모 실행 시 점검).
 unseen generator(sd35_medium)의 행은 전량 test_unseen — train/val/test 에서
-제외(§10). stratification: source_type × category 셀별 70/15/15.
+제외(§10). stratification: source_type × category × generator 셀별 70/15/15
+(독립검증 P01-07 H1 — generator 축이 없으면 결정적 배정의 사전순 소진으로
+특정 생성기가 train에만 몰려 §19 generator별 평가가 불가능해진다. REAL은
+generator 공백이라 셀 구조 불변).
 
 배정은 알고리즘 자체가 결정적이다(그룹 크기 내림차순 + 키 사전순 tie-break)
 — 시드 무관, 동일 입력은 항상 동일 split(독립검증 H1 반영).
@@ -49,13 +52,16 @@ def group_key(row: dict) -> str:
 def stratified_group_split(
     rows: list[dict], seed: int = 42
 ) -> tuple[list[dict], dict]:
-    """source_type × category 셀별로 그룹 단위 70/15/15 배정(결정적).
+    """source_type × category × generator 셀별로 그룹 단위 70/15/15 배정(결정적).
 
     그룹을 크기 내림차순으로 순회하며 목표 비율 대비 결손이 가장 큰 split에
     배정한다 — 이미지 수 기준 층화 유지 + 그룹 전체가 한 split에만 존재.
     seed 는 호환 서명일 뿐 무시된다 — 배정 순서가 구조적으로 결정적이라
     시드가 결과에 영향을 주지 않는다(독립검증 H1).
     """
+    def cell_of(row: dict) -> tuple:
+        return (row["source_type"], row["category"], row["generator"])
+
     groups: dict[str, list[int]] = defaultdict(list)
     for idx, row in enumerate(rows):
         groups[group_key(row)].append(idx)
@@ -69,11 +75,10 @@ def stratified_group_split(
     )
     cell_totals: dict[tuple, int] = defaultdict(int)
     for idx, row in enumerate(rows):
-        cell = (row["source_type"], row["category"])
-        cell_totals[cell] += 1
+        cell_totals[cell_of(row)] += 1
 
     for group, indices in ordered_groups:
-        touched = {(rows[i]["source_type"], rows[i]["category"]) for i in indices}
+        touched = {cell_of(rows[i]) for i in indices}
         # 후보 split: 그룹이 건드리는 셀들의 결손 합이 가장 큰 split
         deficits = {}
         for split in SPLITS:
@@ -85,8 +90,7 @@ def stratified_group_split(
         best = max(SPLITS, key=lambda s: (deficits[s], s))
         for idx in indices:
             assigned[idx] = best
-            cell = (rows[idx]["source_type"], rows[idx]["category"])
-            cell_counts[cell][best] += 1
+            cell_counts[cell_of(rows[idx])][best] += 1
 
     out_rows = []
     for idx, row in enumerate(rows):

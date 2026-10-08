@@ -65,8 +65,10 @@ def test_group_split_no_leakage_and_ratios():
         category = "상의" if g < 20 else "하의"
         for k in range(3):
             rows.append(_real_row(f"r{g:03d}_{k}", f"look_{g:03d}", category=category))
-    for i in range(80):  # GEN 80장(개별 그룹) — 카테고리 교대
-        rows.append(_gen_row(f"g{i:03d}", category="상의" if i % 2 == 0 else "하의"))
+    for i in range(80):  # GEN 80장(개별 그룹) — 생성기 2종 × 카테고리 교대(P01-07 H1)
+        gen = "qwen_image_21" if i < 40 else "z_image_turbo"
+        rows.append(_gen_row(f"g{i:03d}", generator=gen,
+                             category="상의" if i % 2 == 0 else "하의"))
 
     split_rows, stats = stratified_group_split(rows, seed=42)
     again, _ = stratified_group_split(rows, seed=42)
@@ -91,11 +93,15 @@ def test_group_split_no_leakage_and_ratios():
     assert abs(val - 0.15) < 0.05, val
     assert abs(test - 0.15) < 0.05, test
 
-    # 셀별(source_type × category) 비율 근사(H4 — 층화가 셀 단위로 유지되는가)
+    # 셀별 비율 근사 — 충화가 셀 단위로 유지되는가.
+    # 축: source_type × category × generator(P01-07 H1 — generator 축이 없으면
+    # 결정적 배정의 사전순 소진으로 특정 생성기가 train 에만 몰린다)
     cells = defaultdict(lambda: defaultdict(int))
     for r in split_rows:
-        cells[(r["source_type"], r["category"])][r["split"]] += 1
-    assert set(cells) == {("real", "상의"), ("real", "하의"), ("generated", "상의"), ("generated", "하의")}
+        cells[(r["source_type"], r["category"], r["generator"])][r["split"]] += 1
+    expected = {(s, c, g) for s in ("real", "generated") for c in ("상의", "하의")
+                for g in (("",) if s == "real" else ("qwen_image_21", "z_image_turbo"))}
+    assert set(cells) == expected
     for cell, by_split in cells.items():
         n = sum(by_split.values())
         for split_name, ratio in (("train", 0.70), ("val", 0.15), ("test", 0.15)):

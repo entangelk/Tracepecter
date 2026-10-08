@@ -22,6 +22,16 @@
 - 반영: `docs/plan/phase_1_data_pipeline.md` P01-07 완료 + 결과 비고, `docs/plan/00_index.md` P01 → Complete, HANDOFF 재작성(다음 = P02 착수), CHANGELOG 행.
 - 생성 컨테이너 정지(GPU 반환 — 재사용 시 compose gpu profile).
 
+### P01-07 독립검증·hardening (소유자 지시: 비차단 항목까지 반영·합격까지 반복)
+
+- 독립검증([기록](../verifications/2026-10-09/p01_07_scale_expansion.md)): **합격** — blocking 0. §27 조건 7개 원천 재계산 충족, 무결성(키 집합·필드 불변·byte 동일 재실행), seed 43 실증(반사실: seed 42 재사용 시 생성기당 31쌍 정확 중복 발생 — 설계 동기 입증), mutation 7건 전건 재실패.
+- hardening 4건 반영:
+  - **H1(실질 결함): 생성기×split 퇴화** — 결정적 배정의 그룹키 사전순 소진으로 qwen·playground 600장이 전량 train에만 배정(§19 generator별 ROC-AUC를 val/test에서 측정 불가). §14가 generator를 층화 차원으로 명시하므로 **셀 정의를 source_type×category×generator로 확장**해 해소 — train 생성기별 420/92/88, REAL은 generator 공백이라 배정 불변(0행), 총량 동일. 가드에 generator 축 셀 비율 어설션 추가.
+  - H2: 계획서 비고 gen_ID "전역 연속" 부정확 → 249·374·499 공백 3 명시로 정정.
+  - H3: 10-08 work log 반사실 서술 정정(중복은 각 블록이 아닌 첫 카테고리 블록 31쌍만).
+  - H4(계승): GEN pHash 위임·Test B REAL 재사용 보류 — HANDOFF 유지.
+- 검증: split 재실행 누출 0, 가드 6셀·전체 28 cells passed.
+
 ## Issues found
 
 - 없음(배치 2 전 구간 rc=0, 재기동 0회 — 재개 가드는 예비로만 존재).
