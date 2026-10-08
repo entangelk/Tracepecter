@@ -5,21 +5,24 @@ REAL(metadata_real.csv)·Generated(metadata_gen_*.csv) metadata를 병합해
 (Test B, §10) 구성을 별도 split 값(test_unseen)으로 배정한다. 결과는
 data/metadata.csv(§12 v1.2, split 열 채움)에 기록한다.
 
-그룹 키(§14): REAL → look_group(동일 인물·룩/근사중복 클러스터),
-Generated → gen:<generator>:<image_id>(합성 이미지는 개별 그룹 — 시드 충돌에
-의한 근사중복은 P01-05 pHash가 대규모 실행 시 점검).
+그룹 키(§14): REAL → real:<source_domain>:<look_group>(동일 인물·룩/근사중복
+클러스터 — 도메인 접두어로 미래 다중 출처 병합 시 그룹명 충돌을 방지,
+독립검증 H5 반영), Generated → gen:<generator>:<image_id>(합성 이미지는 개별
+그룹 — 시드 충돌에 의한 근사중복은 P01-05 pHash가 대규모 실행 시 점검).
 unseen generator(sd35_medium)의 행은 전량 test_unseen — train/val/test 에서
 제외(§10). stratification: source_type × category 셀별 70/15/15.
 
+배정은 알고리즘 자체가 결정적이다(그룹 크기 내림차순 + 키 사전순 tie-break)
+— 시드 무관, 동일 입력은 항상 동일 split(독립검증 H1 반영).
+
 사용:
     python scripts/split_dataset.py --inputs data/metadata_real.csv data/metadata_gen_qwen_image_21.csv ... \
-        --out data/metadata.csv [--seed 42]
+        --out data/metadata.csv
 """
 from __future__ import annotations
 
 import argparse
 import csv
-import random
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -39,7 +42,7 @@ def read_rows(csv_path: str) -> list[dict]:
 
 def group_key(row: dict) -> str:
     if row["source_type"] == "real":
-        return f"real:{row['look_group'] or row['image_id']}"
+        return f"real:{row['source_domain']}:{row['look_group'] or row['image_id']}"
     return f"gen:{row['generator']}:{row['image_id']}"
 
 
@@ -50,8 +53,9 @@ def stratified_group_split(
 
     그룹을 크기 내림차순으로 순회하며 목표 비율 대비 결손이 가장 큰 split에
     배정한다 — 이미지 수 기준 층화 유지 + 그룹 전체가 한 split에만 존재.
+    seed 는 호환 서명일 뿐 무시된다 — 배정 순서가 구조적으로 결정적이라
+    시드가 결과에 영향을 주지 않는다(독립검증 H1).
     """
-    rnd = random.Random(seed)
     groups: dict[str, list[int]] = defaultdict(list)
     for idx, row in enumerate(rows):
         groups[group_key(row)].append(idx)
@@ -99,19 +103,26 @@ def stratified_group_split(
 
 
 def check_leakage(rows: list[dict]) -> list[str]:
-    """그룹 누출·unseen 혼입 검사 — 위반 목록 반환(빈 리스트 = 통과)."""
+    """그룹 누출·unseen 혼입 검사 — 위반 목록 반환(빈 리스트 = 통과).
+
+    그룹 추적은 test_unseen 포함 전수(REAL이 test_unseen에 섞여도 look_group
+    분산으로 잡는다 — 독립검증 H2). unseen↔test_unseen 대응은 양방향 검사.
+    """
     problems = []
     seen: dict[str, set] = defaultdict(set)
     for row in rows:
-        if row["split"] == "test_unseen":
+        if not row["split"]:
             continue
         seen[group_key(row)].add(row["split"])
     for group, splits in seen.items():
         if len(splits) > 1:
             problems.append(f"그룹 누출: {group} → {sorted(splits)}")
     for row in rows:
-        if row["generator"] in UNSEEN_GENERATORS and row["split"] != "test_unseen":
+        is_unseen = row["generator"] in UNSEEN_GENERATORS
+        if is_unseen and row["split"] != "test_unseen":
             problems.append(f"unseen 생성기가 standard split에 존재: {row['image_id']}")
+        if row["split"] == "test_unseen" and not is_unseen:
+            problems.append(f"test_unseen에 unseen 외 행 혼입: {row['image_id']}")
     return problems
 
 
@@ -119,7 +130,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inputs", nargs="+", required=True, help="metadata CSV 목록")
     parser.add_argument("--out", required=True, help="병합+split 배정 출력 CSV")
-    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     rows = []
@@ -132,7 +142,7 @@ def main() -> int:
     for row in unseen_rows:
         row["split"] = "test_unseen"
 
-    split_rows, stats = stratified_group_split(standard_rows, args.seed)
+    split_rows, stats = stratified_group_split(standard_rows)
     all_rows = split_rows + unseen_rows
 
     problems = check_leakage(all_rows)

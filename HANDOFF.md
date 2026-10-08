@@ -12,9 +12,9 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. P01-06(split) — `scripts/split_dataset.py`(§14 group split: look_group·generator·source_domain + unseen generator test). Real 3,000 + Generated 620 씨드로 train/val/test 70/15/15 + Test B(unseen sd35) 구성, 그룹 누출 검사. 완료 시 P02 착수 게이트 통과(씨드 데이터 Real+Generated split 확보).
-2. P01-07(규모 확장) — Generated 3,000+ 확장(생성기별 증량, `generate_ai.py --count`·`--start-index` 이어서) → §27 Phase 1 완료.
-3. P02 병행 가능(§35 thin-slice) — 씨드 split 확보 후 baseline 학습 착수.
+1. P01-07(규모 확장) — Generated 3,000+ 확장(생성기별 증량, `generate_ai.py --count`·`--start-index` 이어서) 후 `split_dataset.py` 재실행·비율/누출 재검증 → §27 Phase 1 완료.
+2. P02 착수 가능(§35 thin-slice) — 씨드 split 확보로 게이트 통과(`data/metadata.csv`).
+3. **보류 결정(소유자)**: Test B(test_unseen) 평가 시 REAL 이미지 재사용 여부 — §10 예시는 "TEST: Real images + Generator D"로 읽히나 현 구성은 gen-only(독립검증 H3). 평가 설계 확정 시점(P02+)에 결정 필요.
 
 ## 주의
 

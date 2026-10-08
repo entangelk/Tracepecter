@@ -54,6 +54,20 @@
 - **5종 통합 검증**: 620장, gen_ID 전역 유일성 확인(교집합 0), 완료 기준(생성기 ≥3종·500장) 초과 충족.
 - 완료 처리: 페이즈 문서 P01-04 → 완료 + 결과 비고, HANDOFF 재작성(다음 = P01-06 split), CHANGELOG 기록.
 
+### P01-06 dataset split 완료·독립검증·hardening (소유자 지시: 비차단 항목까지 반영·합격까지 반복)
+
+- P01-06: `scripts/split_dataset.py`(세션 4 작성분) 실행 — 입력 6개 CSV 3,620행 → `data/metadata.csv`(train 2,448 / val 528 / test 520 + test_unseen 124). real 70.0/15.1/14.9%, generated 70.2/15.3/14.5%, 누출 검사 통과. 카테고리 셀별 25% 균등 확인.
+- 독립검증(신규 서브에이전트, [기록](../verifications/2026-10-08/p01_06_split.md)): **합격** — blocking 0. 데이터 무결성(병합 정합·누출 0·셀별 비율 편차 ≤0.5pp), 결정성(seed 무관 byte 동일), mutation 4건 전건 재실패(짝 기록), 복잡도 O(n + G log G).
+- hardening 7건 전부 반영:
+  - H1: 죽은 `rnd` 제거·`--seed` CLI 제거, 결정성 문서화(함수 시그니처 seed는 호환용으로 문서화).
+  - H2: `check_leakage` — 그룹 추적에 test_unseen 포함(REAL 혼입 시 look_group 분산으로 포착) + unseen↔test_unseen 양방향 검사. 가드 2방향 신설.
+  - H4: 셀별(source_type×category) 층화를 계획서 비고에 계약 명시 + 셀별 비율 가드.
+  - H5: REAL 그룹 키에 source_domain 접두어(다중 출처 병합 시 그룹명 충돌 방어).
+  - H6: main() 스모크 가드(unseen 파티션·출력·종료 0).
+  - H7: 누출 어설션을 look_group 직접 재그룹화로 독립화(group_key 변이 우회 불가).
+  - H3: Test B 평가 시 REAL 재사용 여부 — 소유자 결정 보류로 HANDOFF에 등록(구현 변경 없음).
+- 검증: 보강 후 split 재실행 결과 `data/metadata.csv` **byte 동일**(배정 불변 확인), 가드 3→5셀, 전체 27 cells passed.
+
 ## Issues found
 
 - 문제: 이 머신 예기치 않은 전원 단절 반복(09-21, 09-24, 10-08 — 이벤트 로그 41+6008 쌍).
@@ -87,6 +101,6 @@
 
 ## Next steps
 
-- P01-06(split) 착수 — `scripts/split_dataset.py`(§14 group split + unseen test) 설계·구현. 씨드 데이터(Real 3,000 + Generated 620)로 split 후 P02 착수 게이트 통과.
-- P01-07 — Generated 3,000+ 확장.
+- P01-07 — Generated 3,000+ 확장 후 split 재실행·재검증.
 - (완료 처리됨) 5종 생성기 씨드 — qwen 124·z_image 124·sdxl 124·playground 124·sd35(unseen) 124 = 620장.
+- (완료 처리됨) P01-06 split — `data/metadata.csv` 배정 완료·독립검증 합격.
