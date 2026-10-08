@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-09 · 29줄
+> 마지막 자가 검수: 2026-10-09 · 30줄
 
 ## 현재 상태
 
@@ -8,13 +8,14 @@
 - **P01(데이터 파이프라인) Complete (2026-10-09)** — §27 Phase 1 완료 조건 전부 충족. 최종 `data/metadata.csv` **6,000행**(REAL 3,000 K-Fashion + Generated 3,000 = 5종 × 600): train 3,780 / val 820 / test 800 + test_unseen 600(sd35_medium 전량). 누출 0, 층화 축은 **source_type × category × generator**(train 생성기별 420/92/88 — generator별 평가 가능화, P01-07 검증 H1). P01-06·P01-07 독립검증 모두 최종 합격([P01-06](docs/verifications/2026-10-08/p01_06_split.md) · [P01-07](docs/verifications/2026-10-09/p01_07_scale_expansion.md) — 각 보강 라운드 포함).
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
-- P02 baseline: `configs/baseline.yaml`은 frozen SigLIP, smoke는 stub/CPU. CUDA `training` profile과 `src/evaluate.py` 제공. 실학습 확인 전이며 상태는 [P02 계획](docs/plan/phase_2_baseline.md) 참고.
+- 학습 baseline: frozen SigLIP(`configs/baseline.yaml`), `checkpoints/baseline/best.pt`·재개용 `last.pt`. config/metric/provenance는 [실험 스냅샷](experiments/p02_siglip_baseline/README.md), 페이즈 상태는 [P02 계획](docs/plan/phase_2_baseline.md) 참고.
+- Test B는 Standard test REAL 448 + `test_unseen` FAKE 600(sd35_medium), 총 1,048장([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val REAL 제외, 두 테스트 간 REAL 공유.
 
 ## 다음 작업 (우선순위 순)
 
-1. **P02 실학습·평가 확인** — `COMPOSE_BAKE=false docker compose --profile training build train`, `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train`. 이미지 기본 경로는 `$HOME/data/tracepector/images`(`IMAGE_DIR`로 변경), `/images`로 읽기 전용 마운트.
-2. Test B REAL은 Standard test REAL 재사용([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val 제외. 평가: `docker compose --profile training run --rm train python -m src.evaluate --checkpoint checkpoints/baseline/best.pt --device cuda`.
-3. 전원 단절 시 동일 config로 train `--resume`(epoch별 `last.pt`). GEN pHash/embedding 중복 점검은 후속 작업.
+1. **P03 baseline 비교 계획 작성** — 동일 split에서 DINO baseline과 SigLIP 기준 실험을 비교한다. [페이즈 인덱스](docs/plan/00_index.md) 참고.
+2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout 설계는 후속 항목이다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 아직 하지 않았다.
+3. baseline 재실행: `COMPOSE_BAKE=false docker compose --profile training build train`, `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train`. `IMAGE_DIR` 기본 `$HOME/data/tracepector/images` → `/images` 읽기 전용. 평가: `docker compose --profile training run --rm train python -m src.evaluate --checkpoint checkpoints/baseline/best.pt --device cuda`. 전원 단절 후 동일 config로 train `--resume`.
 
 ## 주의
 

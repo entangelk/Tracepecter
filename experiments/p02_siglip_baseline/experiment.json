@@ -1,0 +1,360 @@
+{
+  "experiment_name": "baseline",
+  "git_commit": "37ba16a42e47d0a70f2f84be8309fe6a338669c6",
+  "dataset_version": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+  "model": {
+    "encoder": "siglip",
+    "model_id": "google/siglip-base-patch16-224",
+    "revision": "7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed",
+    "image_size": 224,
+    "freeze_encoder": true
+  },
+  "train_sample_count": 3780,
+  "validation_sample_count": 820,
+  "config": {
+    "model": {
+      "encoder": "siglip",
+      "model_id": "google/siglip-base-patch16-224",
+      "revision": "7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed",
+      "image_size": 224,
+      "freeze_encoder": true
+    },
+    "training": {
+      "epochs": 10,
+      "batch_size": 32,
+      "num_workers": 2,
+      "learning_rate": 0.0001,
+      "device": "cuda",
+      "seed": 42
+    },
+    "data": {
+      "metadata_csv": "data/metadata.csv",
+      "image_root": "/images"
+    },
+    "augmentation": {
+      "horizontal_flip": true,
+      "jpeg_aug": true,
+      "minor_crop": true,
+      "color_jitter": true
+    },
+    "output": {
+      "checkpoint_dir": "checkpoints/baseline"
+    }
+  },
+  "checkpoint": "checkpoints/baseline/best.pt",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.24989484523339248,
+      "val_loss": 0.06486602127552032,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9853658536585366,
+        "precision": 0.9741379310344828,
+        "recall": 1.0,
+        "f1": 0.9868995633187774,
+        "roc_auc": 0.9990200557906888,
+        "pr_auc": 0.9991777135417751
+      }
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.05337749973491386,
+      "val_loss": 0.03128586709499359,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9939024390243902,
+        "precision": 0.9912087912087912,
+        "recall": 0.9977876106194691,
+        "f1": 0.9944873208379273,
+        "roc_auc": 0.9996813678337823,
+        "pr_auc": 0.9997366789209261
+      }
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.030549856572148325,
+      "val_loss": 0.02670561894774437,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9926829268292683,
+        "precision": 0.9868995633187773,
+        "recall": 1.0,
+        "f1": 0.9934065934065934,
+        "roc_auc": 0.9997414871104272,
+        "pr_auc": 0.9997875566332823
+      }
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.021173463722139046,
+      "val_loss": 0.019833935424685478,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9926829268292683,
+        "precision": 0.9911894273127754,
+        "recall": 0.995575221238938,
+        "f1": 0.9933774834437086,
+        "roc_auc": 0.9998316660253944,
+        "pr_auc": 0.9998622247089792
+      }
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.01717636701872661,
+      "val_loss": 0.017784856259822845,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9939024390243902,
+        "precision": 0.9955654101995566,
+        "recall": 0.9933628318584071,
+        "f1": 0.9944629014396457,
+        "roc_auc": 0.9998677375913814,
+        "pr_auc": 0.9998916803252952
+      }
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.014339370882291367,
+      "val_loss": 0.01586892269551754,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9939024390243902,
+        "precision": 0.9912087912087912,
+        "recall": 0.9977876106194691,
+        "f1": 0.9944873208379273,
+        "roc_auc": 0.9998677375913813,
+        "pr_auc": 0.9998916803252952
+      }
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.011628858859419193,
+      "val_loss": 0.016943247988820076,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9951219512195122,
+        "precision": 0.9912280701754386,
+        "recall": 1.0,
+        "f1": 0.9955947136563876,
+        "roc_auc": 0.9998316660253943,
+        "pr_auc": 0.9998610613546665
+      }
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.010882640657847914,
+      "val_loss": 0.014550053514540195,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9951219512195122,
+        "precision": 0.9933920704845814,
+        "recall": 0.9977876106194691,
+        "f1": 0.9955849889624724,
+        "roc_auc": 0.9998677375913814,
+        "pr_auc": 0.9998912061766518
+      }
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.008562160688378508,
+      "val_loss": 0.015824954956769943,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9951219512195122,
+        "precision": 0.9933920704845814,
+        "recall": 0.9977876106194691,
+        "f1": 0.9955849889624724,
+        "roc_auc": 0.9998196421700654,
+        "pr_auc": 0.9998505046637707
+      }
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.0075048714253445345,
+      "val_loss": 0.013386601582169533,
+      "validation_metrics": {
+        "count": 820,
+        "accuracy": 0.9951219512195122,
+        "precision": 0.9933920704845814,
+        "recall": 0.9977876106194691,
+        "f1": 0.9955849889624724,
+        "roc_auc": 0.9998737495190457,
+        "pr_auc": 0.9998960630973079
+      }
+    }
+  ],
+  "test_sample_count": 800,
+  "unseen_sample_count": 1048,
+  "test_metrics": {
+    "shared_real_count": 448,
+    "unseen_real_policy": "standard_test_real_reuse",
+    "pr_auc_method": "trapezoidal",
+    "standard": {
+      "count": 800,
+      "accuracy": 0.995,
+      "precision": 0.9955357142857143,
+      "recall": 0.9955357142857143,
+      "f1": 0.9955357142857143,
+      "roc_auc": 0.9999365868506493,
+      "pr_auc": 0.9999500852851622,
+      "category_wise": {
+        "상의": {
+          "count": 200,
+          "accuracy": 0.99,
+          "precision": 0.9824561403508771,
+          "recall": 1.0,
+          "f1": 0.9911504424778761,
+          "roc_auc": 0.999898538961039,
+          "pr_auc": 0.9999206333528986
+        },
+        "아우터": {
+          "count": 200,
+          "accuracy": 0.995,
+          "precision": 1.0,
+          "recall": 0.9910714285714286,
+          "f1": 0.9955156950672646,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "원피스": {
+          "count": 200,
+          "accuracy": 0.995,
+          "precision": 1.0,
+          "recall": 0.9910714285714286,
+          "f1": 0.9955156950672646,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "하의": {
+          "count": 200,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 0.9999999999999999,
+          "pr_auc": 1.0
+        }
+      },
+      "generator_wise": {
+        "playground_25": {
+          "count": 536,
+          "accuracy": 0.996268656716418,
+          "precision": 1.0,
+          "recall": 0.9955357142857143,
+          "f1": 0.9977628635346756,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "qwen_image_21": {
+          "count": 536,
+          "accuracy": 0.9944029850746269,
+          "precision": 0.9977628635346756,
+          "recall": 0.9955357142857143,
+          "f1": 0.9966480446927374,
+          "roc_auc": 0.9998478084415584,
+          "pr_auc": 0.9999699706942634
+        },
+        "sdxl": {
+          "count": 536,
+          "accuracy": 0.996268656716418,
+          "precision": 1.0,
+          "recall": 0.9955357142857143,
+          "f1": 0.9977628635346756,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "z_image_turbo": {
+          "count": 536,
+          "accuracy": 0.9944029850746269,
+          "precision": 0.9977628635346756,
+          "recall": 0.9955357142857143,
+          "f1": 0.9966480446927374,
+          "roc_auc": 0.9998985389610391,
+          "pr_auc": 0.9999800254173201
+        }
+      },
+      "source_wise": {
+        "kfashion": {
+          "count": 800,
+          "accuracy": 0.995,
+          "precision": 0.9955357142857143,
+          "recall": 0.9955357142857143,
+          "f1": 0.9955357142857143,
+          "roc_auc": 0.9999365868506493,
+          "pr_auc": 0.9999500852851622
+        }
+      }
+    },
+    "unseen": {
+      "count": 1048,
+      "accuracy": 0.9885496183206107,
+      "precision": 0.9780701754385965,
+      "recall": 0.9955357142857143,
+      "f1": 0.9867256637168142,
+      "roc_auc": 0.999765625,
+      "pr_auc": 0.9996878685979468,
+      "category_wise": {
+        "상의": {
+          "count": 262,
+          "accuracy": 0.9923664122137404,
+          "precision": 0.9824561403508771,
+          "recall": 1.0,
+          "f1": 0.9911504424778761,
+          "roc_auc": 0.9998809523809523,
+          "pr_auc": 0.9998405548688023
+        },
+        "아우터": {
+          "count": 262,
+          "accuracy": 0.9656488549618321,
+          "precision": 0.9327731092436975,
+          "recall": 0.9910714285714286,
+          "f1": 0.961038961038961,
+          "roc_auc": 0.9994047619047619,
+          "pr_auc": 0.9992413792144622
+        },
+        "원피스": {
+          "count": 262,
+          "accuracy": 0.9961832061068703,
+          "precision": 1.0,
+          "recall": 0.9910714285714286,
+          "f1": 0.9955156950672646,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        },
+        "하의": {
+          "count": 262,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0
+        }
+      },
+      "generator_wise": {
+        "sd35_medium": {
+          "count": 1048,
+          "accuracy": 0.9885496183206107,
+          "precision": 0.9780701754385965,
+          "recall": 0.9955357142857143,
+          "f1": 0.9867256637168142,
+          "roc_auc": 0.999765625,
+          "pr_auc": 0.9996878685979468
+        }
+      },
+      "source_wise": {
+        "kfashion": {
+          "count": 1048,
+          "accuracy": 0.9885496183206107,
+          "precision": 0.9780701754385965,
+          "recall": 0.9955357142857143,
+          "f1": 0.9867256637168142,
+          "roc_auc": 0.999765625,
+          "pr_auc": 0.9996878685979468
+        }
+      }
+    }
+  },
+  "checkpoint_sha256": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe"
+}

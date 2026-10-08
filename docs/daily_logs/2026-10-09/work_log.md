@@ -90,3 +90,19 @@
 - CPU exact pin 환경도 전체 34 passed. Python 3.12에서 2-worker DataLoader가 멀티스레드 fork 경고를 내므로 학습/평가 worker를 spawn으로 명시하고 smoke는 worker 0으로 고정한다. CUDA 초기화 후 fork도 피하는 동일 원인의 국소 보강이다.
 
 - 전처리 검토 보강: 세로 원본에 square RandomResizedCrop을 바로 적용하면 fallback 중앙 crop이 면적 5% 제한을 벗어날 수 있다. SigLIP의 square resize 후 약한 crop을 적용하도록 순서를 수정하고 세로 이미지 회귀 가드를 추가했다.
+
+### P02 실학습·평가 결과
+
+- 최종 CPU 전체 **35 passed**(기존 dedup fixture Pillow 경고 12건만 잔존). spawn worker의 fork 경고는 사라졌다. Dockerfile의 torch/torchvision 버전 중복 선언을 제거하여 `requirements.txt` constraint로 CPU wheel을 선택한다.
+- 구현 commit `37ba16a42e47d0a70f2f84be8309fe6a338669c6`에서 기존 metadata split 불변으로 10 epoch CUDA 학습. 이미지 6,000장 전부 경로 존재 확인. GPU 외부 compute 프로세스가 조회되지 않는 상태에서 시작했고 학습 중 약 1.8GB를 사용했다.
+- best는 epoch 10(validation BCE 0.013387, ROC-AUC 0.999874). epoch 7/9의 validation 악화 때 이전 best를 보존함도 실제 실행에서 확인했다.
+- Test A(800장): ROC-AUC 0.999937, Accuracy 0.995000. Test B(REAL 448 + unseen FAKE 600 = 1,048): ROC-AUC 0.999766, Accuracy 0.988550. category/generator/source별 지표와 PR-AUC·Precision·Recall·F1을 JSON에 보관했다.
+- [실험 스냅샷](../../../experiments/p02_siglip_baseline/README.md): config, metadata SHA256, 구현 commit, checkpoint SHA256, 전체 학습/평가 지표. 바이너리와 전체 로그는 `checkpoints/baseline/`에 비추적 보관한다.
+- P02 상태와 인덱스를 Complete로 함께 갱신. 이는 P02 실행 조건의 완료이며, 독립검증 합격 또는 최종 제품 성공을 의미하지 않는다. 현재 개발 평가의 수치 기준은 충족하나 단일 REAL source, GEN 근사중복 미점검, 별도 최종 holdout 미확보가 남는다.
+
+### 현재 다음 작업
+
+- P03 계획 작성 후 동일 split의 DINO baseline 비교.
+- GEN pHash/embedding 점검과 최종 미사용 REAL/FAKE holdout 설계는 후속 범위. 신규 수집이나 기존 split 변경은 수행하지 않았다.
+
+- 최종 산출물 점검: 실제 best checkpoint의 config가 baseline YAML과 동일하고 epoch 10임을 확인했다. checkpoint의 encoder 전체 tensor는 동일 revision의 pretrained 가중치와 값이 전부 일치한다(head만 학습됨). canonical constraint 기반 CPU 빌드와 버전 조회 성공, Compose config·변경 문서 링크·실험 표본 수·metadata hash·`git diff --check` 이상 없음.

@@ -1,6 +1,6 @@
 # P02 — Baseline 모델
 
-**상태:** In Progress
+**상태:** Complete (2026-10-09)
 
 ## 목표·선행 조건
 
@@ -33,3 +33,11 @@ DINO 비교는 P03, calibration은 P05, GEN pHash/embedding 중복 점검은 별
 ## 참조
 
 SigLIP의 vision pooled output 및 전처리는 [Transformers 공식 문서](https://huggingface.co/docs/transformers/model_doc/siglip)와 [모델 카드](https://huggingface.co/google/siglip-base-patch16-224)를 확인했다. baseline은 224×224, RGB mean/std 0.5이며 pretrained revision을 config에 고정한다.
+
+## 실행·완료 근거
+
+- 기존 split으로 10 epoch CUDA 실학습. validation BCE 기준 best는 epoch 10, `checkpoints/baseline/best.pt`·`last.pt` 저장.
+- validation ROC-AUC 0.999874, Test A ROC-AUC 0.999937(800장), Test B ROC-AUC 0.999766(1,048장).
+- P02-01~04 실행 조건 충족. 최종 CPU 회귀 35 passed, CUDA 전체 및 집중 검증 기록은 [실험 기록](../../experiments/p02_siglip_baseline/README.md)과 [work log](../daily_logs/2026-10-09/work_log.md) 참고. 독립검증은 미수행이다.
+- config·dataset hash·구현 commit·checkpoint hash·학습/평가 metric의 스냅샷을 `experiments/p02_siglip_baseline/`에 보관한다. 바이너리는 로컬 비추적 경로에 둔다.
+- 다음은 P03 계획/비교. 현재 Test A/B는 개발 평가이며, 독립 최종 holdout은 별도 후속 설계 항목이다.

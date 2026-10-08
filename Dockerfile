@@ -5,10 +5,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir torch==2.9.0 torchvision==0.24.0 \
+COPY requirements.txt .
+RUN pip install --no-cache-dir -c requirements.txt torch torchvision \
     --index-url https://download.pytorch.org/whl/cpu
 
-COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
