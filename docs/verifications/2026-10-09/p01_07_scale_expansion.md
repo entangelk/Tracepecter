@@ -8,6 +8,7 @@
 - 검증 대상: P01-07 슬라이스 — 배치 2 생성 산출물 5종, 최종 `data/metadata.csv`, §27 Phase 1 완료 처리
 - 작업 원천: commit `c50547c`(qwen b2) → `fd6d301`(z b2) → `2f2bcd4`(sdxl b2) → `ea4470a`(playground b2) → `80e1c03`(sd35 b2) → `1504e23`(최종 metadata.csv) → `0d985c0`(완료 처리 docs) — `main` 브랜치, HEAD = `0d985c0`, working tree clean
 - 정준 계약: `docs/project.md` §7(데이터셋 규모, :197)·§10(Test B, :319)·§12(스키마 v1.2, :403)·§14(split, :478)·§27 Phase 1 완료 조건(:970), `docs/plan/phase_1_data_pipeline.md` P01-06/P01-07 행·결과 비고(:62, :100-101), `docs/plan/00_index.md` P01 행(:8)
+- 이력: 1차 검증(HEAD `0d985c0` 기준, 판정 **합격** + hardening H1~H4) → 보강 커밋 `af13dc6`(H1~H3 반영) → **추적 검증(보강 라운드)** 실시 — 아래 별도 섹션
 
 ## Scope
 
@@ -53,6 +54,8 @@ docker compose run --rm dev python -m pytest -q   # → 28 passed
 ```
 
 ## Findings
+
+(본 섹션은 1차 검증 시점 — HEAD `0d985c0`, metadata.csv val 812/test 800→보강 전 기준. 보강 라운드(`af13dc6`) 이후 상태는 아래 "추적 검증" 섹션에서 재검증: 총량 val 820/test 800, 나머지 성질 전부 유지.)
 
 ### 1. §27 Phase 1 완료 조건 7개 — 전부 독립 충족 확인
 
@@ -135,38 +138,77 @@ docker compose run --rm dev python -m pytest -q   # → 28 passed
 
 ### Hardening recommendations (비차단)
 
+(1차 검증 시점 지적 — H1~H3는 보강 커밋 `af13dc6`으로 해소, H4는 계승 보류로 존속. 해소 확인은 아래 "추적 검증" 섹션.)
+
 - **H1 — 생성기×split 퇴화, P02/P03 평가 설계 확정 전 소유자 결정 권장(최우선)**. 생성기별 분포 재계산: qwen_image_21 **600 train / 0 val / 0 test**, playground_25 **600/0/0**, sdxl 280/160/160, z_image_turbo 200/200/200(sd35 600 test_unseen). 즉 **val·test의 GEN 360행은 z_image+sdxl만**으로 구성되고 train 점유율 35.7%씩인 qwen·playground는 검증·시험에서 관측 불가능. 구조적으로 결정적 알고리즘(그룹 키 사전순: playground→qwen→sdxl→z 순 셀 결손 소진)의 귀결이며 P01-06 시점(124행 규모에서 qwen·playground 전량 train)과 동일 구조로, P01-07이 도입한 회귀는 아님 — P01-06 검증이 잠근 "GEN=개별 그룹" 해석과 source_type×category 셀 층화 계약은 준수 중임. 그러나 (a) §10 Test A의 목적("일반적인 classification 성능 측정")상 test GEN이 train GEN 구성을 대표하지 못하고, (b) 집계 비율(real/generated 70/15/15)만 보고되어 어느 기록에도 이 분포가 명시되지 않았다. 권고: cell을 (source_type, category, generator)로 확장한 재배정 또는 현 구성의 명시적 수용을 P02 평가 설계 전에 소유자가 결정. 분포 자체는 본 기록의 교차표로 문서화됨.
 - **H2 — 계획서 비고 문서 수정**: "gen_ID 전역 연속 1~3,003" → "범위 1~3,003·전역 유일(예약 공백 3)" 정정(데이터 결함 아님).
 - **H3 — work log 반사실 서술 정정**: 중복 재현 범위는 생성기당 첫 카테고리 블록 31쌍(전 블록 아님).
 - **H4 — P01-06 계승 사항 재확인**: GEN 근사중복 pHash 점검 대규모 실행 위임(`scripts/split_dataset.py:10-11` 명시, 본 검증의 MD5 전수 유일성은 정확 중복만 커버), Test B(test_unseen)의 REAL 재사용 여부 보류(HANDOFF:16) — P02 평가 설계 시 결정 필요.
 
+## 추적 검증 — 보강 라운드(2026-10-09, 커밋 `af13dc6`)
+
+1차 검증의 hardening H1~H4 반영을 diff·데이터에서 재도출(구현자 설명 미신뢰). 대상 커밋 `af13dc6`(변경 6파일: `scripts/split_dataset.py`·`tests/test_split_dataset.py`·`data/metadata.csv`·계획서·10-08/10-09 work log).
+
+### H1 — 생성기×split 퇴화 해소 확인
+
+- **코드**: `stratified_group_split`에 `cell_of` 도입, 셀 축이 `(source_type, category, generator)` 3값으로 확장됨(`git show af13dc6 -- scripts/split_dataset.py` — `cell_totals`·`touched`·`cell_counts` 전부 `cell_of` 경유로 일관). REAL은 generator 빈값 1종이라 셀 구조 (real, category, "")로 불변.
+- **데이터 재검증**(사전 보강본 = 1차 검증의 byte 동일 재실행 보관본 `/tmp/p0107_verify/metadata_rerun.csv` 대비):
+  - **REAL split 불변: 0행 변경**. GEN 1,080행 재배정. 비-split 필드 6,000행 전수 불변.
+  - 생성기×split 교차표: qwen·z_image·sdxl·playground 전원 **420 train / 92 val / 88 test**(종당 600), sd35 600 test_unseen. **val GEN 368 = 92×4종 균등, test GEN 352 = 88×4종 균등** — 1차 검증의 퇴화(qwen·playground 0행) 해소.
+  - 총량 train 3,780 / val 820 / test 800 + test_unseen 600(계획서 갱신 문구와 일치). REAL 2,100/452/448 불변.
+  - 3축 셀(GEN 16셀) 70/15/15 최대 편차 **0.33pp**(최대 셀: qwen×원피스 test 22/150). 2축(source_type×category) 총합 기준 최대 편차도 0.33pp — P01-06이 잠근 2축 층화 의미가 총합 수준에서 잔존(회귀 아님). 카테고리 셰어 25% 편차 0.00pp.
+  - 누출 0(독립 로직 재실행 — REAL look_group 2,929그룹 단일 split, 빈 look_group 0), sd35 분리·스키마·무결성(A·B·C·E 전 항목) 재통과.
+  - 결정성: 재실행 결과 현 `data/metadata.csv`와 **byte 동일**.
+- **가드**: `test_group_split_no_leakage_and_ratios` 픽스처가 생성기 2종(qwen 40·z 40)으로 확장되고 셀 어설션이 3축 키 + 셀별 ±5pp 비율로 강화됨. 전체 스위트 **28 passed**.
+- **Mutation(가드 실증)**:
+  - MU3(cell_of에서 generator 축 제거 — H1 결함의 재주입, under-strict) → `test_group_split_no_leakage_and_ratios`가 **3축 셀 비율 어설션에서 정확 재실패**: `(('generated','상의','qwen_image_21'), 'train', 1.0) — assert 0.30 < 0.05` — 즉 가드는 H1 퇴화 서명(특정 생성기의 train 붕괴) 자체를 포착.
+  - MO1-redo(SPLIT_RATIO 0.75/0.15/0.10, over-strict) → 동일 셀 재실패.
+  - 전건 복원 확인(pre-flight `git status --short` 빈 → mutate → `git checkout` → `git diff` 0행 → 전체 28 passed).
+
+### H2·H3 — 문서 정정 확인
+
+- H2: 계획서 P01-07 비고가 "gen_ID 1~3,003 범위(**249·374·499 공백 3** — 씨드 경계 잔여)"로 정정됨 — 1차 재도출 사실과 일치.
+- H3: 10-08 work log가 "첫 카테고리 블록(원피스, 생성기당 31쌍)"으로 정정됨(반사실 실험 근거 명시) — 1차 반사실 재현(31쌍)과 일치.
+- 계획서 P01-06 비고의 층화 계약 문구도 3축으로 갱신("독립검증 H4 + P01-07 H1"로 변경 이력 명시) — 회계적 정직성 확인.
+- H4(계승): 변경 없음이 맞음 — `af13dc6`이 HANDOFF 미변경, 보류 2건(Test B REAL 재사용·GEN pHash 대규모 점검)은 그대로 존치.
+
+### 잔여
+
+- H4 2건(계승 보류 — P02 평가 설계 시 소유자 결정): test_unseen의 REAL 재사용 여부(HANDOFF:16), GEN 근사중복 pHash 점검 위임(`scripts/split_dataset.py:10-13`).
+- 신규 blocking 없음. 보강 라운드에서 새로 발견된 결함 없음.
+
 ## Verdict
 
 **합격**
 
+판정 이력: 1차 검증(HEAD `0d985c0`) **합격** + hardening H1~H4 → 보강 커밋 `af13dc6`(H1~H3) 추적 검증으로 **합격 재확인**(신규 blocking 없음, H1 가드 mutation으로 잠금 실증).
+
 - §27 Phase 1 완료 조건 7개를 구현 미재사용 재계산으로 전부 충족 확인(6,000행·REAL 3,000·GEN 3,000·4부위 카테고리·§12 v1.2 metadata.csv·split·test_unseen 600).
-- 무결성: 11입력 대비 키 집합·비split 필드 완전 불변, 재실행 byte 동일, 148행 GEN 재배정은 계획된 "재배정" 범위 내(REAL 불변).
-- 누출 0(독립 로직), 셀별 층화 최대 편차 0.07pp, 보고 수치 전부 재현.
+- 무결성: 11입력 대비 키 집합·비split 필드 완전 불변, 재실행 byte 동일, GEN 재배정은 계획된 "재배정" 범위 내. **보강 후에도 REAL 0행 불변·재실행 byte 동일 재확인.**
+- 누출 0(독립 로직), 셀별 층화(보강 후 3축 셀 최대 편차 0.33pp, 2축 총합·카테고리 셰어도 유지), 보고 수치 전부 재현.
 - seed 43 중복 방지 설계: 스트림 실증(CSV↔plan_jobs 전수 일치)·교집합 0·반사실 31쌍/gen·이미지 MD5 전수 유일.
-- 이미지·테스트(28 passed)·mutation 7건(코드 3 + 데이터 4) 전건 재실패와 짝 기록 완료.
-- H1(생성기×split 퇴화)은 계약 위반이 아닌 계승된 설계 속성으로 분류하되 P02 착수 전 소유자 결정을 권고 — 본 기록에 교차표로 고정.
+- 이미지·테스트(28 passed)·mutation 9건(1차 7 + 추적 2: MU3·MO1-redo) 전건 재실패와 짝 기록 완료. MU3은 H1 결함 서명(생성기 train 붕괴)을 신규 3축 가드가 직접 포착함을 입증.
+- H1 퇴화는 보강으로 해소(생성기별 420/92/88·val/test 4종 균등), H2·H3 문서 정정 확인, H4 2건은 계승 보류로 존치.
 
 ## Outstanding items
 
-- `main` HEAD `0d985c0`, working tree clean(본 검증의 mutation은 전건 복원·`git diff` 빈 확인). 검증 스크립트는 `/tmp/p0107_verify/`에 존재(저장소 외).
-- P01 Complete 처리로 P02(Baseline) 착수 게이트 개방. **P02 평가 설계 전 H1 소유자 결정 및 HANDOFF:16 Test B REAL 재사용 결정이 선행 권장.**
-- H2·H3 문서 정정은 언제든 가능(비차단).
+- `main` HEAD `af13dc6`, working tree clean(본 검증의 mutation은 전건 복원·`git diff` 0행 확인). 검증 스크립트는 `/tmp/p0107_verify/`에 존재(저장소 외).
+- P01 Complete 처리로 P02(Baseline) 착수 게이트 개방. **P02 평가 설계 전 HANDOFF:16 Test B(test_unseen) REAL 재사용 결정이 선행 권장** — H1은 보강으로 해소되어 결정 대상에서 제외.
+- 계승 보류(H4): GEN 근사중복 pHash 점검(P02+ encoder 연결 시점).
 
 ## Reproduction
 
 ```bash
 git status --short   # clean 확인
 python3 /tmp/p0107_verify/verify_main.py            # §27·무결성·누출·층화·배치2 (exit 0)
-python3 /tmp/p0107_verify/verify_gentab.py          # 생성기×split 교차표·재배정 분석
+python3 /tmp/p0107_verify/verify_gentab.py          # 생성기×split 교차표·재배정 분석(1차 본 기준 — 보강 전 값 출력)
 python3 scripts/split_dataset.py --inputs data/metadata_real.csv data/metadata_gen_qwen_image_21.csv data/metadata_gen_qwen_image_21_b2.csv data/metadata_gen_z_image_turbo.csv data/metadata_gen_z_image_turbo_b2.csv data/metadata_gen_sdxl.csv data/metadata_gen_sdxl_b2.csv data/metadata_gen_playground_25.csv data/metadata_gen_playground_25_b2.csv data/metadata_gen_sd35_medium.csv data/metadata_gen_sd35_medium_b2.csv --out /tmp/metadata_rerun.csv && cmp data/metadata.csv /tmp/metadata_rerun.csv
 python3 /tmp/p0107_verify/verify_seedstream.py      # seed 43 실증·반사실
 python3 /tmp/p0107_verify/verify_images.py          # b2 이미지 스팟
 cd ~/data/tracepector/images/generated && md5sum */*.png | awk '{print $1}' | sort | uniq -d | wc -l   # 0
 docker compose run --rm dev python -m pytest -q     # 28 passed
-# mutation은 본 기록 Methodology 절의 절차(pre-flight 클린 게이트·git checkout 복원·git diff 확인) 그대로
+# 보강 라운드 REAL 불변: 1차 보관본(/tmp/p0107_verify/metadata_rerun.csv)과 현 metadata.csv를 image_id join 후
+# REAL split 차이 0건·비-split 필드 차이 0건 비교(추적 검증 섹션의 임계 스크립트와 동일 로직)
+# mutation은 본 기록 Methodology 절의 절차(pre-flight 클린 게이트·git checkout 복원·git diff 확인) 그대로 —
+# 추적 MU3: cell_of의 generator 축 제거 → tests/test_split_dataset.py 3축 셀 어설션 재실패
 ```
