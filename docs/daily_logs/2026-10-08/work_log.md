@@ -68,6 +68,12 @@
   - H3: Test B 평가 시 REAL 재사용 여부 — 소유자 결정 보류로 HANDOFF에 등록(구현 변경 없음).
 - 검증: 보강 후 split 재실행 결과 `data/metadata.csv` **byte 동일**(배정 불변 확인), 가드 3→5셀, 전체 27 cells passed.
 
+### P01-06 추적 검증 — H8 수정 (조건부 합격 → 해소)
+
+- 추적 검증 판정: **조건부 합격** — H6 스모크 가드의 fixture가 unseen 행에 split을 선기입해 main 파티션 경로를 우회, mutation KC(파티션 루프 제거)에도 green이었음이 입증(구현자 병목, 정당 지적).
+- 수정(H8): fixture를 `_gen_row(..., generator="sd35_medium")`(split 빈 값 — 실 파이프라인 입력 형태)로 기록해 파티션 경로를 실제 통과시킴 + 권장사항인 누출 게이트 셀(check_leakage 문제 시 exit 1·출력 미기록) 추가.
+- 입증: 커밋 후 pre-flight 클린 확인 → KC mutation 재주입 → 스모크 셀 확정 재실패(1 failed) → 복원·HEAD byte 동일·클린 → 6 passed. 최종 28 cells passed.
+
 ## Issues found
 
 - 문제: 이 머신 예기치 않은 전원 단절 반복(09-21, 09-24, 10-08 — 이벤트 로그 41+6008 쌍).
