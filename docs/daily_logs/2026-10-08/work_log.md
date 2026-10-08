@@ -47,6 +47,13 @@
 - VRAM: 13.9GB fp16 체크포인트가 12GB VRAM 초과 — `--lowvram` 플래그 없이 ComfyUI 자동 lowvram 스트리밍으로 정상 동작(GPU 100%·7.7GB, 오류 0). 세션 4가 기록한 `--lowvram` 대응은 불필요했음 — 자동 폴백으로 충분.
 - 결과: **124장 + `data/metadata_gen_playground_25.csv` 커밋** — 카테고리 31×4, gen_ID `gen_000375`~`gen_000498`(기존 3종과 교집합 0), prompt_id 71종, 이미지 샘플 20/20 PIL 정상.
 
+### P01-04 sd35_medium(unseen) 씨드 생성 완료 — 5종 완성·P01-04 완료 처리
+
+- 진행: sd3.5_medium(11.64GB all-in-one) 다운로드 완료로 모델 큐 전량 소진(`ALL_FAST_DONE`) → 컨테이너 재기동·인식 → 생성(~1.5시간, GPU 98%·10.7GB 스트리밍).
+- 결과: **124장 + `data/metadata_gen_sd35_medium.csv` 커밋** — gen_ID `gen_000500`~`gen_000623`.
+- **5종 통합 검증**: 620장, gen_ID 전역 유일성 확인(교집합 0), 완료 기준(생성기 ≥3종·500장) 초과 충족.
+- 완료 처리: 페이즈 문서 P01-04 → 완료 + 결과 비고, HANDOFF 재작성(다음 = P01-06 split), CHANGELOG 기록.
+
 ## Issues found
 
 - 문제: 이 머신 예기치 않은 전원 단절 반복(09-21, 09-24, 10-08 — 이벤트 로그 41+6008 쌍).
@@ -80,7 +87,6 @@
 
 ## Next steps
 
-- qwen_3_4b 완료 확인 → ComfyUI 컨테이너 재기동(`docker compose --profile gpu up -d comfyui`) → z_image_turbo 씨드 생성(`--count 125 --seed 42`, qwen과 동일 패턴) → 검증·커밋.
-- 다운로드 큐 후속: sdxl(6.94GB) → playground(13.88GB) → sd3.5_medium(11.64GB). 도착 순서대로 시드 생성·커밋.
-- 4종+unseen 시드 완료 후 P01-06 split → P01-07 Generated 확장.
-- 아침 리뷰 사항(세션 4 이월): Playground v2.5 13.9GB fp16 단일 체크포인트 — `--lowvram` 스트리밍으로 로스터 유지 결정 재확인.
+- P01-06(split) 착수 — `scripts/split_dataset.py`(§14 group split + unseen test) 설계·구현. 씨드 데이터(Real 3,000 + Generated 620)로 split 후 P02 착수 게이트 통과.
+- P01-07 — Generated 3,000+ 확장.
+- (완료 처리됨) 5종 생성기 씨드 — qwen 124·z_image 124·sdxl 124·playground 124·sd35(unseen) 124 = 620장.
