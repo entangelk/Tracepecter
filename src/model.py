@@ -1,7 +1,7 @@
 """모델 정의 — project.md §16 baseline 구조.
 
 Vision Encoder (initially frozen) → MLP Head → Sigmoid.
-SigLIP vision adapter와 다운로드 없는 smoke용 stub을 제공한다.
+SigLIP/DINOv2 vision adapter와 다운로드 없는 smoke용 stub을 제공한다.
 """
 from __future__ import annotations
 
@@ -41,11 +41,29 @@ class SiglipEncoder(nn.Module):
         return self.vision(pixel_values=images).pooler_output
 
 
+class DinoEncoder(nn.Module):
+    """DINOv2의 정규화된 CLS pooled feature를 반환한다."""
+
+    def __init__(self, model_id: str, revision: str | None = None) -> None:
+        super().__init__()
+        from transformers import Dinov2Model
+
+        self.vision = Dinov2Model.from_pretrained(model_id, revision=revision)
+        self.embedding_dim = self.vision.config.hidden_size
+
+    def forward(self, images: torch.Tensor) -> torch.Tensor:
+        return self.vision(pixel_values=images).pooler_output
+
+
 def build_encoder(name: str, embedding_dim: int = 64, model_id: str | None = None,
                   revision: str | None = None) -> nn.Module:
     """차원은 pretrained config에서 유도한다. stub만 명시 차원을 사용한다."""
     if name == "stub":
         return StubEncoder(embedding_dim)
+    if name == "dino":
+        if model_id is None:
+            raise ValueError("dino requires model.model_id")
+        return DinoEncoder(model_id, revision)
     if name == "siglip":
         if model_id is None:
             raise ValueError("siglip requires model.model_id")

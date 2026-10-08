@@ -70,11 +70,12 @@ def run_training(config: dict, train_csv: str, epochs: int, checkpoint_dir: Path
         horizontal_flip=augmentation["horizontal_flip"], jpeg_aug=augmentation["jpeg_aug"],
         split=split, minor_crop=augmentation.get("minor_crop", False),
         color_jitter=augmentation.get("color_jitter", False),
-        image_root=config["data"].get("image_root"),
+        image_root=config["data"].get("image_root"), normalization=mc.get("normalization"),
     )
     val_csv = config["data"].get("metadata_csv", config["data"].get("val_csv", train_csv))
     val_dataset = MetadataDataset(val_csv, mc["image_size"], False, False,
-                                  split="val" if split else None, image_root=config["data"].get("image_root"))
+                                  split="val" if split else None, image_root=config["data"].get("image_root"),
+                                  normalization=mc.get("normalization"))
     if not train_dataset or not val_dataset:
         raise ValueError("train and validation datasets must be nonempty")
     loader_options = dict(batch_size=config["training"]["batch_size"],

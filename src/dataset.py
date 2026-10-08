@@ -68,8 +68,11 @@ class RandomJPEG:
 
 
 def build_transform(image_size: int, horizontal_flip: bool, jpeg_aug: bool,
-                    minor_crop: bool = False, color_jitter: bool = False) -> transforms.Compose:
+                    minor_crop: bool = False, color_jitter: bool = False,
+                    normalization: dict | None = None) -> transforms.Compose:
     """§15: 약한 train augmentation, 평가에는 결정적 resize/정규화만 적용."""
+    if normalization is None:
+        normalization = dict(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
     layers: list = [transforms.Resize((image_size, image_size),
                     interpolation=transforms.InterpolationMode.BICUBIC)]
     if minor_crop:
@@ -85,7 +88,7 @@ def build_transform(image_size: int, horizontal_flip: bool, jpeg_aug: bool,
         layers.append(RandomJPEG())
     layers += [
         transforms.ToTensor(),
-        transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+        transforms.Normalize(mean=normalization["mean"], std=normalization["std"]),
     ]
     return transforms.Compose(layers)
 
@@ -103,13 +106,14 @@ class MetadataDataset(Dataset):
         minor_crop: bool = False,
         color_jitter: bool = False,
         image_root: str | Path | None = None,
+        normalization: dict | None = None,
     ) -> None:
         self.csv_path = Path(csv_path)
         self.image_root = Path(image_root) if image_root is not None else None
         self.rows = read_metadata(self.csv_path)
         if split is not None:
             self.rows = [row for row in self.rows if row.split == split]
-        self.transform = build_transform(image_size, horizontal_flip, jpeg_aug, minor_crop, color_jitter)
+        self.transform = build_transform(image_size, horizontal_flip, jpeg_aug, minor_crop, color_jitter, normalization)
 
     def __len__(self) -> int:
         return len(self.rows)

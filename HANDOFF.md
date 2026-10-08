@@ -13,7 +13,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P03 baseline 비교 계획 작성** — 동일 split에서 DINO baseline과 SigLIP 기준 실험을 비교한다. [페이즈 인덱스](docs/plan/00_index.md) 참고.
+1. **P03 DINO 실학습·비교 진행** — [P03 계획](docs/plan/phase_3_baseline_comparison.md)에 선정 규칙 고정. `configs/dino.yaml`로 10 epoch 학습 후 Test A/B·latency·크기를 비교한다. P02 SigLIP checkpoint는 유지한다.
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout 설계는 후속 항목이다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 아직 하지 않았다.
 3. baseline 재실행: `COMPOSE_BAKE=false docker compose --profile training build train`, `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train`. `IMAGE_DIR` 기본 `$HOME/data/tracepector/images` → `/images` 읽기 전용. 평가: `docker compose --profile training run --rm train python -m src.evaluate --checkpoint checkpoints/baseline/best.pt --device cuda`. 전원 단절 후 동일 config로 train `--resume`.
 

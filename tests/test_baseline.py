@@ -98,10 +98,18 @@ def test_metrics_two_classes_and_single_class():
     assert tied['pr_auc'] == pytest.approx(7 / 12)
 
 
-def test_training_validation_checkpoint_and_evaluation(tmp_path):
+def test_training_validation_checkpoint_and_evaluation(tmp_path, monkeypatch):
     from src.evaluate import main as evaluate
     path = make_data(tmp_path)
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
+    normalization = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    seen = []
+    def dataset_factory(*args, **kwargs):
+        seen.append(kwargs.get('normalization'))
+        return MetadataDataset(*args, **kwargs)
+    monkeypatch.setattr('src.train.MetadataDataset', dataset_factory)
+    monkeypatch.setattr('src.evaluate.MetadataDataset', dataset_factory)
+    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True,
+                            normalization=normalization),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=3, device='cpu'),
                   augmentation=dict(horizontal_flip=False, jpeg_aug=False),
                   data=dict(metadata_csv=str(path)),
@@ -125,6 +133,7 @@ def test_training_validation_checkpoint_and_evaluation(tmp_path):
     assert result['unseen']['count'] == 2
     assert result['shared_real_count'] == 1
     assert result['standard']['generator_wise']['seen']['roc_auc'] is not None
+    assert seen and all(n == normalization for n in seen)
 
 
 def test_image_root_mount_and_invalid_unseen(tmp_path):

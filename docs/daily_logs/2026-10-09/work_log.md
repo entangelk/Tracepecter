@@ -106,3 +106,25 @@
 - GEN pHash/embedding 점검과 최종 미사용 REAL/FAKE holdout 설계는 후속 범위. 신규 수집이나 기존 split 변경은 수행하지 않았다.
 
 - 최종 산출물 점검: 실제 best checkpoint의 config가 baseline YAML과 동일하고 epoch 10임을 확인했다. checkpoint의 encoder 전체 tensor는 동일 revision의 pretrained 가중치와 값이 전부 일치한다(head만 학습됨). canonical constraint 기반 CPU 빌드와 버전 조회 성공, Compose config·변경 문서 링크·실험 표본 수·metadata hash·`git diff --check` 이상 없음.
+
+## P03 — 후속 세션
+
+### 목표·진행
+
+- 소유자의 “이어서 진행”에 따라 P03 DINO baseline 학습·비교·primary 선정까지 진행한다.
+- `docs/plan/phase_3_baseline_comparison.md`에 비교 조건과 결과 확인 전 선정 규칙을 기록하고 인덱스를 In Progress로 갱신했다.
+- DINOv2-base adapter(CLS pooled feature, pretrained config 기반 차원), `model.normalization`의 train/val/evaluate 전달, `configs/dino.yaml`과 latency/크기 비교 CLI를 추가했다. 기존 SigLIP checkpoint의 필드 누락은 mean/std 0.5로 해석한다.
+- 원본은 공식 DINO processor의 mean/std이며 configs가 실행값을 소유한다. checkpoint 및 실험 config는 스냅샷이다. 모든 소비 경로를 회귀 테스트로 확인한다.
+- DINO 신규 가드 2건이 구현 전 각각 unknown encoder/정규화 인자 미지원으로 실패함을 확인했고 집중 6 passed. 전체 회귀는 진행 중이다.
+
+### 선택·제외
+
+- 동일 split/seed/학습 설정/MLP/224 square geometry로 비교한다. DINO의 native shortest-edge/center-crop 대신 공통 geometry를 사용하며 정규화는 pretrained 값에 맞춘다.
+- primary 선정은 validation ROC-AUC 차이 ≥0.001이면 높은 모델, 미만이면 batch-1 GPU median latency 우선. 통계적 동등성으로 해석하지 않으며 Test 결과로 규칙을 변경하지 않는다.
+- 독립 최종 holdout, GEN 근사중복 점검, calibration은 현재 작업 범위에서 제외한다. 모델 revision과 checkpoint 경로는 별도로 고정해 P02 결과를 보존한다.
+
+### 다음 단계
+
+- pretrained 로드와 전체 회귀 확인, GPU 여유 확인 후 DINO 10 epoch 학습·Test A/B 평가·latency 비교.
+
+- 전체 CPU 회귀 **38 passed**(기존 Pillow 경고 12건). 불완전한 정규화 `{}`는 기본값으로 숨기지 않고 거부하며 필드 누락만 기존 기본값을 사용한다. 공식 DINO pretrained 로드 성공, revision `f9e44c814b77203eaa57a6bdbbd535f21ede1415`, 차원 768.

@@ -99,7 +99,7 @@ def main(argv=None) -> dict:
     set_encoder_frozen(model, mc['freeze_encoder'])
     model.to(args.device)
     dataset = MetadataDataset(config['data']['metadata_csv'], mc['image_size'], False, False,
-                              image_root=config['data'].get('image_root'))
+                              image_root=config['data'].get('image_root'), normalization=mc.get('normalization'))
     standard, unseen = evaluation_indices(dataset.rows)
     result = dict(shared_real_count=sum(dataset.rows[i].label == 1 for i in standard),
                   unseen_real_policy='standard_test_real_reuse', pr_auc_method='trapezoidal')
