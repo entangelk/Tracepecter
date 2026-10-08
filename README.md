@@ -2,6 +2,17 @@
 
 > Fashion Photo Realism Scorer는 패션 착용 이미지가 실제 착용 촬영 사진과 얼마나 유사한 시각적 특성을 가지는지 평가하는 vision model이다. 실제 촬영 여부를 증명하는 forensic detector가 아니라, 패션 이미지의 photographic realism을 연속적인 score로 평가하는 것을 목표로 한다. (`docs/project.md` §34)
 
+## Why — 이 프로젝트를 시작한 이유
+
+옷을 인터넷으로 주문하는 시대가 되었다. 실물을 보지 못하고 이미지로만 상품을 고르는데, 어느 순간부터 그 이미지가 **실제로 찍은 착용 사진인지, AI가 만들어낸 이미지인지** 구분이 되지 않는다. 쇼핑 중에 직접 겪은 일이다 — 상품 페이지의 옷 사진을 한참 들여다보며 "이게 실제 상품 컷인가, 아니면 AI로 만든 이미지인가"를 판단하느라 시간을 쓰고 있었다. 실물 확인 없이 이미지를 믿고 사야 하는 시대에, 그 이미지 자체를 의심하게 되는 시간이 생겨버린 것이다.
+
+Tracepecter는 이 판단의 부담을 이미지 쪽으로 되돌리는 도구다.
+
+- **소비자의 가드**: 이미지가 얼마나 "실제 찍힌 것처럼 보이는지"를 점수로 보여준다. 육안으로 들여다보며 의심하는 수고를 모델이 대신한다.
+- **이미지 퀄리티를 올리는 가드**: 이런 소비자가 존재한다는 것을 기업도 알고 있다. realism 검출이 좋아질수록 "AI 이미지를 실사처럼 내놓는 일"은 통하지 않게 되고, 기업은 역으로 이미지의 품질과 정직성을 올릴 유인을 얻는다. 이 프로젝트는 그 기준을 끌어올리는 반대편 가드로 기능한다.
+
+단, forensic 증명 도구는 아니다 — 이 점은 [Known limitations](#known-limitations) 참고.
+
 ## Project purpose
 
 패션 착용 이미지(룩북·스트릿 패션 등)를 입력받아 **0~100 Photographic Realism Score**를 출력한다. 모델은 frozen vision encoder + MLP head 구조(§5/§16)로 시작하며, 학습 데이터는 실제 착용 사진과 AI 생성 패션 사진의 대비로 구성한다.
@@ -9,10 +20,10 @@
 ## Dataset 구성
 
 - **REAL**: AIHub K-Fashion 이미지 데이터셋(dataSetSn=51, 약 120만 장, 부위별 rect/polygon 라벨 포함) — 소유자 결정 2026-10-07, [DB-01](docs/decision_briefs/DB-01_P01_real-data-domain.md)
-- **Generated**: 로컬 오픈소스 생성기 3종 이상으로 착용 패션 컷 생성(§9, [DB-02](docs/decision_briefs/DB-02_P01_ai-generators.md))
+- **Generated**: 로컬 오픈소스 생성기 5종으로 착용 패션 컷 생성(§9, [DB-02](docs/decision_briefs/DB-02_P01_ai-generators.md)) — train 4종(qwen_image_21·z_image_turbo·sdxl·playground_25) + unseen 1종(sd35_medium, Test B 전용). ComfyUI GPU 컨테이너(`Dockerfile.comfyui`) 경유 생성.
 - 카테고리: K-Fashion 부위 라벨 기반 4종 — 상의·하의·아우터·원피스(P01 확정, 대표 부위 우선순위 원피스 > 아우터 > 상의 > 하의)
 - 얼굴 영역: 무처리 정책(DB-03) — 프롬프트 정합 + P06 failure analysis 재검 트리거로 위험 관리
-- 데이터 파이프라인 구축은 P01 — 아직 데이터·metadata.csv 는 repo 에 없다.
+- 규모(§7 최소 목표): REAL ≥3,000 + Generated ≥3,000. P01 파이프라인(선별·생성·dedup·group split)으로 구축하며, 이미지 실물은 저장소 밖(ext4)에 적재하고 `data/metadata.csv`(§12 v1.2)가 행 단위로 추적한다. 현재 진행 상태는 `HANDOFF.md`.
 
 ## Training 방법
 
