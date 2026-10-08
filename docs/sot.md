@@ -1,6 +1,6 @@
 # Tracepecter — Source of Truth (SoT)
 
-> 최종 갱신: 2026-10-07
+> 최종 갱신: 2026-10-09
 
 ## 1. 프로젝트 정의
 
@@ -48,3 +48,4 @@
 | project.md | v1.1 | 2026-10-07 | REAL 데이터를 AIHub K-Fashion으로 확정하고 Fashion Photo Realism Scorer로 재정의. 카테고리는 패션 중심 축소로 변경(목록은 P01 확정), 생성 프롬프트·split 그룹 기준 등 착용컷 도메인에 맞게 갱신 | 소유자 결정 2026-10-07, [DB-01](decision_briefs/DB-01_P01_real-data-domain.md) |
 | project.md | v1.2 | 2026-10-07 | §12 metadata schema v1.2 — `product_id` 제거, `parts`·`style`·`look_group`·`prompt_id` 추가, 대표 부위 규칙(원피스>아우터>상의>하의) 명시 | P01 계획 승인(소유자 결정 2026-10-07), [P01 계획서](plan/phase_1_data_pipeline.md) |
 | sot.md | v1.0 | 2026-10-07 | 최초 작성 — 문서 체계·precedence 정의 | CLAUDE.md §1 (spec-precedence tree 요구) |
+| project.md | v1.3 | 2026-10-09 | §10 Test B REAL은 Standard test REAL을 재사용하며 train/val은 제외 | [DB-04](decision_briefs/DB-04_P02_unseen-real.md), 소유자 결정 |

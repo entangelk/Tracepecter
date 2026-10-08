@@ -1,0 +1,8 @@
+# 기존 저장소의 CUDA/torch 환경 재사용. 선행: docker compose --profile gpu build comfyui
+FROM tracepecter/comfyui
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . /app
+ENTRYPOINT []
+CMD ["python", "--version"]

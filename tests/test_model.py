@@ -44,9 +44,9 @@ def test_encoder_grad_flags():
 
 
 def test_unknown_encoder_rejected():
-    """P00 은 stub 만 지원 — siglip 등 실제 encoder 요청은 P02 전까지 ValueError."""
+    """알 수 없는 encoder 이름을 거부한다(정상 stub·siglip은 별도 검증)."""
     with pytest.raises(ValueError):
-        build_encoder("siglip", EMBEDDING_DIM)
+        build_encoder("unknown", EMBEDDING_DIM)
 
 
 def test_head_structure_matches_spec():

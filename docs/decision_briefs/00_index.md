@@ -8,6 +8,8 @@
 | [DB-02](DB-02_P01_ai-generators.md) | P01 | P01-04 | AI 생성기 접근 수단 — 로컬/API/혼합 5종 구성 | Resolved | 옵션 A(소유자 변형): 전량 로컬 오픈소스 무비용 — Qwen-Image 보유·Z-Image 추가 가능, 5종 구성은 P01-04 설계 시 확정 | 2026-10-07 |
 | [DB-03](DB-03_P01_face-policy.md) | P01 | P01 데이터 설계 전체 | 얼굴 영역 처리 정책(DB-01 후속) | Resolved | 옵션 A: 무처리 — 프롬프트 정합 + P06 재검 트리거로 위험 관리 | 2026-10-07 |
 
+| [DB-04](DB-04_P02_unseen-real.md) | P02 | P02-03 | Test B REAL 구성 | Resolved | 옵션 A: Standard test REAL 재사용 | 2026-10-09 |
+
 ## 대기 중인 사항
 
-- 없음 — P01 계획서 승인 완료(2026-10-07, 카테고리 4부위·schema v1.2 포함). 남은 선행은 소유자의 원천 이미지 다운로드 완료뿐.
+- 없음 — Test B 구성은 DB-04로 확정.

@@ -351,6 +351,8 @@ Real images
 Generator D only
 ```
 
+Test B의 REAL은 Standard Test에 배정된 REAL 이미지를 재사용한다. train/val REAL은 포함하지 않는다. 두 테스트의 REAL 표본 공유를 평가 기록에 명시한다(DB-04, 2026-10-09).
+
 Generator D 이미지를 제대로 판별한다면 특정 생성기의 artifact를 외운 것이 아니라 좀 더 일반적인 visual realism feature를 학습했을 가능성이 높다.
 
 이 Test B 결과를 프로젝트의 핵심 성능 지표로 사용한다.

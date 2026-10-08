@@ -25,6 +25,9 @@ class MetadataRow:
     label: int
     category: str
     source_type: str
+    split: str = ""
+    generator: str = ""
+    source_domain: str = ""
 
 
 def read_metadata(csv_path: str | Path) -> list[MetadataRow]:
@@ -39,6 +42,9 @@ def read_metadata(csv_path: str | Path) -> list[MetadataRow]:
                     label=int(record["label"]),
                     category=record["category"],
                     source_type=record["source_type"],
+                    split=record.get("split", ""),
+                    generator=record.get("generator", ""),
+                    source_domain=record.get("source_domain", ""),
                 )
             )
     return rows
@@ -61,13 +67,20 @@ class RandomJPEG:
         return image
 
 
-def build_transform(image_size: int, horizontal_flip: bool, jpeg_aug: bool) -> transforms.Compose:
-    """§15 전처리 중 P00 구현분: Resize·HorizontalFlip·JPEG 재압축·Normalization.
-
-    Center/Random Crop, Minor Crop/Resize, Brightness/Contrast variation 은
-    P02 DataLoader 완성 시점에 추가한다(검증 H3). 강한 augmentation(blur·heavy noise
-    등)은 §15 주의에 따라 사용하지 않는다."""
-    layers: list = [transforms.Resize((image_size, image_size))]
+def build_transform(image_size: int, horizontal_flip: bool, jpeg_aug: bool,
+                    minor_crop: bool = False, color_jitter: bool = False) -> transforms.Compose:
+    """§15: 약한 train augmentation, 평가에는 결정적 resize/정규화만 적용."""
+    layers: list = []
+    if minor_crop:
+        layers.append(transforms.RandomResizedCrop(
+            image_size, scale=(0.95, 1.0), ratio=(0.95, 1.05),
+            interpolation=transforms.InterpolationMode.BICUBIC,
+        ))
+    else:
+        layers.append(transforms.Resize((image_size, image_size),
+                      interpolation=transforms.InterpolationMode.BICUBIC))
+    if color_jitter:
+        layers.append(transforms.ColorJitter(brightness=0.05, contrast=0.05))
     if horizontal_flip:
         layers.append(transforms.RandomHorizontalFlip())
     if jpeg_aug:
@@ -88,16 +101,25 @@ class MetadataDataset(Dataset):
         image_size: int,
         horizontal_flip: bool,
         jpeg_aug: bool,
+        split: str | None = None,
+        minor_crop: bool = False,
+        color_jitter: bool = False,
+        image_root: str | Path | None = None,
     ) -> None:
         self.csv_path = Path(csv_path)
+        self.image_root = Path(image_root) if image_root is not None else None
         self.rows = read_metadata(self.csv_path)
-        self.transform = build_transform(image_size, horizontal_flip, jpeg_aug)
+        if split is not None:
+            self.rows = [row for row in self.rows if row.split == split]
+        self.transform = build_transform(image_size, horizontal_flip, jpeg_aug, minor_crop, color_jitter)
 
     def __len__(self) -> int:
         return len(self.rows)
 
     def __getitem__(self, index: int) -> tuple[torch.Tensor, float]:
         row = self.rows[index]
-        image_path = self.csv_path.parent / row.path
-        image = Image.open(image_path).convert("RGB")
+        image_path = (self.image_root / Path(row.path).relative_to("images")
+                      if self.image_root is not None else self.csv_path.parent / row.path)
+        with Image.open(image_path) as handle:
+            image = handle.convert("RGB")
         return self.transform(image), float(row.label)

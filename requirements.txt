@@ -1,12 +1,9 @@
-# Tracepecter 런타임 의존성 (canonical — project.md §24).
-# P00 시점 설치 참고: skeleton 검증에는 CPU wheel 로 충분하다.
-#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-#   pip install -r requirements.txt
-# GPU 학습용 CUDA 빌드 재설치 여부는 P02 에서 결정한다.
-torch>=2.4
-torchvision>=0.19
-transformers>=4.44
-pyyaml>=6.0
-numpy>=1.26
-pillow>=10.0
-pytest>=8.0
+# 실행 의존성 canonical. P02 CUDA 환경의 확인된 버전으로 고정.
+# CPU dev는 동일 torch/torchvision 버전의 CPU wheel 사용.
+torch==2.9.0
+torchvision==0.24.0
+transformers==5.19.0
+pyyaml==6.0.3
+numpy==2.3.3
+pillow==11.3.0
+pytest==9.1.1

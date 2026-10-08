@@ -1,24 +1,28 @@
-# 학습 기본 설정 (project.md §25).
-# model.encoder: stub — P00 skeleton 용 임시 encoder.
-# 실제 SigLIP/DINO encoder 연결은 P02(§27 Phase 2)에서 추가한다.
+# P02 frozen SigLIP baseline. --smoke는 다운로드 없이 stub/CPU로 실행한다.
 model:
-  encoder: stub
-  embedding_dim: 64
+  encoder: siglip
+  model_id: google/siglip-base-patch16-224
+  revision: 7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed
   image_size: 224
   freeze_encoder: true
 
 training:
   epochs: 10
   batch_size: 32
+  num_workers: 2
   learning_rate: 0.0001
+  device: cuda
+  seed: 42
 
 data:
-  train_csv: data/train.csv
-  val_csv: data/val.csv
+  metadata_csv: data/metadata.csv
+  image_root: /images
 
 augmentation:
   horizontal_flip: true
   jpeg_aug: true
+  minor_crop: true
+  color_jitter: true
 
 output:
   checkpoint_dir: checkpoints/baseline

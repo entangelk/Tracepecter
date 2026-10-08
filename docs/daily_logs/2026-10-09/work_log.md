@@ -49,3 +49,40 @@
 
 - P02 착수 — 페이즈 계획서(`docs/plan/phase_2_*.md`) 작성 후 baseline 모델 구현. 게이트 개방 상태.
 - 보류(소유자 결정, P02 평가 설계 전): Test B(test_unseen) 평가 시 REAL 이미지 재사용 여부 · GEN 근사중복 pHash 점검 시점(P02+ encoder 연결 권장).
+
+## P02 착수 — 후속 세션
+
+### 목표
+
+- 핸드오프의 다음 작업인 frozen SigLIP baseline을 구현하고 실제 데이터 학습·Test A/B 평가까지 확인한다.
+
+### 구현·검증
+
+- `src/model.py`: vision-only SigLIP pooled feature, pretrained config 기반 차원 유도, frozen encoder eval/no-grad 유지. head는 train mode를 유지하며 freeze 해제도 지원한다.
+- `src/dataset.py`: 원본 CSV의 split 선택과 평가용 category/generator/source projection, Docker `/images` 마운트 지원. 약한 crop/resize·brightness/contrast 추가, 평가 transform은 결정적이다.
+- `src/train.py`: validation BCE 기반 `best.pt`, epoch별 `last.pt`(optimizer/RNG 포함)와 동일 config 재개, config·metadata SHA256·학습 이력의 JSON 기록. smoke는 stub/CPU로 유지한다.
+- `src/evaluate.py`: Test A/B 및 category/generator/source별 metric. ROC-AUC는 동률 threshold를 묶어 계산하며 PR-AUC는 trapezoidal 면적이다. 단일 클래스 AUC는 null로 기록한다.
+- `Dockerfile.training`·compose `training` profile: 기존 ComfyUI CUDA 기반 환경 재사용, 런타임 의존성 exact pin. 학습용 서비스는 ComfyUI 서버를 기동하지 않는다.
+- 검증: 신규 테스트 구현 전 import 실패 확인. 기존 CPU 환경 전체 32 passed, 이후 재개/마운트 가드 추가 및 exact pin CUDA 환경 전체 **33 passed**. 기존 dedup fixture의 Pillow deprecation 경고 12건은 동작 실패가 아니다. 독립검증·mutation testing은 수행하지 않았다.
+
+### 발견 이슈
+
+- CPU dev 이미지에는 git 실행 파일이 없다. `GIT_COMMIT` 환경변수를 우선 읽고 git이 있을 때만 조회하도록 수정했다. smoke의 commit은 없을 수 있지만 실학습에는 명시 전달한다.
+- 이 머신 Docker Compose의 기본 Bake 빌드가 panic을 낸다. `COMPOSE_BAKE=false docker compose --profile training build train`으로 빌드 확인했다.
+- 실제 pretrained 가중치 다운로드·실학습 검증은 진행 중이다. 아직 P02 Complete로 판정하지 않는다.
+
+### 소유자 결정
+
+- [DB-04](../../decision_briefs/DB-04_P02_unseen-real.md) 옵션 A 선택: Standard test REAL 재사용. train/val REAL을 포함하지 않고 테스트 간 공유 표본 수를 기록한다. §10 및 SoT 버전 로그에 반영했다.
+
+### 다음 단계
+
+- 실제 pretrained encoder와 CUDA 데이터 경로 확인 후 10 epoch 학습, best checkpoint에서 Test A/B 평가 및 실험 기록 보관.
+- 이후 P03 비교, GEN pHash/embedding 중복 점검은 별도 후속 범위.
+
+- 후속 확인: 소유자가 Test B의 FAKE=`test_unseen` 600장 정의를 재확인했다. CSV 실측 REAL 448 + Generated 600 = 1,048장. 최종 평가 독립성에 대한 질문에는 개발 중 테스트 결과로 모델/설정을 선택한다면 별도 미사용 REAL/FAKE holdout을 권고한다고 설명했다. 신규 데이터 수집이나 기존 split 변경은 아직 착수하지 않는다.
+- 재개 검증 추가: augmentation 포함 연속 3 epoch와 2 epoch 후 RNG를 바꿔 재개한 결과의 학습 이력·전체 모델 state가 동일함을 확인했다. 변경된 config로 재개는 거부한다.
+
+- 공식 pretrained 가중치 로드 성공(vision 차원 768, vision 누락 key 없음; 원본의 text_model/logit key는 vision-only 로딩에서 제외). 모델 revision을 `7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed`로 고정했다.
+
+- 최종 CUDA 환경 전체 **34 passed**(기존 Pillow 경고 12건), CPU exact pin 이미지 빌드도 성공. 실학습 provenance를 고정하기 위해 구현·계획·결정을 먼저 커밋한 뒤 실험을 실행한다. 이는 mutation 검증용 커밋이 아니며 mutation은 수행하지 않는다.

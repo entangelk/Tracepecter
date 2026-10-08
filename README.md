@@ -30,8 +30,8 @@ Tracepecter는 이 판단의 부담을 이미지 쪽으로 되돌리는 도구�
 실행 환경은 Docker Compose(소유자 결정 2026-10-07). 의존성 목록은 `requirements.txt`가 canonical이다.
 
 ```bash
-# 이미지 빌드 (최초 1회 — torch CPU wheel 포함)
-docker compose build
+# CPU 검증 이미지 빌드
+docker compose build dev
 
 # 회귀 테스트
 docker compose run --rm dev python -m pytest
@@ -39,15 +39,24 @@ docker compose run --rm dev python -m pytest
 # 실데이터 없이 skeleton 검증 (tiny synthetic 데이터로 1 epoch)
 docker compose run --rm dev python -m src.train --config configs/baseline.yaml --smoke
 
-# 학습 (P01 데이터 구축 후; §25 config 구동)
-docker compose run --rm dev python -m src.train --config configs/baseline.yaml
+# CUDA 학습 이미지 (기존 ComfyUI CUDA 기반 재사용)
+docker compose --profile gpu build comfyui
+docker compose --profile training build train
+
+# 실학습 — GPU에 다른 연산 작업이 없을 때만 실행
+GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train
 ```
 
-데이터셋 호스트 경로는 `DATA_DIR` 환경변수로 지정(기본 `/mnt/f/data`, 컨테이너 `/data` 읽기 전용 마운트). GPU 프로파일은 P02 학습 시점에 추가한다. 학습 parameter는 코드에 직접 쓰지 않고 `configs/*.yaml`로 관리한다(§25).
+학습 이미지 경로는 `IMAGE_DIR`로 지정(기본 `$HOME/data/tracepector/images`, 컨테이너 `/images` 읽기 전용). `data/metadata.csv`의 split을 직접 선택하며 REAL=1, Generated=0으로 학습한다. 매 epoch validation BCE가 개선되면 `checkpoints/baseline/best.pt`를 원자적으로 교체하고 `experiment.json`에 config·metric·dataset hash를 보관한다. 매 epoch `last.pt`에 optimizer·RNG·진행 상태도 저장한다. 전원 단절 후에는 동일 config로 `docker compose --profile training run --rm train python -m src.train --config configs/baseline.yaml --resume`을 실행한다. 학습 parameter는 코드에 직접 쓰지 않고 `configs/*.yaml`로 관리한다(§25).
 
 ## Evaluation 방법
 
-P02에서 구현 예정(`src/evaluate.py`). Standard Test와 **Unseen Generator Test**(§10)를 별도 구성하며, checkpoint 를 받아 metric 을 출력한다.
+```bash
+docker compose --profile training run --rm train python -m src.evaluate \
+  --checkpoint checkpoints/baseline/best.pt --device cuda
+```
+
+`test_metrics.json`에 Accuracy·ROC-AUC·PR-AUC(사다리꼴 면적)·Precision·Recall·F1 및 category/generator/source별 지표를 저장한다. Test B는 `test_unseen`의 생성 이미지와 Standard test의 REAL 이미지를 함께 사용한다([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). 두 테스트는 REAL 표본을 공유하며, 단일 클래스 그룹의 AUC는 `null`이다. generator별 AUC는 해당 생성기+REAL, source별 AUC는 해당 REAL source+Generated를 비교한다.
 
 ## Inference 방법
 

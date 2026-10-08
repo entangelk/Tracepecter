@@ -1,20 +1,20 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-09 · 26줄
+> 마지막 자가 검수: 2026-10-09 · 29줄
 
 ## 현재 상태
 
 - P00(프로젝트 초기화) **Complete** — 독립검증 초회+재검증 합격. 기록: `docs/verifications/2026-10-07/p00_initialization.md`.
 - **P01(데이터 파이프라인) Complete (2026-10-09)** — §27 Phase 1 완료 조건 전부 충족. 최종 `data/metadata.csv` **6,000행**(REAL 3,000 K-Fashion + Generated 3,000 = 5종 × 600): train 3,780 / val 820 / test 800 + test_unseen 600(sd35_medium 전량). 누출 0, 층화 축은 **source_type × category × generator**(train 생성기별 420/92/88 — generator별 평가 가능화, P01-07 검증 H1). P01-06·P01-07 독립검증 모두 최종 합격([P01-06](docs/verifications/2026-10-08/p01_06_split.md) · [P01-07](docs/verifications/2026-10-09/p01_07_scale_expansion.md) — 각 보강 라운드 포함).
-- 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`(28 cells). 의존성 canonical은 `requirements.txt`.
+- 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
-- `model.encoder: stub` — 실제 SigLIP/DINO 연결은 P02.
+- P02 baseline: `configs/baseline.yaml`은 frozen SigLIP, smoke는 stub/CPU. CUDA `training` profile과 `src/evaluate.py` 제공. 실학습 확인 전이며 상태는 [P02 계획](docs/plan/phase_2_baseline.md) 참고.
 
 ## 다음 작업 (우선순위 순)
 
-1. **P02(Baseline 모델) 착수** — 게이트 통과(씨드 split 확보 + Phase 1 완료). frozen vision encoder + MLP head 실현(`src/model.py` stub 교체), CUDA 프로파일 학습, `src/evaluate.py`(Standard + Unseen Generator Test). 계획: `docs/plan/phase_2_*.md` 작성부터.
-2. **보류 결정(소유자)**: Test B(test_unseen) 평가 시 REAL 이미지 재사용 여부 — §10 예시는 "TEST: Real images + Generator D"로 읽히나 현 구성은 gen-only(P01-06 검증 H3). P02 평가 설계 확정 시 결정 필요.
-3. §15 잔여 전처리 확정·의존성 exact pin — P02 범위.
+1. **P02 실학습·평가 확인** — `COMPOSE_BAKE=false docker compose --profile training build train`, `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train`. 이미지 기본 경로는 `$HOME/data/tracepector/images`(`IMAGE_DIR`로 변경), `/images`로 읽기 전용 마운트.
+2. Test B REAL은 Standard test REAL 재사용([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val 제외. 평가: `docker compose --profile training run --rm train python -m src.evaluate --checkpoint checkpoints/baseline/best.pt --device cuda`.
+3. 전원 단절 시 동일 config로 train `--resume`(epoch별 `last.pt`). GEN pHash/embedding 중복 점검은 후속 작업.
 
 ## 주의
 
