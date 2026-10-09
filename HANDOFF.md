@@ -14,7 +14,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P06 failure analysis 계획·사례 분석** — calibration artifact와 고정 Test A/B를 사용하며, Test B NLL/Brier 악화도 분석한다. §27의 최소 100 사례 수동 검토 조건을 확인하고 계획에 명시한다.
+1. **P06 failure analysis 계획·사례 분석** — [결과 해석·통제 평가 제안](experiments/p03_comparison/analysis_2026-10-09.md) 참고: REAL/GEN의 형식·원본 크기가 라벨과 겹치며 모델 의존도는 미측정이다. 고정 calibration/Test A/B로 NLL/Brier 악화와 편향 가설을 분석한다. 보고된 고유 오분류는 12장 상당이므로 §27의 100 사례 검토군 구성·완료 조건을 계획에 명시한다.
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 

@@ -186,3 +186,24 @@
 - GEN 근사중복·미사용 최종 REAL/FAKE holdout·사람 평가 확보는 후속 항목이다.
 
 - 최종 재현: 저장한 validation CSV logit과 canonical metadata label만으로 temperature/threshold를 다시 계산해 artifact 값과 1e-12 이내 일치. 링크/Compose/diff 체크 정상, Tracepecter 실행 컨테이너 잔여 없음.
+
+## P03·P05 결과 해석 분석
+
+### 목표·수행
+
+- 소유자의 “아스트라 네가 분석해봐라” 요청에 따라 P03 비교 및 현재 scoring 결과의 의미를 분석했다. [분석 기록](../../../experiments/p03_comparison/analysis_2026-10-09.md)에 관측 사실·가설·후속 실험을 구분했다.
+- metadata 6,000행과 대응 이미지 헤더 전수 집계, comparison 원시 latency median 및 validation score 분포 재계산, 평가/전처리/생성 코드 확인, 이미지 4장 예시 관찰을 수행했다.
+
+### 발견·해석
+
+- REAL 3,000장은 전량 K-Fashion JPG이며 가로 800px 2,998장·799/900px 각 1장이다. GEN 3,000장은 PNG·가로 832px이다. 모델은 RGB 픽셀만 받으므로 직접 metadata 누출이라고 판정하지 않는다. 압축·리샘플링·구도 차이의 이용 가능성은 통제 실험으로 확인할 가설이다.
+- SigLIP 선택은 고정 규칙과 일치하며 median forward latency가 DINO보다 22.35% 짧다. 단일 seed·현재 입력 조건의 결과다.
+- calibrated validation 820장 중 786장은 score <1 또는 >99, 10~90 구간은 9장. 중간 점수의 체감 사실성은 이 결과로 입증되지 않는다.
+- P05 aggregate 기준 A 오분류 5장, B 11장, 공유 REAL 4장을 감안하면 고유 12장 상당. P06 추출에서 ID를 확인하고 최소 100개 검토군의 보충 사례를 오분류와 구별해야 한다.
+
+### 결정·범위·다음 단계
+
+- 새로운 소유자 결정이나 사양 변경은 없다. primary·calibration·split·페이즈 상태를 유지한다. 본 작업은 실험 해석이며 독립 구현검증 판정은 하지 않았다.
+- 고정 모델로 압축/크기/구도 통제 진단, GEN 근사중복 점검, P06 사례 분석을 권장한다. 최종 미사용 holdout은 기존 수집 편향을 그대로 복제하지 않도록 설계할 필요가 있다.
+- HANDOFF의 P06 안내를 이 발견에 맞게 교체했다. 기능/설계 변경이 없으므로 CHANGELOG는 갱신하지 않는다.
+- 문서의 재현 명령을 CPU dev 컨테이너에서 실제 실행해 집계·metadata hash·latency·score 분포를 확인했다. 첫 요약의 “REAL 가로 800px 전량”은 예외 2장을 놓친 표현으로 정정했다. 분석 문서 링크와 diff 검사를 수행했으며, 코드 변경이 없어 학습/회귀 테스트는 다시 실행하지 않았다.
