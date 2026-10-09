@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "method": "temperature_scaling",
+  "checkpoint": "checkpoints/baseline/best.pt",
+  "checkpoint_sha256": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe",
+  "metadata_sha256": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+  "temperature": 0.7984784236465634,
+  "threshold_probability": 0.6966991081858492,
+  "fit_split": "val",
+  "validation_count": 820,
+  "config": {
+    "checkpoint": "checkpoints/baseline/best.pt",
+    "output_dir": "experiments/p05_calibration",
+    "device": "cuda",
+    "fit": {
+      "temperature_min": 0.05,
+      "temperature_max": 20.0,
+      "iterations": 100
+    },
+    "metrics": {
+      "ece_bins": 10
+    }
+  },
+  "git_commit": "7a5cea173cd20070b9a27c04c5323e2c440d7040"
+}

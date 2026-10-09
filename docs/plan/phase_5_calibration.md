@@ -1,6 +1,6 @@
 # P05 — Score calibration
 
-**상태:** In Progress
+**상태:** Complete (2026-10-09)
 
 ## 목표·선행 조건
 
@@ -30,3 +30,11 @@
 validation prediction·parameter·threshold·score 정의·calibrated Test A/B 및 이미지 scoring이 동작하고 회귀 검증된다. 같은 입력은 같은 score이고 score 순서는 logit 순서와 일관된다. REAL/Generated 라벨의 확률 calibration이며 사람 체감 realism과의 일치는 별도 평가가 필요하다. GEN 근사중복·독립 최종 holdout·사람 평가는 후속 범위다.
 
 방법 참조: [Guo et al., 2017](https://proceedings.mlr.press/v70/guo17a.html).
+
+## 완료 근거
+
+- [P05 artifact/지표/보고서](../../experiments/p05_calibration/README.md): val 820 ID/logit, temperature 0.79847842, probability threshold 0.69669911(score 69.67), 고정 Test A/B 적용.
+- validation NLL/Brier/ECE 개선. Test B ECE는 개선됐으나 NLL/Brier는 조금 악화됐음을 명시했고 parameter를 Test에 맞춰 변경하지 않았다.
+- CPU 전체 43 passed, CUDA 집중 10 passed. 실제 REAL/Generated score 및 같은 REAL 반복 결과 동일, val-only ID 집합·원본 checkpoint/metadata hash 보존 확인. 독립검증·mutation은 미수행.
+- calibration/scoring 기능 및 validation 기준 결정 조건을 충족한다. 사람 체감 일치 또는 unseen calibration 전면 개선까지 판정하지 않는다.
+- 다음은 P06 failure analysis(특히 Test B calibration 악화 포함).

@@ -96,3 +96,13 @@ docker compose --profile training run --rm train python -m scripts.compare_basel
   --checkpoints checkpoints/baseline/best.pt checkpoints/dino/best.pt \
   --output experiments/p03_comparison/comparison.json --device cuda
 ```
+
+## Calibrated image score
+
+```bash
+docker compose --profile training run --rm train python -m src.score \
+  --image /images/<image-path> \
+  --calibration experiments/p05_calibration/calibration.json --device cuda
+```
+
+`realism_score`(0~100)와 `classification`(`photographic_like`/`synthetic_like`)을 출력한다. temperature와 threshold는 validation에서만 선택했으며 artifact의 checkpoint hash를 검증한다. [P05 보고서](experiments/p05_calibration/README.md)에 전후 지표와 한계를 기록했다. Test B의 NLL/Brier는 소폭 악화돼 추가 검증이 필요하다. 사람 체감 score 일치는 아직 별도 평가하지 않았다.

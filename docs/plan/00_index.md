@@ -9,7 +9,7 @@
 | P02 | Baseline 모델 — frozen encoder + MLP head | Complete | P01: 씨드 데이터(Real 500 + Generated 500) split 확보 | 10 epoch 실학습 + best/last checkpoint + validation/Test A/B metric ([실험 기록](../../experiments/p02_siglip_baseline/README.md)) | [DB-04](../decision_briefs/DB-04_P02_unseen-real.md)(Resolved) |
 | P03 | Baseline 비교 — SigLIP vs DINO | Complete | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split DINO 10 epoch + latency/크기 비교 + primary SigLIP 선정([report](../../experiments/p03_comparison/README.md)) | — |
 | P04 | LoRA (조건부) | Planned | P03 (진입 조건: `docs/project.md` §17) | LoRA vs frozen 비교 결과 문서 — 유의미하지 않으면 baseline 유지 | — |
-| P05 | Score calibration | In Progress | P03: primary encoder 선정 | validation 기반 calibration parameter + threshold + 0~100 score 정의 기록 | — |
+| P05 | Score calibration | Complete | P03: primary encoder 선정 | val 820 temperature/threshold + 0~100 score CLI + 고정 Test 평가([보고서](../../experiments/p05_calibration/README.md)) | — |
 | P06 | Failure analysis | Planned | P05 | `reports/errors/` 자동 저장 + failure case 100개 이상 수동 검토 + 오류 패턴 문서 | — |
 | P07 | API + Demo | Planned | P05 | `POST /score` API 응답 + web demo에서 score 출력 확인 | — |
 

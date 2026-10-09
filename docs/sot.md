@@ -21,6 +21,7 @@
 | 작업 기록·사용자 결정 배경 | `docs/daily_logs/` | |
 | 주요 변경 이력 | `CHANGELOG.md` | |
 | 데이터 메타데이터 schema | `docs/project.md` §12 | 구현 시점에 `docs/guides/data-contracts.md` 규칙 적용 |
+| calibration parameter·threshold·checkpoint 결합 | `experiments/p05_calibration/calibration.json` | fitting 설정은 `configs/calibration.yaml`, score/score threshold는 유도 |
 | primary encoder·실행 설정 | `configs/primary.yaml` | 선정 근거는 `experiments/p03_comparison/README.md`; baseline 실험 config와 구분 |
 | 학습·추론 parameter | `configs/*.yaml` | 코드에 직접 기입하지 않는다 (`docs/project.md` §25) |
 | 실험 config·metric | `experiments/` | 실험마다 config와 metric을 함께 보관 (§26) |
@@ -51,3 +52,4 @@
 | sot.md | v1.0 | 2026-10-07 | 최초 작성 — 문서 체계·precedence 정의 | CLAUDE.md §1 (spec-precedence tree 요구) |
 | project.md | v1.3 | 2026-10-09 | §10 Test B REAL은 Standard test REAL을 재사용하며 train/val은 제외 | [DB-04](decision_briefs/DB-04_P02_unseen-real.md), 소유자 결정 |
 | sot.md | v1.1 | 2026-10-09 | primary 실행 설정의 소유자를 configs/primary.yaml로 명시, P03 선정 근거 연결 | [P03 report](../experiments/p03_comparison/README.md) |
+| sot.md | v1.2 | 2026-10-09 | calibration artifact의 parameter/threshold/checkpoint 결합 소유권 명시 | [P05](plan/phase_5_calibration.md) |

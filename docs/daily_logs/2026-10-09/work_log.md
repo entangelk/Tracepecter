@@ -169,3 +169,20 @@
 - 최종 회귀·구현 commit 후 val 820 prediction 추출·calibration fitting·고정 Test A/B 평가·이미지 score 확인.
 
 - 단일 클래스 지표의 신규 가드가 구현 전 정확히 재실패했고 보강 후 CUDA 집중 **10 passed**. 통합 테스트에서 test 이미지의 내용을 바꿔도 fitted temperature/threshold가 그대로인 점, val ID만 prediction에 포함되는 점, 동일 이미지 score 결정성, 잘못된 checkpoint/온도 거부를 확인했다.
+
+### P05 실제 결과
+
+- 최종 CPU 전체 **43 passed**(기존 Pillow 경고 12건), CUDA 집중 10 passed. 구현 commit `7a5cea1`에서 val 820 raw logit 추출 및 fitting.
+- temperature 0.7984784236465634, probability threshold 0.6966991081858492 → score threshold 69.66991081858492. validation balanced accuracy 기준 threshold이며 Test로 재조정하지 않았다.
+- Validation NLL 0.013387→0.012745, Brier 0.003519→0.003457, ECE 0.004870→0.004565. Test A 세 calibration 지표도 개선.
+- **Test B NLL 0.027139→0.027630, Brier 0.007783→0.007925로 약간 악화**, ECE 0.011638→0.010769는 개선. 이 결과로 temperature를 다시 선택하지 않았으며 unseen calibration 개선으로 일반화하지 않는다. Threshold 적용 Accuracy는 Test A 0.995→0.99375(1건 하락), Test B 0.988550→0.989504(1건 상승).
+- 실제 validation REAL score 96.8916108567802(photographic_like), Generated 0.00000508163371905043(synthetic_like). 같은 REAL 반복 scoring 결과 동일. 표본 2개로 전체 일반화를 판정하지 않는다.
+- validation prediction ID 집합이 canonical val과 정확히 동일(820), metadata SHA256 불변, checkpoint SHA256이 P02 원본과 같음 확인. 최종 training 이미지 빌드 성공.
+- [P05 기록](../../../experiments/p05_calibration/README.md)과 calibration/metrics/config/validation prediction 산출물 보관. P05/인덱스 Complete 동시 갱신. 기능·validation 결정의 완료이며 독립검증 또는 사람 체감 score 검증은 미수행이다.
+
+### 현재 다음 작업
+
+- P06 failure analysis 계획과 사례 분석. Test B calibration NLL/Brier 악화도 검토한다.
+- GEN 근사중복·미사용 최종 REAL/FAKE holdout·사람 평가 확보는 후속 항목이다.
+
+- 최종 재현: 저장한 validation CSV logit과 canonical metadata label만으로 temperature/threshold를 다시 계산해 artifact 값과 1e-12 이내 일치. 링크/Compose/diff 체크 정상, Tracepecter 실행 컨테이너 잔여 없음.

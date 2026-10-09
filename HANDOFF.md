@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-09 · 30줄
+> 마지막 자가 검수: 2026-10-09 · 31줄
 
 ## 현재 상태
 
@@ -9,13 +9,14 @@
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/baseline/best.pt`. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
+- scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 실패 분석 대상이다.
 - Test B는 Standard test REAL 448 + `test_unseen` FAKE 600(sd35_medium), 총 1,048장([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val REAL 제외, 두 테스트 간 REAL 공유.
 
 ## 다음 작업 (우선순위 순)
 
-1. **P05 calibration 계획·구현** — primary checkpoint 및 validation split을 사용한다. 현재 baseline 지표에는 §17 LoRA 진입 근거가 없어 P04는 실행하지 않는다(새 데이터/실패 분석 시 조건 재검토).
-2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout 설계는 후속 항목이다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 아직 하지 않았다.
-3. 재현: `COMPOSE_BAKE=false docker compose --profile training build train`. 학습은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.train --config configs/primary.yaml`(DINO는 `configs/dino.yaml`). `IMAGE_DIR` 기본 `$HOME/data/tracepector/images` → `/images` 읽기 전용. 평가: 같은 train 서비스에서 `python -m src.evaluate --checkpoint checkpoints/baseline/best.pt --device cuda`. 전원 단절 후 동일 config로 train `--resume`.
+1. **P06 failure analysis 계획·사례 분석** — calibration artifact와 고정 Test A/B를 사용하며, Test B NLL/Brier 악화도 분석한다. §27의 최소 100 사례 수동 검토 조건을 확인하고 계획에 명시한다.
+2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
+3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 
 ## 주의
 
