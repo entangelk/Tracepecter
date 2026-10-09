@@ -1,0 +1,6 @@
+image_id,score,label,category,source_domain,generator,split,evaluation
+691880,32.5163143117365,1,상의,kfashion,,val,val
+1284862,42.930108140452454,1,원피스,kfashion,,test,A|B
+1032814,46.90259105149113,1,아우터,kfashion,,test,A|B
+466048,54.99432745978674,1,원피스,kfashion,,test,A|B
+1213455,55.197397798121905,1,하의,kfashion,,test,A|B

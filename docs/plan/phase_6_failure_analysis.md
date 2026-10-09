@@ -49,3 +49,9 @@ label/split/category/source/generator는 canonical `data/metadata.csv`, temperat
 - [DB-05](../decision_briefs/DB-05_P06_review-set.md) — Resolved: 오류 전수 + 보충 ≥100(유형 구분, 실제 오류 수 별도 보고), 에이전트 1차 검토 + 소유자가 오류 전수·무작위 20건 확인(2026-10-09).
 - [DB-03](../decision_briefs/DB-03_P01_face-policy.md) — Resolved(A 무처리), P06-04에서 얼굴 집중 오류 시 재상정 트리거.
 - [DB-04](../decision_briefs/DB-04_P02_unseen-real.md) — Resolved, Test B 구성 유지.
+
+## 진행 상황
+
+- **P06-01·P06-02 완료**(2026-10-09, `35db1fb`·`eb246ea`) — [결과](../../experiments/p06_failure_analysis/README.md). 오분류 수가 P05와 같다(A 5, B 11, test 고유 12, val 3). low_confidence는 24장이다. JPEG·다운스케일·종횡비 통제에서는 AUC 변화가 미미했다(JPEG 흔적 의존의 근거는 약함). 중앙 정사각 crop에서는 sd35 GEN 11장이 FP로 바뀌었다(구도·크롭 민감, 정보 손실과 분리되지 않음).
+- Test B NLL/Brier 악화 분해(P06-04 일부): 악화된 표본 12장이 전부 logit이 양수인 sd35_medium GEN이다.
+- 다음: P06-03 검토군 구성. 오류 15 + low_confidence 24 + crop 판정 전환 사례 + 층화 고확신 보충, 구성 규칙은 config에 먼저 고정한다.

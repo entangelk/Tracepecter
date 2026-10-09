@@ -1,0 +1,11 @@
+image_id,score,label,category,source_domain,generator,split,evaluation
+gen_002731,72.63438984718806,0,아우터,,sd35_medium,test_unseen,B
+gen_002679,81.5984463191153,0,아우터,,sd35_medium,test_unseen,B
+gen_000547,83.7886908671279,0,아우터,,sd35_medium,test_unseen,B
+gen_002786,84.63149015956843,0,상의,,sd35_medium,test_unseen,B
+gen_000721,84.88624577081563,0,원피스,,qwen_image_21,val,val
+gen_000972,95.79342915596118,0,상의,,qwen_image_21,test,A
+gen_002813,96.26258308516924,0,상의,,sd35_medium,test_unseen,B
+gen_002738,96.6716959161617,0,아우터,,sd35_medium,test_unseen,B
+gen_000914,97.75656924508385,0,상의,,qwen_image_21,val,val
+gen_002727,99.3810045675852,0,아우터,,sd35_medium,test_unseen,B

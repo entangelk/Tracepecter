@@ -1,0 +1,2553 @@
+{
+  "calibration": "experiments/p05_calibration/calibration.json",
+  "checkpoint_sha256": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe",
+  "temperature": 0.7984784236465634,
+  "threshold_probability": 0.6966991081858492,
+  "estimated_real_jpeg_quality": 75,
+  "condition_specs": {
+    "jpeg_q90": {
+      "type": "jpeg",
+      "quality": 90
+    },
+    "jpeg_q75": {
+      "type": "jpeg",
+      "quality": 75
+    },
+    "downscale_512": {
+      "type": "downscale",
+      "long_side": 512
+    },
+    "center_square": {
+      "type": "center_square"
+    },
+    "gen_jpeg_real_quality": {
+      "type": "jpeg",
+      "quality": 75,
+      "labels": [
+        0
+      ]
+    }
+  },
+  "low_confidence_score": [
+    10,
+    90
+  ],
+  "case_counts": {
+    "false_positive": {
+      "A": 1,
+      "B": 7,
+      "val": 2,
+      "unique": 10
+    },
+    "false_negative": {
+      "A": 4,
+      "B": 4,
+      "val": 1,
+      "unique": 5
+    },
+    "low_confidence": {
+      "A": 3,
+      "B": 14,
+      "val": 7,
+      "unique": 24
+    }
+  },
+  "conditions": {
+    "original": {
+      "standard": {
+        "count": 800,
+        "accuracy": 0.995,
+        "precision": 0.9955357142857143,
+        "recall": 0.9955357142857143,
+        "f1": 0.9955357142857143,
+        "roc_auc": 0.9999365868506493,
+        "pr_auc": 0.999950085285162,
+        "category_wise": {
+          "상의": {
+            "count": 200,
+            "accuracy": 0.99,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.9998985389610391,
+            "pr_auc": 0.9999206333528986
+          },
+          "아우터": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "원피스": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "하의": {
+            "count": 200,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "qwen_image_21": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9998478084415585,
+            "pr_auc": 0.9999699706942634
+          },
+          "sdxl": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "z_image_turbo": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9998985389610391,
+            "pr_auc": 0.9999800254173201
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 800,
+            "accuracy": 0.995,
+            "precision": 0.9955357142857143,
+            "recall": 0.9955357142857143,
+            "f1": 0.9955357142857143,
+            "roc_auc": 0.9999365868506493,
+            "pr_auc": 0.999950085285162
+          }
+        },
+        "calibrated_classification": {
+          "count": 800,
+          "accuracy": 0.99375,
+          "precision": 0.9977528089887641,
+          "recall": 0.9910714285714286,
+          "f1": 0.9944008958566629,
+          "roc_auc": 0.9999365868506493,
+          "pr_auc": 0.999950085285162
+        },
+        "mean_score": {
+          "real": 99.43827183462014,
+          "generated": 0.6277595376824185
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.0
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      },
+      "unseen": {
+        "count": 1048,
+        "accuracy": 0.9885496183206107,
+        "precision": 0.9780701754385965,
+        "recall": 0.9955357142857143,
+        "f1": 0.9867256637168142,
+        "roc_auc": 0.999765625,
+        "pr_auc": 0.9996878685979468,
+        "category_wise": {
+          "상의": {
+            "count": 262,
+            "accuracy": 0.9923664122137404,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.9998809523809524,
+            "pr_auc": 0.9998405548688023
+          },
+          "아우터": {
+            "count": 262,
+            "accuracy": 0.9656488549618321,
+            "precision": 0.9327731092436975,
+            "recall": 0.9910714285714286,
+            "f1": 0.961038961038961,
+            "roc_auc": 0.9994047619047619,
+            "pr_auc": 0.9992413792144622
+          },
+          "원피스": {
+            "count": 262,
+            "accuracy": 0.9961832061068703,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 262,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 1048,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9780701754385965,
+            "recall": 0.9955357142857143,
+            "f1": 0.9867256637168142,
+            "roc_auc": 0.999765625,
+            "pr_auc": 0.9996878685979468
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 1048,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9780701754385965,
+            "recall": 0.9955357142857143,
+            "f1": 0.9867256637168142,
+            "roc_auc": 0.999765625,
+            "pr_auc": 0.9996878685979468
+          }
+        },
+        "calibrated_classification": {
+          "count": 1048,
+          "accuracy": 0.9895038167938931,
+          "precision": 0.9844789356984479,
+          "recall": 0.9910714285714286,
+          "f1": 0.9877641824249165,
+          "roc_auc": 0.999765625,
+          "pr_auc": 0.9996878685979468
+        },
+        "mean_score": {
+          "real": 99.43827183462014,
+          "generated": 1.9770536840837956
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.0
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      },
+      "standard_square": {
+        "count": 333,
+        "accuracy": 0.996996996996997,
+        "precision": 0.9936708860759493,
+        "recall": 1.0,
+        "f1": 0.9968253968253968,
+        "roc_auc": 1.0,
+        "pr_auc": 0.9999999999999999,
+        "category_wise": {
+          "상의": {
+            "count": 84,
+            "accuracy": 0.9880952380952381,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 80,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "원피스": {
+            "count": 75,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 94,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "qwen_image_21": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "sdxl": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "z_image_turbo": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 333,
+            "accuracy": 0.996996996996997,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "calibrated_classification": {
+          "count": 333,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0,
+          "pr_auc": 0.9999999999999999
+        },
+        "mean_score": {
+          "real": 99.87694137341641,
+          "generated": 0.6851840021442898
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.0
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      },
+      "unseen_square": {
+        "count": 457,
+        "accuracy": 0.9846827133479212,
+        "precision": 0.9573170731707317,
+        "recall": 1.0,
+        "f1": 0.9781931464174455,
+        "roc_auc": 0.9998726114649681,
+        "pr_auc": 0.999755245317585,
+        "category_wise": {
+          "상의": {
+            "count": 114,
+            "accuracy": 0.9912280701754386,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 112,
+            "accuracy": 0.9464285714285714,
+            "precision": 0.8571428571428571,
+            "recall": 1.0,
+            "f1": 0.923076923076923,
+            "roc_auc": 0.9996345029239766,
+            "pr_auc": 0.9992388221554889
+          },
+          "원피스": {
+            "count": 105,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 126,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 457,
+            "accuracy": 0.9846827133479212,
+            "precision": 0.9573170731707317,
+            "recall": 1.0,
+            "f1": 0.9781931464174455,
+            "roc_auc": 0.9998726114649681,
+            "pr_auc": 0.999755245317585
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 457,
+            "accuracy": 0.9846827133479212,
+            "precision": 0.9573170731707317,
+            "recall": 1.0,
+            "f1": 0.9781931464174455,
+            "roc_auc": 0.9998726114649681,
+            "pr_auc": 0.999755245317585
+          }
+        },
+        "calibrated_classification": {
+          "count": 457,
+          "accuracy": 0.9890590809628009,
+          "precision": 0.9691358024691358,
+          "recall": 1.0,
+          "f1": 0.9843260188087775,
+          "roc_auc": 0.9998726114649681,
+          "pr_auc": 0.999755245317585
+        },
+        "mean_score": {
+          "real": 99.87694137341641,
+          "generated": 2.7562624752539144
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.0
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      }
+    },
+    "jpeg_q90": {
+      "standard": {
+        "count": 800,
+        "accuracy": 0.995,
+        "precision": 0.9955357142857143,
+        "recall": 0.9955357142857143,
+        "f1": 0.9955357142857143,
+        "roc_auc": 0.9999175629058441,
+        "pr_auc": 0.9999351644189063,
+        "category_wise": {
+          "상의": {
+            "count": 200,
+            "accuracy": 0.99,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.999797077922078,
+            "pr_auc": 0.9998405548688023
+          },
+          "아우터": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "원피스": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "하의": {
+            "count": 200,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "qwen_image_21": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9997717126623378,
+            "pr_auc": 0.9999550057364088
+          },
+          "sdxl": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "z_image_turbo": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9998985389610391,
+            "pr_auc": 0.9999800254173201
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 800,
+            "accuracy": 0.995,
+            "precision": 0.9955357142857143,
+            "recall": 0.9955357142857143,
+            "f1": 0.9955357142857143,
+            "roc_auc": 0.9999175629058441,
+            "pr_auc": 0.9999351644189063
+          }
+        },
+        "calibrated_classification": {
+          "count": 800,
+          "accuracy": 0.99375,
+          "precision": 0.9955257270693513,
+          "recall": 0.9933035714285714,
+          "f1": 0.994413407821229,
+          "roc_auc": 0.9999175629058441,
+          "pr_auc": 0.9999351644189063
+        },
+        "mean_score": {
+          "real": 99.4927985726851,
+          "generated": 0.8421932642679576
+        },
+        "mean_score_shift": {
+          "real": 0.054526738064954436,
+          "generated": 0.21443372658553916
+        },
+        "decision_flips": {
+          "real": 1,
+          "generated": 1
+        }
+      },
+      "unseen": {
+        "count": 1048,
+        "accuracy": 0.9875954198473282,
+        "precision": 0.975929978118162,
+        "recall": 0.9955357142857143,
+        "f1": 0.9856353591160221,
+        "roc_auc": 0.9997358630952381,
+        "pr_auc": 0.9996483461240451,
+        "category_wise": {
+          "상의": {
+            "count": 262,
+            "accuracy": 0.9923664122137404,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.999702380952381,
+            "pr_auc": 0.9995959177692341
+          },
+          "아우터": {
+            "count": 262,
+            "accuracy": 0.9656488549618321,
+            "precision": 0.9327731092436975,
+            "recall": 0.9910714285714286,
+            "f1": 0.961038961038961,
+            "roc_auc": 0.9994047619047619,
+            "pr_auc": 0.9992413792144622
+          },
+          "원피스": {
+            "count": 262,
+            "accuracy": 0.9923664122137404,
+            "precision": 0.9910714285714286,
+            "recall": 0.9910714285714286,
+            "f1": 0.9910714285714286,
+            "roc_auc": 0.9999404761904762,
+            "pr_auc": 0.9999206333528986
+          },
+          "하의": {
+            "count": 262,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 1048,
+            "accuracy": 0.9875954198473282,
+            "precision": 0.975929978118162,
+            "recall": 0.9955357142857143,
+            "f1": 0.9856353591160221,
+            "roc_auc": 0.9997358630952381,
+            "pr_auc": 0.9996483461240451
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 1048,
+            "accuracy": 0.9875954198473282,
+            "precision": 0.975929978118162,
+            "recall": 0.9955357142857143,
+            "f1": 0.9856353591160221,
+            "roc_auc": 0.9997358630952381,
+            "pr_auc": 0.9996483461240451
+          }
+        },
+        "calibrated_classification": {
+          "count": 1048,
+          "accuracy": 0.9885496183206107,
+          "precision": 0.9801762114537445,
+          "recall": 0.9933035714285714,
+          "f1": 0.9866962305986696,
+          "roc_auc": 0.9997358630952381,
+          "pr_auc": 0.9996483461240451
+        },
+        "mean_score": {
+          "real": 99.4927985726851,
+          "generated": 2.304384862483894
+        },
+        "mean_score_shift": {
+          "real": 0.054526738064954436,
+          "generated": 0.32733117840009773
+        },
+        "decision_flips": {
+          "real": 1,
+          "generated": 2
+        }
+      },
+      "standard_square": {
+        "count": 333,
+        "accuracy": 0.996996996996997,
+        "precision": 0.9936708860759493,
+        "recall": 1.0,
+        "f1": 0.9968253968253968,
+        "roc_auc": 1.0,
+        "pr_auc": 0.9999999999999999,
+        "category_wise": {
+          "상의": {
+            "count": 84,
+            "accuracy": 0.9880952380952381,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 80,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "원피스": {
+            "count": 75,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 94,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "qwen_image_21": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "sdxl": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "z_image_turbo": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 333,
+            "accuracy": 0.996996996996997,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "calibrated_classification": {
+          "count": 333,
+          "accuracy": 0.996996996996997,
+          "precision": 0.9936708860759493,
+          "recall": 1.0,
+          "f1": 0.9968253968253968,
+          "roc_auc": 1.0,
+          "pr_auc": 0.9999999999999999
+        },
+        "mean_score": {
+          "real": 99.88839604127784,
+          "generated": 1.1095525916421862
+        },
+        "mean_score_shift": {
+          "real": 0.01145466786144483,
+          "generated": 0.42436858949789646
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      },
+      "unseen_square": {
+        "count": 457,
+        "accuracy": 0.9824945295404814,
+        "precision": 0.9515151515151515,
+        "recall": 1.0,
+        "f1": 0.9751552795031055,
+        "roc_auc": 0.9997876857749468,
+        "pr_auc": 0.9995944982005216,
+        "category_wise": {
+          "상의": {
+            "count": 114,
+            "accuracy": 0.9912280701754386,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 0.9993243243243244,
+            "pr_auc": 0.9987496091307067
+          },
+          "아우터": {
+            "count": 112,
+            "accuracy": 0.9464285714285714,
+            "precision": 0.8571428571428571,
+            "recall": 1.0,
+            "f1": 0.923076923076923,
+            "roc_auc": 0.9996345029239766,
+            "pr_auc": 0.9992388221554889
+          },
+          "원피스": {
+            "count": 105,
+            "accuracy": 0.9904761904761905,
+            "precision": 0.96875,
+            "recall": 1.0,
+            "f1": 0.9841269841269841,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 126,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 457,
+            "accuracy": 0.9824945295404814,
+            "precision": 0.9515151515151515,
+            "recall": 1.0,
+            "f1": 0.9751552795031055,
+            "roc_auc": 0.9997876857749468,
+            "pr_auc": 0.9995944982005216
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 457,
+            "accuracy": 0.9824945295404814,
+            "precision": 0.9515151515151515,
+            "recall": 1.0,
+            "f1": 0.9751552795031055,
+            "roc_auc": 0.9997876857749468,
+            "pr_auc": 0.9995944982005216
+          }
+        },
+        "calibrated_classification": {
+          "count": 457,
+          "accuracy": 0.986870897155361,
+          "precision": 0.9631901840490797,
+          "recall": 1.0,
+          "f1": 0.98125,
+          "roc_auc": 0.9997876857749468,
+          "pr_auc": 0.9995944982005216
+        },
+        "mean_score": {
+          "real": 99.88839604127784,
+          "generated": 3.355973565945424
+        },
+        "mean_score_shift": {
+          "real": 0.01145466786144483,
+          "generated": 0.5997110906915093
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      }
+    },
+    "jpeg_q75": {
+      "standard": {
+        "count": 800,
+        "accuracy": 0.99375,
+        "precision": 0.9933184855233853,
+        "recall": 0.9955357142857143,
+        "f1": 0.9944258639910813,
+        "roc_auc": 0.9998351258116882,
+        "pr_auc": 0.9998693144969046,
+        "category_wise": {
+          "상의": {
+            "count": 200,
+            "accuracy": 0.99,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.9993912337662337,
+            "pr_auc": 0.9995179497078828
+          },
+          "아우터": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "원피스": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "하의": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 0.9911504424778761,
+            "recall": 1.0,
+            "f1": 0.9955555555555555,
+            "roc_auc": 0.9998985389610391,
+            "pr_auc": 0.9999206333528986
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "qwen_image_21": {
+            "count": 536,
+            "accuracy": 0.9925373134328358,
+            "precision": 0.9955357142857143,
+            "recall": 0.9955357142857143,
+            "f1": 0.9955357142857143,
+            "roc_auc": 0.9994926948051949,
+            "pr_auc": 0.9998991208613173
+          },
+          "sdxl": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "z_image_turbo": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9998478084415585,
+            "pr_auc": 0.9999699706942634
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 800,
+            "accuracy": 0.99375,
+            "precision": 0.9933184855233853,
+            "recall": 0.9955357142857143,
+            "f1": 0.9944258639910813,
+            "roc_auc": 0.9998351258116882,
+            "pr_auc": 0.9998693144969046
+          }
+        },
+        "calibrated_classification": {
+          "count": 800,
+          "accuracy": 0.9925,
+          "precision": 0.9955156950672646,
+          "recall": 0.9910714285714286,
+          "f1": 0.9932885906040269,
+          "roc_auc": 0.9998351258116882,
+          "pr_auc": 0.9998693144969046
+        },
+        "mean_score": {
+          "real": 99.44626949033955,
+          "generated": 0.9394741622619359
+        },
+        "mean_score_shift": {
+          "real": 0.007997655719387396,
+          "generated": 0.31171462457951743
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      },
+      "unseen": {
+        "count": 1048,
+        "accuracy": 0.9856870229007634,
+        "precision": 0.971677559912854,
+        "recall": 0.9955357142857143,
+        "f1": 0.9834619625137816,
+        "roc_auc": 0.9996577380952381,
+        "pr_auc": 0.9995434004228465,
+        "category_wise": {
+          "상의": {
+            "count": 262,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9739130434782609,
+            "recall": 1.0,
+            "f1": 0.986784140969163,
+            "roc_auc": 0.9997619047619047,
+            "pr_auc": 0.9996782104977424
+          },
+          "아우터": {
+            "count": 262,
+            "accuracy": 0.9580152671755725,
+            "precision": 0.9173553719008265,
+            "recall": 0.9910714285714286,
+            "f1": 0.9527896995708155,
+            "roc_auc": 0.9990476190476191,
+            "pr_auc": 0.9987874255127381
+          },
+          "원피스": {
+            "count": 262,
+            "accuracy": 0.9961832061068703,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 262,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 1048,
+            "accuracy": 0.9856870229007634,
+            "precision": 0.971677559912854,
+            "recall": 0.9955357142857143,
+            "f1": 0.9834619625137816,
+            "roc_auc": 0.9996577380952381,
+            "pr_auc": 0.9995434004228465
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 1048,
+            "accuracy": 0.9856870229007634,
+            "precision": 0.971677559912854,
+            "recall": 0.9955357142857143,
+            "f1": 0.9834619625137816,
+            "roc_auc": 0.9996577380952381,
+            "pr_auc": 0.9995434004228465
+          }
+        },
+        "calibrated_classification": {
+          "count": 1048,
+          "accuracy": 0.9856870229007634,
+          "precision": 0.9758241758241758,
+          "recall": 0.9910714285714286,
+          "f1": 0.9833887043189369,
+          "roc_auc": 0.9996577380952381,
+          "pr_auc": 0.9995434004228465
+        },
+        "mean_score": {
+          "real": 99.44626949033955,
+          "generated": 2.579613310001955
+        },
+        "mean_score_shift": {
+          "real": 0.007997655719387396,
+          "generated": 0.6025596259181596
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 4
+        }
+      },
+      "standard_square": {
+        "count": 333,
+        "accuracy": 0.993993993993994,
+        "precision": 0.9874213836477987,
+        "recall": 1.0,
+        "f1": 0.9936708860759493,
+        "roc_auc": 0.999963810075275,
+        "pr_auc": 0.9999595587876571,
+        "category_wise": {
+          "상의": {
+            "count": 84,
+            "accuracy": 0.9880952380952381,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 80,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "원피스": {
+            "count": 75,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 94,
+            "accuracy": 0.9893617021276596,
+            "precision": 0.9803921568627451,
+            "recall": 1.0,
+            "f1": 0.99009900990099,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "qwen_image_21": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "sdxl": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "z_image_turbo": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 0.9998552403011002,
+            "pr_auc": 0.9999595587876571
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 333,
+            "accuracy": 0.993993993993994,
+            "precision": 0.9874213836477987,
+            "recall": 1.0,
+            "f1": 0.9936708860759493,
+            "roc_auc": 0.999963810075275,
+            "pr_auc": 0.9999595587876571
+          }
+        },
+        "calibrated_classification": {
+          "count": 333,
+          "accuracy": 0.996996996996997,
+          "precision": 0.9936708860759493,
+          "recall": 1.0,
+          "f1": 0.9968253968253968,
+          "roc_auc": 0.999963810075275,
+          "pr_auc": 0.9999595587876571
+        },
+        "mean_score": {
+          "real": 99.87770182996603,
+          "generated": 1.2564144236097914
+        },
+        "mean_score_shift": {
+          "real": 0.0007604565496316491,
+          "generated": 0.5712304214655017
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      },
+      "unseen_square": {
+        "count": 457,
+        "accuracy": 0.9781181619256017,
+        "precision": 0.9401197604790419,
+        "recall": 1.0,
+        "f1": 0.9691358024691358,
+        "roc_auc": 0.9997027600849256,
+        "pr_auc": 0.9994310880105282,
+        "category_wise": {
+          "상의": {
+            "count": 114,
+            "accuracy": 0.9824561403508771,
+            "precision": 0.9523809523809523,
+            "recall": 1.0,
+            "f1": 0.975609756097561,
+            "roc_auc": 0.9996621621621622,
+            "pr_auc": 0.9993826219512195
+          },
+          "아우터": {
+            "count": 112,
+            "accuracy": 0.9285714285714286,
+            "precision": 0.8181818181818182,
+            "recall": 1.0,
+            "f1": 0.9,
+            "roc_auc": 0.9992690058479532,
+            "pr_auc": 0.9985182550972025
+          },
+          "원피스": {
+            "count": 105,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 126,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 457,
+            "accuracy": 0.9781181619256017,
+            "precision": 0.9401197604790419,
+            "recall": 1.0,
+            "f1": 0.9691358024691358,
+            "roc_auc": 0.9997027600849256,
+            "pr_auc": 0.9994310880105282
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 457,
+            "accuracy": 0.9781181619256017,
+            "precision": 0.9401197604790419,
+            "recall": 1.0,
+            "f1": 0.9691358024691358,
+            "roc_auc": 0.9997027600849256,
+            "pr_auc": 0.9994310880105282
+          }
+        },
+        "calibrated_classification": {
+          "count": 457,
+          "accuracy": 0.9824945295404814,
+          "precision": 0.9515151515151515,
+          "recall": 1.0,
+          "f1": 0.9751552795031055,
+          "roc_auc": 0.9997027600849256,
+          "pr_auc": 0.9994310880105282
+        },
+        "mean_score": {
+          "real": 99.87770182996603,
+          "generated": 3.8045395337414023
+        },
+        "mean_score_shift": {
+          "real": 0.0007604565496316491,
+          "generated": 1.0482770584874883
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 3
+        }
+      }
+    },
+    "downscale_512": {
+      "standard": {
+        "count": 800,
+        "accuracy": 0.995,
+        "precision": 0.9955357142857143,
+        "recall": 0.9955357142857143,
+        "f1": 0.9955357142857143,
+        "roc_auc": 0.9999302455357142,
+        "pr_auc": 0.999944973050194,
+        "category_wise": {
+          "상의": {
+            "count": 200,
+            "accuracy": 0.99,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.9996956168831168,
+            "pr_auc": 0.999759751662999
+          },
+          "아우터": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "원피스": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "하의": {
+            "count": 200,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "qwen_image_21": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.999797077922078,
+            "pr_auc": 0.9999598704744899
+          },
+          "sdxl": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "z_image_turbo": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9999239042207793,
+            "pr_auc": 0.9999850358453086
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 800,
+            "accuracy": 0.995,
+            "precision": 0.9955357142857143,
+            "recall": 0.9955357142857143,
+            "f1": 0.9955357142857143,
+            "roc_auc": 0.9999302455357142,
+            "pr_auc": 0.999944973050194
+          }
+        },
+        "calibrated_classification": {
+          "count": 800,
+          "accuracy": 0.995,
+          "precision": 0.9955357142857143,
+          "recall": 0.9955357142857143,
+          "f1": 0.9955357142857143,
+          "roc_auc": 0.9999302455357142,
+          "pr_auc": 0.999944973050194
+        },
+        "mean_score": {
+          "real": 99.53362153698845,
+          "generated": 0.6760909074718794
+        },
+        "mean_score_shift": {
+          "real": 0.09534970236830288,
+          "generated": 0.04833136978946084
+        },
+        "decision_flips": {
+          "real": 2,
+          "generated": 1
+        }
+      },
+      "unseen": {
+        "count": 1048,
+        "accuracy": 0.9885496183206107,
+        "precision": 0.9780701754385965,
+        "recall": 0.9955357142857143,
+        "f1": 0.9867256637168142,
+        "roc_auc": 0.9997991071428571,
+        "pr_auc": 0.9997317836306829,
+        "category_wise": {
+          "상의": {
+            "count": 262,
+            "accuracy": 0.9923664122137404,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 262,
+            "accuracy": 0.9656488549618321,
+            "precision": 0.9327731092436975,
+            "recall": 0.9910714285714286,
+            "f1": 0.961038961038961,
+            "roc_auc": 0.9994047619047619,
+            "pr_auc": 0.9992413792144622
+          },
+          "원피스": {
+            "count": 262,
+            "accuracy": 0.9961832061068703,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 262,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 1048,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9780701754385965,
+            "recall": 0.9955357142857143,
+            "f1": 0.9867256637168142,
+            "roc_auc": 0.9997991071428571,
+            "pr_auc": 0.9997317836306829
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 1048,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9780701754385965,
+            "recall": 0.9955357142857143,
+            "f1": 0.9867256637168142,
+            "roc_auc": 0.9997991071428571,
+            "pr_auc": 0.9997317836306829
+          }
+        },
+        "calibrated_classification": {
+          "count": 1048,
+          "accuracy": 0.9904580152671756,
+          "precision": 0.9823788546255506,
+          "recall": 0.9955357142857143,
+          "f1": 0.9889135254988914,
+          "roc_auc": 0.9997991071428571,
+          "pr_auc": 0.9997317836306829
+        },
+        "mean_score": {
+          "real": 99.53362153698845,
+          "generated": 2.044631182990376
+        },
+        "mean_score_shift": {
+          "real": 0.09534970236830288,
+          "generated": 0.06757749890658088
+        },
+        "decision_flips": {
+          "real": 2,
+          "generated": 1
+        }
+      },
+      "standard_square": {
+        "count": 333,
+        "accuracy": 0.996996996996997,
+        "precision": 0.9936708860759493,
+        "recall": 1.0,
+        "f1": 0.9968253968253968,
+        "roc_auc": 1.0,
+        "pr_auc": 0.9999999999999999,
+        "category_wise": {
+          "상의": {
+            "count": 84,
+            "accuracy": 0.9880952380952381,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 80,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "원피스": {
+            "count": 75,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 94,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "qwen_image_21": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "sdxl": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "z_image_turbo": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 333,
+            "accuracy": 0.996996996996997,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "calibrated_classification": {
+          "count": 333,
+          "accuracy": 0.996996996996997,
+          "precision": 0.9936708860759493,
+          "recall": 1.0,
+          "f1": 0.9968253968253968,
+          "roc_auc": 1.0,
+          "pr_auc": 0.9999999999999999
+        },
+        "mean_score": {
+          "real": 99.89389066276506,
+          "generated": 0.7647602817980368
+        },
+        "mean_score_shift": {
+          "real": 0.016949289348662373,
+          "generated": 0.07957627965374722
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      },
+      "unseen_square": {
+        "count": 457,
+        "accuracy": 0.9846827133479212,
+        "precision": 0.9573170731707317,
+        "recall": 1.0,
+        "f1": 0.9781931464174455,
+        "roc_auc": 0.9998726114649681,
+        "pr_auc": 0.999755245317585,
+        "category_wise": {
+          "상의": {
+            "count": 114,
+            "accuracy": 0.9912280701754386,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 112,
+            "accuracy": 0.9464285714285714,
+            "precision": 0.8571428571428571,
+            "recall": 1.0,
+            "f1": 0.923076923076923,
+            "roc_auc": 0.9996345029239766,
+            "pr_auc": 0.9992388221554889
+          },
+          "원피스": {
+            "count": 105,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 126,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 457,
+            "accuracy": 0.9846827133479212,
+            "precision": 0.9573170731707317,
+            "recall": 1.0,
+            "f1": 0.9781931464174455,
+            "roc_auc": 0.9998726114649681,
+            "pr_auc": 0.999755245317585
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 457,
+            "accuracy": 0.9846827133479212,
+            "precision": 0.9573170731707317,
+            "recall": 1.0,
+            "f1": 0.9781931464174455,
+            "roc_auc": 0.9998726114649681,
+            "pr_auc": 0.999755245317585
+          }
+        },
+        "calibrated_classification": {
+          "count": 457,
+          "accuracy": 0.9890590809628009,
+          "precision": 0.9691358024691358,
+          "recall": 1.0,
+          "f1": 0.9843260188087775,
+          "roc_auc": 0.9998726114649681,
+          "pr_auc": 0.999755245317585
+        },
+        "mean_score": {
+          "real": 99.89389066276506,
+          "generated": 2.843580184016372
+        },
+        "mean_score_shift": {
+          "real": 0.016949289348662373,
+          "generated": 0.08731770876245752
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      }
+    },
+    "center_square": {
+      "standard": {
+        "count": 800,
+        "accuracy": 0.9975,
+        "precision": 0.9955555555555555,
+        "recall": 1.0,
+        "f1": 0.9977728285077951,
+        "roc_auc": 0.9999429281655844,
+        "pr_auc": 0.9999548031743013,
+        "category_wise": {
+          "상의": {
+            "count": 200,
+            "accuracy": 0.99,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.9995941558441559,
+            "pr_auc": 0.9996782104977422
+          },
+          "아우터": {
+            "count": 200,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "원피스": {
+            "count": 200,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "하의": {
+            "count": 200,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 536,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "qwen_image_21": {
+            "count": 536,
+            "accuracy": 0.9981343283582089,
+            "precision": 0.9977728285077951,
+            "recall": 1.0,
+            "f1": 0.9988851727982163,
+            "roc_auc": 0.9997717126623378,
+            "pr_auc": 0.9999548031743014
+          },
+          "sdxl": {
+            "count": 536,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "z_image_turbo": {
+            "count": 536,
+            "accuracy": 0.9981343283582089,
+            "precision": 0.9977728285077951,
+            "recall": 1.0,
+            "f1": 0.9988851727982163,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 800,
+            "accuracy": 0.9975,
+            "precision": 0.9955555555555555,
+            "recall": 1.0,
+            "f1": 0.9977728285077951,
+            "roc_auc": 0.9999429281655844,
+            "pr_auc": 0.9999548031743013
+          }
+        },
+        "calibrated_classification": {
+          "count": 800,
+          "accuracy": 0.9975,
+          "precision": 0.9977678571428571,
+          "recall": 0.9977678571428571,
+          "f1": 0.9977678571428571,
+          "roc_auc": 0.9999429281655844,
+          "pr_auc": 0.9999548031743013
+        },
+        "mean_score": {
+          "real": 99.80279265279005,
+          "generated": 1.1919314682615518
+        },
+        "mean_score_shift": {
+          "real": 0.3645208181699014,
+          "generated": 0.5641719305791336
+        },
+        "decision_flips": {
+          "real": 3,
+          "generated": 0
+        }
+      },
+      "unseen": {
+        "count": 1048,
+        "accuracy": 0.9732824427480916,
+        "precision": 0.9411764705882353,
+        "recall": 1.0,
+        "f1": 0.9696969696969697,
+        "roc_auc": 0.9994494047619048,
+        "pr_auc": 0.999245959966977,
+        "category_wise": {
+          "상의": {
+            "count": 262,
+            "accuracy": 0.9809160305343512,
+            "precision": 0.9572649572649573,
+            "recall": 1.0,
+            "f1": 0.9781659388646288,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 262,
+            "accuracy": 0.9312977099236641,
+            "precision": 0.8615384615384616,
+            "recall": 1.0,
+            "f1": 0.9256198347107438,
+            "roc_auc": 0.9979761904761905,
+            "pr_auc": 0.9972380730192214
+          },
+          "원피스": {
+            "count": 262,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9739130434782609,
+            "recall": 1.0,
+            "f1": 0.986784140969163,
+            "roc_auc": 0.9998214285714285,
+            "pr_auc": 0.9997625868074511
+          },
+          "하의": {
+            "count": 262,
+            "accuracy": 0.9923664122137404,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 1048,
+            "accuracy": 0.9732824427480916,
+            "precision": 0.9411764705882353,
+            "recall": 1.0,
+            "f1": 0.9696969696969697,
+            "roc_auc": 0.9994494047619048,
+            "pr_auc": 0.999245959966977
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 1048,
+            "accuracy": 0.9732824427480916,
+            "precision": 0.9411764705882353,
+            "recall": 1.0,
+            "f1": 0.9696969696969697,
+            "roc_auc": 0.9994494047619048,
+            "pr_auc": 0.999245959966977
+          }
+        },
+        "calibrated_classification": {
+          "count": 1048,
+          "accuracy": 0.9818702290076335,
+          "precision": 0.9612903225806452,
+          "recall": 0.9977678571428571,
+          "f1": 0.9791894852135815,
+          "roc_auc": 0.9994494047619048,
+          "pr_auc": 0.999245959966977
+        },
+        "mean_score": {
+          "real": 99.80279265279005,
+          "generated": 4.746658952311116
+        },
+        "mean_score_shift": {
+          "real": 0.3645208181699014,
+          "generated": 2.76960526822732
+        },
+        "decision_flips": {
+          "real": 3,
+          "generated": 11
+        }
+      },
+      "standard_square": {
+        "count": 333,
+        "accuracy": 0.996996996996997,
+        "precision": 0.9936708860759493,
+        "recall": 1.0,
+        "f1": 0.9968253968253968,
+        "roc_auc": 1.0,
+        "pr_auc": 0.9999999999999999,
+        "category_wise": {
+          "상의": {
+            "count": 84,
+            "accuracy": 0.9880952380952381,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 80,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "원피스": {
+            "count": 75,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 94,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "qwen_image_21": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "sdxl": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "z_image_turbo": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 333,
+            "accuracy": 0.996996996996997,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          }
+        },
+        "calibrated_classification": {
+          "count": 333,
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "roc_auc": 1.0,
+          "pr_auc": 0.9999999999999999
+        },
+        "mean_score": {
+          "real": 99.87694137341641,
+          "generated": 0.6851840021442898
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.0
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      },
+      "unseen_square": {
+        "count": 457,
+        "accuracy": 0.9846827133479212,
+        "precision": 0.9573170731707317,
+        "recall": 1.0,
+        "f1": 0.9781931464174455,
+        "roc_auc": 0.9998726114649681,
+        "pr_auc": 0.999755245317585,
+        "category_wise": {
+          "상의": {
+            "count": 114,
+            "accuracy": 0.9912280701754386,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 112,
+            "accuracy": 0.9464285714285714,
+            "precision": 0.8571428571428571,
+            "recall": 1.0,
+            "f1": 0.923076923076923,
+            "roc_auc": 0.9996345029239766,
+            "pr_auc": 0.9992388221554889
+          },
+          "원피스": {
+            "count": 105,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 126,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 457,
+            "accuracy": 0.9846827133479212,
+            "precision": 0.9573170731707317,
+            "recall": 1.0,
+            "f1": 0.9781931464174455,
+            "roc_auc": 0.9998726114649681,
+            "pr_auc": 0.999755245317585
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 457,
+            "accuracy": 0.9846827133479212,
+            "precision": 0.9573170731707317,
+            "recall": 1.0,
+            "f1": 0.9781931464174455,
+            "roc_auc": 0.9998726114649681,
+            "pr_auc": 0.999755245317585
+          }
+        },
+        "calibrated_classification": {
+          "count": 457,
+          "accuracy": 0.9890590809628009,
+          "precision": 0.9691358024691358,
+          "recall": 1.0,
+          "f1": 0.9843260188087775,
+          "roc_auc": 0.9998726114649681,
+          "pr_auc": 0.999755245317585
+        },
+        "mean_score": {
+          "real": 99.87694137341641,
+          "generated": 2.7562624748077282
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": -4.4618687169187625e-10
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 0
+        }
+      }
+    },
+    "gen_jpeg_real_quality": {
+      "standard": {
+        "count": 800,
+        "accuracy": 0.99375,
+        "precision": 0.9933184855233853,
+        "recall": 0.9955357142857143,
+        "f1": 0.9944258639910813,
+        "roc_auc": 0.9998351258116882,
+        "pr_auc": 0.9998693144969046,
+        "category_wise": {
+          "상의": {
+            "count": 200,
+            "accuracy": 0.99,
+            "precision": 0.9824561403508771,
+            "recall": 1.0,
+            "f1": 0.9911504424778761,
+            "roc_auc": 0.9993912337662337,
+            "pr_auc": 0.9995179497078828
+          },
+          "아우터": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "원피스": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "하의": {
+            "count": 200,
+            "accuracy": 0.995,
+            "precision": 0.9911504424778761,
+            "recall": 1.0,
+            "f1": 0.9955555555555555,
+            "roc_auc": 0.9998985389610391,
+            "pr_auc": 0.9999206333528986
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "qwen_image_21": {
+            "count": 536,
+            "accuracy": 0.9925373134328358,
+            "precision": 0.9955357142857143,
+            "recall": 0.9955357142857143,
+            "f1": 0.9955357142857143,
+            "roc_auc": 0.9994926948051949,
+            "pr_auc": 0.9998991208613173
+          },
+          "sdxl": {
+            "count": 536,
+            "accuracy": 0.996268656716418,
+            "precision": 1.0,
+            "recall": 0.9955357142857143,
+            "f1": 0.9977628635346756,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "z_image_turbo": {
+            "count": 536,
+            "accuracy": 0.9944029850746269,
+            "precision": 0.9977628635346756,
+            "recall": 0.9955357142857143,
+            "f1": 0.9966480446927374,
+            "roc_auc": 0.9998478084415585,
+            "pr_auc": 0.9999699706942634
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 800,
+            "accuracy": 0.99375,
+            "precision": 0.9933184855233853,
+            "recall": 0.9955357142857143,
+            "f1": 0.9944258639910813,
+            "roc_auc": 0.9998351258116882,
+            "pr_auc": 0.9998693144969046
+          }
+        },
+        "calibrated_classification": {
+          "count": 800,
+          "accuracy": 0.9925,
+          "precision": 0.9955156950672646,
+          "recall": 0.9910714285714286,
+          "f1": 0.9932885906040269,
+          "roc_auc": 0.9998351258116882,
+          "pr_auc": 0.9998693144969046
+        },
+        "mean_score": {
+          "real": 99.43827183462014,
+          "generated": 0.9394741622619359
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.31171462457951743
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      },
+      "unseen": {
+        "count": 1048,
+        "accuracy": 0.9856870229007634,
+        "precision": 0.971677559912854,
+        "recall": 0.9955357142857143,
+        "f1": 0.9834619625137816,
+        "roc_auc": 0.9996577380952381,
+        "pr_auc": 0.9995438624476741,
+        "category_wise": {
+          "상의": {
+            "count": 262,
+            "accuracy": 0.9885496183206107,
+            "precision": 0.9739130434782609,
+            "recall": 1.0,
+            "f1": 0.986784140969163,
+            "roc_auc": 0.9997619047619047,
+            "pr_auc": 0.9996782104977424
+          },
+          "아우터": {
+            "count": 262,
+            "accuracy": 0.9580152671755725,
+            "precision": 0.9173553719008265,
+            "recall": 0.9910714285714286,
+            "f1": 0.9527896995708155,
+            "roc_auc": 0.9990476190476191,
+            "pr_auc": 0.9987874255127381
+          },
+          "원피스": {
+            "count": 262,
+            "accuracy": 0.9961832061068703,
+            "precision": 1.0,
+            "recall": 0.9910714285714286,
+            "f1": 0.9955156950672646,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 262,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 1048,
+            "accuracy": 0.9856870229007634,
+            "precision": 0.971677559912854,
+            "recall": 0.9955357142857143,
+            "f1": 0.9834619625137816,
+            "roc_auc": 0.9996577380952381,
+            "pr_auc": 0.9995438624476741
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 1048,
+            "accuracy": 0.9856870229007634,
+            "precision": 0.971677559912854,
+            "recall": 0.9955357142857143,
+            "f1": 0.9834619625137816,
+            "roc_auc": 0.9996577380952381,
+            "pr_auc": 0.9995438624476741
+          }
+        },
+        "calibrated_classification": {
+          "count": 1048,
+          "accuracy": 0.9856870229007634,
+          "precision": 0.9758241758241758,
+          "recall": 0.9910714285714286,
+          "f1": 0.9833887043189369,
+          "roc_auc": 0.9996577380952381,
+          "pr_auc": 0.9995438624476741
+        },
+        "mean_score": {
+          "real": 99.43827183462014,
+          "generated": 2.579613310001955
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.6025596259181596
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 4
+        }
+      },
+      "standard_square": {
+        "count": 333,
+        "accuracy": 0.993993993993994,
+        "precision": 0.9874213836477987,
+        "recall": 1.0,
+        "f1": 0.9936708860759493,
+        "roc_auc": 0.999963810075275,
+        "pr_auc": 0.9999595587876571,
+        "category_wise": {
+          "상의": {
+            "count": 84,
+            "accuracy": 0.9880952380952381,
+            "precision": 0.975609756097561,
+            "recall": 1.0,
+            "f1": 0.9876543209876543,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "아우터": {
+            "count": 80,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "원피스": {
+            "count": 75,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 94,
+            "accuracy": 0.9893617021276596,
+            "precision": 0.9803921568627451,
+            "recall": 1.0,
+            "f1": 0.99009900990099,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "playground_25": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "qwen_image_21": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "sdxl": {
+            "count": 201,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 0.9999999999999999
+          },
+          "z_image_turbo": {
+            "count": 201,
+            "accuracy": 0.9950248756218906,
+            "precision": 0.9936708860759493,
+            "recall": 1.0,
+            "f1": 0.9968253968253968,
+            "roc_auc": 0.9998552403011002,
+            "pr_auc": 0.9999595587876571
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 333,
+            "accuracy": 0.993993993993994,
+            "precision": 0.9874213836477987,
+            "recall": 1.0,
+            "f1": 0.9936708860759493,
+            "roc_auc": 0.999963810075275,
+            "pr_auc": 0.9999595587876571
+          }
+        },
+        "calibrated_classification": {
+          "count": 333,
+          "accuracy": 0.996996996996997,
+          "precision": 0.9936708860759493,
+          "recall": 1.0,
+          "f1": 0.9968253968253968,
+          "roc_auc": 0.999963810075275,
+          "pr_auc": 0.9999595587876571
+        },
+        "mean_score": {
+          "real": 99.87694137341641,
+          "generated": 1.2564144236097914
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 0.5712304214655017
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 1
+        }
+      },
+      "unseen_square": {
+        "count": 457,
+        "accuracy": 0.9781181619256017,
+        "precision": 0.9401197604790419,
+        "recall": 1.0,
+        "f1": 0.9691358024691358,
+        "roc_auc": 0.9997027600849256,
+        "pr_auc": 0.9994310880105282,
+        "category_wise": {
+          "상의": {
+            "count": 114,
+            "accuracy": 0.9824561403508771,
+            "precision": 0.9523809523809523,
+            "recall": 1.0,
+            "f1": 0.975609756097561,
+            "roc_auc": 0.9996621621621622,
+            "pr_auc": 0.9993826219512195
+          },
+          "아우터": {
+            "count": 112,
+            "accuracy": 0.9285714285714286,
+            "precision": 0.8181818181818182,
+            "recall": 1.0,
+            "f1": 0.9,
+            "roc_auc": 0.9992690058479532,
+            "pr_auc": 0.9985182550972025
+          },
+          "원피스": {
+            "count": 105,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          },
+          "하의": {
+            "count": 126,
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "roc_auc": 1.0,
+            "pr_auc": 1.0
+          }
+        },
+        "generator_wise": {
+          "sd35_medium": {
+            "count": 457,
+            "accuracy": 0.9781181619256017,
+            "precision": 0.9401197604790419,
+            "recall": 1.0,
+            "f1": 0.9691358024691358,
+            "roc_auc": 0.9997027600849256,
+            "pr_auc": 0.9994310880105282
+          }
+        },
+        "source_wise": {
+          "kfashion": {
+            "count": 457,
+            "accuracy": 0.9781181619256017,
+            "precision": 0.9401197604790419,
+            "recall": 1.0,
+            "f1": 0.9691358024691358,
+            "roc_auc": 0.9997027600849256,
+            "pr_auc": 0.9994310880105282
+          }
+        },
+        "calibrated_classification": {
+          "count": 457,
+          "accuracy": 0.9824945295404814,
+          "precision": 0.9515151515151515,
+          "recall": 1.0,
+          "f1": 0.9751552795031055,
+          "roc_auc": 0.9997027600849256,
+          "pr_auc": 0.9994310880105282
+        },
+        "mean_score": {
+          "real": 99.87694137341641,
+          "generated": 3.8045395337414023
+        },
+        "mean_score_shift": {
+          "real": 0.0,
+          "generated": 1.0482770584874883
+        },
+        "decision_flips": {
+          "real": 0,
+          "generated": 3
+        }
+      }
+    }
+  }
+}

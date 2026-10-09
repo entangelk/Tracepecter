@@ -10,11 +10,12 @@
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/baseline/best.pt`. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
 - scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 실패 분석 대상이다.
+- P06 실행: `docker compose --profile training run --rm -T train python -m src.failure_analysis --config configs/failure_analysis.yaml` → `reports/errors/*/manifest.csv`(이미지 사본은 비추적)·`experiments/p06_failure_analysis/`. Test B NLL/Brier 악화는 sd35 확신 FP 12장 때문으로 분해됐다.
 - Test B는 Standard test REAL 448 + `test_unseen` FAKE 600(sd35_medium), 총 1,048장([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val REAL 제외, 두 테스트 간 REAL 공유.
 
 ## 다음 작업 (우선순위 순)
 
-1. **P06 failure analysis 계획·사례 분석** — [결과 해석·통제 평가 제안](experiments/p03_comparison/analysis_2026-10-09.md) 참고: REAL/GEN의 형식·원본 크기가 라벨과 겹치며 모델 의존도는 미측정이다. 고정 calibration/Test A/B로 NLL/Brier 악화와 편향 가설을 분석한다. 보고된 고유 오분류는 12장 상당이므로 §27의 100 사례 검토군 구성·완료 조건을 계획에 명시한다.
+1. **P06-03 검토군 구성·수동 검토** — [P06 계획](docs/plan/phase_6_failure_analysis.md)·[DB-05](docs/decision_briefs/DB-05_P06_review-set.md)(A: 오류 전수 + 보충 ≥100, 유형 구분 / R1: 에이전트 1차 검토 + 소유자가 오류 전수·무작위 20건 확인). P06-01·02 [결과](experiments/p06_failure_analysis/README.md): test 고유 오류 12 + val 3, low_confidence 24. JPEG·크기·종횡비 의존 근거는 약하고 crop(구도)에는 민감하다. 보충 구성 규칙은 이미지를 보기 전에 config에 고정한다. 이후 P06-04 패턴 문서(DB-03 얼굴 트리거 판정 포함).
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 
