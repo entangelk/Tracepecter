@@ -75,3 +75,6 @@ docs/research/research_reference_data/
 # P06 오류 이미지 사본(데이터 정책과 동일하게 비추적). manifest.csv는 추적한다.
 reports/errors/**/*.jpg
 reports/errors/**/*.png
+
+# P06-03 정적 검토 페이지(생성물, 원본 이미지 사본 포함)
+reports/errors/review/
