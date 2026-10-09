@@ -104,7 +104,7 @@ def test_failure_analysis_cli_saves_errors_and_condition_predictions(tmp_path):
     for kind in ('false_positive', 'false_negative', 'low_confidence'):
         with (tmp_path/f'errors/{kind}/manifest.csv').open() as handle:
             for row in csv.DictReader(handle):
-                assert (tmp_path/f'errors/{kind}'/row['image_id']).exists()
+                assert (tmp_path/f'errors/{kind}'/row['image_id']).exists()  # 원본 파일명(확장자 포함)
                 saved[row['image_id']] = (kind, row)
     assert set(saved) == targets | {'val_0.png', 'val_1.png'}
     labels = {r['image_id']: int(r['label']) for r in csv.DictReader(metadata.open())}

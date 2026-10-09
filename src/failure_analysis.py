@@ -168,7 +168,7 @@ def main(argv=None) -> dict:
             writer.writeheader()
             for item in sorted(items, key=lambda x: x['score']):
                 writer.writerow(item)
-                shutil.copyfile(item['source_path'], folder/item['image_id'])
+                shutil.copyfile(item['source_path'], folder/item['source_path'].name)
 
     evaluation_sets = dict(standard=standard, unseen=unseen,
                            standard_square=[i for i in standard if sizes[i][0] == sizes[i][1]],
