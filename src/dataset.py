@@ -118,10 +118,13 @@ class MetadataDataset(Dataset):
     def __len__(self) -> int:
         return len(self.rows)
 
+    def image_path(self, index: int) -> Path:
+        row = self.rows[index]
+        return (self.image_root / Path(row.path).relative_to("images")
+                if self.image_root is not None else self.csv_path.parent / row.path)
+
     def __getitem__(self, index: int) -> tuple[torch.Tensor, float]:
         row = self.rows[index]
-        image_path = (self.image_root / Path(row.path).relative_to("images")
-                      if self.image_root is not None else self.csv_path.parent / row.path)
-        with Image.open(image_path) as handle:
+        with Image.open(self.image_path(index)) as handle:
             image = handle.convert("RGB")
         return self.transform(image), float(row.label)

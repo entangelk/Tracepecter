@@ -9,7 +9,8 @@
 | [DB-03](DB-03_P01_face-policy.md) | P01 | P01 데이터 설계 전체 | 얼굴 영역 처리 정책(DB-01 후속) | Resolved | 옵션 A: 무처리 — 프롬프트 정합 + P06 재검 트리거로 위험 관리 | 2026-10-07 |
 
 | [DB-04](DB-04_P02_unseen-real.md) | P02 | P02-03 | Test B REAL 구성 | Resolved | 옵션 A: Standard test REAL 재사용 | 2026-10-09 |
+| [DB-05](DB-05_P06_review-set.md) | P06 | P06-03 | 100개 검토군 구성·검토 주체 | Resolved | 결정 1 A: 오류 전수+보충 ≥100(유형 구분) · 결정 2 R1: 에이전트 1차+소유자 확인 | 2026-10-09 |
 
 ## 대기 중인 사항
 
-- 없음 — Test B 구성은 DB-04로 확정.
+- 없음 — P06 검토군은 DB-05로 확정.

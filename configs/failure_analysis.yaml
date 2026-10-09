@@ -1,0 +1,13 @@
+# P06: 고정 P05 artifact로 오류 저장·통제 진단. 결과를 본 뒤 조건·경계를 바꾸지 않는다.
+calibration: experiments/p05_calibration/calibration.json
+device: cuda
+output_dir: experiments/p06_failure_analysis
+errors_dir: reports/errors
+low_confidence_score: [10, 90]
+# 양 클래스 동일 적용. labels 지정 조건은 해당 클래스만 변환하고 나머지는 원본 logit을 쓴다.
+conditions:
+  jpeg_q90: {type: jpeg, quality: 90}
+  jpeg_q75: {type: jpeg, quality: 75}
+  downscale_512: {type: downscale, long_side: 512}
+  center_square: {type: center_square}
+  gen_jpeg_real_quality: {type: jpeg, quality: estimated_real, labels: [0]}
