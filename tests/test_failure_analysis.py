@@ -125,3 +125,28 @@ def test_failure_analysis_cli_saves_errors_and_condition_predictions(tmp_path):
     assert metrics['conditions']['original']['standard']['count'] == 2
     assert metrics['conditions']['original']['unseen']['count'] == 2
     assert metrics['conditions']['original']['standard']['decision_flips'] == dict(real=0, generated=0)
+
+
+def test_review_set_priority_strata_and_determinism():
+    """오류는 보충 유형으로 덮이지 않고, 오류 전수는 소유자 확인 대상이며, 같은 seed는 같은 결과."""
+    from scripts.build_review_set import build_review_set
+    metadata = {f'g{i}': dict(label='0', category='상의', generator='a' if i < 5 else 'b', split='test')
+                for i in range(10)}
+    metadata |= {f'r{i}': dict(label='1', category='하의', generator='', split='test') for i in range(5)}
+    metadata['v0'] = dict(label='1', category='하의', generator='', split='val')
+    logits = {(i, 'original'): (-5.0 if i.startswith('g') else 5.0) for i in metadata}
+    logits['g0', 'original'] = 5.0                                   # FP
+    logits['g1', 'crop'], logits['g2', 'crop'] = 5.0, -5.0          # g1 판정 전환, g2 유지
+    logits['g0', 'crop'] = -5.0                                      # 오류가 전환보다 우선
+    rules = dict(seed=1, high_confidence_per_generator=2, high_confidence_per_category=3, owner_random_check=2)
+    rows = build_review_set(metadata, logits, {'g0': 'false_positive'}, 1.0, 0.5, rules)
+    kinds = {r['image_id']: r['case_type'] for r in rows}
+    assert kinds['g0'] == 'false_positive' and kinds['g1'] == 'transform_flip'
+    assert 'v0' not in kinds                                         # val은 manifest 사례로만 들어온다
+    high = [i for i, k in kinds.items() if k == 'high_confidence']
+    assert sum(i.startswith('g') and int(i[1:]) < 5 for i in high) == 2
+    assert sum(i.startswith('g') and int(i[1:]) >= 5 for i in high) == 2
+    assert sum(i.startswith('r') for i in high) == 3
+    owner = {r['image_id'] for r in rows if r['owner_check']}
+    assert 'g0' in owner and len(owner) == 3
+    assert rows == build_review_set(metadata, logits, {'g0': 'false_positive'}, 1.0, 0.5, rules)

@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P06 실패 사례 검토</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 고정 상단 진행 바 + 필터, 아래로 사진 대조용 가로 카드(이미지 | 판정 정보 | 소유자 입력)가 한 줄씩 쌓인다 */
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --ink: #1b2230;
+  --muted: #5d6677;
+  --line: #d9dde5;
+  --accent: #2f5d8a;
+  --accent-soft: #e3ecf5;
+  --fp: #b4362c; --fp-soft: #f8e4e1;
+  --fn: #9a6400; --fn-soft: #f7ecd6;
+  --low: #6a4bb0; --low-soft: #ece6f7;
+  --flip: #1f6f8b; --flip-soft: #dff0f5;
+  --high: #4a6352; --high-soft: #e5ede7;
+  --ok: #2e7d4f;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12161d; --surface: #1a2029; --ink: #e5e9f0; --muted: #9aa3b2; --line: #2c3442;
+    --accent: #7fa8d6; --accent-soft: #1f2f42;
+    --fp: #f08a7e; --fp-soft: #3a1f1c; --fn: #e2b45a; --fn-soft: #362b17;
+    --low: #b9a2ec; --low-soft: #2a2340; --flip: #6fc3dc; --flip-soft: #173039;
+    --high: #9cc1a6; --high-soft: #1f2d24; --ok: #6fcf97;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12161d; --surface: #1a2029; --ink: #e5e9f0; --muted: #9aa3b2; --line: #2c3442;
+  --accent: #7fa8d6; --accent-soft: #1f2f42;
+  --fp: #f08a7e; --fp-soft: #3a1f1c; --fn: #e2b45a; --fn-soft: #362b17;
+  --low: #b9a2ec; --low-soft: #2a2340; --flip: #6fc3dc; --flip-soft: #173039;
+  --high: #9cc1a6; --high-soft: #1f2d24; --ok: #6fcf97;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 14px 12px; }
+.bar-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; }
+h1 { font-size: 1.25rem; font-weight: 700; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 0.85rem; }
+.progress { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--font-data); font-size: 0.82rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.progress b { color: var(--ink); font-weight: 500; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { font: inherit; font-size: 0.82rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 3px 11px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.chip:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.intro { color: var(--muted); font-size: 0.88rem; max-width: 72ch; margin: 14px 0 4px; }
+.state { padding: 40px 0; color: var(--muted); text-align: center; }
+.list { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.case { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
+.case.done { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+@media (max-width: 920px) { .case { grid-template-columns: minmax(0, 220px) minmax(0, 1fr); } .case .owner { grid-column: 1 / -1; } }
+@media (max-width: 560px) { .case { grid-template-columns: minmax(0, 1fr); } }
+.shot { background: var(--bg); border-radius: 4px; display: flex; align-items: center; justify-content: center; min-height: 200px; cursor: zoom-in; border: 0; padding: 0; }
+.shot img { max-height: 380px; width: auto; max-width: 100%; display: block; border-radius: 4px; }
+.facts { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.type { font-size: 0.78rem; font-weight: 600; padding: 2px 9px; border-radius: 3px; letter-spacing: 0.02em; }
+.t-false_positive { color: var(--fp); background: var(--fp-soft); }
+.t-false_negative { color: var(--fn); background: var(--fn-soft); }
+.t-low_confidence { color: var(--low); background: var(--low-soft); }
+.t-transform_flip { color: var(--flip); background: var(--flip-soft); }
+.t-high_confidence { color: var(--high); background: var(--high-soft); }
+.meta { font-size: 0.82rem; color: var(--muted); }
+.id { font-family: var(--font-data); font-size: 0.85rem; color: var(--ink); }
+.score { display: flex; align-items: baseline; gap: 10px; }
+.score .num { font-family: var(--font-data); font-size: 1.7rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.score .verdict { font-size: 0.82rem; color: var(--muted); }
+.scale { position: relative; height: 8px; background: var(--bg); border-radius: 4px; border: 1px solid var(--line); }
+.scale .dot { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.scale .thr { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); opacity: 0.6; }
+.scale-labels { display: flex; justify-content: space-between; font-family: var(--font-data); font-size: 0.7rem; color: var(--muted); }
+table.cond { border-collapse: collapse; font-size: 0.78rem; width: 100%; }
+table.cond td { padding: 2px 6px 2px 0; border-bottom: 1px dashed var(--line); }
+table.cond td.v { font-family: var(--font-data); text-align: right; font-variant-numeric: tabular-nums; }
+table.cond tr.flip td { color: var(--flip); font-weight: 600; }
+.agent { font-size: 0.82rem; background: var(--accent-soft); border-radius: 4px; padding: 8px 10px; }
+.agent.empty { background: transparent; border: 1px dashed var(--line); color: var(--muted); }
+.agent strong { font-weight: 600; }
+.owner { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.label { font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .cue { font: inherit; font-size: 0.82rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.cue[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+textarea { font: inherit; font-size: 0.85rem; width: 100%; min-height: 58px; resize: vertical; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); padding: 6px 8px; }
+.saved { font-size: 0.75rem; color: var(--muted); min-height: 1em; }
+.saved.err { color: var(--fp); }
+dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog::backdrop { background: rgba(10, 12, 16, 0.82); }
+dialog img { max-width: 96vw; max-height: 94vh; display: block; }
+@media (prefers-reduced-motion: no-preference) { .case { transition: border-color 0.2s; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="bar-row">
+      <h1>P06 실패 사례 검토</h1>
+      <span class="sub">primary SigLIP · calibrated threshold score 69.67 · REAL=photographic</span>
+    </div>
+    <div class="progress" id="progress"><span>불러오는 중…</span></div>
+    <div class="filters" id="filters" role="group" aria-label="보기 필터"></div>
+  </header>
+
+  <p class="intro">각 사진을 보고 사람 눈에 실제 착용 촬영처럼 보이는지 고르고, 판단에 쓴 단서를 표시해 주세요. 선택은 바로 <code>reports/errors/review_owner.csv</code>에 저장됩니다. 기본 보기는 소유자 확인 대상 35건(오분류 15건 전수 + 보충 사례 무작위 20건)입니다. 사진은 데이터셋 원본 파일 그대로입니다.</p>
+
+  <div id="state" class="state">사례 목록을 불러오는 중입니다.</div>
+  <div class="list" id="list"></div>
+</div>
+
+<dialog id="zoom"><img id="zoom-img" alt=""></dialog>
+
+<script>
+const THRESHOLD = 69.66991081858492;
+const TYPE_LABEL = {
+  false_positive: 'FP · 생성 이미지를 실사로 판정',
+  false_negative: 'FN · 실사를 생성으로 판정',
+  low_confidence: '경계 점수 10~90',
+  transform_flip: '변환 시 판정 전환',
+  high_confidence: '고확신 정답',
+};
+const COND_LABEL = {
+  original: '원본', jpeg_q90: 'JPEG q90', jpeg_q75: 'JPEG q75', downscale_512: '긴 변 512 축소',
+  center_square: '중앙 정사각 crop', gen_jpeg_real_quality: 'GEN만 JPEG(REAL 품질)',
+};
+const PERCEIVED = [['photo_like', '실사처럼 보임'], ['ambiguous', '애매함'], ['synthetic_like', '생성처럼 보임']];
+const CUES = [
+  ['full_body', '전신 구도'], ['partial_frame', '부분 프레임·크롭'], ['studio_plain_bg', '단색·스튜디오 배경'],
+  ['busy_bg', '실외·복잡한 배경'], ['face_visible', '얼굴 노출'], ['face_hidden', '얼굴 가림·프레임 밖'],
+  ['smooth_retouch', '매끈함·강한 보정'], ['lighting', '조명·그림자 부자연'], ['body_defect', '손·신체 결함'],
+  ['garment_defect', '의류 디테일 결함'], ['text_logo', '글자·로고'], ['photo_noise', '촬영 노이즈·흐림'],
+];
+const FILTERS = [
+  ['owner', '확인 대상'], ['todo', '미검토'], ['all', '전체'],
+  ['false_positive', 'FP'], ['false_negative', 'FN'], ['low_confidence', '경계'],
+  ['transform_flip', '판정 전환'], ['high_confidence', '고확신'],
+];
+
+let cases = [];
+const reviews = new Map();
+const writeChains = new Map();
+let filter = 'owner';
+try { filter = localStorage.getItem('p06-filter') || 'owner'; } catch (e) {}
+
+const $ = (sel, root = document) => root.querySelector(sel);
+function el(tag, attrs = {}, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid != null) node.append(kid);
+  return node;
+}
+const fmt = (s) => s >= 99.995 ? '99.99+' : s < 0.005 ? '<0.01' : s.toFixed(2);
+
+function renderFilters() {
+  const box = $('#filters');
+  box.replaceChildren(...FILTERS.map(([key, label]) => el('button', {
+    class: 'chip', type: 'button', 'aria-pressed': String(filter === key), text: label,
+    onclick: () => { filter = key; try { localStorage.setItem('p06-filter', key); } catch (e) {} renderFilters(); renderList(); },
+  })));
+}
+
+function isDone(id) { const r = reviews.get(id); return !!(r && r.perceived); }
+
+function renderProgress() {
+  const owner = cases.filter(c => c.owner_check);
+  const done = (list) => list.filter(c => isDone(c.image_id)).length;
+  const agent = cases.filter(c => c.agent && c.agent.perceived).length;
+  $('#progress').replaceChildren(
+    el('span', {}, '확인 대상 ', el('b', { text: `${done(owner)}/${owner.length}` })),
+    el('span', {}, '전체 ', el('b', { text: `${done(cases)}/${cases.length}` })),
+    el('span', {}, '에이전트 1차 검토 ', el('b', { text: `${agent}/${cases.length}` })),
+  );
+}
+
+function visible() {
+  return cases.filter(c => filter === 'all' ? true
+    : filter === 'owner' ? c.owner_check
+    : filter === 'todo' ? !isDone(c.image_id)
+    : c.case_type === filter);
+}
+
+function scoreBlock(c) {
+  const s = c.scores.original;
+  const predicted = s >= THRESHOLD ? 'photographic_like' : 'synthetic_like';
+  const scale = el('div', { class: 'scale', role: 'img', 'aria-label': `score ${fmt(s)}, threshold 69.67` },
+    el('span', { class: 'thr', style: `left:${THRESHOLD}%` }),
+    el('span', { class: 'dot', style: `left:${Math.min(100, Math.max(0, s))}%` }));
+  return el('div', {},
+    el('div', { class: 'score' }, el('span', { class: 'num', text: fmt(s) }), el('span', { class: 'verdict', text: `모델 판정 ${predicted}` })),
+    scale,
+    el('div', { class: 'scale-labels' }, el('span', { text: '0' }), el('span', { text: '69.67' }), el('span', { text: '100' })));
+}
+
+function conditionTable(c) {
+  const base = c.scores.original >= THRESHOLD;
+  const rows = Object.entries(c.scores).filter(([k]) => k !== 'original').map(([k, v]) =>
+    el('tr', { class: (v >= THRESHOLD) !== base ? 'flip' : '' },
+      el('td', { text: COND_LABEL[k] || k }), el('td', { class: 'v', text: fmt(v) })));
+  if (!rows.length) return null;
+  return el('table', { class: 'cond', 'aria-label': '통제 조건별 score' }, el('tbody', {}, ...rows));
+}
+
+function agentBlock(c) {
+  const a = c.agent;
+  if (!a || !a.perceived) return el('div', { class: 'agent empty', text: '에이전트 1차 검토 전' });
+  const p = Object.fromEntries(PERCEIVED)[a.perceived] || a.perceived;
+  const cues = (a.cues || []).map(k => Object.fromEntries(CUES)[k] || k).join(', ');
+  return el('div', { class: 'agent' },
+    el('div', {}, el('strong', { text: '에이전트 1차: ' }), p),
+    cues ? el('div', { text: `단서: ${cues}` }) : null,
+    a.note ? el('div', { text: a.note }) : null);
+}
+
+function save(id, patch, status) {
+  const current = { ...(reviews.get(id) || {}), ...patch };
+  reviews.set(id, current);
+  renderProgress();
+  document.querySelector(`[data-id="${CSS.escape(id)}"]`)?.classList.toggle('done', !!current.perceived);
+  status.textContent = '저장 중…'; status.classList.remove('err');
+  const body = { ...patch };
+  for (const k of ['perceived', 'agent_agreement']) if (k in body && body[k] == null) body[k] = '';
+  const prev = writeChains.get(id) || Promise.resolve();
+  const next = prev.catch(() => {}).then(() => fetch(`/api/review/${encodeURIComponent(id)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
+    .then(async (res) => { if (!res.ok) throw new Error((await res.json()).error); status.textContent = '저장됨'; })
+    .catch((e) => { status.textContent = `저장 실패: ${e.message}. 서버가 켜져 있는지 확인하고 다시 선택해 주세요.`; status.classList.add('err'); });
+  writeChains.set(id, next);
+}
+
+function ownerBlock(c) {
+  const id = c.image_id;
+  const r = reviews.get(id) || {};
+  const status = el('div', { class: 'saved', 'aria-live': 'polite', text: r.updated_at ? '저장됨' : '' });
+  const seg = el('div', { class: 'seg', role: 'group', 'aria-label': '체감 판정' }, ...PERCEIVED.map(([k, label]) =>
+    el('button', { type: 'button', 'aria-pressed': String(r.perceived === k), text: label, onclick: (ev) => {
+      const value = (reviews.get(id) || {}).perceived === k ? null : k;
+      for (const b of seg.children) b.setAttribute('aria-pressed', String(b === ev.currentTarget && value !== null));
+      save(id, { perceived: value }, status);
+    } })));
+  const cues = el('div', { class: 'seg', role: 'group', 'aria-label': '판단 단서' }, ...CUES.map(([k, label]) =>
+    el('button', { type: 'button', class: 'cue', 'aria-pressed': String((r.cues || []).includes(k)), text: label, onclick: (ev) => {
+      const set = new Set((reviews.get(id) || {}).cues || []);
+      set.has(k) ? set.delete(k) : set.add(k);
+      ev.currentTarget.setAttribute('aria-pressed', String(set.has(k)));
+      save(id, { cues: CUES.map(([x]) => x).filter(x => set.has(x)) }, status);
+    } })));
+  let timer = null;
+  const note = el('textarea', { id: `note-${id}`, placeholder: '메모 (선택) — 예: 소매 경계가 녹아 있음' });
+  note.value = r.note || '';
+  const flush = () => { clearTimeout(timer); timer = null; if ((reviews.get(id) || {}).note !== note.value) save(id, { note: note.value }, status); };
+  note.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(flush, 900); });
+  note.addEventListener('blur', flush);
+  const agree = c.agent && c.agent.perceived ? el('div', { class: 'seg', role: 'group', 'aria-label': '에이전트 판단 동의' },
+    ...[['agree', '에이전트 판단 동의'], ['disagree', '동의 안 함']].map(([k, label]) =>
+      el('button', { type: 'button', 'aria-pressed': String(r.agent_agreement === k), text: label, onclick: (ev) => {
+        const value = (reviews.get(id) || {}).agent_agreement === k ? null : k;
+        for (const b of ev.currentTarget.parentNode.children) b.setAttribute('aria-pressed', String(b === ev.currentTarget && value !== null));
+        save(id, { agent_agreement: value }, status);
+      } }))) : null;
+  return el('div', { class: 'owner' },
+    el('div', { class: 'label', text: '사람 눈으로 보면' }), seg,
+    el('div', { class: 'label', text: '판단 단서' }), cues,
+    agree ? el('div', { class: 'label', text: '에이전트 1차 판단' }) : null, agree,
+    el('label', { class: 'label', for: `note-${id}`, text: '메모' }), note, status);
+}
+
+function renderList() {
+  const items = visible();
+  const list = $('#list');
+  if (!cases.length) return;
+  $('#state').hidden = items.length > 0;
+  if (!items.length) $('#state').textContent = '이 필터에 해당하는 사례가 없습니다.';
+  list.replaceChildren(...items.map(c => {
+    const truth = c.label === 1 ? 'REAL · K-Fashion' : `GEN · ${c.generator}`;
+    const img = el('img', { src: `/img/${encodeURIComponent(c.image_id)}`, alt: `${c.image_id} (${truth})`, loading: 'lazy' });
+    const shot = el('button', { class: 'shot', type: 'button', 'aria-label': `${c.image_id} 크게 보기`, onclick: () => {
+      $('#zoom-img').src = img.src; $('#zoom-img').alt = img.alt; $('#zoom').showModal(); } }, img);
+    const facts = el('div', { class: 'facts' },
+      el('div', { class: 'tags' }, el('span', { class: `type t-${c.case_type}`, text: TYPE_LABEL[c.case_type] || c.case_type }),
+        c.owner_check ? el('span', { class: 'meta', text: '· 확인 대상' }) : null),
+      el('div', {}, el('span', { class: 'id', text: c.image_id }),
+        el('div', { class: 'meta', text: `정답 ${truth} · ${c.category} · ${c.split}` })),
+      scoreBlock(c), conditionTable(c), agentBlock(c));
+    return el('article', { class: `case${isDone(c.image_id) ? ' done' : ''}`, 'data-id': c.image_id }, shot, facts, ownerBlock(c));
+  }));
+}
+
+$('#zoom').addEventListener('click', () => $('#zoom').close());
+renderFilters();
+
+const splitCues = (r) => r ? { ...r, cues: r.cues ? r.cues.split('|') : [] } : null;
+fetch('/api/cases').then((res) => { if (!res.ok) throw new Error(res.status); return res.json(); }).then((data) => {
+  cases = data.map((c) => ({ ...c, agent: splitCues(c.agent) }));
+  for (const c of cases) if (c.review) reviews.set(c.image_id, splitCues(c.review));
+  if (!cases.length) { $('#state').textContent = '검토군이 비어 있습니다. scripts/build_review_set.py를 먼저 실행해 주세요.'; return; }
+  renderProgress(); renderList();
+}).catch((e) => { $('#state').textContent = `사례를 불러오지 못했습니다 (${e.message}). 서버가 켜져 있는지 확인해 주세요.`; });
+</script>
+</body>
+</html>

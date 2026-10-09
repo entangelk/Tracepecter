@@ -231,3 +231,9 @@
 ### 다음 단계
 
 - P06-03: 보충 구성 규칙(crop 판정 전환·층화 고확신 표본 수)을 이미지를 보기 전에 config에 고정한 뒤 ≥100 검토. 이어서 P06-04 패턴 문서와 DB-03 얼굴 트리거 판정.
+
+## P06-03 검토군·검토 페이지
+
+- 이미지를 열어 보기 전에 검토군 규칙을 config(`review_set`, seed 42)에 고정하고 `scripts/build_review_set.py`를 추가했다. 우선순위는 오분류 > low_confidence > 통제 조건 판정 전환 > 층화 고확신이다. 결과는 103건(FP 10·FN 5·경계 24·전환 10·고확신 54)이고, 소유자 확인 대상은 35건(오류 전수 + 보충 무작위 20)이다. 우선순위·층화 수·결정성 테스트를 추가했다.
+- 소유자 요청으로 검토 페이지를 만들었다. 처음에는 claude.ai artifact로 게시하고 이미지 25장을 올렸으나, 소유자가 "레포에 만들어 달라"고 해 업로드를 중단했다. 이어서 레포 로컬 서버 `scripts/review_server.py`·`scripts/review_page.html`로 다시 만들었다. 이 artifact(https://claude.ai/artifact/WUSELTCkDkXpb9m8LAXfWi, 비공개)는 아직 남아 있으며 삭제 여부는 소유자 확인이 필요하다.
+- 판정 저장 형식은 CSV이며 `reports/errors/review_owner.csv`(소유자)와 `review_agent.csv`(에이전트 1차)를 쓴다. 부분 갱신 병합·값 검증·원자적 쓰기를 적용했다. 테스트 2개 추가, CPU 전체 50 passed. 실서버 smoke로 API 103건/35건, 원본 PNG·JPEG 응답, 저장, 잘못된 값 400 거부를 확인했고, 페이지 스크립트는 `node --check`로 문법을 확인했다.

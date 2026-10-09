@@ -11,3 +11,12 @@ conditions:
   downscale_512: {type: downscale, long_side: 512}
   center_square: {type: center_square}
   gen_jpeg_real_quality: {type: jpeg, quality: estimated_real, labels: [0]}
+
+# P06-03 검토군(DB-05 A). 이미지를 보기 전에 고정했다(2026-10-09).
+# 우선순위: 오분류 > low_confidence > 통제 조건 판정 전환 > 층화 고확신(정답·score 구간 밖).
+review_set:
+  seed: 42
+  output: reports/errors/review_set.csv
+  high_confidence_per_generator: 6   # test 대상 GEN, 생성기 5종
+  high_confidence_per_category: 6    # test REAL, 4부위
+  owner_random_check: 20             # 오류 전수 외 소유자 확인(R1), 보충 사례에서 무작위
