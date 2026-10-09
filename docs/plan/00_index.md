@@ -9,13 +9,13 @@
 | P02 | Baseline 모델 — frozen encoder + MLP head | Complete | P01: 씨드 데이터(Real 500 + Generated 500) split 확보 | 10 epoch 실학습 + best/last checkpoint + validation/Test A/B metric ([실험 기록](../../experiments/p02_siglip_baseline/README.md)) | [DB-04](../decision_briefs/DB-04_P02_unseen-real.md)(Resolved) |
 | P03 | Baseline 비교 — SigLIP vs DINO | Complete | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split DINO 10 epoch + latency/크기 비교 + primary SigLIP 선정([report](../../experiments/p03_comparison/README.md)) | — |
 | P04 | LoRA (조건부) | Planned | P03 (진입 조건: `docs/project.md` §17) | LoRA vs frozen 비교 결과 문서 — 유의미하지 않으면 baseline 유지 | — |
-| P05 | Score calibration | Planned | P03: primary encoder 선정 | validation 기반 calibration parameter + threshold + 0~100 score 정의 기록 | — |
+| P05 | Score calibration | In Progress | P03: primary encoder 선정 | validation 기반 calibration parameter + threshold + 0~100 score 정의 기록 | — |
 | P06 | Failure analysis | Planned | P05 | `reports/errors/` 자동 저장 + failure case 100개 이상 수동 검토 + 오류 패턴 문서 | — |
 | P07 | API + Demo | Planned | P05 | `POST /score` API 응답 + web demo에서 score 출력 확인 | — |
 
 ## 비고
 
-- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_3_baseline_comparison.md`](phase_3_baseline_comparison.md) · [`phase_2_baseline.md`](phase_2_baseline.md) · [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
+- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_5_calibration.md`](phase_5_calibration.md) · [`phase_3_baseline_comparison.md`](phase_3_baseline_comparison.md) · [`phase_2_baseline.md`](phase_2_baseline.md) · [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
 - `docs/project.md` §35의 thin-slice 원칙에 따라, P02는 P01 전체 완료 전에도 씨드 데이터(1,000장 규모)로 착수할 수 있다. P01은 병렬로 규모 확장을 계속한다.
 - 페이즈 상태·선행 조건·완료 근거가 바뀌면 본 인덱스와 해당 페이즈 문서를 같은 변경에서 함께 갱신한다. 규칙: `docs/guides/phase-and-decision-briefs.md`.
 - 의존성은 P02 CUDA 환경 기준으로 `requirements.txt`에 exact pin한다. CPU dev도 동일 버전의 torch/torchvision CPU wheel을 사용한다.

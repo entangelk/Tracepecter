@@ -94,12 +94,16 @@ class RealismScorer(nn.Module):
 
     def forward(self, images: torch.Tensor) -> torch.Tensor:
         """이미지 배치 [B,3,H,W] → realism 확률 [B] (0.0 ~ 1.0, §16 inference 정의)."""
+        return self.head[-1](self.forward_logits(images))
+
+    def forward_logits(self, images: torch.Tensor) -> torch.Tensor:
+        """포화된 probability를 역변환하지 않고 원래 logit을 반환한다."""
         if self.encoder_frozen:
             with torch.no_grad():
                 features = self.encoder(images)
         else:
             features = self.encoder(images)
-        return self.head(features).squeeze(-1)
+        return self.head[:-1](features).squeeze(-1)
 
 
 def set_encoder_frozen(model: RealismScorer, frozen: bool) -> None:

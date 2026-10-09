@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from src.dataset import MetadataDataset, MetadataRow
 from src.model import RealismScorer, build_encoder, set_encoder_frozen
 
 
-def binary_metrics(labels, probabilities) -> dict:
+def binary_metrics(labels, probabilities, threshold: float = 0.5) -> dict:
     """REAL=1, threshold=0.5. PR-AUC는 PR 곡선의 trapezoidal 면적이다.
 
     단일 클래스 집합은 ROC/PR-AUC를 null로 기록한다.
@@ -22,7 +23,7 @@ def binary_metrics(labels, probabilities) -> dict:
     p = np.asarray(probabilities, dtype=float)
     if len(y) == 0:
         raise ValueError('cannot evaluate an empty dataset')
-    predicted = p >= 0.5
+    predicted = p >= threshold
     tp = int(((y == 1) & predicted).sum())
     fp = int(((y == 0) & predicted).sum())
     fn = int(((y == 1) & ~predicted).sum())
@@ -85,19 +86,32 @@ def grouped_metrics(rows, labels, probabilities) -> dict:
     return result
 
 
+def file_sha256(path) -> str:
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for chunk in iter(lambda: handle.read(1024*1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_model(checkpoint, device):
+    """학습 checkpoint의 config가 모델 구조를 소유한다."""
+    saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    mc = saved['config']['model']
+    encoder = build_encoder(mc['encoder'], mc.get('embedding_dim', 64), mc.get('model_id'), mc.get('revision'))
+    model = RealismScorer(encoder, encoder.embedding_dim)
+    model.load_state_dict(saved['model_state'])
+    set_encoder_frozen(model, mc['freeze_encoder'])
+    return model.to(device).eval(), saved['config']
+
+
 def main(argv=None) -> dict:
     parser = argparse.ArgumentParser(description='Tracepecter test evaluation')
     parser.add_argument('--checkpoint', required=True)
     parser.add_argument('--device', default='cpu')
     args = parser.parse_args(argv)
-    saved = torch.load(args.checkpoint, map_location='cpu', weights_only=True)
-    config = saved['config']
+    model, config = load_model(args.checkpoint, args.device)
     mc = config['model']
-    encoder = build_encoder(mc['encoder'], mc.get('embedding_dim', 64), mc.get('model_id'), mc.get('revision'))
-    model = RealismScorer(encoder, encoder.embedding_dim)
-    model.load_state_dict(saved['model_state'])
-    set_encoder_frozen(model, mc['freeze_encoder'])
-    model.to(args.device)
     dataset = MetadataDataset(config['data']['metadata_csv'], mc['image_size'], False, False,
                               image_root=config['data'].get('image_root'), normalization=mc.get('normalization'))
     standard, unseen = evaluation_indices(dataset.rows)

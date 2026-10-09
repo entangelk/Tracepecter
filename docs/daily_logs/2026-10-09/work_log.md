@@ -143,3 +143,29 @@
 - P05 계획/score calibration. 최종 제품 일반화는 별도 미사용 REAL/FAKE holdout과 GEN 근사중복 점검 후 확인해야 한다. 현재 지표는 개발 데이터 비교이며 전체 encoder 계열의 일반적 우열을 증명하지 않는다.
 
 - 최종 확인: 변경 문서 링크, benchmark warmup/repeats/latency 표본 100개, 두 모델의 공통 training config·224 입력, metadata hash 불변, Compose config 및 `git diff --check` 통과. Tracepecter 학습/평가/비교 컨테이너 잔여 없음.
+
+## P05 — 후속 세션
+
+### 목표·구현
+
+- 소유자의 진행 지시에 따라 primary SigLIP의 validation 기반 calibration·threshold·0~100 score 및 실제 이미지 scoring을 구현한다.
+- P05 계획/인덱스 In Progress, config로 fitting 범위·반복·ECE bin을 고정. raw logit API를 추가하고 기존 probability/head/checkpoint 구조는 유지한다.
+- provider 독립 수치 모듈 `src/calibration.py`, 실행 `src/calibrate.py`, 이미지 scoring `src/score.py`. checkpoint IO/hash helper는 기존 evaluate 경계에서 공유한다. 원본 checkpoint는 수정하지 않는다.
+- temperature는 bounded log-T golden-section search, validation NLL 최소(1 포함하여 비악화). threshold는 validation balanced accuracy 최대로 고정. 동일 입력 score 결정성·checkpoint hash 결합·val-only fitting을 확인한다.
+- validation prediction은 `image_id,logit`만 저장하고 label은 canonical metadata에서 읽는다. temperature/확률 threshold는 artifact가 소유하며 score와 score threshold는 유도한다.
+
+### 검증·이슈
+
+- 구현 전 신규 테스트는 calibration 모듈 부재로 실패. 집중 수치/model 7 passed, 전체 42 passed(기존 Pillow 경고 12건).
+- 검토 보강: 단일 클래스에서도 정의되는 NLL/Brier/ECE를 fitting 검증과 묶어 거부하던 문제를 새 가드로 재현했다. fitting/threshold에는 양 클래스 조건을 유지하고 지표는 허용한다. 새로운 전체 검증 및 실데이터 실행은 진행 중이다.
+
+### 결정·범위
+
+- Test fitting은 하지 않는다. 현재 score는 REAL/Generated 라벨의 calibrated probability proxy이며 사람 체감 realism과의 일치는 별도 사람 평가가 필요하다.
+- API/demo는 P07, 실패 분석은 P06. 독립 최종 holdout·GEN 근사중복은 미수행 후속 항목으로 유지한다.
+
+### 다음 단계
+
+- 최종 회귀·구현 commit 후 val 820 prediction 추출·calibration fitting·고정 Test A/B 평가·이미지 score 확인.
+
+- 단일 클래스 지표의 신규 가드가 구현 전 정확히 재실패했고 보강 후 CUDA 집중 **10 passed**. 통합 테스트에서 test 이미지의 내용을 바꿔도 fitted temperature/threshold가 그대로인 점, val ID만 prediction에 포함되는 점, 동일 이미지 score 결정성, 잘못된 checkpoint/온도 거부를 확인했다.

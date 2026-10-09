@@ -1,0 +1,10 @@
+# P05: validation에서만 fitting/threshold 선정.
+checkpoint: checkpoints/baseline/best.pt
+output_dir: experiments/p05_calibration
+device: cuda
+fit:
+  temperature_min: 0.05
+  temperature_max: 20.0
+  iterations: 100
+metrics:
+  ece_bins: 10
