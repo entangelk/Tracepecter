@@ -1,0 +1,37 @@
+# P06-02b: REAL에만 있는 흰 원형 얼굴 가림(K-Fashion 익명화) 의존 진단.
+# 모델 결과를 보기 전에 고정했다(2026-10-10). 결과를 본 뒤 검출 기준·조건·판정 규칙을 바꾸지 않는다.
+calibration: experiments/p05_calibration/calibration.json
+device: cuda
+output_dir: experiments/p06_failure_analysis/face_mask
+
+# 흰 원 검출(전 6,000장). 원 내부는 거의 순백이고, 둘레의 일정 비율 이상에서 바깥이 어둡다.
+# 검토군 103장(눈 판정 원 13장)에 맞춰 정했으므로, 그 밖 표본을 따로 육안 확인해 보고한다.
+disc_detector:
+  white_min: 245            # RGB 최소 채널 기준 순백
+  outside_max: 235          # 둘레 바깥 표본이 이보다 어두우면 경계로 센다
+  min_edge_fraction: 0.35   # 둘레 180점 중 경계 비율
+  min_fill: 0.97            # 반지름 0.9 안쪽 순백 비율
+  radius_ratio: [0.015, 0.15]  # 이미지 너비 대비 반지름
+  hough_param2: 12
+
+# GEN 얼굴 위치: OpenCV Haar frontal face, 가장 큰 얼굴 하나.
+face_detector:
+  scale_factor: 1.1
+  min_neighbors: 5
+  min_size_ratio: 0.04      # 이미지 너비 대비
+disc_diameter_per_face: 1.4 # 얼굴 상자 긴 변 × 1.4 = 덧씌울 원의 지름
+
+# 개입 조건. 대상은 Test A ∪ B 고유 1,400장 중 해당 클래스·검출 표본만이며, 나머지는 원본 logit을 쓴다.
+conditions:
+  gen_white_face: {labels: [0], position: face, fill: 255}      # 주 조건
+  gen_gray_face: {labels: [0], position: face, fill: 128}       # 대조: 가림 자체의 효과
+  gen_white_offface: {labels: [0], position: off_face, fill: 255}  # 대조: 위치와 무관한 흰 원
+  real_disc_gray: {labels: [1], position: detected_disc, fill: 128}  # REAL의 흰 원을 회색으로
+
+# 사전 판정 규칙(결과 보고에 그대로 적용).
+# - 의존 근거 있음: gen_white_face의 대상 GEN 평균 score 상승이 두 대조 조건보다 각각 크고,
+#   대상 GEN 중 REAL 판정으로 바뀐 비율이 5% 이상.
+# - REAL 쪽 확인: real_disc_gray에서 대상 REAL 평균 score가 내려가고 FN 전환이 생기면 같은 방향의 근거.
+# - 단축 단서 베이스라인: "원 있음 → REAL" 규칙의 Test A/B AUC를 그대로 보고한다(판정 기준 없음).
+dependence_rule:
+  min_gen_flip_fraction: 0.05

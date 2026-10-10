@@ -56,4 +56,18 @@ label/split/category/source/generator는 canonical `data/metadata.csv`, temperat
 - Test B NLL/Brier 악화 분해(P06-04 일부): 악화된 표본 12장이 전부 logit이 양수인 sd35_medium GEN이다.
 - **P06-03 검토군 확정**(이미지 열람 전 `configs/failure_analysis.yaml`의 `review_set`에 규칙 고정, `scripts/build_review_set.py`) — `reports/errors/review_set.csv` **103건**: FP 10 · FN 5 · low_confidence 24 · 통제 조건 판정 전환 10 · 층화 고확신 54(GEN 생성기별 6, REAL 부위별 6). 소유자 확인 대상 35건 = 오류 15 전수 + 보충 무작위 20(seed 42).
 - 검토 도구: `scripts/build_review_page.py`가 `scripts/review_page.html` 템플릿으로 정적 페이지 `reports/errors/review/index.html`(원본 이미지 사본 포함, Git 비추적)을 만든다. Windows 브라우저에서 파일로 연다(WSL 로컬 서버는 방화벽에 막혀 폐기). 소유자 판정은 `reports/errors/review_owner.csv`, 에이전트 1차 검토는 `reports/errors/review_agent.csv`에 같은 schema(`image_id,perceived,cues,agent_agreement,note,updated_at`)로 저장한다.
-- 다음: 에이전트 1차 검토 103건 → 소유자 확인 35건 → P06-04 패턴 문서.
+- **P06-03 수동 검토 완료**(2026-10-10). 소유자 확인 35건이 먼저 끝났다(`review_owner.csv`, 판정·단서 35/35). 그 뒤 에이전트가 소유자 결과를 열지 않고 103건 1차 검토를 했다(`review_agent.csv`). 라벨·파일명·형식이 드러나지 않게 이미지를 무작위 번호 JPEG 사본으로 바꿔 판정했다.
+  - 에이전트 103건: REAL 33건 전부 `photo_like`. GEN 70건은 `synthetic_like` 45, `ambiguous` 23, `photo_like` 2(qwen_image_21 FP 2건).
+  - 소유자·에이전트 일치(35건): 체감 판정 19/35 일치. 정반대 판정(photo↔synthetic)은 5건이다. 나머지 불일치 11건은 한쪽이 `ambiguous`이며, 대부분 소유자가 `synthetic_like`, 에이전트가 `ambiguous`였다(에이전트가 보수적). 단서 Jaccard 평균은 0.28이다.
+  - 순서가 계획(에이전트 → 소유자)과 반대여서 `agent_agreement` 칸은 비어 있다. 동의 여부는 두 판정을 비교해 계산하므로 별도 입력은 받지 않는다.
+  - P06-04 가설 후보: REAL에만 데이터셋 익명화용 흰 원형 얼굴 가림이 있다. 이 가림이 있는 비율은 고확신 REAL 11/24, 오류·경계 REAL 2/9다. 모델이 이 가림을 REAL 단서로 쓸 수 있다(표본이 적어 확정하지 않음).
+- **P06-02b 원형 얼굴 가림 의존 진단**(소유자 승인 2026-10-10). 모델 결과를 보기 전에 [`configs/face_mask_diagnostic.yaml`](../../configs/face_mask_diagnostic.yaml)에 검출 기준·조건·판정 규칙을 고정했다. 구현은 `src/face_mask.py`이고, 의존성으로 `opencv-python-headless==4.13.0.92`를 추가했다(4.12는 numpy<2.3 제약 때문에 쓸 수 없음).
+  - A 단축 단서 베이스라인(GPU 불필요): 6,000장 전체에서 흰 원을 검출해 클래스·split별 출현율을 센다. "원 있음 → REAL" 규칙 하나로 Test A/B AUC를 낸다. REAL을 원 유무로 나눠 모델 score·FN을 비교한다.
+  - B 개입 실험(Test A ∪ B, 추론만): GEN 얼굴에 흰 원(주 조건), 회색 원(가림 대조), 얼굴 밖 흰 원(위치 대조)을 그린다. REAL의 흰 원은 회색으로 바꾼다.
+  - 사전 판정: 주 조건의 GEN score 상승이 두 대조보다 각각 크고, 대상 GEN의 5% 이상이 REAL 판정으로 바뀌면 "의존 근거 있음"으로 본다.
+  - 검출기는 검토군 103장에 맞춰 정했다(눈 판정 원 13/13, 오검출 0). 따라서 그 밖의 표본을 따로 육안 확인해 보고한다.
+- **P06-02b 결과**([보고서](../../experiments/p06_failure_analysis/face_mask/README.md)).
+  - 사전 규칙상 **의존 근거 있음**: GEN 얼굴에 흰 원을 그리면 +10.19점, 전환 36/581(6.2%)이다. 대조는 회색 원 +7.20(28), 얼굴 밖 흰 원 +1.91(5)이다.
+  - 효과의 약 70%는 가림 일반에서 나온다. 모델은 "얼굴이 보이지 않음"을 REAL 단서로 쓰고, 흰색에만 있는 추가분은 작다.
+  - 단축 규칙 단독 AUC는 약 0.64~0.65다. REAL 원 출현율은 약 25~31%이고, 실제 GEN 원은 0장이다(GEN 검출 37장은 전부 오검출).
+- 다음: P06-02b 독립검증 → P06-02c 표본 확장 재진단(새 config로 사전 고정: val 포함, 얼굴 검출 개선, bootstrap 신뢰구간) → P06-04 패턴 문서(불일치 16건 재확인, 얼굴 노출·구도 편향 정리, DB-03 얼굴 트리거 판정 포함).

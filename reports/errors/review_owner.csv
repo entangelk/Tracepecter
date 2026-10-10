@@ -1,0 +1,36 @@
+image_id,perceived,cues,agent_agreement,note,updated_at
+1032814,photo_like,full_body|busy_bg,,,2026-10-10T12:18:12+00:00
+1105529,photo_like,full_body|busy_bg|face_hidden,,,2026-10-10T12:21:23+00:00
+1207189,photo_like,studio_plain_bg,,,2026-10-10T12:19:24+00:00
+1213455,photo_like,busy_bg|text_logo,,,2026-10-10T12:18:30+00:00
+1231839,synthetic_like,body_defect,,,2026-10-10T12:21:37+00:00
+1246902,photo_like,full_body|studio_plain_bg,,,2026-10-10T12:21:42+00:00
+1284862,photo_like,full_body|studio_plain_bg,,,2026-10-10T12:18:46+00:00
+461125,photo_like,full_body|studio_plain_bg,,,2026-10-10T12:21:52+00:00
+466048,synthetic_like,face_hidden|photo_noise,,,2026-10-10T12:19:02+00:00
+691880,photo_like,full_body|busy_bg|face_hidden,,,2026-10-10T12:19:28+00:00
+719945,photo_like,full_body|face_hidden,,,2026-10-10T12:21:58+00:00
+871400,photo_like,full_body|studio_plain_bg|face_hidden,,,2026-10-10T12:22:04+00:00
+gen_000546,synthetic_like,face_visible|body_defect|garment_defect,,신발이 이상함,2026-10-10T12:20:58+00:00
+gen_000547,synthetic_like,studio_plain_bg|lighting,,,2026-10-10T12:15:54+00:00
+gen_000721,synthetic_like,face_visible|lighting|body_defect|garment_defect,,,2026-10-10T12:16:12+00:00
+gen_000736,synthetic_like,face_visible|body_defect|garment_defect|photo_noise,,,2026-10-10T12:19:42+00:00
+gen_000835,synthetic_like,face_visible|garment_defect|photo_noise,,,2026-10-10T12:22:19+00:00
+gen_000914,synthetic_like,face_visible|face_hidden|body_defect|photo_noise,,,2026-10-10T12:16:32+00:00
+gen_000972,synthetic_like,body_defect|garment_defect|photo_noise,,,2026-10-10T12:16:45+00:00
+gen_001403,synthetic_like,busy_bg|face_hidden|garment_defect|photo_noise,,,2026-10-10T12:22:28+00:00
+gen_001409,photo_like,busy_bg,,,2026-10-10T12:20:02+00:00
+gen_001436,photo_like,full_body,,,2026-10-10T12:22:35+00:00
+gen_001519,photo_like,full_body,,,2026-10-10T12:22:43+00:00
+gen_002242,synthetic_like,lighting|photo_noise,,,2026-10-10T12:22:50+00:00
+gen_002679,synthetic_like,face_visible|face_hidden,,,2026-10-10T12:16:55+00:00
+gen_002706,synthetic_like,face_visible|body_defect|garment_defect,,,2026-10-10T12:21:04+00:00
+gen_002727,synthetic_like,body_defect,,,2026-10-10T12:17:10+00:00
+gen_002731,synthetic_like,face_visible|face_hidden|body_defect,,,2026-10-10T12:17:15+00:00
+gen_002738,ambiguous,busy_bg,,,2026-10-10T12:17:29+00:00
+gen_002759,synthetic_like,garment_defect,,,2026-10-10T12:20:13+00:00
+gen_002761,synthetic_like,face_visible|body_defect|photo_noise,,,2026-10-10T12:20:20+00:00
+gen_002762,synthetic_like,face_visible|garment_defect,,,2026-10-10T12:21:09+00:00
+gen_002786,synthetic_like,body_defect,,,2026-10-10T12:17:37+00:00
+gen_002813,synthetic_like,face_hidden|photo_noise,,,2026-10-10T12:17:47+00:00
+gen_002814,synthetic_like,studio_plain_bg|face_visible|face_hidden|lighting|body_defect|photo_noise,,머리 자체가 없음,2026-10-10T12:20:40+00:00

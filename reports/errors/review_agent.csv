@@ -1,0 +1,104 @@
+image_id,perceived,cues,agent_agreement,note,updated_at
+gen_000547,synthetic_like,partial_frame|studio_plain_bg|face_hidden|lighting,,"머리 부분이 잘린 완전 실루엣, 디테일 없음",2026-10-10T12:30:49+00:00
+gen_000721,photo_like,full_body|studio_plain_bg|face_visible,,측면 얼굴·머리카락·운동화 주름이 자연스러움,2026-10-10T12:30:49+00:00
+gen_000914,photo_like,full_body|busy_bg|face_hidden,,"거울 셀카, 휴대폰·가방·바닥 몰딩 일관",2026-10-10T12:30:49+00:00
+gen_000972,ambiguous,full_body|busy_bg|face_hidden|body_defect,,오른손 근처에 식물 줄기가 붙어 나옴,2026-10-10T12:30:49+00:00
+gen_002679,ambiguous,partial_frame|studio_plain_bg|face_visible|smooth_retouch,,"측면 미니멀 코트 컷, 코트 실루엣이 과도하게 매끈",2026-10-10T12:30:49+00:00
+gen_002727,ambiguous,partial_frame|studio_plain_bg|face_hidden|garment_defect,,소매·커프 레이어가 겹쳐 구조 불명,2026-10-10T12:30:49+00:00
+gen_002731,synthetic_like,partial_frame|studio_plain_bg|face_visible|garment_defect,,비니와 안경·눈가리개가 한 덩어리로 융합,2026-10-10T12:30:49+00:00
+gen_002738,synthetic_like,partial_frame|busy_bg|face_hidden|garment_defect,,"흑백, 니트 소매와 코트 몸판이 한 옷처럼 섞여 구조 불일치",2026-10-10T12:30:49+00:00
+gen_002786,synthetic_like,partial_frame|busy_bg|face_hidden|text_logo|garment_defect,,자수 글자가 깨지고 원단 질감에 글리치,2026-10-10T12:30:49+00:00
+gen_002813,ambiguous,partial_frame|studio_plain_bg|face_hidden|smooth_retouch,,얼굴 잘린 미니멀 컷,2026-10-10T12:30:49+00:00
+1032814,photo_like,partial_frame|busy_bg|face_hidden|text_logo,,차량·번호판·컵 등 거리 디테일 일관,2026-10-10T12:30:49+00:00
+1213455,photo_like,partial_frame|busy_bg|face_hidden|text_logo,,한글 간판·신발 글자(WILD THING) 일관,2026-10-10T12:30:49+00:00
+1284862,photo_like,full_body|busy_bg|face_hidden,,"거울 셀카, 휴대폰이 얼굴 가림",2026-10-10T12:30:49+00:00
+466048,photo_like,partial_frame|studio_plain_bg|face_hidden,,"단순 쇼핑몰 착용 컷, 시계·귀걸이 일관",2026-10-10T12:30:49+00:00
+691880,photo_like,full_body|busy_bg|face_hidden|text_logo,,"거리 배경·간판 글자 일관, 얼굴 원형 가림",2026-10-10T12:30:49+00:00
+1207189,photo_like,partial_frame|busy_bg|face_hidden,,자연광 그림자·발가락·바닥 무늬 자연스러움,2026-10-10T12:30:49+00:00
+1247671,photo_like,partial_frame|studio_plain_bg|face_hidden,,네일아트·반지·패딩 봉제선 디테일 일관,2026-10-10T12:30:49+00:00
+1306012,photo_like,partial_frame|busy_bg|face_hidden|text_logo,,"원형 얼굴 가림, 꽃·책 일관(가로형)",2026-10-10T12:30:49+00:00
+1332250,photo_like,full_body|busy_bg|face_hidden|text_logo,,"벽화 글자 일관, 그림자 자연스러움",2026-10-10T12:30:49+00:00
+gen_000551,synthetic_like,partial_frame|busy_bg|face_visible|garment_defect|lighting,,"배경 줄무늬에 모아레·글리치, 손 형태 모호",2026-10-10T12:30:49+00:00
+gen_000581,synthetic_like,full_body|studio_plain_bg|face_hidden|smooth_retouch|text_logo|garment_defect,,"목걸이가 끈처럼 옷에 붙어 흐름, 로고 모호",2026-10-10T12:30:49+00:00
+gen_000736,ambiguous,full_body|busy_bg|face_visible,,자연스러운 실내 착용 컷이나 가방끈 늘어짐·얼굴 질감이 미묘하게 매끈,2026-10-10T12:30:49+00:00
+gen_001037,synthetic_like,full_body|busy_bg|face_hidden|garment_defect,,양쪽 신발 디자인이 서로 다르고 셔터 주름이 물결처럼 왜곡,2026-10-10T12:30:49+00:00
+gen_001085,ambiguous,partial_frame|studio_plain_bg|face_hidden|garment_defect,,허리 단추가 두 개로 겹쳐 보이고 밑단 단추 형태 모호,2026-10-10T12:30:49+00:00
+gen_001409,ambiguous,partial_frame|busy_bg|face_hidden,,"야외 착용 컷, 신발·끈 디테일은 자연스러우나 원단 무늬가 불규칙",2026-10-10T12:30:49+00:00
+gen_001679,synthetic_like,full_body|busy_bg|face_visible|garment_defect,,창밖 차량·건물 반사가 뒤섞이고 가방·소매 단추 형태 모호,2026-10-10T12:30:49+00:00
+gen_002024,synthetic_like,partial_frame|busy_bg|face_visible|smooth_retouch|lighting,,광고 카탈로그풍 과보정 피부·조명,2026-10-10T12:30:49+00:00
+gen_002543,synthetic_like,partial_frame|studio_plain_bg|face_visible|smooth_retouch|lighting,,부드러운 창광·매끈한 피부의 화보풍,2026-10-10T12:30:49+00:00
+gen_002671,ambiguous,partial_frame|studio_plain_bg|face_hidden|garment_defect,,허리 안쪽 디테일이 뭉개짐,2026-10-10T12:30:49+00:00
+gen_002677,synthetic_like,partial_frame|busy_bg|face_hidden|garment_defect,,어깨 탭·앞여밈이 좌우 비대칭으로 뭉개짐,2026-10-10T12:30:49+00:00
+gen_002693,ambiguous,partial_frame|studio_plain_bg|face_hidden|garment_defect,,"뒷모습, 소매가 덩어리처럼 뭉개짐",2026-10-10T12:30:49+00:00
+gen_002713,ambiguous,full_body|studio_plain_bg|face_visible|smooth_retouch,,"측면 미니멀 코트 컷, 뚜렷한 결함은 없음",2026-10-10T12:30:49+00:00
+gen_002723,synthetic_like,full_body|busy_bg|face_visible|garment_defect|smooth_retouch,,"토글 단추 형태 모호, 바지가 코트 아래 떠 있음",2026-10-10T12:30:49+00:00
+gen_002736,synthetic_like,partial_frame|studio_plain_bg|face_visible|garment_defect,,"칼라·포켓 구조 모호, 실 같은 선이 늘어짐",2026-10-10T12:30:49+00:00
+gen_002753,synthetic_like,full_body|studio_plain_bg|face_visible|garment_defect|lighting,,"흑백 측광, 코트 원단 질감이 부위마다 바뀜",2026-10-10T12:30:49+00:00
+gen_002759,ambiguous,partial_frame|studio_plain_bg|face_hidden|garment_defect,,코트 안쪽 머플러·라펠 겹침 구조가 모호,2026-10-10T12:30:49+00:00
+gen_002761,ambiguous,partial_frame|studio_plain_bg|face_visible|photo_noise,,필름 그레인 있는 뒷모습 코트 컷,2026-10-10T12:30:49+00:00
+gen_002814,synthetic_like,partial_frame|face_hidden|body_defect|lighting,,머리가 그림자에 녹아 사라진 형태,2026-10-10T12:30:49+00:00
+gen_002866,synthetic_like,partial_frame|studio_plain_bg|face_hidden|body_defect|lighting,,"흑백, 머리카락이 얼굴 전체를 덮고 한쪽 팔이 사라짐",2026-10-10T12:30:49+00:00
+gen_000504,ambiguous,partial_frame|studio_plain_bg|face_hidden|smooth_retouch,,얼굴 잘린 매끈한 커머스 컷,2026-10-10T12:30:49+00:00
+gen_000546,synthetic_like,full_body|studio_plain_bg|face_visible|garment_defect,,소매 끝·부츠 버클 구조가 모호,2026-10-10T12:30:49+00:00
+gen_002614,synthetic_like,partial_frame|studio_plain_bg|face_visible|garment_defect|body_defect,,"흑백, 소매·등 컷아웃과 팔 연결이 해부학적으로 어긋남",2026-10-10T12:30:49+00:00
+gen_002650,synthetic_like,partial_frame|studio_plain_bg|face_visible|garment_defect|smooth_retouch,,"비닐 코트 반사가 부위마다 불연속, 소매 구조 모호",2026-10-10T12:30:49+00:00
+gen_002702,ambiguous,full_body|busy_bg|face_hidden|lighting,,"흑백 역광 뒷모습, 결함은 뚜렷하지 않음",2026-10-10T12:30:49+00:00
+gen_002706,ambiguous,full_body|studio_plain_bg|face_visible|smooth_retouch,,"측면 미니멀 코트 컷, 결함은 뚜렷하지 않음",2026-10-10T12:30:49+00:00
+gen_002744,synthetic_like,partial_frame|studio_plain_bg|face_visible|garment_defect|smooth_retouch,,코트 어깨·등판이 비정상적으로 부풀어 구조 불명,2026-10-10T12:30:49+00:00
+gen_002762,synthetic_like,full_body|studio_plain_bg|face_visible|smooth_retouch|garment_defect,,코트 아래 바지·부츠 경계가 섞임,2026-10-10T12:30:49+00:00
+gen_002778,synthetic_like,full_body|busy_bg|face_visible|lighting|smooth_retouch,,"비현실적 청록 조명, 로고 모호",2026-10-10T12:30:49+00:00
+gen_002924,synthetic_like,partial_frame|face_hidden|lighting|body_defect,,"흑백 역광, 뒤쪽 다리 형태가 비어 보임",2026-10-10T12:30:49+00:00
+1018410,photo_like,partial_frame|busy_bg|face_hidden,,청바지 자수·스툴 질감 일관(가로형),2026-10-10T12:30:49+00:00
+1021263,photo_like,full_body|busy_bg|face_hidden,,"원형 얼굴 가림, 창밖 건물·꽃·가방 일관",2026-10-10T12:30:49+00:00
+1056078,photo_like,full_body|busy_bg|face_hidden|text_logo,,"포스터·액자 글자(HENRI MATISSE 등) 일관, 원형 얼굴 가림(가로형)",2026-10-10T12:30:49+00:00
+1060000,photo_like,full_body|busy_bg|face_hidden|text_logo,,"원형 얼굴 가림, 병 라벨·주방 소품 일관",2026-10-10T12:30:49+00:00
+1100727,photo_like,full_body|busy_bg|face_hidden|text_logo,,"도로 표지판 글자가 실재 지명으로 일관, 원형 얼굴 가림",2026-10-10T12:30:49+00:00
+1105529,photo_like,full_body|busy_bg|face_hidden|text_logo,,"원형 얼굴 가림, 포스터 글자(MATISSE)·소품 일관(가로형)",2026-10-10T12:30:49+00:00
+1152439,photo_like,partial_frame|busy_bg|face_hidden,,"뒷모습, 실내 소품·액자 그림 일관(가로형)",2026-10-10T12:30:49+00:00
+1173478,photo_like,partial_frame|busy_bg|face_hidden,,레이스 패턴·손톱·소파 일관,2026-10-10T12:30:49+00:00
+1217821,photo_like,partial_frame|busy_bg|face_hidden,,주름치마·양말 질감 자연스러움,2026-10-10T12:30:49+00:00
+1231839,photo_like,partial_frame|busy_bg|face_hidden,,라탄 의자·로퍼 장식·선반 소품 일관,2026-10-10T12:30:49+00:00
+1240495,photo_like,partial_frame|busy_bg|face_hidden,,"쇼핑몰 실내 컷, 의자 등받이 짜임·찻잔 일관",2026-10-10T12:30:49+00:00
+1246902,photo_like,partial_frame|studio_plain_bg|face_hidden,,가방 잠금쇠·패딩 스티치 디테일 일관,2026-10-10T12:30:49+00:00
+1291120,photo_like,full_body|busy_bg|face_hidden,,"원형 얼굴 가림, 실내 소품 자연스러움",2026-10-10T12:30:49+00:00
+1322314,photo_like,partial_frame|busy_bg|text_logo|face_hidden,,신문·책 글자 일관,2026-10-10T12:30:49+00:00
+323350,photo_like,partial_frame|busy_bg|text_logo,,"사람 아닌 마네킹 착장 컷, 하단 흰 여백에 손글씨 문구(쇼핑몰 상세 컷)",2026-10-10T12:30:49+00:00
+425969,photo_like,partial_frame|busy_bg|face_hidden|text_logo,,"책 글자 일관, 신발 끈·청바지 슬릿 자연스러움",2026-10-10T12:30:49+00:00
+461125,photo_like,partial_frame|studio_plain_bg|face_hidden,,"단순 쇼핑몰 착용 컷, 레이스·꽃무늬 반복이 자연스러움",2026-10-10T12:30:49+00:00
+498936,photo_like,partial_frame|busy_bg|text_logo,,책 표지 글자가 읽히고 일관됨,2026-10-10T12:30:49+00:00
+57120,photo_like,partial_frame|busy_bg|face_hidden|photo_noise,,"저해상도 JPEG 쇼핑몰 컷, 체인백·소품 일관",2026-10-10T12:30:49+00:00
+655112,photo_like,full_body|busy_bg|face_hidden,,"원형 얼굴 가림, 창틀·꽃·소품 일관",2026-10-10T12:30:49+00:00
+719945,photo_like,full_body|busy_bg|face_hidden,,"원형 얼굴 가림, 실내 소품·천장 배관 자연스러움",2026-10-10T12:30:49+00:00
+820570,photo_like,partial_frame|busy_bg|face_hidden,,"원형 얼굴 가림, 타일 벽·단추·체크 치마 일관",2026-10-10T12:30:49+00:00
+871400,photo_like,full_body|busy_bg|face_hidden,,"얼굴 원형 가림(데이터셋 익명화), 형광등·의자 등 소품 자연스러움",2026-10-10T12:30:49+00:00
+907321,photo_like,full_body|busy_bg|face_hidden,,"원형 얼굴 가림, 스위치·식물·벽 얼룩 일관",2026-10-10T12:30:49+00:00
+gen_000599,synthetic_like,partial_frame|busy_bg|face_hidden|garment_defect,,반바지에 로프 손잡이가 붙은 비현실적 구조,2026-10-10T12:30:49+00:00
+gen_000609,ambiguous,partial_frame|studio_plain_bg|face_visible|smooth_retouch,,"자연스러운 화보풍이나 피부가 매끈, 결함은 뚜렷하지 않음",2026-10-10T12:30:49+00:00
+gen_000677,synthetic_like,full_body|busy_bg|face_visible|body_defect,,"걷는 자세의 다리·발목이 어색, 신발 앞코 형태 모호",2026-10-10T12:30:49+00:00
+gen_000737,ambiguous,full_body|studio_plain_bg|face_visible|smooth_retouch,,"뒷모습 카탈로그 컷, 결함은 뚜렷하지 않으나 지나치게 균일",2026-10-10T12:30:49+00:00
+gen_000835,synthetic_like,full_body|busy_bg|face_visible|text_logo|garment_defect,,벽 비문 글자가 깨지고 이너 레이어 구조 모호,2026-10-10T12:30:49+00:00
+gen_000859,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|garment_defect,,"과샤프닝 질감, 코트 깃·후드 경계 뭉개짐",2026-10-10T12:30:49+00:00
+gen_000945,ambiguous,full_body|studio_plain_bg|face_visible|smooth_retouch,,"룩북풍 정면 컷, 결함은 뚜렷하지 않으나 지나치게 균일",2026-10-10T12:30:49+00:00
+gen_001097,synthetic_like,full_body|busy_bg|face_visible|garment_defect|smooth_retouch,,"회화 같은 질감, 시스루 상의 경계가 모호",2026-10-10T12:30:49+00:00
+gen_001183,ambiguous,partial_frame|busy_bg|face_hidden,,"야외 공원 배경, 뚜렷한 결함 없음",2026-10-10T12:30:49+00:00
+gen_001198,ambiguous,studio_plain_bg|face_hidden|smooth_retouch,,"얼굴 위쪽 잘림, 매끈한 커머스 컷",2026-10-10T12:30:49+00:00
+gen_001403,synthetic_like,partial_frame|busy_bg|face_hidden|smooth_retouch|body_defect,,"피부에 물방울 같은 반복 돌기, 카탈로그풍",2026-10-10T12:30:49+00:00
+gen_001436,ambiguous,full_body|studio_plain_bg|face_hidden|smooth_retouch,,"얼굴 잘린 카탈로그 컷, 결함은 뚜렷하지 않음",2026-10-10T12:30:49+00:00
+gen_001519,synthetic_like,partial_frame|studio_plain_bg|face_hidden|smooth_retouch,,피부 질감이 균일하게 매끈한 카탈로그 컷,2026-10-10T12:30:49+00:00
+gen_001525,ambiguous,partial_frame|busy_bg|face_hidden,,거리 배경·손가락 자연스러우나 구도가 생성 프롬프트와 유사,2026-10-10T12:30:49+00:00
+gen_001644,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch,,"광고풍 포즈·과보정, 다리 비율 어색",2026-10-10T12:30:49+00:00
+gen_001665,synthetic_like,partial_frame|busy_bg|face_hidden|garment_defect,,"원피스 패턴 안에 형체 없는 무늬, 배경 행인 형태 뭉개짐",2026-10-10T12:30:49+00:00
+gen_001781,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,"광고풍 색감, 뒤 차량 형태가 왜곡",2026-10-10T12:30:49+00:00
+gen_001867,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,"과도하게 선명한 HDR 거리, 광고풍 보정",2026-10-10T12:30:49+00:00
+gen_001870,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,"HDR풍 하늘·과보정 피부, 눈 표정 부자연",2026-10-10T12:30:49+00:00
+gen_002019,synthetic_like,partial_frame|busy_bg|face_visible|smooth_retouch|lighting,,"광고풍 과보정 피부·역광, 배경 건물 흐림 과장",2026-10-10T12:30:49+00:00
+gen_002242,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,드라마틱한 하늘·바람머리 광고 화보풍,2026-10-10T12:30:49+00:00
+gen_002370,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,"과장된 광택·역광, 배경 보케 과장",2026-10-10T12:30:49+00:00
+gen_002382,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,"광고풍 색보정·피부, 거리 배경 과장된 심도",2026-10-10T12:30:49+00:00
+gen_002471,ambiguous,partial_frame|face_visible|lighting|smooth_retouch,,"필름 화보풍, 강한 측광·매끈한 피부 — 실사 화보와 구분 어려움",2026-10-10T12:30:49+00:00
+gen_002489,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|lighting,,"광고풍 대비·과보정, 손 형태 어색",2026-10-10T12:30:49+00:00
+gen_002513,synthetic_like,full_body|busy_bg|face_visible|smooth_retouch|garment_defect,,바지 끈·주머니 구조가 뭉개지고 광고풍 색감,2026-10-10T12:30:49+00:00
+gen_002569,synthetic_like,partial_frame|busy_bg|face_visible|smooth_retouch|garment_defect,,"메시 질감이 균일하게 반복, 배경 보케 과장",2026-10-10T12:30:49+00:00
+gen_002631,synthetic_like,partial_frame|busy_bg|face_hidden|garment_defect|body_defect,,바디슈트 솔기·다리 라인이 해부학적으로 어긋남,2026-10-10T12:30:49+00:00
+gen_002773,synthetic_like,partial_frame|studio_plain_bg|face_hidden|smooth_retouch|body_defect,,"피부 과보정, 하체 해부학 형태 부자연",2026-10-10T12:30:49+00:00
+gen_002822,synthetic_like,partial_frame|busy_bg|face_visible|smooth_retouch|lighting,,골든아워 화보풍 과보정,2026-10-10T12:30:49+00:00
