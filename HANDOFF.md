@@ -15,7 +15,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P06-03 검토군 구성·수동 검토** — [P06 계획](docs/plan/phase_6_failure_analysis.md)·[DB-05](docs/decision_briefs/DB-05_P06_review-set.md)(A: 오류 전수 + 보충 ≥100, 유형 구분 / R1: 에이전트 1차 검토 + 소유자가 오류 전수·무작위 20건 확인). P06-01·02 [결과](experiments/p06_failure_analysis/README.md): test 고유 오류 12 + val 3, low_confidence 24. JPEG·크기·종횡비 의존 근거는 약하고 crop(구도)에는 민감하다. 검토군 103건 확정(`reports/errors/review_set.csv`). 검토 페이지: `DATA_DIR="$HOME/data/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다(WSL localhost 서버는 방화벽으로 접속 불가). 판정은 페이지에서 `reports/errors/review_owner.csv`로 저장(Chrome/Edge 파일 연결 자동 저장 또는 CSV 내려받기)하고, 에이전트 1차 `review_agent.csv`를 쓴 뒤에는 페이지를 다시 생성한다. 남은 일: 에이전트 1차 검토 → 소유자 확인 35건 → 이후 P06-04 패턴 문서(DB-03 얼굴 트리거 판정 포함).
+1. **P06-03 검토군 구성·수동 검토** — [P06 계획](docs/plan/phase_6_failure_analysis.md)·[DB-05](docs/decision_briefs/DB-05_P06_review-set.md)(A: 오류 전수 + 보충 ≥100, 유형 구분 / R1: 에이전트 1차 검토 + 소유자가 오류 전수·무작위 20건 확인). P06-01·02 [결과](experiments/p06_failure_analysis/README.md): test 고유 오류 12 + val 3, low_confidence 24. JPEG·크기·종횡비 의존 근거는 약하고 crop(구도)에는 민감하다. 검토군 103건 확정(`reports/errors/review_set.csv`). 검토 페이지: `DATA_DIR="/mnt/h/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다(WSL localhost 서버는 방화벽으로 접속 불가). 판정은 페이지에서 `reports/errors/review_owner.csv`로 저장(Chrome/Edge 파일 연결 자동 저장 또는 CSV 내려받기)하고, 에이전트 1차 `review_agent.csv`를 쓴 뒤에는 페이지를 다시 생성한다. 남은 일: 에이전트 1차 검토 → 소유자 확인 35건 → 이후 P06-04 패턴 문서(DB-03 얼굴 트리거 판정 포함).
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 
@@ -27,6 +27,7 @@
 - `pgrep -f` 생존 점검 시 감시자 셸 self-match 오탐 주의 — 앵커 패턴(`^python3 -u scripts/...`) 사용.
 - 대량 생성 재개 시 `generate_ai.py`는 재개 가드 내장(완료 PNG 스킵). gen_ID는 전역 연속(현재 1~3,003 사용) — 추가 배치는 3,004부터.
 - 데이터 대량 읽기는 `/mnt/f`(9p)가 느리다 — 서브셋을 ext4로 복사해 작업한다(P00 교훈).
+- **저장 위치 이전(2026-10-10)**: Ubuntu vhdx가 `F:\WSL\Ubuntu`에 있어 F: 용량이 바닥났다. 생성·학습 이미지·comfy_output·K-Fashion zip·checkpoint를 H:(외장 SSD) `/mnt/h/tracepector/{images,comfy_output,data,checkpoints}`로 옮기고 compose 기본 경로를 바꿨다(`IMAGE_DIR`·`DATA_DIR`·`CHECKPOINT_DIR`·`COMFY_OUTPUT_DIR`로 재지정 가능). 9p 경유라 학습 I/O가 ext4보다 느릴 수 있다. Z:(USB HDD)는 I/O 오류(disk 이벤트 51)로 사용 금지. checkpoint는 Z:에서 H:로 복구했고 best.pt sha256이 실험 기록과 일치한다(baseline `151244…`, DINO `456c99…`). `hf_cache`는 불완전 복사라 삭제했으므로 첫 실행 시 재다운로드된다. Training `라벨링데이터.zip`도 H:로 옮겼고 sha256 `63b9fb8a…` 일치. Z:에만 남은 것은 파이프라인에 불필요한 `014.KFashion` 저작도구뿐이다.
 - mutation testing 전 pre-flight: `git status --short` 가 비어 있어야 한다(커밋 후 mutation).
 - pytest 실행 시 exit code 를 파이프 뒤에서 확인할 것(`| tail` 이 exit 를 가림).
 - 페이즈 상태 갱신 시 `docs/plan/00_index.md`와 해당 페이즈 문서를 함께 갱신할 것.

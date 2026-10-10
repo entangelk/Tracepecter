@@ -47,7 +47,7 @@ docker compose --profile training build train
 GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train
 ```
 
-학습 이미지 경로는 `IMAGE_DIR`로 지정(기본 `$HOME/data/tracepector/images`, 컨테이너 `/images` 읽기 전용). `data/metadata.csv`의 split을 직접 선택하며 REAL=1, Generated=0으로 학습한다. 매 epoch validation BCE가 개선되면 `checkpoints/baseline/best.pt`를 원자적으로 교체하고 `experiment.json`에 config·metric·dataset hash를 보관한다. 매 epoch `last.pt`에 optimizer·RNG·진행 상태도 저장한다. 전원 단절 후에는 동일 config로 `docker compose --profile training run --rm train python -m src.train --config configs/baseline.yaml --resume`을 실행한다. 학습 parameter는 코드에 직접 쓰지 않고 `configs/*.yaml`로 관리한다(§25).
+학습 이미지 경로는 `IMAGE_DIR`로 지정(기본 `/mnt/h/tracepector/images`, 컨테이너 `/images` 읽기 전용). `data/metadata.csv`의 split을 직접 선택하며 REAL=1, Generated=0으로 학습한다. 매 epoch validation BCE가 개선되면 `checkpoints/baseline/best.pt`를 원자적으로 교체하고 `experiment.json`에 config·metric·dataset hash를 보관한다. 매 epoch `last.pt`에 optimizer·RNG·진행 상태도 저장한다. 전원 단절 후에는 동일 config로 `docker compose --profile training run --rm train python -m src.train --config configs/baseline.yaml --resume`을 실행한다. 학습 parameter는 코드에 직접 쓰지 않고 `configs/*.yaml`로 관리한다(§25).
 
 ## Evaluation 방법
 
