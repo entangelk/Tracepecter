@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-10 · 31줄
+> 마지막 자가 검수: 2026-10-11 · 31줄
 
 ## 현재 상태
 
@@ -15,11 +15,15 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P06-02b 독립검증** — [보고서](experiments/p06_failure_analysis/face_mask/README.md)·[config](configs/face_mask_diagnostic.yaml)·`src/face_mask.py`. 결과: 사전 규칙상 "의존 근거 있음"(GEN 얼굴 흰 원 +10.19점, 전환 36/581 = 6.2%)이지만 약 70%는 회색 원(가림 일반) 효과다. 검증 포인트: 검출기 기준을 검토군 103장에 맞춰 정한 점(검토군 밖은 표본 육안 확인만 함), Haar 얼굴 정밀도 약 75%·커버리지 61%, 전환 36장 육안 분류(얼굴 30·머리 경계 2·옷 4)의 재현, 수치와 report.json의 일치. 재현: `docker compose --profile training run --rm -T train python -m src.face_mask --config configs/face_mask_diagnostic.yaml`(검출 약 12분).
-2. **P06-02c 표본 확장 재진단(검증 합격 후)** — 기존 config는 사전 고정본이므로 수정하지 말고 **새 config로 다시 사전 고정**한다. 후보: val 820장 포함(train은 학습 표본이라 제외), 얼굴 검출 개선(측면 포함, 정밀도 향상 — 새 의존성은 소유자 확인), 조건별 bootstrap 신뢰구간, 흰색 고유 효과(흰 원 − 회색 원)의 구간 추정. 신규 데이터 수집은 P06 범위 밖이다.
-3. **P06-04 오류 패턴 문서** — P06-03 완료(2026-10-10: 소유자 35건 + 에이전트 블라인드 103건, 체감 판정 일치 19/35, [P06 계획](docs/plan/phase_6_failure_analysis.md) 진행 상황 참고). 불일치 16건 재확인, 얼굴 노출·구도 편향 정리(P06-02·02b), DB-03 얼굴 트리거 판정. 검토 페이지 재생성: `DATA_DIR="/mnt/h/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다.
-4. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
-5. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
+1. **P06-02c 표본 확장 재진단** — P06-02b는 독립검증 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p06_02b_face_mask.md)). 기존 config는 사전 고정본이므로 수정하지 말고 **새 config를 결과보다 먼저 커밋해 사전 고정**한다.
+   - [P06-02b 보고서](experiments/p06_failure_analysis/face_mask/README.md)의 "사전 고정 config에 없던 구현 세부"(off_face 배치·제외, r+3, tie-break, Hough 상수)를 새 config에 넣는다.
+   - 전환 정의를 정리한다. `edited_decision_flips`는 한 방향이고 `sets.*.decision_flips`는 양방향이다.
+   - 경계 여유가 작다(전환율 6.2%, 95% 구간 4.5~8.5%, 같은 413장 기준 4.8%). 구간 추정이 핵심이다.
+   - HEAD 코드로 한 GPU 재실행은 구현자 1회뿐이다. 검증자의 재실행은 소유자 GPU 사용 중이라 하지 않았다.
+   - 후보: val 820장 포함(train은 학습 표본이라 제외), 얼굴 검출 개선(측면 포함, 정밀도 향상 — 새 의존성은 소유자 확인), 조건별 bootstrap 신뢰구간, 흰색 고유 효과(흰 원 − 회색 원)의 구간 추정. 신규 데이터 수집은 P06 범위 밖이다.
+2. **P06-04 오류 패턴 문서** — P06-03 완료(2026-10-10: 소유자 35건 + 에이전트 블라인드 103건, 체감 판정 일치 19/35, [P06 계획](docs/plan/phase_6_failure_analysis.md) 진행 상황 참고). 불일치 16건 재확인, 얼굴 노출·구도 편향 정리(P06-02·02b), DB-03 얼굴 트리거 판정. 검토 페이지 재생성: `DATA_DIR="/mnt/h/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다.
+3. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
+4. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 
 ## 주의
 
@@ -33,4 +37,5 @@
 - **저장 위치 이전(2026-10-10)**: Ubuntu vhdx가 `F:\WSL\Ubuntu`에 있어 F: 용량이 바닥났다. 생성·학습 이미지·comfy_output·K-Fashion zip·checkpoint를 H:(외장 SSD) `/mnt/h/tracepector/{images,comfy_output,data,checkpoints}`로 옮기고 compose 기본 경로를 바꿨다(`IMAGE_DIR`·`DATA_DIR`·`CHECKPOINT_DIR`·`COMFY_OUTPUT_DIR`로 재지정 가능). 9p 경유라 학습 I/O가 ext4보다 느릴 수 있다. Z:(USB HDD)는 I/O 오류(disk 이벤트 51)로 사용 금지. checkpoint는 Z:에서 H:로 복구했고 best.pt sha256이 실험 기록과 일치한다(baseline `151244…`, DINO `456c99…`). `hf_cache`는 불완전 복사라 삭제했으므로 첫 실행 시 재다운로드된다. Training `라벨링데이터.zip`도 H:로 옮겼고 sha256 `63b9fb8a…` 일치. Z:에만 남은 것은 파이프라인에 불필요한 `014.KFashion` 저작도구뿐이다.
 - mutation testing 전 pre-flight: `git status --short` 가 비어 있어야 한다(커밋 후 mutation).
 - pytest 실행 시 exit code 를 파이프 뒤에서 확인할 것(`| tail` 이 exit 를 가림).
+- 테스트의 stub 학습·calibration은 비결정적이다(threshold 0.5~0.517, 원인 미조사). stub의 threshold 값에 기대는 테스트를 만들지 말 것.
 - 페이즈 상태 갱신 시 `docs/plan/00_index.md`와 해당 페이즈 문서를 함께 갱신할 것.

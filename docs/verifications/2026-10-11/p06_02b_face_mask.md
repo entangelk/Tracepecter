@@ -2,6 +2,10 @@
 
 ## Verdict
 
+**합격** — (5차 추적 검증, HEAD `c057ada`) 1차 Blocking B1–B4와 이후 라운드의 잔여(R-B1, T-B1, F-B1)가 모두 해소됐다. 본 검증자가 직접 수행한 연결·helper 변이 11개(N5, N6, N16, N18–N25)가 전부 이름 있는 셀에서 죽는다. 보고 수치는 산출물과 일치하고, 검출은 CPU 재실행에서 byte 동일하다. GPU 전체 재실행은 소유자 GPU 작업 때문에 미수행(Outstanding)이며, 판정 조건이 아니다. 상세는 아래 "5차 추적 검증" 절에 있다.
+
+4차 판정(HEAD `403b2d6`, 이력 보존):
+
 **조건부 합격** — (4차 추적 검증, HEAD `403b2d6`) 판정 연결에서 회색 대조와의 비교만 잠기지 않았다. 대조를 얼굴 밖 원 하나로 줄이는 변이(N24)가 생존한다. 회색 상승이 흰 원보다 크고 얼굴 밖은 작은 CLI 매개 케이스(기대 False)를 추가하면 닫힌다. 상세는 아래 "4차 추적 검증" 절에 있다.
 
 3차 판정(HEAD `ff4636e`, 이력 보존):
@@ -563,3 +567,88 @@ N19–N21은 모두 판정을 False 쪽으로만 바꾼다. 유일한 CLI 판정
 
 - GPU 전체 재실행(HEAD)은 계속 보류 중이다. `nvidia-smi` 사용률 34–39%, 소유자 `ai_writte_system` 컨테이너 11개가 실행 중이다. src·산출물이 `0b494d1`과 같으므로 2차 CPU 검출 byte 동일 결과가 유효하다.
 - 이 기록의 4차 수정분은 커밋하지 않았다.
+
+## 5차 추적 검증 — 2026-10-11, HEAD `c057ada`
+
+### Verdict
+
+**합격** — 4차 F-B1(회색 대조 비교 연결)이 `largest='gray'` 케이스로 잠겼다. N24가 이 케이스에서 죽는다. 남은 Blocking은 없다.
+
+판정 근거:
+
+- `config :32-33`의 판정 조항 세 부분이 `main()` 연결 수준에서 모두 양방향으로 잠겼다.
+  - 주 조건 > 회색 대조: `[gray]` 미발동, `[white]` 발동
+  - 주 조건 > 얼굴 밖 대조: `[offface]` 미발동, `[white]` 발동
+  - 전환 비율 ≥ 0.05: helper 매개 셀, `[white]`에서 1.01 기준 변이 사망
+- 전환 정의(단방향, calibration threshold, 실제 label)도 연결 수준에서 잠겼다.
+- 1차의 수치·결정성 근거는 그대로 유효하다. `git diff 0b494d1 HEAD -- src/` 0행이고, 산출물도 변경이 없다.
+
+### 대상·원천
+
+- commit `c057ada`. 4차 기록 수정분이 함께 커밋됐다.
+- 변경은 `tests/test_face_mask.py`의 매개화(`largest` ∈ offface/gray/white)와 이 기록뿐이다.
+
+### 테스트·감사
+
+- `docker compose run --rm dev python -m pytest tests/test_face_mask.py -q` → 22 passed, 종료코드 0
+- `docker compose run --rm dev python -m pytest -q` → 72 passed, 종료코드 0
+- `[gray]` 케이스(`tests/test_face_mask.py:195-260`):
+  - 회색 원 확률은 threshold − 0.01(0.69, 전환 없음)이다.
+  - 흰 원 평균은 (0.71 + 0.60)/2 = 0.655로 0.69보다 작고, 얼굴 밖은 0.02다.
+  - 단언은 shift 순서 off-face < white < gray와 `dependence_evidence is False`다.
+  - 전환 수 기대값(흰 1, 회색 0)은 세 케이스에서 같아, 전환 잠금을 약화하지 않는다.
+
+### stub calibration threshold의 비결정성(구현자 질의에 대한 확인)
+
+같은 `_prepare_cli`(stub 학습 + calibration)를 본 검증자가 세 번 실행했다. 실행할 때마다 값이 달랐다.
+
+| 실행 | `threshold_probability` | `temperature` |
+| --- | --- | --- |
+| 4차 | 0.5174599324081032 | 0.3526 |
+| 5차 ① | 0.5104163494670356 | 5.5732 |
+| 5차 ② | 0.5 | 20.0(탐색 상한) |
+
+- 구현자가 본 "정확히 0.5"는 실제로 나올 수 있는 값이다(② 재현). 반박이 아니라 확인이다.
+- 원인: stub 적합이 실행 간 비결정적이다. stub 학습에 seed가 고정되어 있지 않은 것으로 보인다. 원인 확정은 이 슬라이스 범위 밖이다.
+- 영향:
+  - 3차 셀의 N5 guard는 실행에 따라 무력화될 수 있었다(threshold = 0.5이면 middle = 0.5).
+  - 4차의 0.7 고정으로 연결 셀은 이 비결정성과 무관해졌다. 연결 셀은 temperature도 실제 tmp calibration 값을 써서 logit ↔ 확률 변환이 서로 상쇄되므로, T가 0.35이든 20이든 기대값이 같다.
+  - 첫 CLI 셀(`:193`까지)의 단언은 threshold에 의존하지 않는다(출현율, 단축 AUC, 미처리 표본 shift = 0).
+
+### 변이 테스트(본 검증자 직접 수행)
+
+변이마다 `git status --short` 빈 상태 확인 → 치환 → 초점 테스트 → `git checkout -- src/face_mask.py` → `git status --short` 빈 상태 재확인. 11회 모두 clean이었다.
+
+| ID | 변이 | 결과 | 깨진 셀 |
+| --- | --- | --- | --- |
+| N5 | `:233` threshold → 0.5 | 사망 | `cli_wires[offface]`, `[gray]`, `[white]` |
+| N6 | `:239` 대조를 회색 하나로 | 사망 | `cli_wires[offface]` |
+| N16 | `:140` `>=` → `>` | 사망 | `test_decision_flips_…` |
+| N18 | `:233` label 전부 GEN | 사망 | `cli_wires[offface]`, `[gray]`, `[white]` |
+| N19 | `:240` 비율 기준 1.01 | 사망 | `cli_wires[white]` |
+| N20 | `:240` `dependence = False` | 사망 | `cli_wires[white]` |
+| N21 | `:238` 주 조건 = 회색 | 사망 | `cli_wires[white]` |
+| N22 | `:156` threshold 하드코딩 0.5 | 사망 | `cli_wires[offface]`, `[gray]`, `[white]` |
+| N23 | `:240` `dependence = True` | 사망 | `cli_wires[offface]`, `[gray]` |
+| N24 | `:239` 대조를 얼굴 밖 하나로 | 사망 | `cli_wires[gray]` |
+| N25(신규) | `:239` 대조 목록 비움 | 사망 | `cli_wires[offface]`, `[gray]` |
+
+이전 라운드 helper 변이 N1–N4, N7–N15, N17은 2차에서 셀별로 죽었다. 그 뒤 해당 src와 셀이 바뀌지 않았으므로 결과가 유효하다.
+
+### Issues / Risks
+
+#### Blocking (계약 의무)
+
+- 없음.
+
+#### Hardening recommendations (비차단)
+
+- **V1** stub 학습·calibration의 비결정성(위 표)은 `tests/test_baseline.py`의 `make_data`와 `src.train.run_training` stub 경로 쪽 문제다. stub 학습에 seed를 고정하거나, threshold에 의존하는 다른 테스트가 있는지 점검한다. 이 슬라이스의 셀은 0.7 고정으로 영향을 받지 않는다.
+
+### Outstanding items
+
+- **GPU 전체 재실행(HEAD) 미수행**: 이번 확인 시 사용률은 6–11%로 낮았다. 그러나 소유자 `ai_writte_system` 컨테이너 11개가 계속 실행 중이었고, 조정자가 전달한 정책(소유자 컨테이너 가동 중 GPU 작업 금지)에 따라 시작하지 않았다.
+  - src와 산출물이 `0b494d1`과 같으므로, 2차 CPU 검출 byte 동일 결과와 1차 GPU 재실행(aad9440, report·predictions byte 동일)이 근거로 남는다.
+  - gen_000799 3행 변경은 tie-break로 설명됐다.
+  - GPU가 비면 2차 절의 명령으로 확인한다.
+- 이 기록의 5차 수정분은 커밋하지 않았다.
