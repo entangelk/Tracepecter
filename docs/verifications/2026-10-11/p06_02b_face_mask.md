@@ -2,6 +2,10 @@
 
 ## Verdict
 
+**조건부 합격** — (3차 추적 검증, HEAD `ff4636e`) `main()`의 판정 연결은 미발동 방향만 잠겨 있다. `dependence = False` 고정(N20), 잘못된 `min_gen_flip_fraction` 전달(N19), 주 조건 오지정(N21)이 생존한다. CLI 수준에서 판정이 **발동**하는 셀(또는 report 값으로 재계산한 규칙과의 일치 단언)을 추가하면 닫힌다. 상세는 아래 "3차 추적 검증" 절에 있다.
+
+2차 판정(HEAD `0b494d1`, 이력 보존):
+
 **조건부 합격** — (추적 검증, HEAD `0b494d1`) `main()`이 판정·전환 helper에 넘기는 인자(calibration threshold, 대조 조건 이름 두 개, 표본 label)를 report 수준에서 잠그는 셀이 없다. 변이 N5·N6·N18이 생존했다. 이 셀을 추가하면 닫힌다. 그 밖의 1차 Blocking B1·B3·B4와 B2의 나머지 항목은 해소됐다. 상세는 아래 "추적 검증(보강 라운드)" 절에 있다.
 
 1차 판정(HEAD `aad9440`, 이력 보존):
@@ -415,3 +419,74 @@ $S/mutate2.sh <ID> '<old>' '<new>'      # N1~N18
 docker compose run --rm -T -e PYTHONPATH=/app -v $S:/scratch -v /mnt/h/tracepector/images:/images:ro dev python /scratch/redetect.py
 cmp $S/redetect.csv experiments/p06_failure_analysis/face_mask/detections.csv
 ```
+
+## 3차 추적 검증 — 2026-10-11, HEAD `ff4636e`
+
+### Verdict
+
+**조건부 합격** — `main()` → `dependence_evidence` 연결의 발동 방향이 잠기지 않았다(N19·N20·N21 생존). CLI 셀에서 판정이 True가 되는 구성을 추가하거나, `report['dependence_evidence']`를 report의 세 GEN 조건 shift·전환 수와 config `min_gen_flip_fraction`으로 다시 계산한 값과 같다고 단언하면 닫힌다.
+
+판정 근거:
+
+- 2차 R-B1 중 전환 연결(threshold·label, N5·N18)과 대조 둘 비교(N6)는 해소됐다. R1–R3도 해소됐다.
+- 2차 조치 (b)(판정을 report 값으로 재계산해 일치 단언)는 상수 단언 `is False`로 구현됐다. 그 결과 판정을 항상 False로 만드는 연결 결함은 어떤 셀도 잡지 못한다.
+- 이 진단의 결론은 "의존 근거 있음"(= True)이므로, 발동 방향 연결이 잠기지 않은 것은 결론 쪽 분기의 공백이다.
+
+### 대상·원천
+
+- commits `852f6ce`(main 연결 CLI 셀), `ff4636e`(경계 케이스 분리), HEAD `ff4636e`
+- `git diff 0b494d1 HEAD -- src/` → 0행(src 불변)
+- 변경 파일: `tests/test_face_mask.py`, README, 이 기록
+- 산출물(detections·predictions·report)도 변경 없음
+
+### 테스트·감사
+
+- `docker compose run --rm dev python -m pytest tests/test_face_mask.py -q` → 20 passed, 종료코드 0
+- `docker compose run --rm dev python -m pytest -q` → 70 passed, 종료코드 0
+- 새 셀 `test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls`(`tests/test_face_mask.py:195-249`)는 `predict_logits`를 monkeypatch한다.
+  - 원본은 REAL 0.99 / GEN 0.01이다.
+  - REAL 편집본은 `min(th, 0.5) − 0.01`로 FN이 된다.
+  - 얼굴 밖 원은 0.999로 상승이 가장 크다.
+  - 흰 원 test_0은 `max(th, 0.5) + 0.01`, 나머지는 `middle = (th + 0.5)/2`다.
+  - 조건별 `edited_decision_flips`를 predictions.csv와 tmp calibration으로 독립 재계산해 단언하고, 고정 기대값과 `dependence_evidence is False`도 단언한다.
+- **`middle_flips`가 guard를 약화하는지 점검**:
+  - middle은 항상 threshold와 0.5 사이에 있다. 그래서 threshold < 0.5이면 실제 기준으로는 전환(1), 0.5 기준으로는 비전환(0)이다. threshold > 0.5이면 반대다.
+  - 어느 경우든 0.5를 넘기는 변이(N5)는 기대값과 어긋난다. 실측에서도 N5가 이 셀에서 죽었다.
+  - 독립 재계산 루프도 실제 threshold를 쓰므로 이중으로 잠긴다.
+  - 약점은 stub threshold가 정확히 0.5인 경우뿐이다. stub 학습·calibration은 결정적이라 현 상태에서는 문제가 되지 않는다. → Hardening T1
+- R1: `:99-100`이 GEN after == threshold → 1, REAL after == threshold → 0을 단일 표본으로 분리해 단언한다. N16이 두 셀에서 죽는다.
+- R2: README :36에 `edited_decision_flips`(단방향)와 `sets.*.decision_flips`(양방향, `src/failure_analysis.py:83`)의 차이를 명시했다. 코드와 일치한다.
+- R3: README 사후 명시 절에 `dp` 1과 `int()` 절사를 추가했다. `src/face_mask.py:32-34`와 일치한다.
+
+### 변이 테스트(본 검증자 직접 수행)
+
+변이마다 `git status --short` 빈 상태 확인 → 치환 → 초점 테스트 → `git checkout -- src/face_mask.py` → `git status --short` 빈 상태 재확인. 7회 모두 clean이었다.
+
+| ID | 변이 | 결과 | 깨진 셀 |
+| --- | --- | --- | --- |
+| N5 | `:233` threshold → 0.5 | 사망 | `test_face_mask_cli_wires_…` |
+| N6 | `:239` 대조를 회색 하나로 | 사망 | `test_face_mask_cli_wires_…` |
+| N16 | `:140` after `>=` → `>` | 사망 | `test_decision_flips_…`, `test_face_mask_cli_wires_…` |
+| N18 | `:233` label 전부 GEN | 사망 | `test_face_mask_cli_wires_…` |
+| **N19** | `:240` `min_gen_flip_fraction` 대신 1.01 전달 | **생존** | — |
+| **N20** | `:240` `dependence = False` 고정 | **생존** | — |
+| **N21** | `:238` 주 조건을 `gen_gray_face`로 | **생존** | — |
+
+N19–N21은 모두 판정을 False 쪽으로만 바꾼다. 유일한 CLI 판정 단언이 `is False`(`:249`)이고 다른 CLI 셀은 `isinstance(..., bool)`(`:188`)이라 흡수된다. helper 셀(`:103-114`)은 helper 자체만 잠그므로 연결 결함에는 닿지 않는다.
+
+### Issues / Risks
+
+#### Blocking (계약 의무)
+
+- **T-B1 판정 연결의 발동 방향 미잠금**(2차 R-B1 (b)의 잔여): `src/face_mask.py:238-240`. 조치는 둘 중 하나다.
+  - (a) 같은 fixture에서 얼굴 밖 원 확률을 middle 이하로 두어 상승 순서가 얼굴 밖 < 회색 < 흰 원이 되게 하는 두 번째 CLI 케이스를 추가하고, `dependence_evidence is True`를 단언한다. 매개화해 False 케이스와 함께 두면 된다.
+  - (b) 기존 셀에서 `report['dependence_evidence'] == (shift_white > shift_gray and shift_white > shift_offface and flips_white / count_white >= SETTINGS['dependence_rule']['min_gen_flip_fraction'])`를 단언한다. 이 경우에도 True가 나오는 케이스가 적어도 하나 있어야 N20이 죽는다.
+
+#### Hardening recommendations (비차단)
+
+- **T1** `tests/test_face_mask.py:202-203`: `assert abs(threshold - 0.5) > 0.02` 같은 전제 단언을 둔다. stub calibration이 바뀌어 threshold가 0.5에 붙으면 N5 guard가 조용히 무력화되는데, 이 단언이 그 경우를 드러낸다.
+
+### Outstanding items
+
+- GPU 전체 재실행(HEAD)은 계속 보류 중이다. `nvidia-smi` 사용률 36–40%, 소유자 `ai_writte_system` 컨테이너가 사용 중이다. src·산출물이 `0b494d1`과 같으므로 2차의 CPU 검출 byte 동일 결과가 유효하다. predictions.csv·report.json의 GPU 재현만 남았다.
+- 이 기록의 2·3차 수정분은 커밋하지 않았다.

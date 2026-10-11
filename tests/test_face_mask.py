@@ -192,15 +192,19 @@ def test_face_mask_cli_reports_prevalence_shortcut_and_conditions(tmp_path, monk
     assert json.loads((tmp_path/'out/report.json').read_text()) == report
 
 
-def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_path, monkeypatch):
-    """main() 연결 잠금: 전환은 calibration threshold·실제 label로, 판정은 두 대조 모두와 비교한다.
-    확률을 threshold와 0.5 사이에 두어 0.5로 바꾸면 전환 수가 달라지고, 얼굴 밖 대조의 상승을 가장 크게 두어
-    대조 하나를 빼면 판정이 뒤집히며, REAL 전환(FN)은 label을 GEN으로 바꾸면 세지 않게 된다."""
+@pytest.mark.parametrize('offface_largest', [True, False])
+def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_path, monkeypatch, offface_largest):
+    """main() 연결 잠금: 전환은 calibration threshold·실제 label로, 판정은 주 조건을 두 대조 모두와 비교한다.
+    확률을 threshold와 0.5 사이에 두어 0.5로 바꾸면 전환 수가 달라지고, REAL 전환(FN)은 label을 GEN으로 바꾸면
+    세지 않게 된다. 미발동: 얼굴 밖 대조의 상승이 가장 크면 False(대조 하나를 빼면 True로 뒤집힘).
+    발동: 흰 원 > 회색 원 > 얼굴 밖이고 전환 비율이 기준 이상이면 True(주 조건·기준·결과 연결이 틀리면 False)."""
     face_mask, config_path = _prepare_cli(tmp_path, monkeypatch)
     calibration = json.loads((tmp_path/'calibration/calibration.json').read_text())
-    temperature, threshold = calibration['temperature'], calibration['threshold_probability']
-    middle = (threshold + 0.5) / 2  # 0.5와 threshold 사이: threshold 기준으로만 전환 여부가 정해진다
-    middle_flips = int(middle >= threshold)
+    temperature, threshold = calibration['temperature'], 0.7  # stub 적합 threshold는 0.5일 수 있어 고정한다
+    load_calibration = face_mask.load_calibration
+    monkeypatch.setattr(face_mask, 'load_calibration',
+                        lambda path: {**load_calibration(path), 'threshold_probability': threshold})
+    middle = (threshold + 0.5) / 2  # 0.5 이상·threshold 미만: 0.5로 바꾸면 전환으로 세진다
 
     def logit(probability):
         return temperature * np.log(probability / (1 - probability))
@@ -214,11 +218,11 @@ def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_p
                 continue
             (x, _, _), fill = data.edits[i]
             if label:
-                values.append(logit(min(threshold, 0.5) - 0.01))  # REAL → FN
+                values.append(logit(0.49))  # REAL → FN
             elif x != 150:
-                values.append(logit(0.999))  # 얼굴 밖 원: 가장 큰 상승
+                values.append(logit(0.999 if offface_largest else 0.02))
             elif fill == 255:
-                values.append(logit(max(threshold, 0.5) + 0.01 if data.base.rows[i].image_id == 'test_0.png'
+                values.append(logit(threshold + 0.01 if data.base.rows[i].image_id == 'test_0.png'
                                     else middle))
             else:
                 values.append(logit(middle))
@@ -241,9 +245,13 @@ def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_p
                        and (probability(v) >= threshold) != (labels[k] == 1) for k, v in values.items())
         assert report['conditions'][name]['edited_decision_flips'] == expected, name
     assert report['conditions']['real_disc_gray']['edited_decision_flips'] == 1
-    assert report['conditions']['gen_white_face']['edited_decision_flips'] == 1 + middle_flips
-    assert report['conditions']['gen_gray_face']['edited_decision_flips'] == 2 * middle_flips
+    assert report['conditions']['gen_white_face']['edited_decision_flips'] == 1
+    assert report['conditions']['gen_gray_face']['edited_decision_flips'] == 0
     shifts = {name: report['conditions'][name]['edited_mean_shift']
               for name in ('gen_white_face', 'gen_gray_face', 'gen_white_offface')}
-    assert shifts['gen_gray_face'] < shifts['gen_white_face'] < shifts['gen_white_offface']
-    assert report['dependence_evidence'] is False  # 얼굴 밖 대조보다 작으므로 미발동
+    if offface_largest:
+        assert shifts['gen_gray_face'] < shifts['gen_white_face'] < shifts['gen_white_offface']
+        assert report['dependence_evidence'] is False
+    else:
+        assert shifts['gen_white_offface'] < shifts['gen_gray_face'] < shifts['gen_white_face']
+        assert report['dependence_evidence'] is True
