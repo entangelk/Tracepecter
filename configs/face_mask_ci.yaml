@@ -1,0 +1,47 @@
+# P06-02c: P06-02b 원형 얼굴 가림 의존 진단의 표본 확장·구간 재진단.
+# 모델 결과를 보기 전에 고정했다(2026-10-11, 소유자 승인: YuNet·test∪val 합산·대응표본 bootstrap 규칙).
+# 결과를 본 뒤 대상·검출 기준·조건·판정 규칙을 바꾸지 않는다. P06-02b config(face_mask_diagnostic.yaml)는 그대로 둔다.
+calibration: experiments/p05_calibration/calibration.json
+device: cuda
+output_dir: experiments/p06_failure_analysis/face_mask_ci
+
+# 대상: 아래 split의 GEN 중 얼굴이 검출되고 얼굴 밖 원을 둘 자리가 있는 표본(대응표본).
+# 세 조건을 모두 같은 표본에 적용한다. val은 P05 temperature·threshold fitting에 쓰였으므로 따로도 보고한다.
+splits: [test, test_unseen, val]
+
+# OpenCV FaceDetectorYN(YuNet). 모델은 opencv_zoo models/face_detection_yunet (마지막 변경 커밋 f12e127, 2023-06-06).
+# 검출 품질은 모델 결과를 보기 전에 대상 GEN 무작위 40장(seed 20261011)으로 육안 확인했다(40/40 실제 머리·얼굴).
+face_detector:
+  model: checkpoints/face/face_detection_yunet_2023mar.onnx
+  model_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  score_threshold: 0.9
+  nms_threshold: 0.3
+  top_k: 5000
+  min_size_ratio: 0.04      # 상자 긴 변이 이미지 너비 × 0.04 이상
+# 여러 얼굴이면 score가 가장 높은 상자. 동점이면 넓이가 큰 것, 그다음 위·왼쪽.
+disc_diameter_per_face: 1.2 # YuNet 상자(이마~턱) 긴 변 × 1.2 = 원의 지름
+
+# 얼굴 밖 원: 얼굴 원과 같은 반지름·같은 높이. 후보 x는 좌우 대칭(width − x), x + 3r, x − 3r 순서이고,
+# 얼굴 원 중심과 2r 이상 떨어지며 이미지 안에 들어가는 첫 후보를 쓴다. 없으면 대상에서 뺀다(P06-02b와 같은 규칙).
+conditions:
+  white_face: {position: face, fill: 255}       # 주 조건
+  gray_face: {position: face, fill: 128}        # 가림 일반 대조
+  white_offface: {position: off_face, fill: 255}  # 위치 대조
+
+# 표본별 값: score 변화 = 100 × (p_조건 − p_원본), 전환 = 원본 p < threshold 이고 조건 p ≥ threshold(GEN → REAL 판정).
+# 구간: 이미지 단위 복원추출 bootstrap 백분위 95% 구간. 모든 통계량에 같은 재추출 표본을 쓴다.
+bootstrap:
+  resamples: 2000
+  seed: 20261011
+  interval: 0.95
+
+# 사전 판정 규칙(합산 대상에만 적용; test만·val만·생성기별은 구간과 함께 보고만 한다).
+# 1) 흰 원 의존(P06-02b 규칙 승계): 차이 D1 = 흰 원 − 회색 원, D2 = 흰 원 − 얼굴 밖 원(표본별 score 변화의 평균),
+#    흰 원 전환율 F.
+#    - confirmed(확정): D1·D2 구간 하한 > 0 이고 F 구간 하한 ≥ min_flip_fraction
+#    - suggestive(시사): 확정이 아니고, D1·D2 점추정 > 0 이고 F 점추정 ≥ min_flip_fraction
+#    - insufficient(근거 불충분): 그 밖
+# 2) 얼굴 가림 일반 의존: D3 = 회색 원 − 얼굴 밖 원.
+#    - confirmed: D3 구간 하한 > 0 / suggestive: 확정이 아니고 D3 점추정 > 0 / insufficient: 그 밖
+decision:
+  min_flip_fraction: 0.05
