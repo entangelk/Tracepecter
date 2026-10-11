@@ -7,6 +7,17 @@
     "test_unseen",
     "val"
   ],
+  "train_face_state": {
+    "generated": {
+      "none": 596,
+      "visible": 1084
+    },
+    "real": {
+      "disc": 515,
+      "none": 1577,
+      "visible": 8
+    }
+  },
   "face_state": {
     "generated/all": {
       "n": 1320,
@@ -425,12 +436,23 @@
     "gen_face_kept_by_crop": {
       "n": 482,
       "errors_original": 1,
-      "errors_center_square": 1
+      "errors_center_square": 1,
+      "originally_correct": 481,
+      "new_errors": 0
     },
     "gen_face_removed_by_crop": {
       "n": 127,
       "errors_original": 0,
-      "errors_center_square": 4
+      "errors_center_square": 4,
+      "originally_correct": 127,
+      "new_errors": 4
+    },
+    "gen_no_face_before_crop": {
+      "n": 343,
+      "errors_original": 7,
+      "errors_center_square": 14,
+      "originally_correct": 336,
+      "new_errors": 7
     }
   }
 }

@@ -10,7 +10,7 @@
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/baseline/best.pt`. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
 - scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 실패 분석 대상이다.
-- P06 실행: `docker compose --profile training run --rm -T train python -m src.failure_analysis --config configs/failure_analysis.yaml` → `reports/errors/*/manifest.csv`(이미지 사본은 비추적)·`experiments/p06_failure_analysis/`. Test B NLL/Brier 악화는 sd35 확신 FP 12장 때문으로 분해됐다.
+- P06 실행: `docker compose --profile training run --rm -T train python -m src.failure_analysis --config configs/failure_analysis.yaml` → `reports/errors/*/manifest.csv`(이미지 사본은 비추적)·`experiments/p06_failure_analysis/`. Test B NLL/Brier 악화는 오답 쪽으로 기운 12장(sd35 GEN 10, REAL FN 2) 때문으로 분해됐다.
 - 얼굴 검출 모델(P06-02c): YuNet `/mnt/h/tracepector/checkpoints/face/face_detection_yunet_2023mar.onnx`(컨테이너 `/app/checkpoints/face/`, sha256은 `configs/face_mask_ci.yaml`).
 - Test B는 Standard test REAL 448 + `test_unseen` FAKE 600(sd35_medium), 총 1,048장([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val REAL 제외, 두 테스트 간 REAL 공유.
 
