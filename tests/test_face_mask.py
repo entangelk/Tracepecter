@@ -55,10 +55,10 @@ def test_disc_detector_requires_dark_edge_even_when_filled():
 
 
 def test_disc_detector_requires_filled_inside_even_with_edge():
-    """fill 단독 잠금: 둘레는 경계가 뚜렷해도 안쪽이 비어 있는 흰 고리는 원이 아니다."""
-    ring = Image.fromarray(np.zeros((200, 300, 3), dtype=np.uint8))
-    ImageDraw.Draw(ring).ellipse((120, 70, 180, 130), outline=(255, 255, 255), width=8)
-    assert detect_disc(np.asarray(ring), **DETECTOR) is None
+    """fill 단독 잠금: 둘레 경계가 뚜렷해도 안쪽에 어두운 점(순백 비율 < min_fill)이 있으면 원이 아니다."""
+    spotted = Image.fromarray(_with_disc(_noise(), 150, 100, 30))
+    ImageDraw.Draw(spotted).ellipse((155, 93, 169, 107), fill=(0, 0, 0))
+    assert detect_disc(np.asarray(spotted), **DETECTOR) is None
 
 
 def test_largest_face_breaks_area_ties_deterministically():
