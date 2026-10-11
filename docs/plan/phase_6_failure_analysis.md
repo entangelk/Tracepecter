@@ -49,7 +49,7 @@ label/split/category/source/generator는 canonical `data/metadata.csv`, temperat
 - [DB-05](../decision_briefs/DB-05_P06_review-set.md) — Resolved: 오류 전수 + 보충 ≥100(유형 구분, 실제 오류 수 별도 보고), 에이전트 1차 검토 + 소유자가 오류 전수·무작위 20건 확인(2026-10-09).
 - [DB-03](../decision_briefs/DB-03_P01_face-policy.md) — Resolved(A 무처리), P06-04에서 얼굴 집중 오류 시 재상정 트리거.
 - [DB-04](../decision_briefs/DB-04_P02_unseen-real.md) — Resolved, Test B 구성 유지.
-- [DB-06](../decision_briefs/DB-06_P06_face-exposure.md) — Open: 얼굴 노출 비대칭 대응(DB-03 재상정). 다음 재학습과 P07 API 전처리 계약의 방향을 정한다. P06 완료는 막지 않는다.
+- [DB-06](../decision_briefs/DB-06_P06_face-exposure.md) — Resolved(2026-10-11): C(공통 흰 원 익명화). 적용은 [P08](phase_8_face_anonymization.md)에서 한다.
 
 ## 진행 상황
 
@@ -84,7 +84,7 @@ label/split/category/source/generator는 canonical `data/metadata.csv`, temperat
 - **P06-04 오류 패턴 문서 완료·독립검증 합격**(2026-10-11, [문서](../../experiments/p06_failure_analysis/patterns/README.md), [검증](../verifications/2026-10-11/p06_04_patterns.md)).
   - 패턴: unseen 생성기의 확신 FP(test FP 8 중 7이 sd35), 얼굴이 보이지 않는 GEN의 FP 집중(1.7% 대 0.24%, p = 0.005), 미니멀 에디토리얼 아우터, REAL FN은 집중 없음. JPEG·해상도·종횡비는 근거 약함.
   - 원인: 얼굴 노출의 클래스 비대칭. 얼굴이 보이는 비율이 REAL 학습 0.4%, GEN 학습 64.5%다.
-  - DB-03 얼굴 트리거는 **발동**했다. 예시 방향(REAL FN)은 아니고 반대 방향(얼굴 없는 GEN의 FP)이다. 공통 블러는 비대칭을 풀지 못하므로 선택지를 다시 짜서 [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)으로 재상정했다(Open).
+  - DB-03 얼굴 트리거는 **발동**했다. 예시 방향(REAL FN)은 아니고 반대 방향(얼굴 없는 GEN의 FP)이다. 공통 블러는 비대칭을 풀지 못하므로 선택지를 다시 짜서 [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)으로 재상정했다(2026-10-11 C로 확정, P08에서 적용).
   - 정정: Test B 악화 12장은 sd35 GEN 10장과 REAL FN 2장이다.
   - 불일치 16건 재확인과 다음 데이터 수집 방향(얼굴 노출 비대칭 해소, 얼굴이 보이는 독립 REAL holdout, 생성기·스타일 다양성, K-Fashion 모사 hard negative)을 문서에 담았다.
 - **P06 완료**: 완료 조건 4개를 모두 충족했다. 실제 오류는 15건(test 12, val 3)이고, 검토는 103건이다.

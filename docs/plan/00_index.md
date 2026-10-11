@@ -1,6 +1,6 @@
 # 페이즈 인덱스
 
-> Tracepecter MVP 실행 상태. 페이즈 번호는 `docs/project.md` §27–§28의 Phase 정의와 1:1로 매핑한다(P07은 §28 데모 구축).
+> Tracepecter MVP 실행 상태. 페이즈 번호는 `docs/project.md` §27–§28의 Phase 정의와 1:1로 매핑한다(P07은 §28 데모 구축). P08은 §27 밖에서 결정 브리프(DB-06)로 생긴 페이즈다.
 
 | ID | 페이즈 | 상태 | 선행 조건 | 완료 근거 | 결정 브리프 |
 | --- | --- | --- | --- | --- | --- |
@@ -10,8 +10,9 @@
 | P03 | Baseline 비교 — SigLIP vs DINO | Complete | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split DINO 10 epoch + latency/크기 비교 + primary SigLIP 선정([report](../../experiments/p03_comparison/README.md)) | — |
 | P04 | LoRA (조건부) | Planned | P03 (진입 조건: `docs/project.md` §17) | LoRA vs frozen 비교 결과 문서 — 유의미하지 않으면 baseline 유지 | — |
 | P05 | Score calibration | Complete | P03: primary encoder 선정 | val 820 temperature/threshold + 0~100 score CLI + 고정 Test 평가([보고서](../../experiments/p05_calibration/README.md)) | — |
-| P06 | Failure analysis | Complete | P05: calibration artifact + 고정 Test A/B | `reports/errors/` 자동 저장 + 편향 통제 진단 + 103건 수동 검토(실제 오류 15) + [오류 패턴 문서](../../experiments/p06_failure_analysis/patterns/README.md) — 슬라이스별 독립검증 합격([계획](phase_6_failure_analysis.md)) | [DB-05](../decision_briefs/DB-05_P06_review-set.md)(Resolved) · [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Open) |
-| P07 | API + Demo | Planned | P05 (입력 전처리 계약은 DB-06 결정에 따름) | `POST /score` API 응답 + web demo에서 score 출력 확인 | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Open) |
+| P06 | Failure analysis | Complete | P05: calibration artifact + 고정 Test A/B | `reports/errors/` 자동 저장 + 편향 통제 진단 + 103건 수동 검토(실제 오류 15) + [오류 패턴 문서](../../experiments/p06_failure_analysis/patterns/README.md) — 슬라이스별 독립검증 합격([계획](phase_6_failure_analysis.md)) | [DB-05](../decision_briefs/DB-05_P06_review-set.md)(Resolved) · [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
+| P07 | API + Demo | Planned | P08: 익명화 전처리 계약 + 새 checkpoint·calibration artifact | `POST /score` API 응답 + web demo에서 score 출력 확인 | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
+| P08 | 공통 얼굴 익명화 재학습(§27 밖, DB-06 파생) | Planned(승인 대기) | P06 Complete + DB-06 Resolved | 원 규격·재현율 관문 + 익명화 모듈 + 재학습·재calibration + 사전 고정 단서 제거 진단([계획](phase_8_face_anonymization.md)) | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
 
 ## 비고
 

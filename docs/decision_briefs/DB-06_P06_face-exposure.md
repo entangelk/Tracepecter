@@ -1,6 +1,6 @@
 # DB-06 — 얼굴 노출 비대칭 대응(DB-03 재상정)
 
-**Status:** Open
+**Status:** Resolved
 **Related phase:** P06(판정 근거) → 재학습·P07 API 전처리 계약
 
 ## Decision needed
@@ -55,4 +55,11 @@
 
 ## Resolution
 
-(대기 중)
+- 선택: **C(공통 흰 원 익명화)**. 학습·평가·추론 전 구간에 적용하고, 얼굴이 보이는 실사로 만든 평가 전용 holdout을 함께 준비한다.
+- 일자: 2026-10-11
+- 근거: 소유자 결정(추천 수용). 얼굴 보임과 흰 원, 두 단서를 같은 변환으로 함께 없애고, 학습 분포 변화가 가장 작다.
+- 반영:
+  - `docs/project.md` §22(추론 입력 전처리)
+  - 재학습 페이즈 [P08 계획](../plan/phase_8_face_anonymization.md)(승인 대기)
+  - `docs/plan/00_index.md`, `00_index.md`
+  - DB-03 재상정 절
