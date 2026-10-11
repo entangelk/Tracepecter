@@ -1,4 +1,46 @@
 {
+  "config": {
+    "calibration": "experiments/p05_calibration/calibration.json",
+    "device": "cuda",
+    "output_dir": "experiments/p06_failure_analysis/face_mask_ci",
+    "splits": [
+      "test",
+      "test_unseen",
+      "val"
+    ],
+    "face_detector": {
+      "model": "checkpoints/face/face_detection_yunet_2023mar.onnx",
+      "model_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
+      "score_threshold": 0.9,
+      "nms_threshold": 0.3,
+      "top_k": 5000,
+      "min_size_ratio": 0.04
+    },
+    "disc_diameter_per_face": 1.2,
+    "conditions": {
+      "white_face": {
+        "position": "face",
+        "fill": 255
+      },
+      "gray_face": {
+        "position": "face",
+        "fill": 128
+      },
+      "white_offface": {
+        "position": "off_face",
+        "fill": 255
+      }
+    },
+    "bootstrap": {
+      "resamples": 2000,
+      "seed": 20261011,
+      "interval": 0.95
+    },
+    "decision": {
+      "min_flip_fraction": 0.05
+    }
+  },
+  "git_commit": "b9808418b23a7438c486e3dcfd907413aeb32b8f",
   "calibration": "experiments/p05_calibration/calibration.json",
   "checkpoint_sha256": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe",
   "face_model_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
