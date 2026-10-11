@@ -1,0 +1,61 @@
+# P08-01: 합성 흰 원 규격과 YuNet 재현율 관문 측정. 이미지만 쓰고 모델 결과는 쓰지 않는다.
+# 측정 전에 고정했다(2026-10-11). 결과를 본 뒤 표본·기준·판정 방법을 바꾸지 않는다.
+# 계획: docs/plan/phase_8_face_anonymization.md P08-01.
+output_dir: experiments/p08_anonymized/measure
+
+face_detector:              # P06-02c와 같은 설정. 바꾸면 재현율을 새 표본에서 다시 잰다.
+  model: checkpoints/face/face_detection_yunet_2023mar.onnx
+  model_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  score_threshold: 0.9
+  nms_threshold: 0.3
+  top_k: 5000
+  min_size_ratio: 0.04
+
+# 1) K-Fashion 흰 원(REAL train, 검토군 103장 밖)
+#    후보: 순백(RGB 최소 채널 ≥ white_min) 연결 성분 중 면적 ≥ min_area_ratio × 너비², 타원 채움률 ≥ min_fill.
+#    후보마다 타원(cv2.fitEllipse)을 그린 시트를 사람이 보고 "익명화 원이며 타원이 경계를 맞게 따름"을 확인한다(에이전트 표시).
+#    누락 확인: 후보가 없는 표본 중 무작위 missed_check장을 사람이 보고 놓친 원을 센다(형태 편향 보고용, 측정에는 넣지 않음).
+#    무작위 순서로 표본을 넘기며 확인된 원이 min_discs개가 될 때까지 계속한다.
+real_discs:
+  seed: 20261011
+  split: train
+  white_min: 245
+  min_area_ratio: 0.0007    # 반지름 약 너비 × 0.015에 해당(P06-02b 하한과 같음)
+  min_fill: 0.85
+  min_discs: 150
+  missed_check: 50
+# 크기 척도(관문): 장축 / 이미지 너비. 보조 척도(관문 없음): 장축 / 사람 영역 높이
+#   REAL은 K-Fashion 부위 rect 합집합 높이, GEN은 측정 표본 50장에 사람 영역을 손으로 표시.
+# 모양: 단축/장축 < ellipse_ratio이면 타원으로 센다.
+ellipse_ratio: 0.85
+ellipse_fraction_gate: 0.20   # 타원 비율이 이 값 이상이면 합성 원을 타원(얼굴 상자 가로·세로 비례)으로 그린다
+
+# 2) 합성 원 크기 맞춤(GEN train 중 YuNet 얼굴 검출 이미지 전부)
+#    지름 = 얼굴 상자 긴 변 × k. k는 합성 원 (지름/너비) 중앙값이 REAL 장축/너비 중앙값과 같아지도록 정한다.
+#    판정: 1사분위·중앙값·3사분위가 각각 REAL의 ±15% 안. k가 [k_min, k_max] 밖이면(얼굴을 덮지 못하거나 과대) 관문 미통과.
+size_match:
+  tolerance: 0.15
+  k_min: 1.0
+  k_max: 1.6
+
+# 3) 경계 질감: 원 중심에서 바깥으로 각도 72개 방향의 밝기(RGB 최소 채널) 단면을 반지름 0.8~1.2배 구간에서 1px 간격으로 잰다.
+#    10–90% 전이 폭(안쪽 순백 수준과 바깥 중앙값 사이)의 방향별 중앙값 → 원별 값 → 표본 중앙값.
+#    합성 원은 원 마스크에 Gaussian blur(σ)를 준 알파로 칠하고, 전이 폭 중앙값이 REAL의 ±1px 안이 되는 가장 작은 σ(0.25 간격)를 고른다.
+edge_match:
+  angles: 72
+  tolerance_px: 1.0
+  sigma_grid: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
+
+# 4) YuNet 재현율 관문(블라인드: 표시자는 검출 상자를 보지 않는다)
+#    "얼굴이 보임" = 사람 얼굴의 눈·코·입 중 둘 이상이 화면에 보임(측면·부분 포함, 뒷모습·프레임 밖 제외).
+#    에이전트가 전수 1차 표시하고, 소유자가 (a) 에이전트 표시와 YuNet이 다른 표본 전부와 (b) 나머지에서 무작위 20%를 확인한다. 소유자 판정이 최종이다.
+#    관문: 보이는 얼굴 재현율 점추정 ≥ 0.80이고 양성 ≥ 80장. 양성이 부족하면 같은 seed 순서로 50장씩 늘린다(최대 400장).
+recall_gate:
+  seed: 20261012
+  train_gen: {initial: 150, step: 50, max: 400}
+  test_gen_sd35: 100        # 보고만 함(관문 아님)
+  min_recall: 0.80
+  min_positives: 80
+  owner_random_fraction: 0.20
+
+# 5) REAL 원 위 검출: 흰 원이 확인된 REAL에서 YuNet 얼굴 상자 중심이 원 안(장축 반지름 × 1.5 이내)에 있는 비율을 보고한다(관문 없음).
