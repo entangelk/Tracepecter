@@ -2,6 +2,10 @@
 
 ## Verdict
 
+**조건부 합격** — (4차 추적 검증, HEAD `403b2d6`) 판정 연결에서 회색 대조와의 비교만 잠기지 않았다. 대조를 얼굴 밖 원 하나로 줄이는 변이(N24)가 생존한다. 회색 상승이 흰 원보다 크고 얼굴 밖은 작은 CLI 매개 케이스(기대 False)를 추가하면 닫힌다. 상세는 아래 "4차 추적 검증" 절에 있다.
+
+3차 판정(HEAD `ff4636e`, 이력 보존):
+
 **조건부 합격** — (3차 추적 검증, HEAD `ff4636e`) `main()`의 판정 연결은 미발동 방향만 잠겨 있다. `dependence = False` 고정(N20), 잘못된 `min_gen_flip_fraction` 전달(N19), 주 조건 오지정(N21)이 생존한다. CLI 수준에서 판정이 **발동**하는 셀(또는 report 값으로 재계산한 규칙과의 일치 단언)을 추가하면 닫힌다. 상세는 아래 "3차 추적 검증" 절에 있다.
 
 2차 판정(HEAD `0b494d1`, 이력 보존):
@@ -490,3 +494,72 @@ N19–N21은 모두 판정을 False 쪽으로만 바꾼다. 유일한 CLI 판정
 
 - GPU 전체 재실행(HEAD)은 계속 보류 중이다. `nvidia-smi` 사용률 36–40%, 소유자 `ai_writte_system` 컨테이너가 사용 중이다. src·산출물이 `0b494d1`과 같으므로 2차의 CPU 검출 byte 동일 결과가 유효하다. predictions.csv·report.json의 GPU 재현만 남았다.
 - 이 기록의 2·3차 수정분은 커밋하지 않았다.
+
+## 4차 추적 검증 — 2026-10-11, HEAD `403b2d6`
+
+### Verdict
+
+**조건부 합격** — config :32 "두 대조 조건보다 **각각** 크고" 중 회색 대조 비교의 `main()` 연결이 잠기지 않았다(N24: 대조를 `('gen_white_offface',)`로 줄여도 21셀 전부 통과). `offface_largest` 매개에 회색 상승이 가장 큰 세 번째 케이스(예: 흰 원 < 회색, 얼굴 밖 최소 → `dependence_evidence is False`)를 추가하면 닫힌다.
+
+판정 근거:
+
+- 3차 T-B1(발동 방향)은 해소됐다. N19·N20·N21·N23이 `[False]` 또는 `[True]` 케이스에서 죽는다.
+- 그러나 대조 두 개 중 얼굴 밖 원 비교만 양방향으로 잠겼다. `[True]`는 얼굴 밖이 최대, `[False]`는 흰 원 > 회색 > 얼굴 밖이다. 두 케이스 모두 "흰 원 > 회색"이 성립하므로, 회색 대조를 빼도 판정이 같다.
+- 2차 N6(얼굴 밖 대조 제거)과 대칭인 결함이다. 같은 계약 조항의 다른 절반이다.
+
+### 대상·원천
+
+- commit `403b2d6`. 3차 기록 수정분이 함께 커밋됐다.
+- `git diff 0b494d1 HEAD -- src/` → 0행. 산출물도 변경 없다.
+- 변경은 `tests/test_face_mask.py`(매개화, threshold 고정)와 이 기록뿐이다.
+
+### 테스트·감사
+
+- `docker compose run --rm dev python -m pytest tests/test_face_mask.py -q` → 21 passed, 종료코드 0
+- `docker compose run --rm dev python -m pytest -q` → 71 passed, 종료코드 0
+- **stub threshold 사실 확인**:
+  - 구현자는 "stub 적합 threshold가 정확히 0.5"라고 했다. 본 검증자가 `_prepare_cli`로 같은 stub calibration을 만들어 출력해 보니 `threshold_probability = 0.5174599324081032`, T = 0.3526이었다.
+  - 따라서 3차 T1 전제 단언(|th − 0.5| > 0.02)이 실패한 이유는 차이 0.0175가 0.02보다 작아서다. 정확히 0.5여서가 아니다.
+  - 3차 N5 guard는 우연이 아니라 좁은 간격(middle ≈ 0.5087)에서 유효했다. 다만 간격이 작아 깨지기 쉬웠으므로, 고정 threshold로 바꾼 조치는 타당하다.
+- **`load_calibration` monkeypatch가 threshold 연결 잠금을 약화하는지**(`tests/test_face_mask.py:203-206`):
+  - 대체 함수는 실제 `load_calibration`을 그대로 호출한다(hash·형식 검사 유지). 그 반환값에서 `threshold_probability`만 0.7로 덮는다.
+  - `main()`은 여전히 `artifact['threshold_probability']`(`src/face_mask.py:156`)를 읽는다. 따라서 "artifact에서 threshold를 읽어 전환 계산에 넘긴다"는 연결은 그대로 검사된다. 오히려 더 강해졌다. 0.7은 stub 값(0.517)과도 0.5와도 멀다.
+  - 연결을 우회해 threshold를 하드코딩하는 변이(N22, `:156` → 0.5)와 호출 지점 변이(N5)가 모두 두 케이스에서 죽었다.
+  - 잃은 것: 실제 tmp calibration 파일의 threshold가 report로 그대로 가는지는 이 셀이 보지 않는다. 다만 `load_calibration` 자체는 P05 영역에서 검증된 경로이고, 첫 CLI 셀은 patch 없이 실행된다. 약화로 보지 않는다.
+- 기대값 단순화:
+  - middle = 0.6은 0.7 기준 비전환, 0.5 기준 전환이다.
+  - 흰 원 1, 회색 0, REAL FN 1(p 0.49)은 고정값 단언과 독립 재계산 루프로 이중으로 잠긴다.
+
+### 변이 테스트(본 검증자 직접 수행)
+
+변이마다 `git status --short` 빈 상태 확인 → 치환 → 초점 테스트 → `git checkout -- src/face_mask.py` → `git status --short` 빈 상태 재확인. 10회 모두 clean이었다.
+
+| ID | 변이 | 결과 | 깨진 셀 |
+| --- | --- | --- | --- |
+| N5 | `:233` threshold → 0.5 | 사망 | `cli_wires[True]`, `[False]` |
+| N6 | `:239` 대조를 회색 하나로 | 사망 | `cli_wires[True]` |
+| N16 | `:140` `>=` → `>` | 사망 | `test_decision_flips_…` |
+| N18 | `:233` label 전부 GEN | 사망 | `cli_wires[True]`, `[False]` |
+| N19 | `:240` 비율 기준 1.01 | 사망 | `cli_wires[False]` |
+| N20 | `:240` `dependence = False` | 사망 | `cli_wires[False]` |
+| N21 | `:238` 주 조건 = 회색 | 사망 | `cli_wires[False]` |
+| N22 | `:156` threshold 하드코딩 0.5 | 사망 | `cli_wires[True]`, `[False]` |
+| N23 | `:240` `dependence = True` | 사망 | `cli_wires[True]` |
+| **N24** | `:239` 대조를 얼굴 밖 하나로(회색 제외) | **생존** | — |
+
+### Issues / Risks
+
+#### Blocking (계약 의무)
+
+- **F-B1 회색 대조 비교 연결 미잠금**: `src/face_mask.py:239`. config :32 "각각" 중 회색 쪽이다.
+  - 조치: `tests/test_face_mask.py:195`의 매개에 세 번째 케이스를 추가한다. 예를 들어 회색 원 확률을 흰 원보다 높게(예: 0.69, 0.7 미만이라 전환 수 기대값은 그대로), 얼굴 밖은 0.02로 둔다. 기대값은 `dependence_evidence is False`다.
+  - 변이 N24로 확인한다.
+
+#### Hardening recommendations (비차단)
+
+- 없음. 3차 T1은 stub 값 사실관계만 정정하면 해소된 것으로 본다.
+
+### Outstanding items
+
+- GPU 전체 재실행(HEAD)은 계속 보류 중이다. `nvidia-smi` 사용률 34–39%, 소유자 `ai_writte_system` 컨테이너 11개가 실행 중이다. src·산출물이 `0b494d1`과 같으므로 2차 CPU 검출 byte 동일 결과가 유효하다.
+- 이 기록의 4차 수정분은 커밋하지 않았다.

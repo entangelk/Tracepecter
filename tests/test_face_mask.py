@@ -192,11 +192,11 @@ def test_face_mask_cli_reports_prevalence_shortcut_and_conditions(tmp_path, monk
     assert json.loads((tmp_path/'out/report.json').read_text()) == report
 
 
-@pytest.mark.parametrize('offface_largest', [True, False])
-def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_path, monkeypatch, offface_largest):
+@pytest.mark.parametrize('largest', ['offface', 'gray', 'white'])
+def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_path, monkeypatch, largest):
     """main() 연결 잠금: 전환은 calibration threshold·실제 label로, 판정은 주 조건을 두 대조 모두와 비교한다.
     확률을 threshold와 0.5 사이에 두어 0.5로 바꾸면 전환 수가 달라지고, REAL 전환(FN)은 label을 GEN으로 바꾸면
-    세지 않게 된다. 미발동: 얼굴 밖 대조의 상승이 가장 크면 False(대조 하나를 빼면 True로 뒤집힘).
+    세지 않게 된다. 미발동: 얼굴 밖 대조나 회색 대조의 상승이 가장 크면 False(그 대조를 빼면 True로 뒤집힘).
     발동: 흰 원 > 회색 원 > 얼굴 밖이고 전환 비율이 기준 이상이면 True(주 조건·기준·결과 연결이 틀리면 False)."""
     face_mask, config_path = _prepare_cli(tmp_path, monkeypatch)
     calibration = json.loads((tmp_path/'calibration/calibration.json').read_text())
@@ -220,12 +220,12 @@ def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_p
             if label:
                 values.append(logit(0.49))  # REAL → FN
             elif x != 150:
-                values.append(logit(0.999 if offface_largest else 0.02))
+                values.append(logit(0.999 if largest == 'offface' else 0.02))
             elif fill == 255:
                 values.append(logit(threshold + 0.01 if data.base.rows[i].image_id == 'test_0.png'
                                     else middle))
             else:
-                values.append(logit(middle))
+                values.append(logit(threshold - 0.01 if largest == 'gray' else middle))  # 전환 없이 상승만 키움
         return np.asarray(values), None
     monkeypatch.setattr(face_mask, 'predict_logits', fake_predict)
     report = face_mask.main(['--config', config_path])
@@ -249,8 +249,11 @@ def test_face_mask_cli_wires_calibrated_threshold_labels_and_both_controls(tmp_p
     assert report['conditions']['gen_gray_face']['edited_decision_flips'] == 0
     shifts = {name: report['conditions'][name]['edited_mean_shift']
               for name in ('gen_white_face', 'gen_gray_face', 'gen_white_offface')}
-    if offface_largest:
+    if largest == 'offface':
         assert shifts['gen_gray_face'] < shifts['gen_white_face'] < shifts['gen_white_offface']
+        assert report['dependence_evidence'] is False
+    elif largest == 'gray':
+        assert shifts['gen_white_offface'] < shifts['gen_white_face'] < shifts['gen_gray_face']
         assert report['dependence_evidence'] is False
     else:
         assert shifts['gen_white_offface'] < shifts['gen_gray_face'] < shifts['gen_white_face']
