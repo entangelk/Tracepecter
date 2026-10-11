@@ -1,7 +1,9 @@
 # 독립검증 — DB-06 C 확정 기록 · `project.md` §22 전처리 조항 · P08 계획
 
-**조건부 합격** — (2차, 커밋 `a412f74`) 1차 C1–C3은 닫혔다. 새 조건 2개: (N1) P08 채택 실패 시 baseline 유지 규칙(`phase_8_face_anonymization.md:58-59`)이 무조건 익명화를 요구하는 `project.md:780`(§22)·P07 선행 조건(`plan/00_index.md:14`)과 충돌하므로, 비채택 분기에서 P07이 무엇을 서빙하는지 소유자 결정으로 정할 것. (N2) checkpoint 결합 계약(`phase_8:73`)의 "규격이 없으면 거부"와 "규격이 없으면 원본 경로로 동작"이 같은 조건에 두 결과를 주므로 판별 규칙을 명시할 것.
+**조건부 합격** — (3차, 커밋 `397abf2`) N1·N2와 H17–H21은 닫혔다. 남은 조건 하나: 학습 config에 허용한 명시적 `null` 키(`phase_8_face_anonymization.md:81`)를 score CLI·API가 어떻게 처리하는지 정해지지 않았다(`:84`는 "키 없음"만 거부). "score CLI·API는 키가 `null`이어도 거부"(§22)를 계약에 넣고, P08-02 검증 셀(`:51-56`)에 추가할 것.
 
+> 2차 판정(커밋 `a412f74` 대상): **조건부 합격** — (2차, 커밋 `a412f74`) 1차 C1–C3은 닫혔다. 새 조건 2개: (N1) P08 채택 실패 시 baseline 유지 규칙(`phase_8_face_anonymization.md:58-59`)이 무조건 익명화를 요구하는 `project.md:780`(§22)·P07 선행 조건(`plan/00_index.md:14`)과 충돌하므로, 비채택 분기에서 P07이 무엇을 서빙하는지 소유자 결정으로 정할 것. (N2) checkpoint 결합 계약(`phase_8:73`)의 "규격이 없으면 거부"와 "규격이 없으면 원본 경로로 동작"이 같은 조건에 두 결과를 주므로 판별 규칙을 명시할 것.
+>
 > 1차 판정(커밋 `6f0f383` 대상): **조건부 합격** — (C1) 결정 반영 누락 정리: `docs/sot.md` 버전 로그에 project.md §22 변경 기록, `docs/plan/00_index.md:23`·`README.md:25`·`README.md:87`의 "무처리(DB-03)" 현행 서술 갱신. (C2) P08 계획에 익명화 규격이 checkpoint에 결합되어 evaluate·calibrate·score로 전달되는 계약을 명시. (C3) P08 결과가 나쁠 때(단서 잔존·지표 하락)의 채택/중단 분기와 P07이 쓸 checkpoint를 정하는 사전 규칙 또는 소유자 결정 지점을 계획에 명시.
 
 - 결정 자체(DB-06 C 선택·일자·근거·Resolved)와 옵션 표 보존, 상호 링크, 인덱스 상태는 맞다.
@@ -246,3 +248,52 @@ Hardening 반영: H1 `:29-32`, H2 `:33-37`, H3 `:40`, H4 `:38`·`:42`, H5 `:51`,
 ### 2차 판정
 
 **조건부 합격** — N1(소유자 결정 Q5와 그에 맞춘 §22·`plan/00_index.md:14`·`phase_8:59` 정합)과 N2(`phase_8:73` 판별 규칙과 P08-02 양방향 검증 셀)를 닫으면 합격이다. 두 조건 모두 문서 수정으로 닫히며, P08-01(이미지 측정)은 N1·N2와 무관하므로 소유자가 원하면 먼저 시작해도 된다.
+
+## 3차 검증 (2026-10-11, 커밋 `397abf2`)
+
+### 대상·방법
+
+- 대상: 커밋 `397abf2`. N1·N2, H17–H21, 소유자 결정 Q5 = A의 반영. 작업 트리 clean에서 시작했다.
+- 방법:
+
+```bash
+git show --stat 397abf2
+git show 397abf2 -- docs/project.md docs/plan docs/decision_briefs HANDOFF.md docs/daily_logs CHANGELOG.md README.md docs/sot.md
+grep -n 'null\|score CLI' docs/plan/phase_8_face_anonymization.md
+sed -n 526,536p docs/project.md
+```
+
+### 2차 조건·Hardening 재확인
+
+| 항목 | 근거 | 판정 |
+| --- | --- | --- |
+| N1 비채택 분기 | `phase_8:66`: primary를 교체하지 않고, P07 대기, P08 재시도, 재실패면 소유자에게 다시 묻는다. §22는 바꾸지 않는다. `plan/00_index.md:14`: P07 선행 조건이 "채택된 익명화 artifact(미채택이면 P08 재시도, Q5)"다. `project.md:780`(§22)는 변경 없음. 세 문서가 이제 같은 말을 한다. | 닫힘 |
+| N1 기록 | `work_log.md:179`: Q5 결정과 근거(알려진 단서가 있는 모델을 내보내지 않음, §22 유지). HANDOFF `:23`도 맞다. | 닫힘 |
+| N2 판별 규칙 | `phase_8:80-84`: 키 유무로 판별한다. 새 학습 config에 키가 없으면 거부, 키는 있는데 내용·sha가 틀리거나 YuNet sha가 다르면 모든 하류가 거부, legacy는 평가 도구에서만 원본 입력, score·API는 키가 없으면 거부. `:51-56`에 양방향 검사 셀이 있다. | 닫힘. 단, `null` 분기 문제는 R1 |
+| H17 | `plan/00_index.md:14`: P07 완료 근거에 `faces_anonymized`·`model_version`, §22 예시·README 갱신, 데모 표시가 들어갔다. | 닫힘 |
+| H18 | `DB-06:63` "(소유자 지시: 계획 독립검증 합격 후 착수)" | 닫힘 |
+| H19 | `project.md`: 익명화 문단이 "특히 blur…" 뒤, `---` 앞으로 옮겨졌다. 의미 변화 없음. | 닫힘 |
+| H20 | `phase_8:31-33`: 사분위 3점 ±15%, 사람 영역 대비, 경계 ±1px | 닫힘. 측정 가능성은 H22 |
+| H21 | `phase_8:40-41`: 50장씩 최대 400장까지 늘리고, 그래도 미달이면 관문 미통과 | 닫힘 |
+
+### 새 발견
+
+**R1 (차단) — 명시적 `null` 키 checkpoint의 score·API 처리가 정해지지 않음**
+
+- `phase_8:81`은 새 학습 config에 "규격, 또는 명시적 `null`"을 허용한다. 그러면 키는 있지만 값이 `null`인 checkpoint가 생긴다(예: 이후 무처리 대조 재학습).
+- `:84`는 score CLI·API가 "키가 **없는**" checkpoint만 거부한다고 한다. `:82`의 거부 조건은 "내용·sha256이 맞지 않음"인데, `null`에는 비교할 sha가 없다.
+- 그 결과 `null` checkpoint는 score·API를 원본 입력으로 통과할 수 있다. §22(`project.md:780`, 모든 추론은 익명화)와 충돌한다. N2와 같은 종류의 미추적 분기다.
+- 수정 제안:
+  - `:84`를 "score CLI·API는 키가 없거나 `null`이면 거부"로 고친다.
+  - `:55`에 "`null` 키 checkpoint를 score·API가 거부" 셀을 더한다.
+  - 평가 도구에서 `null`은 원본 입력으로 동작하게 하고, 그 통과 방향 셀도 둔다.
+
+### 3차 Hardening (비차단)
+
+- **H22** `phase_8:31-32`: "사람 영역(K-Fashion 부위 rect의 합집합 높이)" 기준은 REAL에만 rect 라벨이 있다(`project.md:235`). GEN에는 라벨이 없다. 합성 원 쪽 사람 영역을 어떻게 잴지(같은 표본 수동 표시 등)를 `anonymize_measure.yaml`에 적는다. ±15% 기준을 두 정규화 모두에 걸지, 하나에만 걸지도 함께 적는다.
+- **H23**: score CLI가 키 없는 checkpoint를 거부하게 되면, HANDOFF `:26`의 baseline score 실행 명령이 P08-02 구현 시점부터 동작하지 않는다. 그 구현 커밋에서 HANDOFF·README 실행 예시를 함께 고친다.
+- **H24**: Q5는 P07 일정에 영향을 주는 소유자 결정이다. CHANGELOG에는 Q1–Q4 행(`CHANGELOG.md:34`)만 있다. 다음 CHANGELOG 갱신 때 Q5를 한 줄 덧붙인다(records 가이드의 "주요 변경을 이끈 사용자 결정" 규칙).
+
+### 3차 판정
+
+**조건부 합격** — R1(`null` 키 분기를 score·API에서 거부하고 검증 셀 추가)만 남았다. 한 줄짜리 계약 수정과 셀 한 개로 닫힌다. P08-01은 R1과 무관하다.

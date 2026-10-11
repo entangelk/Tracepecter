@@ -28,7 +28,7 @@
 1. **P08-01 원 규격·검출 관문 측정** (이미지만 사용, 모델 결과 없음)
    - 측정 전에 기준을 적고 커밋한다(`configs/anonymize_measure.yaml`): 표본 seed·크기, "맞췄다"의 기준, 판정 방법.
    - 원 모양·크기: REAL 무작위 표본(검토군 밖, 150장 이상)에 사람이 원/타원과 크기(장축·단축, 이미지 너비 대비)를 표시한다. Hough 검출기는 타원을 놓치므로 쓰지 않는다.
-     - 크기는 이미지 너비 대비와 사람 영역(K-Fashion 부위 rect의 합집합 높이) 대비로 잰다.
+     - 크기는 이미지 너비 대비로 잰다. 맞춤 기준은 이 척도에 적용한다. 보조 척도로 사람 영역 대비 크기도 보고한다: REAL은 K-Fashion 부위 rect 합집합 높이, GEN은 rect가 없으므로 측정 표본에서 사람 영역을 손으로 표시한다. 보조 척도에는 관문을 두지 않는다. 방법은 `anonymize_measure.yaml`에 적는다.
      - 맞춤 기준: 합성 원 크기 분포의 1사분위·중앙값·3사분위가 각각 REAL의 ±15% 안이어야 한다. 타원 비율이 20% 이상이면 REAL 축비 분포에서 뽑은 타원을 쓴다.
    - 경계 질감: REAL 원 경계의 번짐 폭(순백에서 배경까지의 전이 픽셀 수)을 잰다. 합성 원도 같은 폭으로 경계를 처리하고, 전이 폭 중앙값이 REAL의 ±1px 안이면 맞춘 것으로 본다(GEN은 PNG라 경계가 선명하다).
    - YuNet 재현율 관문:
@@ -52,7 +52,8 @@
      - checkpoint 결합 계약(아래)의 양방향 셀:
        - 키 없는 legacy checkpoint는 평가 도구에서 원본 입력으로 동작한다.
        - 키가 있는데 내용·sha256이 틀리면 거부한다.
-       - score CLI와 API는 키가 없어도 거부한다.
+       - score CLI와 API는 키가 없거나 `null`이어도 거부한다.
+       - 키가 `null`인 checkpoint는 평가 도구에서 원본 입력으로 동작한다.
        - 새 학습 config에 키가 없으면 거부한다.
 3. **P08-03 진단·채택 규칙 사전 고정** — 학습 결과를 보기 전에 config(`configs/anonymized_diagnostic.yaml`)를 커밋한다.
    - 2×2 평가: {baseline, 새 모델} × {원본 입력, 익명화 입력}에서 val·Test A·Test B 지표를 낸다. 재학습 효과와 입력 변화 효과를 나눠 보기 위해서다.
@@ -81,7 +82,8 @@
   - 새 학습 config는 익명화 키를 반드시 적는다(규격, 또는 명시적 `null`). 키가 없으면 학습을 거부한다.
   - 키가 있는데 내용·sha256이 맞지 않거나 YuNet 파일 sha256이 다르면 모든 하류가 거부한다.
   - 키가 없는 legacy checkpoint(기존 baseline·DINO)는 평가·calibration 도구에서만 원본 입력으로 동작한다. 익명화 입력으로 평가하려면 규격을 명시적으로 넘겨야 한다.
-  - score CLI와 API는 키가 없는 checkpoint도 거부한다(§22: 모든 추론은 익명화).
+  - score CLI와 API는 키가 없거나 `null`인 checkpoint도 거부한다(§22: 모든 추론은 익명화).
+  - 이 규칙을 구현하는 커밋에서 HANDOFF·README의 baseline score 실행 예시도 함께 고친다(baseline은 키가 없어 score CLI에서 거부된다).
 - **얼굴 좌표 캐시**: `experiments/p08_anonymized/face_boxes.csv`(Git 추적)로 둔 파생 artifact다.
   - 키: `image_id`, 이미지 sha256, 검출기 sha256, 검출 파라미터 해시
   - 값: 얼굴 상자 목록. 얼굴이 없는 이미지도 빈 목록 행으로 남겨 "검출 안 함"과 "얼굴 없음"을 구분한다.
