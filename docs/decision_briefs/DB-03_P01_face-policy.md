@@ -44,3 +44,7 @@ DB-01(옵션 A)로 도메인을 착용컷 패션으로 확정하면서 REAL·AI 
 - 일자: 2026-10-07
 - 근거: 소유자 결정(추천 수용). 얼굴 shortcut 위험은 프롬프트 정합(P01-04) + P06 failure analysis 재검 트리거로 관리한다.
 - 반영: `docs/plan/phase_1_data_pipeline.md`(제외 항목 — "결정 전 어떤 얼굴 전처리도 구현하지 않는다" 조항은 결정으로 소멸, 무처리 확정), `README.md` Known limitations, `docs/decision_briefs/00_index.md`.
+
+## 재상정(2026-10-11)
+
+P06-04에서 트리거가 발동했다. 얼굴이 보이지 않는 GEN이 REAL로 통과하는 오류가 몰리고, 원인은 얼굴 노출의 클래스 비대칭이다. 공통 블러(B)는 이 비대칭을 풀지 못해 선택지를 다시 짰다. 후속 결정: [DB-06](DB-06_P06_face-exposure.md).
