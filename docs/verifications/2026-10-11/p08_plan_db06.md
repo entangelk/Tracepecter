@@ -1,6 +1,8 @@
 # 독립검증 — DB-06 C 확정 기록 · `project.md` §22 전처리 조항 · P08 계획
 
-**조건부 합격** — (C1) 결정 반영 누락 정리: `docs/sot.md` 버전 로그에 project.md §22 변경 기록, `docs/plan/00_index.md:23`·`README.md:25`·`README.md:87`의 "무처리(DB-03)" 현행 서술 갱신. (C2) P08 계획에 익명화 규격이 checkpoint에 결합되어 evaluate·calibrate·score로 전달되는 계약을 명시. (C3) P08 결과가 나쁠 때(단서 잔존·지표 하락)의 채택/중단 분기와 P07이 쓸 checkpoint를 정하는 사전 규칙 또는 소유자 결정 지점을 계획에 명시.
+**조건부 합격** — (2차, 커밋 `a412f74`) 1차 C1–C3은 닫혔다. 새 조건 2개: (N1) P08 채택 실패 시 baseline 유지 규칙(`phase_8_face_anonymization.md:58-59`)이 무조건 익명화를 요구하는 `project.md:780`(§22)·P07 선행 조건(`plan/00_index.md:14`)과 충돌하므로, 비채택 분기에서 P07이 무엇을 서빙하는지 소유자 결정으로 정할 것. (N2) checkpoint 결합 계약(`phase_8:73`)의 "규격이 없으면 거부"와 "규격이 없으면 원본 경로로 동작"이 같은 조건에 두 결과를 주므로 판별 규칙을 명시할 것.
+
+> 1차 판정(커밋 `6f0f383` 대상): **조건부 합격** — (C1) 결정 반영 누락 정리: `docs/sot.md` 버전 로그에 project.md §22 변경 기록, `docs/plan/00_index.md:23`·`README.md:25`·`README.md:87`의 "무처리(DB-03)" 현행 서술 갱신. (C2) P08 계획에 익명화 규격이 checkpoint에 결합되어 evaluate·calibrate·score로 전달되는 계약을 명시. (C3) P08 결과가 나쁠 때(단서 잔존·지표 하락)의 채택/중단 분기와 P07이 쓸 checkpoint를 정하는 사전 규칙 또는 소유자 결정 지점을 계획에 명시.
 
 - 결정 자체(DB-06 C 선택·일자·근거·Resolved)와 옵션 표 보존, 상호 링크, 인덱스 상태는 맞다.
 - 인용 수치(0.4%·64.5%·1.7%/0.24%·p = 0.005·7.6% [5.7, 9.5]·흰 원 25%/31%)는 원자료와 일치한다.
@@ -161,3 +163,86 @@ sed -n 40,52p docs/plan/phase_8_face_anonymization.md
 sed -n 97,105p src/evaluate.py; sed -n 36,42p src/calibrate.py; sed -n 36,40p src/score.py
 sed -n 53,60p experiments/p06_failure_analysis/patterns/README.md
 ```
+
+## 2차 검증 (2026-10-11, 커밋 `a412f74`)
+
+### 대상·방법
+
+- 대상: 커밋 `a412f74`. 1차 C1–C3·H1–H16 반영과 소유자 결정 Q1–Q4(모두 추천안)의 반영. 작업 트리 clean에서 시작했다.
+- 방법:
+
+```bash
+git show --stat a412f74
+git show a412f74 -- docs/project.md docs/sot.md README.md docs/plan/00_index.md docs/decision_briefs HANDOFF.md CHANGELOG.md docs/daily_logs
+cat -n docs/plan/phase_8_face_anonymization.md
+grep -n 'checkpoint_sha256' experiments/p05_calibration/calibration.json
+grep -n '얼굴 익명화\|입력 전처리' docs/project.md
+grep -n '승인 대기' docs/decision_briefs/DB-06_P06_face-exposure.md docs/plan/*.md HANDOFF.md
+```
+
+### 1차 조건 재확인
+
+| 항목 | 근거 | 판정 |
+| --- | --- | --- |
+| C1 sot 버전 로그 | `sot.md:3`(최종 갱신 2026-10-11), `sot.md:56`(project.md v1.4 행) | 닫힘 |
+| C1 페이즈 색인 비고 | `plan/00_index.md:23`(DB-03을 DB-06 C가 대체) | 닫힘 |
+| C1 README | `README.md:25`, `README.md:87`(현 baseline 무처리, P08 이후 익명화, 얼굴 영역 미반영, 미검출 얼굴 잔존) | 닫힘 |
+| C2 checkpoint 결합 | `phase_8:73`(규격 전체 + sha256 저장, 하류는 checkpoint 규격만 사용, 누락·불일치·YuNet sha 불일치 시 거부) | 닫힘. 단, 같은 문장 안의 판별 문제는 N2 |
+| C3 채택 규칙 | `phase_8:57-59`(§20 기준 + "단서 해소"일 때만 primary 교체), `:50`·`:87`(학습 전 커밋·git 순서 확인) | 닫힘. 단, 비채택 분기의 하류 영향은 N1 |
+
+Hardening 반영: H1 `:29-32`, H2 `:33-37`, H3 `:40`, H4 `:38`·`:42`, H5 `:51`, H6 `:50`·`:87`, H7 `:63`, H8 `:61-64`, H9 `:70-72`, H10 `:74-77`, H11 `:78-81`, H12 `:55`, H13 `decision_briefs/00_index.md:9`·`DB-06:4`, H14 `plan/00_index.md:19`, H15 `:91`, H16 `:53`. 모두 반영됐다.
+
+사실 확인: baseline checkpoint sha `151244…`(`phase_8:22`)는 `experiments/p05_calibration/calibration.json:5`와 일치한다. YuNet sha `8f2383e4…`는 `configs/face_mask_ci.yaml:16`과 일치한다.
+
+소유자 결정 반영: Q1 `project.md:530`(§15), `:780`(§22 → §15 참조). Q2 `project.md:835`(§23), `README.md:87`. Q3 `phase_8:66`. Q4 `phase_8:57-59`. work log `work_log.md:170-174`에 결정과 근거가 한국어로 있고, CHANGELOG `:34`와 HANDOFF `:20-24`가 서로 맞다.
+
+### 새 발견
+
+**N1 (차단) — 비채택 분기와 §22·P07의 충돌**
+
+- `phase_8:59`: 채택 규칙을 만족하지 못하면 "baseline을 유지"한다.
+- `project.md:780`(§22): 추론은 조건 없이 "점수를 계산하기 전에 … 흰 원으로 가린다"이고, "학습·평가와 똑같은 전처리"를 쓴다. §15(`:530`)는 "P08 이후 모델은"으로 한정했지만 §22에는 한정이 없다.
+- `plan/00_index.md:14`: P07은 "새 checkpoint·calibration artifact"를 선행 조건으로 둔다.
+- 비채택이면 P07은 다음 중 하나가 되어 어느 쪽이든 사양을 어긴다.
+  - baseline을 원본 입력으로 서빙하면 §22 위반.
+  - baseline에 익명화 입력을 넣으면 "학습·평가와 똑같은 전처리" 위반.
+  - 새 checkpoint를 쓰면 채택 규칙 위반.
+- 사양 문서 사이의 모순이므로 검증자가 고르지 않는다(아래 Q5).
+
+**N2 (차단) — fail closed와 "규격 없음 = 원본 경로"의 판별 불가**
+
+- `phase_8:73`은 "규격이 없거나 … 거부한다"고 한 뒤, 같은 문단에서 "baseline checkpoint는 규격이 없으므로 원본 입력 경로로 동작"한다고 한다.
+- 같은 관측("checkpoint config에 규격 없음")에 결과가 둘이다. 그러면 규격이 빠진 익명화 checkpoint가 조용히 원본 경로로 평가된다. C2가 막으려던 실패가 그대로 남는다.
+- 판별 규칙이 필요하다. 예:
+  - 하류 도구(evaluate·calibrate·failure_analysis)에서는 키가 없으면 원본 경로로 둔다(기존 checkpoint 호환). 키가 있는데 내용·sha가 틀리면 거부한다.
+  - score CLI와 API는 §22에 따라 규격이 없으면 거부한다.
+  - 새 학습 config에는 익명화 키를 항상 명시한다(규격 또는 명시적 `null`). `configs/anonymized.yaml`로 만든 checkpoint에 규격이 없으면 학습 단계에서 거부한다.
+- 이 규칙은 P08-02 검증 목록(`phase_8:44-49`)의 "checkpoint 결합 계약 위반 시 거부" 셀에 양방향으로 넣어야 한다.
+  - 거부 방향: 키는 있고 sha 불일치, score·API에서 규격 없음.
+  - 통과 방향: 하류 평가에서 baseline 키 없음.
+
+**§22 Output 예시에 `faces_anonymized`가 없는 점 — 모순 아님(비차단)**
+
+- §22 Output(`project.md:767-776`)은 예시다. 같은 절이 "상세 계약은 P08에서 정하고 P07에서 구현"(`:780`)으로 세부를 위임했고, 계획이 필드를 확정했다(`phase_8:80`).
+- §23(`:835`)의 표시 요구는 이 필드로 충족된다. 필드를 더하는 변경이라 기존 필드와 충돌하지도 않는다.
+- 다만 정본이 계획에만 있는 상태다. P07에서 API를 구현하는 커밋에 §22 예시와 `README.md:65-72` 예시를 함께 갱신하고 sot 버전 로그에 남기기를 권한다. `model_version: "v0.1"` 예시도 같은 시점에 바꾼다(H17).
+
+### 2차 Hardening (비차단)
+
+- H17: 위 §22/README 예시 갱신 시점 명시(P07 완료 조건에 넣기).
+- H18 `DB-06:63`: P08 계획 "(승인 대기)" → "(검증 합격 후 착수)" 등 현행 상태로.
+- H19 `project.md:530`: 익명화 문단이 "강한 augmentation…"(`:528`)과 "특히 blur…"(`:532`) 사이에 들어가 하나의 주의 문단을 끊는다. `:532` 뒤로 옮기면 읽기가 낫다(의미 변화 없음).
+- H20 `phase_8:31`: 크기 맞춤이 중앙값 하나뿐이다. 분위수(예: 25·75%)도 같은 허용폭으로 보거나, 이미지 너비 기준 외에 사람 rect 대비 크기를 보조 지표로 보고한다. 경계 폭 "같은 폭"에도 허용폭을 `anonymize_measure.yaml`에 적는다.
+- H21 `phase_8:37`: 양성이 80장 미만이면 관문 미달인지 표본 추가인지를 적는다(150장이면 기대 양성 약 97장이라 드물다).
+
+### 소유자 확인 (CLAUDE.md §1)
+
+- **Q5** P08 채택 규칙을 통과하지 못하면 P07은?
+  - A: P07을 보류하고 P08을 다시 돈다(검출 보강·원 규격 조정). §22는 그대로 둔다.
+  - B: §22에 "채택된 익명화 모델에 한함"을 넣는다. 비채택이면 P07은 baseline을 원본 입력으로 서빙하고, 데모와 README에 얼굴 단서 한계를 표시한다.
+  - C: 결과를 보고 그때 소유자가 정한다. 대신 §22와 P07 선행 조건에 "P08-06 판정 후 소유자 결정"을 명시한다.
+  - 검증자 의견: 채택 규칙을 먼저 고정한 취지와 맞는 것은 A 또는 B다. C는 사전 고정의 의미를 약하게 한다.
+
+### 2차 판정
+
+**조건부 합격** — N1(소유자 결정 Q5와 그에 맞춘 §22·`plan/00_index.md:14`·`phase_8:59` 정합)과 N2(`phase_8:73` 판별 규칙과 P08-02 양방향 검증 셀)를 닫으면 합격이다. 두 조건 모두 문서 수정으로 닫히며, P08-01(이미지 측정)은 N1·N2와 무관하므로 소유자가 원하면 먼저 시작해도 된다.

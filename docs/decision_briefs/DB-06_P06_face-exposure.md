@@ -60,6 +60,6 @@
 - 근거: 소유자 결정(추천 수용). 얼굴 보임과 흰 원, 두 단서를 같은 변환으로 함께 없애고, 학습 분포 변화가 가장 작다.
 - 반영:
   - `docs/project.md` v1.4 §15·§22·§23(전처리·추론·데모 표시), `docs/sot.md` 버전 로그
-  - 재학습 페이즈 [P08 계획](../plan/phase_8_face_anonymization.md)(승인 대기)
+  - 재학습 페이즈 [P08 계획](../plan/phase_8_face_anonymization.md)(소유자 지시: 계획 독립검증 합격 후 착수)
   - `docs/plan/00_index.md`, `00_index.md`
   - DB-03 재상정 절
