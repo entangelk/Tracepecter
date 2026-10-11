@@ -1,6 +1,7 @@
 """P06-04: 오류가 얼굴 노출·흰 원·구도·생성기·부위 중 어디에 몰리는지 정상 분류 표본과 비교한다.
 
 대상은 P06-01 원본 logit이 있는 test·test_unseen·val 2,220장이다. 얼굴은 P06-02c YuNet 설정, 흰 원은 P06-02b 검출 결과를 쓴다.
+학습 분포 확인용으로 train split의 얼굴 상태도 센다(오류 집계에는 넣지 않는다).
 실행: docker compose --profile training run --rm -T train python -m scripts.p06_patterns
 """
 from __future__ import annotations
@@ -20,6 +21,7 @@ from src.calibration import apply_temperature
 from src.face_mask_ci import detect_face
 from src.score import load_calibration
 
+METADATA = 'data/metadata.csv'
 CALIBRATION = 'experiments/p05_calibration/calibration.json'
 PREDICTIONS = 'experiments/p06_failure_analysis/predictions.csv'
 DISCS = 'experiments/p06_failure_analysis/face_mask/detections.csv'
@@ -39,6 +41,11 @@ def is_error(label: int, probability: float, threshold: float) -> bool:
     return (probability >= threshold) != (label == 1)
 
 
+def is_low_confidence(label: int, probability: float, threshold: float) -> bool:
+    """P06-01 정의: 오분류가 아니면서 score가 [10, 90]."""
+    return not is_error(label, probability, threshold) and 10 <= 100 * probability <= 90
+
+
 def wilson(k: int, n: int, z: float = 1.96) -> list[float] | None:
     if n == 0:
         return None
@@ -56,12 +63,12 @@ def fisher_greater(errors_a: int, n_a: int, errors_b: int, n_b: int) -> float:
 
 
 def crop_keeps_face(face, size) -> bool:
-    """P06-02 중앙 정사각 crop 뒤에도 얼굴 상자 중심이 남는가."""
+    """P06-02 중앙 정사각 crop(src/failure_analysis.py와 같은 정수 기하, 반열린 구간) 뒤에도 얼굴 상자 중심이 남는가."""
     x, y, w, h = face
     width, height = size
     side = min(width, height)
-    left, top = (width - side) / 2, (height - side) / 2
-    return left <= x + w / 2 <= left + side and top <= y + h / 2 <= top + side
+    left, top = (width - side) // 2, (height - side) // 2
+    return left <= x + w / 2 < left + side and top <= y + h / 2 < top + side
 
 
 def rate(rows, key='error') -> dict:
@@ -98,12 +105,15 @@ def summarize(features: list[dict]) -> dict:
     aspect = {f'{cls}/{a}': rate(by[('aspect', cls, a)])
               for cls in ('generated', 'real') for a in sorted({r['aspect'] for r in features}) if by[('aspect', cls, a)]}
     crop = {}
-    for keeps in (True, False):
-        rows = [r for r in features if not r['label'] and r['face_state'] == 'visible' and r['crop_keeps_face'] == keeps
-                and r['center_square_error'] is not None]
-        crop[f'gen_face_{"kept" if keeps else "removed"}_by_crop'] = dict(
-            n=len(rows), errors_original=sum(r['error'] for r in rows),
-            errors_center_square=sum(r['center_square_error'] for r in rows))
+    groups = dict(gen_face_kept_by_crop=lambda r: r['face_state'] == 'visible' and r['crop_keeps_face'],
+                  gen_face_removed_by_crop=lambda r: r['face_state'] == 'visible' and not r['crop_keeps_face'],
+                  gen_no_face_before_crop=lambda r: r['face_state'] == 'none')
+    for name, member in groups.items():
+        rows = [r for r in features if not r['label'] and r['center_square_error'] is not None and member(r)]
+        correct = [r for r in rows if not r['error']]
+        crop[name] = dict(n=len(rows), errors_original=sum(r['error'] for r in rows),
+                          errors_center_square=sum(r['center_square_error'] for r in rows),
+                          originally_correct=len(correct), new_errors=sum(r['center_square_error'] for r in correct))
     return dict(face_state=face, concentration_tests=tests, generator_by_face=generator, category=category,
                 aspect=aspect, center_crop=crop)
 
@@ -114,7 +124,7 @@ def main() -> dict:
     face_settings = yaml.safe_load(Path(FACE_CONFIG).read_text())['face_detector']
     if hashlib.sha256(Path(face_settings['model']).read_bytes()).hexdigest() != face_settings['model_sha256']:
         raise ValueError('face detector model sha256 mismatch')
-    meta = {r['image_id']: r for r in csv.DictReader(open('data/metadata.csv'))}
+    meta = {r['image_id']: r for r in csv.DictReader(open(METADATA))}
     logits = defaultdict(dict)
     for r in csv.DictReader(open(PREDICTIONS)):
         if r['condition'] in ('original', 'center_square'):
@@ -125,12 +135,22 @@ def main() -> dict:
     crop_ids = sorted(logits['center_square'])
     crop_probability = dict(zip(crop_ids, apply_temperature([logits['center_square'][i] for i in crop_ids], temperature)))
 
+    def load(row):
+        with Image.open(IMAGE_ROOT / Path(row['path']).relative_to('images')) as handle:
+            return np.asarray(handle.convert('RGB'))
+
+    train_states = defaultdict(lambda: defaultdict(int))
+    for image_id, row in meta.items():
+        if row['split'] == 'train':
+            label = int(row['label'])
+            state = face_state(label, image_id in discs, detect_face(load(row), **face_settings))
+            train_states['real' if label else 'generated'][state] += 1
+
     features = []
     for image_id in ids:
         row = meta[image_id]
         label = int(row['label'])
-        with Image.open(IMAGE_ROOT / Path(row['path']).relative_to('images')) as handle:
-            rgb = np.asarray(handle.convert('RGB'))
+        rgb = load(row)
         size = (rgb.shape[1], rgb.shape[0])
         face = detect_face(rgb, **face_settings)
         p = float(probability[image_id])
@@ -138,7 +158,7 @@ def main() -> dict:
         features.append(dict(
             image_id=image_id, split=row['split'], label=label, generator=row['generator'], category=row['category'],
             aspect=round(size[1] / size[0], 2), score=round(100 * p, 4), error=is_error(label, p, threshold),
-            low_confidence=not is_error(label, p, threshold) and 10 <= 100 * p <= 90,
+            low_confidence=is_low_confidence(label, p, threshold),
             disc=image_id in discs, face=face, face_state=face_state(label, image_id in discs, face),
             crop_keeps_face=None if face is None else crop_keeps_face(face, size),
             center_square_error=None if crop_p is None else is_error(label, float(crop_p), threshold)))
@@ -150,7 +170,9 @@ def main() -> dict:
         writer.writeheader()
         writer.writerows(features)
     report = dict(population=len(features), threshold_probability=threshold, temperature=temperature,
-                  splits=sorted({r['split'] for r in features}), **summarize(features))
+                  splits=sorted({r['split'] for r in features}),
+                  train_face_state={cls: dict(sorted(states.items())) for cls, states in sorted(train_states.items())},
+                  **summarize(features))
     (OUTPUT/'patterns.json').write_text(json.dumps(report, indent=2, ensure_ascii=False) + '\n')
     return report
 
