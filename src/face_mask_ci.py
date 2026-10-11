@@ -5,6 +5,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import cv2
@@ -155,7 +156,8 @@ def main(argv=None) -> dict:
     pooled = summarize(np.ones(len(targets), dtype=bool))
     subsets = dict(test=summarize(np.isin(splits, ['test', 'test_unseen'])), val=summarize(splits == 'val'))
     subsets.update({f'generator/{g}': summarize(generators == g) for g in sorted(set(generators))})
-    report = dict(calibration=settings['calibration'], checkpoint_sha256=artifact['checkpoint_sha256'],
+    report = dict(config=settings, git_commit=os.environ.get('GIT_COMMIT'),
+                  calibration=settings['calibration'], checkpoint_sha256=artifact['checkpoint_sha256'],
                   face_model_sha256=digest, temperature=temperature, threshold_probability=threshold,
                   candidates=len(candidates), excluded=excluded, targets=len(targets),
                   pooled=pooled, subsets=subsets, decision=decide(pooled, settings['decision']['min_flip_fraction']))
