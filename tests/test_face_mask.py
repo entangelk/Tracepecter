@@ -96,7 +96,8 @@ def test_decision_flips_counts_only_correct_to_wrong_at_calibrated_threshold():
     assert decision_flips([0.1, 0.1, 0.4], [0.75, 0.69, 0.6], [0, 0, 0], threshold) == 1
     assert decision_flips([0.9, 0.9, 0.8], [0.65, 0.71, 0.4], [1, 1, 1], threshold) == 2
     assert decision_flips([0.8, 0.3], [0.2, 0.9], [0, 1], threshold) == 0  # 틀렸던 판정이 맞게 바뀐 경우
-    assert decision_flips([0.1, 0.9], [threshold, threshold], [0, 1], threshold) == 1  # 경계값은 REAL 판정(≥)
+    assert decision_flips([0.1], [threshold], [0], threshold) == 1  # 경계값은 REAL 판정(≥): GEN은 전환
+    assert decision_flips([0.9], [threshold], [1], threshold) == 0  # REAL은 경계값이면 FN 아님
 
 
 @pytest.mark.parametrize('flips, count, shifts, expected', [
