@@ -1,0 +1,179 @@
+{
+  "real_discs": {
+    "confirmed": 150,
+    "size_ratio_quartiles": [
+      0.0726746875,
+      0.087776875,
+      0.1042103125
+    ],
+    "ellipse_fraction": 0.0,
+    "use_ellipse": false,
+    "edge_width_median_px": 2.0,
+    "edge_measured": 150,
+    "yunet_face_on_disc": {
+      "count": 0,
+      "of": 150
+    }
+  },
+  "synthetic": {
+    "gen_train_faces": 1084,
+    "face_ratio_quartiles": [
+      0.10392322677832383,
+      0.13596691535069394,
+      0.17617451227628267
+    ],
+    "size_match": {
+      "k": 0.6455752472842432,
+      "real_quartiles": [
+        0.0726746875,
+        0.087776875,
+        0.1042103125
+      ],
+      "synthetic_quartiles": [
+        0.0670902628259929,
+        0.087776875,
+        0.11373390432794213
+      ],
+      "within": [
+        true,
+        true,
+        true
+      ],
+      "k_in_range": false,
+      "passed": false
+    },
+    "selected_size": {
+      "k": 1.2,
+      "real_quartiles": [
+        0.0726746875,
+        0.087776875,
+        0.1042103125
+      ],
+      "synthetic_quartiles": [
+        0.1247078721339886,
+        0.1631602984208327,
+        0.2114094147315392
+      ],
+      "within": [
+        false,
+        false,
+        false
+      ],
+      "k_in_range": true,
+      "passed": false
+    },
+    "edge_sample": 100,
+    "edge_width_by_sigma": {
+      "0.0": 0.0,
+      "0.25": 0.0,
+      "0.5": 1.0,
+      "0.75": 2.0,
+      "1.0": 2.0,
+      "1.25": 3.0,
+      "1.5": 4.0,
+      "1.75": 4.0,
+      "2.0": 5.0,
+      "2.5": 6.0,
+      "3.0": 7.5
+    },
+    "sigma": 0.5,
+    "edge_passed": true
+  },
+  "recall": {
+    "train_gen": {
+      "positives": 97,
+      "detected": 86,
+      "recall": 0.8865979381443299,
+      "ci95": [
+        0.8083,
+        0.9355
+      ],
+      "passed": null,
+      "point_gate_passed": true,
+      "gate_applies": true,
+      "labels": "agent_only",
+      "owner_review_missing": [
+        "gen_000037",
+        "gen_000061",
+        "gen_000086",
+        "gen_000150",
+        "gen_000209",
+        "gen_000213",
+        "gen_000243",
+        "gen_000312",
+        "gen_000333",
+        "gen_000388",
+        "gen_000396",
+        "gen_000427",
+        "gen_000630",
+        "gen_000778",
+        "gen_000803",
+        "gen_000982",
+        "gen_001022",
+        "gen_001026",
+        "gen_001071",
+        "gen_001135",
+        "gen_001205",
+        "gen_001257",
+        "gen_001309",
+        "gen_001364",
+        "gen_001711",
+        "gen_001738",
+        "gen_001741",
+        "gen_001800",
+        "gen_001836",
+        "gen_001969",
+        "gen_001971",
+        "gen_001984",
+        "gen_001987",
+        "gen_002082",
+        "gen_002183",
+        "gen_002211",
+        "gen_002290",
+        "gen_002310",
+        "gen_002444",
+        "gen_002496"
+      ],
+      "n": 150
+    },
+    "test_gen_sd35": {
+      "positives": 71,
+      "detected": 61,
+      "recall": 0.8591549295774648,
+      "ci95": [
+        0.7598,
+        0.9217
+      ],
+      "passed": null,
+      "point_gate_passed": false,
+      "gate_applies": false,
+      "labels": "agent_only",
+      "owner_review_missing": [],
+      "n": 100
+    }
+  },
+  "owner_check": 40,
+  "provenance": {
+    "measurement_config_sha256": "65c1917804270e34a171bfeb75585d177d185604b390bfb4d7e3043dc15a198b",
+    "metadata_sha256": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+    "detector_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
+    "selected_anonymization": {
+      "face_detector": {
+        "model": "checkpoints/face/face_detection_yunet_2023mar.onnx",
+        "model_sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
+        "score_threshold": 0.9,
+        "nms_threshold": 0.3,
+        "top_k": 5000,
+        "min_size_ratio": 0.04
+      },
+      "shape": "circle",
+      "diameter_per_face": 1.2,
+      "fill": [
+        255,
+        255,
+        255
+      ],
+      "edge_sigma": 0.5
+    }
+  }
+}

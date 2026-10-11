@@ -2,11 +2,38 @@
 
 ## Goals
 
+- 중단된 P08-01을 이어받아 소유자 k=1.2 선택을 반영하고, 재현율 최종 확인 자료와 재측정을 준비한다.
 - P06-02b 원형 얼굴 가림 의존 진단의 독립검증을 받는다. blocking과 비차단 항목을 반영하고, 합격할 때까지 추적 검증을 반복한다.
 - P06-02c: 표본을 넓히고 구간으로 다시 판정한다. config는 결과보다 먼저 커밋한다.
 - P06-04: 오류 패턴 문서를 쓰고 DB-03 얼굴 트리거를 판정해 P06을 마친다.
 
 ## Completed work
+
+### P08-01 작업 재개 — 최종 확인 대기
+
+- 첨부된 이전 대화와 HEAD `dd680af`·미추적 측정 코드/CSV를 확인했다. 중단 지점은 원 크기 관문 실패 후 k=1.2 선택이며, 이전 에이전트의 육안 표시를 인계받았다.
+- `configs/anonymize.yaml`에 선택 규격을 두고 P08 계획·SoT·인계에 반영했다. 사전 고정 `configs/anonymize_measure.yaml`은 수정하지 않았다. 원 크기 실패 보고서는 `report_before_owner_decision.json`으로 보존했다.
+- `scripts/p08_measure.py`에 선택 k의 경계 재측정, Wilson 구간, 보고 전용 sd35 구분, 소유자 CSV 검사와 미완료 확인 상태를 추가했다. 40장 중 일부만 표시해도 `owner_final`이 되던 경로를 없앴다.
+- `scripts/p08_owner_review.html`과 owner 단계를 추가했다. 40장을 검출·1차 표시·선정 사유 없이 보고 CSV로 저장하는 로컬 자료다. 이미지 포함 생성물은 기존 비추적 경로 `reports/errors/review/p08/`에 둔다.
+- [측정 기록](../../../experiments/p08_anonymized/measure/README.md)에 원자료·잠정 수치·재현 명령·남은 작업을 명시했다. P08-01 완료와 독립검증 합격을 선언하지 않았다.
+
+### P08-01 재개 변경 독립검증·오늘 작업 마무리
+
+- 소유자 요청으로 서브 에이전트 `verify_p08_resume`에 독립검증을 맡겼다. [검증 기록](../../verifications/2026-10-11/p08_01_resume.md)의 최종 판정은 **합격**이며, 범위는 이번 재개 변경이다. P08-01 전체는 소유자 확인·보조 측정 등 잔여 계약 때문에 진행 중이다.
+- 최초 지적 B1: 선택 규격 불일치 거부 코드의 음성 테스트가 없었다. 검출기·모양·fill·지름 범위 밖 5개 거부와 k=1.0/1.6 정상 허용을 공개 측정 경로에서 검증하도록 보강했다. 독립 재검증에서 해소됐다.
+- 검증자는 focused 47 passed, 7종 변이의 재실패와 역편집 후 byte 복원을 확인했다. 다른 작업자의 dirty tree를 감사하므로 checkpoint commit 없이 backup·역편집 절차를 사용했다. 구현자가 수행한 파괴적 검증은 없다.
+- CPU 전량 독립 재측정의 `report.json`·`recall_detections.csv`·`recall_owner_check.csv`가 기존 산출물과 byte 동일했다. Node DOM 모형으로 HTML의 블라인드 자료·미완료 저장 거부·CSV 내보내기·확대/닫기 제어도 확인했다. 실제 브라우저 화면/OS 다운로드는 소유자 첫 확인 때 점검한다.
+- 다음 세션 첫 작업은 소유자 train 40장 확인으로 명시했다. 오늘은 추가 측정·재학습으로 범위를 늘리지 않고 검증 결과와 인계 상태를 로컬 커밋으로 보존한다.
+
+| 검증자 변이(`scripts/p08_measure.py`) | 재실패한 테스트 |
+| --- | --- |
+| 소유자 확인 누락을 무시해 최종 통과 | `test_owner_review_requires_every_selected_id_and_keeps_test_reporting_only` |
+| 완료된 확인도 항상 `passed=None` | 같은 테스트의 완료 허용 assertion |
+| 선택 k 대신 원래 분포 맞춤 k로 합성 | `test_measure_report_keeps_original_failure_and_waits_for_owner` |
+| 점추정 대신 Wilson 하한으로 재현율 관문 | `test_recall_gate_reports_wilson_and_rejects_low_recall_or_small_sample` |
+| sd35에 학습 관문 적용 | `test_owner_review_requires_every_selected_id_and_keeps_test_reporting_only` |
+| 선택 규격 검증 가드 제거 | `test_measure_report_keeps_original_failure_and_waits_for_owner`의 5개 거부 case |
+| 지름 양쪽 허용 경계를 `<`로 변경 | 같은 테스트의 k=1.0/1.6 두 정상 case |
 
 ### P06-02b 독립검증 루프 (5라운드, 최종 합격)
 
@@ -156,6 +183,13 @@
 
 ## Issues found
 
+- P08-01 소유자 최종 표시 오인
+  - 문제: 소유자 CSV에 한 행만 있어도 모든 pool의 표시를 `owner_final`로 기록했다.
+  - 원인: 필요한 40장의 완결성을 검사하지 않고 CSV 존재 여부만 사용했다.
+  - 수정: 필요한 ID와 제공된 ID를 비교한다. 확인 미완료면 관문 `passed=null`; 전부 확인하면 소유자 수정값과 나머지 1차 표시로 재계산한다.
+- P08-01 보고 누락·sd35 관문 오적용
+  - Wilson 구간이 없었고, 보고 전용 sd35 100장에도 양성 최소 80장 관문을 적용해 실패로 표시했다. 구간을 추가하고 sd35는 `gate_applies=false`, `passed=null`로 구별했다.
+
 - 전환 방향 계약 불일치(B3)
   - 문제: config는 "REAL 판정으로 바뀐"(한 방향)인데 코드는 `!=`(양방향)로 셌다.
   - 결과: 이번 실행에는 역방향 전환이 없어 수치 영향은 없었다. 코드를 config에 맞췄다.
@@ -168,6 +202,9 @@
 - 경계 여유: 전환율 6.2%의 95% Wilson 구간은 4.5~8.5%다. 세 GEN 조건을 같은 413장으로 맞추면 4.8%로 5% 기준 아래다. 사전 규칙상 판정은 성립하지만 경계에 가깝다. P06-02c에서 구간을 넣어 재확인한다.
 
 ## Decisions
+
+- **오늘 작업 종료·다음 시작점(소유자 지시, 2026-10-11)**: 이번 재개 변경을 서브 에이전트로 독립검증하고 오늘 작업을 마무리한다. 다음 작업은 소유자가 학습 GEN 40장 확인 페이지를 직접 표시하는 것부터 시작한다. 표시 후 재현율을 재계산하고 나머지 P08-01 작업을 진행한다.
+- **P08 원 크기 소유자 선택(첨부 이전 대화, 2026-10-11)**: k=1.2로 얼굴을 가리고 크기 단서를 별도 진단한다. 분포 맞춤 k=0.646은 얼굴 상자보다 작기 때문이다. 대가로 GEN 원이 이미지 너비 대비 더 커진다. P08-03에 REAL 원을 GEN 수준으로 키웠을 때 score 변화 진단을 추가하고, 사전 크기 관문 실패는 보존한다. 이미 응답된 선택을 다시 승인 요청하지 않았다.
 
 - P06-04: DB-03은 Resolved로 두고 재상정은 새 브리프 DB-06으로 올렸다. 결정은 소유자 몫이며, P06 완료와 별개다.
 - **DB-06 C 확정(소유자 결정)**: 공통 흰 원 익명화를 학습·평가·추론에 적용하고, 얼굴이 보이는 실사 평가 holdout을 함께 준비한다. 두 단서(얼굴 보임 → GEN, 흰 원 → REAL)를 같은 변환으로 함께 없애기 때문이다. 대가로 추론 API에 얼굴 검출 계약이 생기고, 검출 누락분은 남는다. `project.md` §22에 전처리 조항을 넣고, P08(§27 밖, DB-06 파생) 계획을 작성했다(승인 대기).
@@ -189,6 +226,10 @@
 
 ## Verification
 
+- P08-01 회귀 테스트를 수정 전에 실행해 5개 실패를 확인했다. 수정 후 공개 보고서 연결 셀까지 포함해 `tests/test_p08_measure.py`·`tests/test_face_mask_ci.py`·`tests/test_p06_patterns.py` **40 passed**(CPU dev 컨테이너, exit 0). 파괴적 변이 검증은 하지 않았다.
+- CPU 실측 `python -m scripts.p08_measure measure --anonymization-config configs/anonymize.yaml` exit 0. k=1.2에서 σ=0.5, 경계 전이 폭 중앙값 1px로 REAL 2px의 ±1px 허용 범위를 통과했다. 학습 GEN 잠정 재현율 86/97(88.66%, Wilson 80.83~93.55%), sd35 보고값 61/71(85.92%, Wilson 75.98~92.17%). 필요한 소유자 40장이 없어 최종 학습 관문은 `passed=null`이다.
+- 250장 표시 ID가 사전 표본 순서와 일치하고, 소유자 확인 40장(불일치 12 + 무작위 28)에 중복이 없음을 확인했다. 사전 측정 config는 `git show dd680af:configs/anonymize_measure.yaml`과 byte 동일하다.
+- 로컬 확인 HTML의 JavaScript는 `node --check` 통과. 40장 자료 생성 명령 exit 0. 실제 브라우저의 클릭·다운로드 동작은 아직 직접 확인하지 않았다.
 - `tests/test_face_mask.py` 22 passed, 전체 72 passed(dev 컨테이너, exit 0).
 - 전체 진단 GPU 재실행 1회(HEAD 코드). 0b494d1 이후 `src/`는 바뀌지 않았다.
 - 검증자의 HEAD GPU 재실행은 소유자의 다른 GPU 작업(ai_writte_system) 때문에 하지 않았다. 판정 조건은 아니다. CPU 검출 재실행은 byte 동일했다.
@@ -197,6 +238,6 @@
 
 ## Next steps
 
-- P08-01(원 규격·YuNet 재현율 측정)부터 시작.
+- **다음 작업의 첫 단계: 소유자가 학습 GEN 40장을 직접 확인·CSV 저장** → 재현율 재계산. sd35 소유자 확인·사람 영역 대비 보조 크기 측정·P08-01 전체 독립검증도 남았다. 그 뒤 P08-02, 재학습 전 P08-03 진단 규칙 고정.
 - 얼굴이 보이는 실사 평가 holdout 설계(최종 holdout 항목과 합침).
 - V1: stub 학습·calibration 비결정성의 원인을 조사한다(비차단).

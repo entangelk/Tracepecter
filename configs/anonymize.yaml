@@ -1,0 +1,14 @@
+# P08 익명화 규격의 정본. P08-02 구현 전이며 재현율은 소유자 확인 대기.
+# k=1.2: 2026-10-11 소유자 선택. 사전 크기 관문 실패를 유지하고 P08-03에서 크기 단서를 진단한다.
+face_detector:
+  model: checkpoints/face/face_detection_yunet_2023mar.onnx
+  model_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+  score_threshold: 0.9
+  nms_threshold: 0.3
+  top_k: 5000
+  min_size_ratio: 0.04
+shape: circle
+diameter_per_face: 1.2
+fill: [255, 255, 255]
+# P08-01 k=1.2 재측정: 전이 폭 1px(REAL 2px, 허용 ±1px). 단위는 원본 이미지 픽셀.
+edge_sigma: 0.5

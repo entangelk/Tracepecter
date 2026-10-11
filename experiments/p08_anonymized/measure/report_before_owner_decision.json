@@ -1,0 +1,81 @@
+{
+  "real_discs": {
+    "confirmed": 150,
+    "size_ratio_quartiles": [
+      0.0726746875,
+      0.087776875,
+      0.1042103125
+    ],
+    "ellipse_fraction": 0.0,
+    "use_ellipse": false,
+    "edge_width_median_px": 2.0,
+    "edge_measured": 150,
+    "yunet_face_on_disc": {
+      "count": 0,
+      "of": 150
+    }
+  },
+  "synthetic": {
+    "gen_train_faces": 1084,
+    "face_ratio_quartiles": [
+      0.10392322677832383,
+      0.13596691535069394,
+      0.17617451227628267
+    ],
+    "size_match": {
+      "k": 0.6455752472842432,
+      "real_quartiles": [
+        0.0726746875,
+        0.087776875,
+        0.1042103125
+      ],
+      "synthetic_quartiles": [
+        0.0670902628259929,
+        0.087776875,
+        0.11373390432794213
+      ],
+      "within": [
+        true,
+        true,
+        true
+      ],
+      "k_in_range": false,
+      "passed": false
+    },
+    "edge_sample": 100,
+    "edge_width_by_sigma": {
+      "0.0": 0.0,
+      "0.25": 0.0,
+      "0.5": 2.0,
+      "0.75": 2.0,
+      "1.0": 3.0,
+      "1.25": 3.0,
+      "1.5": 4.0,
+      "1.75": 4.5,
+      "2.0": 5.0,
+      "2.5": 6.0,
+      "3.0": 7.0
+    },
+    "sigma": 0.5,
+    "edge_passed": true
+  },
+  "recall": {
+    "train_gen": {
+      "positives": 97,
+      "detected": 86,
+      "recall": 0.8865979381443299,
+      "passed": true,
+      "labels": "agent_only",
+      "n": 150
+    },
+    "test_gen_sd35": {
+      "positives": 71,
+      "detected": 61,
+      "recall": 0.8591549295774648,
+      "passed": false,
+      "labels": "agent_only",
+      "n": 100
+    }
+  },
+  "owner_check": 40
+}

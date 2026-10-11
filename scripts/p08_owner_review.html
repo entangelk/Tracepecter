@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P08 얼굴 재현율 소유자 확인</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1000px;margin:auto;padding:20px;background:#f5f5f5;color:#222}
+header{position:sticky;top:0;background:#f5f5f5;padding:12px 0;border-bottom:1px solid #ccc}
+article{display:grid;grid-template-columns:1fr 1fr;gap:20px;background:white;padding:16px;margin:16px 0}
+img{width:100%;max-height:700px;object-fit:contain}button{padding:10px;margin:4px;font:inherit}
+dialog{max-width:95vw;max-height:95vh}dialog img{width:auto;max-width:85vw;max-height:85vh}
+button[aria-pressed=true]{background:#245ea1;color:white}h1{font-size:1.3rem}a{color:#245ea1}
+@media(max-width:650px){article{grid-template-columns:1fr}}
+</style>
+<header>
+<h1>P08 얼굴이 보이는지 확인</h1>
+<p>눈·코·입 중 둘 이상이 보이면 ‘보임’. 측면·부분 얼굴도 포함하며, 뒷모습과 프레임 밖은 제외합니다.
+사진을 누르면 크게 볼 수 있습니다. 모든 사진을 표시한 뒤 CSV를 저장하세요.</p>
+<strong id="progress"></strong> <button id="save">CSV 저장</button>
+<span id="status" role="status"></span>
+</header>
+<main id="cases"></main>
+<dialog id="zoom"><button id="close">닫기</button><img id="zoom-image" alt="확대 원본"></dialog>
+<script>
+const CASES = /*CASES*/null;
+const answers = {};
+const progress = document.querySelector('#progress');
+function update(){progress.textContent = `${Object.keys(answers).length} / ${CASES.length} 확인`;}
+for(const item of CASES){
+  const card = document.createElement('article');
+  const link = document.createElement('button');link.style.padding='0';
+  const img = document.createElement('img');img.src = `data:image/jpeg;base64,${item.image}`;img.alt = item.image_id;link.append(img);
+  link.onclick = ()=>{document.querySelector('#zoom-image').src=img.src;document.querySelector('#zoom').showModal();};
+  const controls = document.createElement('div');
+  const id = document.createElement('p');id.textContent = item.image_id;controls.append(id);
+  for(const [label,value] of [['보임',1],['안 보임',0]]){
+    const button = document.createElement('button');button.textContent = label;button.setAttribute('aria-pressed','false');
+    button.onclick = ()=>{answers[item.image_id]=value;for(const b of controls.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));update();};
+    controls.append(button);
+  }
+  card.append(link,controls);document.querySelector('#cases').append(card);
+}
+document.querySelector('#save').onclick = ()=>{
+  if(Object.keys(answers).length!==CASES.length){document.querySelector('#status').textContent='모든 사진을 확인해 주세요.';return;}
+  const csv = 'image_id,owner_face_visible\n'+CASES.map(item=>`${item.image_id},${answers[item.image_id]}`).join('\n')+'\n';
+  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const link = document.createElement('a');link.href=url;link.download='recall_labels_owner.csv';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  document.querySelector('#status').textContent='CSV를 저장했습니다. 페이지를 닫으면 선택 내용이 초기화됩니다.';
+};
+update();
+document.querySelector('#close').onclick = ()=>document.querySelector('#zoom').close();
+</script>
+</html>
