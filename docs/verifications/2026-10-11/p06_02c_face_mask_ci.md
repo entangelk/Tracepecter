@@ -2,6 +2,10 @@
 
 ## Verdict
 
+**합격** — (3차 확인, HEAD `d7a09f2`) 2차 비차단 R-H1–R-H3와 기록 갱신(Outstanding)이 반영됐다. `src/`·`tests/`는 `a8812f2` 이후 변경이 없다(`git diff a8812f2 HEAD -- src tests` 0줄). 묶음 bootstrap 스크립트는 README 수치를 그대로 재현한다. QA 표본도 note의 절차로 재현된다. 기록의 수치·커밋 순서·판정은 산출물·본 기록과 정합한다. 남은 것은 문구 수준 비차단 2건(T-H1, T-H2)이다. 상세는 아래 "3차 확인" 절에 있다.
+
+2차 판정(HEAD `a8812f2`, 이력 보존):
+
 **합격** — (2차 추적 검증, HEAD `a8812f2`) 1차 Blocking B1–B5가 모두 해소됐다. 1차 생존 변이 11개와 새 변이 6개를 포함해 변이 36개가 전부 이름 있는 셀에서 죽는다. H1–H6도 반영됐다. 재생성 산출물은 GPU 재실행에서 `detections.csv`·`predictions.csv`가 byte 동일하고, `report.json`은 output_dir만 다르다. 남은 것은 비차단 문구 보정 3건(R-H1–R-H3)과 기록 갱신(Outstanding)이다. 상세는 아래 "2차 추적 검증" 절에 있다.
 
 1차 판정(HEAD `97aaf12`, 이력 보존):
@@ -446,4 +450,64 @@ sed 's#^output_dir: .*#output_dir: /scratch/rerun2#' configs/face_mask_ci.yaml >
 docker compose --profile training run --rm -T -e GIT_COMMIT=$(git rev-parse b980841) -v $S:/scratch train python -m src.face_mask_ci --config /scratch/ci_rerun2.yaml
 cmp experiments/p06_failure_analysis/face_mask_ci/predictions.csv $S/rerun2/predictions.csv
 # 변이: 위 표의 치환을 하나씩 적용 → 집중 파일 → git checkout -- src/face_mask_ci.py → git status --short 비어 있음
+```
+
+## 3차 확인 (HEAD `d7a09f2`)
+
+### Subject metadata·Scope
+
+- 대상 커밋:
+  - `3856f5e`: 묶음 bootstrap 스크립트, look_group 문구, QA 추출 절차. 본 기록 2차 절도 이 커밋에 들어갔으며, 삭제 줄은 0이다.
+  - `d7a09f2`: work log·CHANGELOG·plan·HANDOFF 갱신
+- 시작 시 작업 트리는 clean이었다.
+- 범위:
+  1. 코드 무변경
+  2. R-H1–R-H3
+  3. 기록 4종의 정합성
+- 코드 변경이 없어 변이 테스트는 하지 않았다.
+
+### Methodology
+
+```bash
+git diff a8812f2 HEAD --stat; git diff a8812f2 HEAD -- src tests | wc -l     # 0
+git diff a8812f2 HEAD -- experiments/ CHANGELOG.md HANDOFF.md docs/plan/phase_6_failure_analysis.md docs/daily_logs/2026-10-11/work_log.md
+docker compose run --rm -T dev python scripts/p06_02c_cluster_bootstrap.py; echo exit=$?    # 파이프 없이 exit 확인
+python3 -c "…sorted 검출/미검출 id → random.Random(20261011): sample(found,40), sample(miss,20) == qa_sample.json"
+```
+
+### Findings
+
+- **코드**: `src/`·`tests/`는 0줄 변경이다. 2차의 변이 결과(36/36 사망)와 테스트 결과(24/96 passed)가 그대로 유효하다.
+- **R-H1**: `experiments/p06_failure_analysis/face_mask_ci/README.md:76`이 "look_group은 GEN 3,000행 모두 비어 있어 묶음을 정의할 수 없다"로 바뀌었다. metadata 집계(GEN 3,000행 NaN, 고유값 0)와 일치한다.
+- **R-H2**: `qa_sample.json:2`의 note에 추출 절차가 적혔다(정렬한 id 목록, 하나의 `random.Random(20261011)`, found 40 → miss 20). 그 절차대로 재실행하면 found·miss가 모두 일치한다(`True True`, 검출 1,320행).
+- **R-H3**: `scripts/p06_02c_cluster_bootstrap.py`
+  - 입력: temperature·threshold와 `config.bootstrap`(seed·resamples·interval)을 모두 `report.json`에서 읽는다(16–18행, 33–36행).
+  - 실행: exit 0. 출력은 `clusters 99, max_cluster 27, D1 [2.9179, 5.0791], D3 [5.6534, 9.3552], flip [0.0536, 0.1007]`다.
+  - README 71–74행의 D1 [2.92, 5.08], D3 [5.65, 9.36], F [5.36%, 10.07%], 여유 0.36%p와 일치한다.
+- **기록 정합성**:
+  - `docs/daily_logs/2026-10-11/work_log.md` P06-02c 절의 수치가 `report.json`·README와 같다. 대상 671(469/180), +12.54/+8.60/+1.19, D1 +3.94 [3.19, 4.72], D3 +7.41 [5.95, 8.88], F 7.6% [5.7, 9.5], 묶음 하한 5.36%다.
+  - 커밋 순서(`60bad9a` → `19ee42a` → `97aaf12`), 1차 생존 11개 → 2차 36개 사망·합격, 24/96 passed도 본 기록과 같다.
+  - Decisions에 소유자 결정(YuNet, test∪val 합산과 val 별도 보고, 구간 판정)과 GPU 실행 기준(다른 컨테이너가 떠 있어도 점유가 낮으면 실행)이 기록됐다.
+  - `CHANGELOG.md:31`, `docs/plan/phase_6_failure_analysis.md:78-82`, `HANDOFF.md`의 다음 작업 1(P06-04)과 GPU 주의 문구도 같은 수치·결정·판정을 쓴다. 모순은 없다.
+
+### Issues / Risks (3차)
+
+**Blocking**
+- 없음.
+
+**Hardening recommendations(비차단)**
+- **T-H1** work log의 구현자 변이 표(`docs/daily_logs/2026-10-11/work_log.md`, "P06-02c 변이 테스트" 표)가 "M27 YuNet 인자 순서"라고 쓴다. 본 기록의 M27은 "temperature 미적용"이고, YuNet 인자 교환은 M31이다. 같은 M 번호가 다른 변이를 가리키므로 구현자 측 번호를 C 계열로 바꾸거나 "검증자 M31"로 적는다.
+- **T-H2** `CHANGELOG.md:31`의 "독립검증 합격(2라운드)"는 합격 판정 시점 기준으로는 맞다. 이 3차 확인까지 포함하려면 "3라운드"로 바꾼다.
+- 본 기록 자체의 정정: 1차 Verdict 줄의 "변이 8개가 생존"은 경계 항목 8개를 센 것이다. 생존 변이 수는 11개다(1차 9절 표 기준). work log의 "11개"가 맞다.
+
+### Outstanding items(3차)
+
+- 없음(기록 갱신 완료). 이 3차 절과 상단 Verdict 갱신은 커밋하지 않았다.
+
+### Reproduction(3차)
+
+```bash
+cd /mnt/f/devel/Tracepecter
+git diff a8812f2 HEAD -- src tests | wc -l          # 0
+docker compose run --rm -T dev python scripts/p06_02c_cluster_bootstrap.py; echo exit=$?
 ```

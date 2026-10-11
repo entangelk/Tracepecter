@@ -105,7 +105,7 @@
 | C13 test 집합에 val 포함 | `main()` | `test_cli_builds_matched_targets_and_wires_rule_inputs[…]` |
 | C14 / C15 D2·D3 정의 오류 | `per_image` | `test_per_image_shifts_…` |
 | M13 / M14 크기 필터 `>` · 높이 기준 | `detect_face` | `test_detect_face_filters_small_boxes_by_width_inclusive_and_passes_yunet_settings` |
-| M27 YuNet 인자 순서 | `detect_face` | 같은 셀 |
+| C16 YuNet 인자 순서(검증자 M31) | `detect_face` | 같은 셀 |
 | M19 판정을 test 집합으로 | `main()` | `test_cli_decides_on_pooled_targets_with_configured_bootstrap` |
 | M24·M25·M26 재추출 수·seed·구간 | `main()` | 같은 셀 |
 
