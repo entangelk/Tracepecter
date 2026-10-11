@@ -10,8 +10,8 @@
 | P03 | Baseline 비교 — SigLIP vs DINO | Complete | P01: 전체 dataset 완료, P02: baseline 학습·평가 동작 | 동일 split DINO 10 epoch + latency/크기 비교 + primary SigLIP 선정([report](../../experiments/p03_comparison/README.md)) | — |
 | P04 | LoRA (조건부) | Planned | P03 (진입 조건: `docs/project.md` §17) | LoRA vs frozen 비교 결과 문서 — 유의미하지 않으면 baseline 유지 | — |
 | P05 | Score calibration | Complete | P03: primary encoder 선정 | val 820 temperature/threshold + 0~100 score CLI + 고정 Test 평가([보고서](../../experiments/p05_calibration/README.md)) | — |
-| P06 | Failure analysis | In Progress | P05: calibration artifact + 고정 Test A/B | `reports/errors/` 자동 저장 + 편향 통제 진단 + DB-05 기준 100개 이상 수동 검토 + 오류 패턴 문서([계획](phase_6_failure_analysis.md)) | [DB-05](../decision_briefs/DB-05_P06_review-set.md)(Resolved) |
-| P07 | API + Demo | Planned | P05 | `POST /score` API 응답 + web demo에서 score 출력 확인 | — |
+| P06 | Failure analysis | Complete | P05: calibration artifact + 고정 Test A/B | `reports/errors/` 자동 저장 + 편향 통제 진단 + 103건 수동 검토(실제 오류 15) + [오류 패턴 문서](../../experiments/p06_failure_analysis/patterns/README.md) — 슬라이스별 독립검증 합격([계획](phase_6_failure_analysis.md)) | [DB-05](../decision_briefs/DB-05_P06_review-set.md)(Resolved) · [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Open) |
+| P07 | API + Demo | Planned | P05 (입력 전처리 계약은 DB-06 결정에 따름) | `POST /score` API 응답 + web demo에서 score 출력 확인 | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Open) |
 
 ## 비고
 

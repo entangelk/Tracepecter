@@ -9,19 +9,20 @@
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/baseline/best.pt`. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
-- scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 실패 분석 대상이다.
+- scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 P06에서 분해했다(아래).
+- **P06(Failure analysis) Complete (2026-10-11)** — [오류 패턴 문서](experiments/p06_failure_analysis/patterns/README.md). 슬라이스별 독립검증 합격. 핵심: 얼굴이 보이지 않는 GEN이 REAL로 통과하는 단축 단서(개입 실험 확정)와, 그 원인인 얼굴 노출 비대칭(REAL 학습 0.4% 대 GEN 64.5%). DB-03 트리거 발동 → DB-06 Open.
 - P06 실행: `docker compose --profile training run --rm -T train python -m src.failure_analysis --config configs/failure_analysis.yaml` → `reports/errors/*/manifest.csv`(이미지 사본은 비추적)·`experiments/p06_failure_analysis/`. Test B NLL/Brier 악화는 오답 쪽으로 기운 12장(sd35 GEN 10, REAL FN 2) 때문으로 분해됐다.
 - 얼굴 검출 모델(P06-02c): YuNet `/mnt/h/tracepector/checkpoints/face/face_detection_yunet_2023mar.onnx`(컨테이너 `/app/checkpoints/face/`, sha256은 `configs/face_mask_ci.yaml`).
 - Test B는 Standard test REAL 448 + `test_unseen` FAKE 600(sd35_medium), 총 1,048장([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val REAL 제외, 두 테스트 간 REAL 공유.
 
 ## 다음 작업 (우선순위 순)
 
-1. **P06-04 오류 패턴 문서** — 얼굴 가림 진단은 끝났다. P06-02b·P06-02c 모두 독립검증 합격이다([P06-02c 보고서](experiments/p06_failure_analysis/face_mask_ci/README.md)).
-   - 결과: 흰 원 의존과 얼굴 가림 일반 의존이 모두 확정이다. 흰 원 전환율은 7.6% [5.7, 9.5]이고, prompt 묶음 기준 하한은 5.36%로 여유가 작다.
-   - 전환은 unseen sd35에 집중된다. z_image_turbo는 얼굴 없는 크롭이 대부분이다.
-   - 이 내용을 DB-03 얼굴 트리거 판정과 생성기별 구도·얼굴 노출 편향 정리에 반영한다.
-   - P06-03 완료(2026-10-10: 소유자 35건 + 에이전트 블라인드 103건, 체감 판정 일치 19/35, [P06 계획](docs/plan/phase_6_failure_analysis.md) 진행 상황 참고). 불일치 16건 재확인, 얼굴 노출·구도 편향 정리(P06-02·02b), DB-03 얼굴 트리거 판정. 검토 페이지 재생성: `DATA_DIR="/mnt/h/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다.
-2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
+1. **DB-06 소유자 결정 대기**(얼굴 노출 비대칭 대응, [브리프](docs/decision_briefs/DB-06_P06_face-exposure.md)).
+   - 추천은 C(공통 흰 원 익명화: 학습·평가·추론 전 구간) + 얼굴이 보이는 실사 평가 holdout이다.
+   - 결정이 나면 재학습 페이즈를 새로 계획하고(익명화 전처리 → 재학습·재calibration·P06-02c 개입 재검), P07 API 전처리 계약에 반영한다.
+   - C를 고르면 적용 전에 K-Fashion 흰 원의 모양·크기 분포와 YuNet 재현율을 먼저 잰다.
+   - P07(API + Demo)은 DB-06의 전처리 계약에 묶인다. 결정 전에는 착수하지 않는다.
+2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 
 ## 주의

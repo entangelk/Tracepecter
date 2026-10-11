@@ -1,6 +1,8 @@
 # P06-04 오류 패턴 문서 + DB-03 얼굴 트리거 판정 — 독립검증
 
-**조건부 합격** — 완료 조건 "Test B calibration 악화 분해"의 표본별 서술이 사실과 다르다(악화 12장은 "전부 sd35 GEN"이 아니라 sd35 GEN 10 + REAL FN 2). 또한 crop 민감도 해석 문장(`patterns/README.md:48`)이 같은 문서의 수치와 모순된다. 두 문장을 고치면 합격이다.
+**합격** — 2라운드(HEAD `bb1240f`)에서 B1·B2가 닫혔다. H1~H7도 반영됐다. 아래 "2라운드 재검증" 절에 근거를 적었다.
+
+(1라운드 판정, 기록 보존: **조건부 합격** — 완료 조건 "Test B calibration 악화 분해"의 표본별 서술이 사실과 달랐다(악화 12장은 "전부 sd35 GEN"이 아니라 sd35 GEN 10 + REAL FN 2). 또한 crop 민감도 해석 문장(`patterns/README.md:48`)이 같은 문서의 수치와 모순됐다.)
 
 - 숫자 재계산: 오류 15, 얼굴 상태표, 생성기별 오류, Fisher p(0.00521·0.511), low_confidence 15/5, crop 분해 7/4/0(합계 11 = P06-02의 11)가 원천 자료와 독립 구현으로 모두 일치한다. 재실행 산출물도 커밋본과 바이트 단위로 같다.
 - REAL 얼굴 노출 0.6%는 무작위 30장 육안 확인으로 지지된다. 미검출된 정면 얼굴은 0장이었다.
@@ -193,3 +195,56 @@ docker compose run --rm -T dev python -m pytest -q
 ```
 
 검증 스크립트(`recompute.py`, `analyze.py`)는 세션 scratch에 있으며 리포에 넣지 않았다. 핵심 로직은 위 "방법" 절에 적었다. Test B 악화 분해는 `nll(l,z,t) = −[l·log σ(z/t) + (1−l)·log(1−σ(z/t))]`를 t=1과 t=T에서 비교해 계산했다.
+
+## 2라운드 재검증(2026-10-11, HEAD `bb1240f`)
+
+### 대상과 방법
+
+- 대상 커밋: `2136a9b`(스크립트·테스트·patterns.json), `36df339`(1라운드 기록), `bb1240f`(문서 정정). 검증 시작 시 tree는 clean이었다.
+- 수정 요약은 믿지 않고 `git diff 79163f6..bb1240f`를 직접 읽었다.
+- 1라운드의 독립 재계산값(`recompute.json`)과 대조했다.
+- train split 얼굴 상태는 검증자가 따로 계산했다. `train_recompute.py`(scratch)가 cv2 YuNet을 config 값으로 직접 호출하고, REAL은 P06-02b 원 검출을 우선한다. 실행 명령은 `docker compose --profile training run --rm -T -v <scratch>:/v train python /v/train_recompute.py /v/train.json`이고 exit 0이었다.
+- 공식 스크립트 재실행(약 10분)은 생략했다. 대신 다음을 확인했다.
+  - 커밋된 features.csv가 1라운드 사본과 바이트 단위로 같다(`cmp`).
+  - patterns.json의 새 수치가 검증자 독립 계산과 일치한다.
+
+### 항목별 결과
+
+| 항목 | 확인 내용 | 결과 |
+| --- | --- | --- |
+| B1 | `patterns/README.md:29`, `experiments/p06_failure_analysis/README.md:46-47`(정정 주석 포함), `docs/plan/phase_6_failure_analysis.md:56`, `HANDOFF.md:13` 모두 "sd35 GEN 10(logit 양수) + REAL FN 2(1032814·1284862, logit 음수)"로 고쳤다. 1라운드 재계산 목록과 정확히 같고, 합계 +0.515·GEN +1.238·REAL −0.723도 유지된다 | **해소** |
+| B2 | `patterns/README.md:45-48`: "얼굴 노출 변화로 직접 설명되는 것은 4장뿐", 7장은 crop 전에도 얼굴 없음, 지지되는 주장은 "crop 뒤 얼굴이 남은 481장에서 새 FP 0", 구도·정보 손실 질문은 얼굴 없는 표본에 대해 열려 있음. 수치(336/7, 127/4, 481/0)는 1라운드 재계산과 같다 | **해소** |
+| H1 | `DB-06:32` C의 Cons에 YuNet 재현율 미측정(놓친 GEN 얼굴이 단서로 남음)과 합성 원 모양 불일치 위험이 들어갔다. 추천 근거 `:41`은 "검출된 얼굴에만 해당"으로 한정했다. Follow-up `:47`에 원 모양 분포 측정과 재현율 측정을 넣었다 | 반영 |
+| H2 | `scripts/p06_patterns.py:65-71`(`crop_keeps_face`)이 `//2`와 반열린 구간을 쓴다(`src/failure_analysis.py:73-75`와 같음). 테스트에 아래 끝(1023.5 유지 / 1024 배타)과 홀수 크기 케이스가 추가됐다 | 반영 |
+| H3 | `summarize()` center_crop에 `gen_no_face_before_crop`과 `originally_correct`·`new_errors`가 생겼다. patterns.json은 343/7/14/336/7, 127/0/4/127/4, 482/1/1/481/0이고 1라운드 독립 재계산과 같다 | 반영 |
+| H4 | patterns.json `train_face_state`: REAL disc 515 / visible 8 / none 1,577, GEN visible 1,084 / none 596. **검증자 독립 계산과 정확히 같다.** 얼굴이 보이는 train REAL ID는 268119·268179·199970·320196·261019·1036095·320031·319919다. README P3 표(`:57-58`)와 `:64`, DB-06 표(`:16-19`)와 `:22`가 train 수치를 쓴다 | 반영 |
+| H5 | `patterns/README.md:88-90`: 2813을 "아우터·니트"로 고쳤다. qwen은 에이전트 photo_like 2(0721·0914), ambiguous 2(0736·0972)로 적었다. 1409는 score 59.5 경계로 적었다. review CSV와 일치한다 | 반영 |
+| H6 | `patterns/README.md:60-61`: 흰 원 수는 하한이라고 적고 935906을 예로 들었다. 육안 30장 결과(프레임 밖 24, 뒷모습 3, 턱·입술 2, 놓친 타원 1, 놓친 얼굴 0)를 독립검증 출처로 인용했다. 1라운드 관측과 일치한다 | 반영 |
+| H7 | `is_low_confidence()`를 분리했다. 새 셀은 low_confidence 경계, REAL 검정 방향·low_confidence 합계·crop 새 오류, `main()`(features는 평가 split만, train 집계, sha 불일치 예외) | 반영 |
+| DB-03 | 재상정 절에 "REAL 대부분 얼굴 포함" 배경이 실측(학습 0.4%, 평가 0.6%)과 다르다고 적었다. Resolved 본문은 보존했다 | 반영 |
+
+### 테스트·변이
+
+- 집중 테스트: `docker compose run --rm -T dev python -m pytest tests/test_p06_patterns.py -q` → 10 passed, exit 0.
+- 전체: `docker compose run --rm -T dev python -m pytest -q` → 106 passed, exit 0.
+- 변이 11개를 돌렸다. 매번 `git status --short`가 비어 있는 상태에서 시작했고, `git checkout -- scripts/p06_patterns.py`로 복원한 뒤 clean을 다시 확인했다. **모두 실패했다(생존 0).**
+
+| 변이 | 내용 | 잡은 셀 |
+| --- | --- | --- |
+| N1 | crop 아래 끝 검사 삭제(1라운드 M4) | `test_crop_keeps_face_checks_face_centre_inside_centre_square` |
+| N2 | crop `//2` → `/2` | 같은 셀 |
+| N3 | 아래 끝 포함(`<=`) | 같은 셀 |
+| N4 | summarize low_confidence = 0(M6) | `test_summarize_real_tests_low_confidence_and_crop_new_errors` |
+| N5 | sha 검사 제거(M9) | `test_main_rejects_wrong_face_model_hash` |
+| N6 | REAL 검정 a/b 뒤바꿈(M10) | `test_summarize_real_tests_low_confidence_and_crop_new_errors` |
+| N7 | low_confidence에서 "오분류 아님" 제거(M11) | `test_low_confidence_excludes_errors_and_uses_inclusive_score_band`, `test_main_writes_features_and_counts_train_faces_separately` |
+| N8 | new_errors를 전체 행으로 셈 | `test_summarize_real_tests_low_confidence_and_crop_new_errors` |
+| N9 | train 집계에서 disc 무시 | `test_main_writes_features_and_counts_train_faces_separately` |
+| N10 | low_confidence 위 경계 배타(`< 90`) | `test_low_confidence_excludes_errors_and_uses_inclusive_score_band` |
+| N11 | originally_correct를 전체 행으로 셈 | `test_summarize_real_tests_low_confidence_and_crop_new_errors` |
+
+### 남은 사항
+
+- Blocking: 없음.
+- Hardening: 새로 제기할 항목이 없다. 1라운드 H1~H7은 모두 반영됐다.
+- Outstanding: work_log·CHANGELOG·계획서 P06 상태·HANDOFF 다음 작업, 계획서 "관련 결정 브리프"의 DB-06 링크는 이 판정 뒤 반영 예정이다(조정자 안내).
