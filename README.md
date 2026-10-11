@@ -22,7 +22,7 @@ Tracepecter는 이 판단의 부담을 이미지 쪽으로 되돌리는 도구�
 - **REAL**: AIHub K-Fashion 이미지 데이터셋(dataSetSn=51, 약 120만 장, 부위별 rect/polygon 라벨 포함) — 소유자 결정 2026-10-07, [DB-01](docs/decision_briefs/DB-01_P01_real-data-domain.md)
 - **Generated**: 로컬 오픈소스 생성기 5종으로 착용 패션 컷 생성(§9, [DB-02](docs/decision_briefs/DB-02_P01_ai-generators.md)) — train 4종(qwen_image_21·z_image_turbo·sdxl·playground_25) + unseen 1종(sd35_medium, Test B 전용). ComfyUI GPU 컨테이너(`Dockerfile.comfyui`) 경유 생성.
 - 카테고리: K-Fashion 부위 라벨 기반 4종 — 상의·하의·아우터·원피스(P01 확정, 대표 부위 우선순위 원피스 > 아우터 > 상의 > 하의)
-- 얼굴 영역: 무처리 정책(DB-03) — 프롬프트 정합 + P06 failure analysis 재검 트리거로 위험 관리
+- 얼굴 영역: 현재 baseline은 무처리(DB-03)다. P06에서 얼굴 노출 비대칭에 따른 단축 단서가 확인돼, P08부터는 검출된 얼굴을 양 클래스 모두 흰 원으로 익명화한다(DB-06, 학습·평가·추론 공통).
 - 규모(§7 최소 목표): REAL ≥3,000 + Generated ≥3,000. P01 파이프라인(선별·생성·dedup·group split)으로 구축하며, 이미지 실물은 저장소 밖(ext4)에 적재하고 `data/metadata.csv`(§12 v1.2)가 행 단위로 추적한다. 현재 진행 상태는 `HANDOFF.md`.
 
 ## Training 방법
@@ -84,7 +84,7 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 
 - 실제 촬영 여부의 forensic 증명이 아니다 — "실제 촬영처럼 *보이는* 정도"를 평가한다(§4).
 - 특정 생성 모델 탐지·EXIF/워터마크 판별·영상·얼굴 deepfake 탐지·artifact 영역 segmentation 은 범위 외(§4).
-- 착용컷에는 얼굴이 포함된다 — 무처리 정책(DB-03)이므로 점수에 얼굴 특성이 기여할 수 있으며, 얼굴 deepfake 판별이나 얼굴만의 위변조 증명은 범위 외다.
+- 얼굴: 현재 baseline(무처리)은 얼굴 노출 여부를 단축 단서로 쓴다(P06). P08 이후 모델은 검출된 얼굴을 흰 원으로 가리고 점수를 내므로 얼굴 영역은 점수에 반영되지 않는다. 검출되지 않은 얼굴(주로 측면)은 남는다. 얼굴 deepfake 판별이나 얼굴만의 위변조 증명은 범위 외다.
 - 모든 종류의 사진으로의 일반화는 보장하지 않는다(§4).
 
 ## Primary encoder

@@ -17,10 +17,11 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P08 계획 승인 대기**([계획](docs/plan/phase_8_face_anonymization.md)) — DB-06은 C(공통 흰 원 익명화)로 확정됐다(2026-10-11).
-   - 승인되면 P08-01부터 시작한다. P08-01은 모델 결과 없이 이미지만으로 K-Fashion 원의 모양·크기·경계 분포와 YuNet 재현율을 잰다. 재현율이 80% 미만이면 재학습 전에 소유자에게 묻는다.
-   - 기존 baseline checkpoint·calibration artifact는 덮어쓰지 않는다. 새 산출물은 `checkpoints/anonymized/`에 둔다.
-   - P07(API)은 P08의 전처리 계약과 새 artifact를 기다린다(`docs/project.md` §22 전처리 조항).
+1. **P08 착수**([계획](docs/plan/phase_8_face_anonymization.md)) — 소유자 지시: 계획 독립검증 합격 후 진행한다. DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
+   - 순서: P08-01 측정(이미지만) → P08-02 익명화 모듈 → P08-03 진단·채택 규칙 사전 고정(**재학습 결과 전에 커밋**) → P08-04 재학습 → P08-05 재calibration → P08-06 판정. P08-07 holdout 설계는 병행하며 P07의 관문이 아니다.
+   - P08-01 관문: YuNet의 보이는 얼굴 재현율이 80% 미만이면 재학습 전에 소유자에게 묻는다.
+   - 채택 규칙: §20 AUC 기준과 '단서 해소'를 모두 만족할 때만 `configs/primary.yaml`을 교체한다. 기존 baseline artifact는 덮어쓰지 않는다.
+   - P07(API)은 P08의 전처리 계약과 채택 artifact를 기다린다.
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 

@@ -12,15 +12,15 @@
 | P05 | Score calibration | Complete | P03: primary encoder 선정 | val 820 temperature/threshold + 0~100 score CLI + 고정 Test 평가([보고서](../../experiments/p05_calibration/README.md)) | — |
 | P06 | Failure analysis | Complete | P05: calibration artifact + 고정 Test A/B | `reports/errors/` 자동 저장 + 편향 통제 진단 + 103건 수동 검토(실제 오류 15) + [오류 패턴 문서](../../experiments/p06_failure_analysis/patterns/README.md) — 슬라이스별 독립검증 합격([계획](phase_6_failure_analysis.md)) | [DB-05](../decision_briefs/DB-05_P06_review-set.md)(Resolved) · [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
 | P07 | API + Demo | Planned | P08: 익명화 전처리 계약 + 새 checkpoint·calibration artifact | `POST /score` API 응답 + web demo에서 score 출력 확인 | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
-| P08 | 공통 얼굴 익명화 재학습(§27 밖, DB-06 파생) | Planned(승인 대기) | P06 Complete + DB-06 Resolved | 원 규격·재현율 관문 + 익명화 모듈 + 재학습·재calibration + 사전 고정 단서 제거 진단([계획](phase_8_face_anonymization.md)) | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
+| P08 | 공통 얼굴 익명화 재학습(§27 밖, DB-06 파생) | Planned(검증 합격 후 착수) | P06 Complete + DB-06 Resolved | 원 규격·재현율 관문 + 익명화 모듈 + 진단·채택 규칙 사전 고정 + 재학습·재calibration + 채택 판정([계획](phase_8_face_anonymization.md)) | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
 
 ## 비고
 
-- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_6_failure_analysis.md`](phase_6_failure_analysis.md) · [`phase_5_calibration.md`](phase_5_calibration.md) · [`phase_3_baseline_comparison.md`](phase_3_baseline_comparison.md) · [`phase_2_baseline.md`](phase_2_baseline.md) · [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
+- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_8_face_anonymization.md`](phase_8_face_anonymization.md) · [`phase_6_failure_analysis.md`](phase_6_failure_analysis.md) · [`phase_5_calibration.md`](phase_5_calibration.md) · [`phase_3_baseline_comparison.md`](phase_3_baseline_comparison.md) · [`phase_2_baseline.md`](phase_2_baseline.md) · [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
 - `docs/project.md` §35의 thin-slice 원칙에 따라, P02는 P01 전체 완료 전에도 씨드 데이터(1,000장 규모)로 착수할 수 있다. P01은 병렬로 규모 확장을 계속한다.
 - 페이즈 상태·선행 조건·완료 근거가 바뀌면 본 인덱스와 해당 페이즈 문서를 같은 변경에서 함께 갱신한다. 규칙: `docs/guides/phase-and-decision-briefs.md`.
 - 의존성은 P02 CUDA 환경 기준으로 `requirements.txt`에 exact pin한다. CPU dev도 동일 버전의 torch/torchvision CPU wheel을 사용한다.
-- REAL 데이터는 AIHub K-Fashion으로 확정(DB-01). 카테고리 4부위(상의·하의·아우터·원피스)·metadata schema v1.2 확정 — [P01 계획서](phase_1_data_pipeline.md) 참조. 생성기 수단(DB-02: 로컬 오픈소스 무비용)·얼굴 처리(DB-03: 무처리) Resolved.
+- REAL 데이터는 AIHub K-Fashion으로 확정(DB-01). 카테고리 4부위(상의·하의·아우터·원피스)·metadata schema v1.2 확정 — [P01 계획서](phase_1_data_pipeline.md) 참조. 생성기 수단(DB-02: 로컬 오픈소스 무비용) Resolved. 얼굴 처리는 DB-03(무처리)을 DB-06(C: 공통 흰 원 익명화, P08에서 적용)이 대체했다.
 - 실행 환경 체계: Docker Compose(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`. 의존성 canonical은 `requirements.txt` 유지.
 - GPU 사용 정책(소유자 지시 2026-10-07): RTX 3060은 소유자의 다른 AI 작업이 점유 중. 학습·생성 등 GPU 작업은 여유 생긴 뒤에만 수행(큐잉 금지).
 

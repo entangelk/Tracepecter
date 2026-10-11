@@ -1,6 +1,6 @@
 # Tracepecter — Source of Truth (SoT)
 
-> 최종 갱신: 2026-10-09
+> 최종 갱신: 2026-10-11
 
 ## 1. 프로젝트 정의
 
@@ -53,3 +53,4 @@
 | project.md | v1.3 | 2026-10-09 | §10 Test B REAL은 Standard test REAL을 재사용하며 train/val은 제외 | [DB-04](decision_briefs/DB-04_P02_unseen-real.md), 소유자 결정 |
 | sot.md | v1.1 | 2026-10-09 | primary 실행 설정의 소유자를 configs/primary.yaml로 명시, P03 선정 근거 연결 | [P03 report](../experiments/p03_comparison/README.md) |
 | sot.md | v1.2 | 2026-10-09 | calibration artifact의 parameter/threshold/checkpoint 결합 소유권 명시 | [P05](plan/phase_5_calibration.md) |
+| project.md | v1.4 | 2026-10-11 | §15·§22에 공통 얼굴 익명화(학습·평가·추론 같은 전처리) 추가, §23 데모에 원본 미리보기·익명화 여부·"얼굴 영역은 점수 미반영" 문구 추가. DB-03(무처리)을 대체 | [DB-06](decision_briefs/DB-06_P06_face-exposure.md), 소유자 결정 2026-10-11 |
