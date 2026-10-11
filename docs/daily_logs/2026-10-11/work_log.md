@@ -3,6 +3,7 @@
 ## Goals
 
 - P06-02b 원형 얼굴 가림 의존 진단의 독립검증을 받는다. blocking과 비차단 항목을 반영하고, 합격할 때까지 추적 검증을 반복한다.
+- P06-02c: 표본을 넓히고 구간으로 다시 판정한다. config는 결과보다 먼저 커밋한다.
 
 ## Completed work
 
@@ -61,6 +62,53 @@
 | N23 판정 → True | `main()` | `test_face_mask_cli_wires_…[offface]` |
 | N24 대조 → 얼굴 밖만 | `main()` | `test_face_mask_cli_wires_…[gray]` |
 
+### P06-02c 원형 얼굴 가림 의존 재진단 (표본 확장·구간)
+
+- 보고서: [face_mask_ci/README.md](../../../experiments/p06_failure_analysis/face_mask_ci/README.md).
+- config [`configs/face_mask_ci.yaml`](../../../configs/face_mask_ci.yaml)를 커밋 `60bad9a`(10:10)로 먼저 고정했다. 그다음 구현(`19ee42a`), 결과(`97aaf12`) 순이다. config는 이후 바뀌지 않았다.
+- 얼굴 검출기는 YuNet이다(OpenCV `FaceDetectorYN`, 모델 sha256 `8f2383e4…`, `/mnt/h/tracepector/checkpoints/face/`). pip 의존성은 늘지 않았다.
+  - 모델 실행 전에 무작위 40장을 육안 확인했다. 40/40이 실제 얼굴이었다(Haar 약 58~75%).
+  - 이 QA로 원 지름 1.2배를 정했다. 표본 목록은 `qa_sample.json`에 있다.
+- 구현: `src/face_mask_ci.py`(P06-02b의 원 그리기·얼굴 밖 위치 함수를 재사용), `tests/test_face_mask_ci.py` 24셀.
+- 결과: 대상은 GEN 1,320장 중 671장이다(얼굴 없음 469, 얼굴 밖 자리 없음 180).
+  - 흰 원 +12.54, 회색 원 +8.60, 얼굴 밖 원 +1.19
+  - D1(흰 원 − 회색 원) +3.94 [3.19, 4.72]
+  - D3(회색 원 − 얼굴 밖 원) +7.41 [5.95, 8.88]
+  - 흰 원 전환율 7.6% [5.7, 9.5]
+  - 사전 규칙상 흰 원 의존과 얼굴 가림 일반 의존이 **모두 확정**이다.
+- 사후 민감도(prompt_id 묶음 bootstrap): 두 판정은 유지되지만 전환율 하한이 5.36%로, 기준과의 여유는 0.36%p뿐이다.
+- z_image_turbo는 얼굴이 검출된 이미지가 2/180이다(목 아래 크롭이 대부분). 그래서 이 진단에서 사실상 빠졌다. 생성기마다 얼굴 노출이 다르다는 점은 P06-04에 넘긴다.
+- 독립검증([기록](../../verifications/2026-10-11/p06_02c_face_mask_ci.md)):
+  - 1차는 조건부 합격이었다. 규칙 경계, 전환 정의, tie-break, 크기 필터, bootstrap 연결에서 변이 11개가 살아남았다.
+  - 셀을 추가한 뒤 2차에서 **합격**했다. 검증자 변이 36개가 모두 죽었다.
+  - 비차단 항목도 반영했다: report에 config·git_commit 기록, 묶음 bootstrap 스크립트(`scripts/p06_02c_cluster_bootstrap.py`), QA 표본 저장, README 정정.
+  - 산출물은 GPU 재실행에서 byte 동일했다.
+
+#### P06-02c 변이 테스트 (구현자 측, clean tree에서 `git checkout`으로 복원)
+
+| 변이 | 위치 | 실패한 셀 |
+| --- | --- | --- |
+| C1 얼굴 선택에서 score 제외 | `pick_face` | `test_pick_face_prefers_score_then_area_then_top_left` |
+| C2 / M11 넓이·위·왼쪽 tie 제거 | `pick_face` | 같은 셀 |
+| C3 자리 없음을 얼굴 원으로 대체 | `condition_edits` | `test_condition_edits_…`, `test_cli_excludes_…` |
+| C4 전환 `after >=` → `>` | `per_image` | `test_per_image_shifts_differences_and_one_directional_flips` |
+| C5 / M15 전환 `before <` 완화 | `per_image` | 같은 셀 |
+| C6 통계량별 독립 재추출 | `bootstrap_summary` | `test_bootstrap_summary_is_seeded_and_shares_resamples_across_statistics` |
+| M17 구간 0.9 고정 | `bootstrap_summary` | 같은 셀 |
+| C7 / M1 D1·D2 하한 `>=` | `decide` | `test_white_disc_rule_three_levels[…suggestive]` |
+| M2 D2 점추정 `>=` | `decide` | `test_white_disc_rule_three_levels[…insufficient]` |
+| C8 전환율 하한 `>` / M3 점추정 `>` | `decide` | `test_white_disc_rule_three_levels[…]` |
+| C9 시사 단계 제거 | `decide` | `test_white_disc_rule_three_levels[…suggestive]` |
+| C10 D3 하한 `>=` | `decide` | `test_occlusion_rule_three_levels[…suggestive]` |
+| C11 threshold → 0.5 | `main()` | `test_cli_builds_matched_targets_and_wires_rule_inputs[0.65-0.6-…]` |
+| C12 모델 sha256 검사 제거 | `main()` | `test_cli_excludes_faces_without_offface_room_and_rejects_wrong_model_hash` |
+| C13 test 집합에 val 포함 | `main()` | `test_cli_builds_matched_targets_and_wires_rule_inputs[…]` |
+| C14 / C15 D2·D3 정의 오류 | `per_image` | `test_per_image_shifts_…` |
+| M13 / M14 크기 필터 `>` · 높이 기준 | `detect_face` | `test_detect_face_filters_small_boxes_by_width_inclusive_and_passes_yunet_settings` |
+| M27 YuNet 인자 순서 | `detect_face` | 같은 셀 |
+| M19 판정을 test 집합으로 | `main()` | `test_cli_decides_on_pooled_targets_with_configured_bootstrap` |
+| M24·M25·M26 재추출 수·seed·구간 | `main()` | 같은 셀 |
+
 ## Issues found
 
 - 전환 방향 계약 불일치(B3)
@@ -76,6 +124,12 @@
 
 ## Decisions
 
+- P06-02c 설계(소유자 결정)
+  - 얼굴 검출: YuNet 모델 파일을 내려받는다. Haar 정밀도가 낮아 얼굴이 아닌 곳에 원을 그리면 효과가 희석되기 때문이다.
+  - 대상: test∪val을 합산하고 val은 따로 보고한다. 표본을 늘리기 위해서다. val이 threshold fitting에 쓰였다는 점은 한계로 적는다.
+  - 판정: 대응표본과 bootstrap 구간으로 확정·시사·근거 불충분을 나눈다. 가림 일반 효과는 따로 판정한다.
+- GPU 실행 기준(소유자 결정): ai_writte_system 컨테이너가 떠 있어도 GPU 점유가 낮으면 실행해도 된다. 앞선 P06-02b 재실행도 같은 상황(사용률 27%)에서 돌렸다.
+
 - B3(소유자 결정): 사전 고정 config 문구를 정본으로 하고 코드를 맞춘다. 사전 등록본을 사후에 고치면 사전 고정의 의미가 약해지기 때문이다.
 - B4(소유자 결정): 기존 config는 고치지 않는다. 코드에만 있던 규칙은 README에 "사후 명시"로 적고, P06-02c의 새 config에서 사전 고정한다.
 
@@ -84,9 +138,9 @@
 - `tests/test_face_mask.py` 22 passed, 전체 72 passed(dev 컨테이너, exit 0).
 - 전체 진단 GPU 재실행 1회(HEAD 코드). 0b494d1 이후 `src/`는 바뀌지 않았다.
 - 검증자의 HEAD GPU 재실행은 소유자의 다른 GPU 작업(ai_writte_system) 때문에 하지 않았다. 판정 조건은 아니다. CPU 검출 재실행은 byte 동일했다.
+- P06-02c: `tests/test_face_mask_ci.py` 24 passed, 전체 96 passed(exit 0). 구현자 GPU 실행 2회(결과 산출, provenance 추가 재생성)에서 CSV는 byte 동일했다. 검증자 GPU 재실행 2회도 byte 동일했다.
 
 ## Next steps
 
-- P06-02c 표본 확장 재진단: 새 config를 결과보다 먼저 커밋한다. val 포함, bootstrap 구간, 사후 명시 세부의 사전 고정, 두 전환 정의 정리를 포함한다.
-- P06-04 오류 패턴 문서.
+- P06-04 오류 패턴 문서. P06-02b·02c 결과(얼굴 가림 의존 확정, 흰색 고유분, unseen sd35 집중, z_image_turbo 얼굴 없음)를 반영한다.
 - V1: stub 학습·calibration 비결정성의 원인을 조사한다(비차단).

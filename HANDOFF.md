@@ -11,24 +11,23 @@
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/baseline/best.pt`. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
 - scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 실패 분석 대상이다.
 - P06 실행: `docker compose --profile training run --rm -T train python -m src.failure_analysis --config configs/failure_analysis.yaml` → `reports/errors/*/manifest.csv`(이미지 사본은 비추적)·`experiments/p06_failure_analysis/`. Test B NLL/Brier 악화는 sd35 확신 FP 12장 때문으로 분해됐다.
+- 얼굴 검출 모델(P06-02c): YuNet `/mnt/h/tracepector/checkpoints/face/face_detection_yunet_2023mar.onnx`(컨테이너 `/app/checkpoints/face/`, sha256은 `configs/face_mask_ci.yaml`).
 - Test B는 Standard test REAL 448 + `test_unseen` FAKE 600(sd35_medium), 총 1,048장([DB-04](docs/decision_briefs/DB-04_P02_unseen-real.md)). train/val REAL 제외, 두 테스트 간 REAL 공유.
 
 ## 다음 작업 (우선순위 순)
 
-1. **P06-02c 표본 확장 재진단** — P06-02b는 독립검증 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p06_02b_face_mask.md)). 기존 config는 사전 고정본이므로 수정하지 말고 **새 config를 결과보다 먼저 커밋해 사전 고정**한다.
-   - [P06-02b 보고서](experiments/p06_failure_analysis/face_mask/README.md)의 "사전 고정 config에 없던 구현 세부"(off_face 배치·제외, r+3, tie-break, Hough 상수)를 새 config에 넣는다.
-   - 전환 정의를 정리한다. `edited_decision_flips`는 한 방향이고 `sets.*.decision_flips`는 양방향이다.
-   - 경계 여유가 작다(전환율 6.2%, 95% 구간 4.5~8.5%, 같은 413장 기준 4.8%). 구간 추정이 핵심이다.
-   - HEAD 코드로 한 GPU 재실행은 구현자 1회뿐이다. 검증자의 재실행은 소유자 GPU 사용 중이라 하지 않았다.
-   - 후보: val 820장 포함(train은 학습 표본이라 제외), 얼굴 검출 개선(측면 포함, 정밀도 향상 — 새 의존성은 소유자 확인), 조건별 bootstrap 신뢰구간, 흰색 고유 효과(흰 원 − 회색 원)의 구간 추정. 신규 데이터 수집은 P06 범위 밖이다.
-2. **P06-04 오류 패턴 문서** — P06-03 완료(2026-10-10: 소유자 35건 + 에이전트 블라인드 103건, 체감 판정 일치 19/35, [P06 계획](docs/plan/phase_6_failure_analysis.md) 진행 상황 참고). 불일치 16건 재확인, 얼굴 노출·구도 편향 정리(P06-02·02b), DB-03 얼굴 트리거 판정. 검토 페이지 재생성: `DATA_DIR="/mnt/h/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다.
-3. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
-4. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
+1. **P06-04 오류 패턴 문서** — 얼굴 가림 진단은 끝났다. P06-02b·P06-02c 모두 독립검증 합격이다([P06-02c 보고서](experiments/p06_failure_analysis/face_mask_ci/README.md)).
+   - 결과: 흰 원 의존과 얼굴 가림 일반 의존이 모두 확정이다. 흰 원 전환율은 7.6% [5.7, 9.5]이고, prompt 묶음 기준 하한은 5.36%로 여유가 작다.
+   - 전환은 unseen sd35에 집중된다. z_image_turbo는 얼굴 없는 크롭이 대부분이다.
+   - 이 내용을 DB-03 얼굴 트리거 판정과 생성기별 구도·얼굴 노출 편향 정리에 반영한다.
+   - P06-03 완료(2026-10-10: 소유자 35건 + 에이전트 블라인드 103건, 체감 판정 일치 19/35, [P06 계획](docs/plan/phase_6_failure_analysis.md) 진행 상황 참고). 불일치 16건 재확인, 얼굴 노출·구도 편향 정리(P06-02·02b), DB-03 얼굴 트리거 판정. 검토 페이지 재생성: `DATA_DIR="/mnt/h/tracepector/images" docker compose run --rm dev python -m scripts.build_review_page` → `F:\devel\Tracepecter\reports\errors\review\index.html`를 Windows 브라우저로 연다.
+2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
+3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
 
 ## 주의
 
 - `docs/guides/`, `CLAUDE.md`, `AGENTS.md`는 `.gitignore`로 Git 비추적(로컬 작업 지침).
-- **GPU(이 머신)**: RTX 3060 12GB. 소유자의 다른 AI 작업 점유 시 GPU 작업은 중단(큐잉 금지 — 소유자 지시). 생성 컨테이너는 현재 정지(필요 시 compose gpu profile).
+- **GPU(이 머신)**: RTX 3060 12GB. 소유자의 다른 AI 작업이 GPU를 크게 점유하면 GPU 작업은 중단한다(큐잉 금지 — 소유자 지시). ai_writte_system 컨테이너가 떠 있어도 점유가 낮으면 실행해도 된다(소유자 2026-10-11). 생성 컨테이너는 현재 정지(필요 시 compose gpu profile).
 - **이 머신은 예기치 않은 전원 단절이 반복됨**(09-21·09-24·10-08, Kernel-Power 41). 장시간 백그라운드 작업은 setsid + 디스크 기반 재개 가능 상태로 둘 것. HF 대량 다운로드는 `scripts/chunk_dl.py`(v4.1) — `curl --retry` 금지(재스트리밍 오염), `-C -`+`-r` 금지.
 - `pgrep -f` 생존 점검 시 감시자 셸 self-match 오탐 주의 — 앵커 패턴(`^python3 -u scripts/...`) 사용.
 - 대량 생성 재개 시 `generate_ai.py`는 재개 가드 내장(완료 PNG 스킵). gen_ID는 전역 연속(현재 1~3,003 사용) — 추가 배치는 3,004부터.
