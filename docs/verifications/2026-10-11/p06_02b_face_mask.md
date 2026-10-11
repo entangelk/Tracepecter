@@ -2,6 +2,10 @@
 
 ## Verdict
 
+**조건부 합격** — (추적 검증, HEAD `0b494d1`) `main()`이 판정·전환 helper에 넘기는 인자(calibration threshold, 대조 조건 이름 두 개, 표본 label)를 report 수준에서 잠그는 셀이 없다. 변이 N5·N6·N18이 생존했다. 이 셀을 추가하면 닫힌다. 그 밖의 1차 Blocking B1·B3·B4와 B2의 나머지 항목은 해소됐다. 상세는 아래 "추적 검증(보강 라운드)" 절에 있다.
+
+1차 판정(HEAD `aad9440`, 이력 보존):
+
 **조건부 합격** — 사전 고정 판정 규칙(발동/미발동, 5% 경계, "각 대조보다 큼")·전환 계산(calibration threshold, 미처리 표본 원본 logit 유지)·조건 적용(fill, 얼굴 원 크기)·검출 기준(min_edge_fraction, min_fill 단독)에 대한 회귀 잠금을 추가하고, 전환 방향(양방향 vs "REAL 판정으로 바뀐")과 off_face 제외 168장·`detected_disc` r+3 확장의 계약 공백을 config에서 해소해야 한다.
 
 판정 근거:
@@ -242,4 +246,172 @@ for f in detections.csv predictions.csv report.json; do cmp $S/rerun/$f experime
 docker compose run --rm dev python -m pytest tests/test_face_mask.py -q; echo $?
 docker compose run --rm dev python -m pytest -q; echo $?
 git status --short   # 빈 출력 확인 후 $S/mutate.sh <ID> '<old>' '<new>' 반복
+```
+
+## 추적 검증(보강 라운드) — 2026-10-11, HEAD `0b494d1`
+
+### Verdict
+
+**조건부 합격** — `main()` → helper 연결(`src/face_mask.py:233` threshold·label 인자, `:239` 대조 조건 이름)을 report 수준에서 잠그는 셀이 없다(변이 N5·N6·N18 생존). CLI 테스트에서 `edited_decision_flips`·`dependence_evidence`를 predictions.csv와 calibration artifact로 독립 재계산해 단언하면 닫힌다.
+
+판정 근거:
+
+- 1차 B1(판정 규칙)·B3(전환 방향)·B4(사후 명시)는 해소됐다. B2는 helper 단위 잠금이 생겼고 해당 변이가 모두 죽었다.
+- 남은 공백은 B2의 한 갈래다. 1차 M3은 호출 지점에서 threshold를 0.5로 바꾸는 변이였다. 같은 지점의 변이(N5)가 여전히 생존한다. 계산이 helper로 옮겨 가 helper는 잠겼지만, `main()`이 helper에 넘기는 값은 잠기지 않았다.
+- 보고 수치는 새 산출물에서 독립 재계산한 값과 전부 일치한다. 산출물 변화(gen_000799 1장)는 tie-break로 완전히 설명된다. CPU 검출 재실행 결과는 byte 동일하다.
+
+### 대상·원천
+
+- commits `00926f1`(판정 규칙·전환 방향·조건 선택 테스트, 이 기록의 1차본 포함), `05a1f83`(min_fill 단독 잠금), `0b494d1`(tie-break 재실행, README 사후 명시)
+- `git diff aad9440 HEAD --stat`: config는 **변경 없음**(사전 고정본 유지, 소유자 결정 B4와 일치). 변경 파일은 `src/face_mask.py`, `tests/test_face_mask.py`, 산출물 4종, 이 기록이다.
+- 소유자 결정(2026-10-11, 조정자 전달):
+  - B3: 코드를 config 문구(맞던 판정 → 틀린 판정 단방향)에 맞춘다.
+  - B4: config는 유지하고, README에 사후 명시한다. P06-02c config에서 사전 고정한다.
+
+### 코드 변경 확인
+
+- `largest_face`(`src/face_mask.py:70-72`): 키 `(w*h, -y, -x)`. 넓이 최대 → y 최소 → x 최소로, README의 "위·왼쪽"과 일치한다.
+- `select_edits`(`:128-134`): 기존 루프를 그대로 옮겼다. 동작 변화는 없다.
+- `decision_flips`(`:137-140`): `(before >= th) == real` ∧ `(after >= th) != real`이다. GEN은 before < th ≤ after만, REAL은 before ≥ th > after만 센다. config :33-34 문구(단방향)와 일치한다(B3 해소).
+- `dependence_evidence`(`:143-147`): 기존 식과 같다. `>` 엄격, `>=` 비율 경계 포함이다.
+- 잔여 관찰: report.json의 `conditions.*.sets.*.decision_flips`는 여전히 `_condition_metrics`(`src/failure_analysis.py:83`)의 양방향 정의다. 같은 report 안에 전환 정의가 두 개 있다. 이번 실행은 역방향 전환이 0이라 값은 같다. → Hardening R2
+
+### 테스트·감사
+
+- `docker compose run --rm dev python -m pytest tests/test_face_mask.py -q` → 19 passed, 종료코드 0
+- `docker compose run --rm dev python -m pytest -q` → 69 passed, 종료코드 0
+- `SETTINGS`를 config에서 읽는다(`tests/test_face_mask.py:14-16`, 1차 H6 해소).
+- 새 셀은 1차 경계 행렬의 빈칸을 채운다. 대응 관계는 다음과 같다.
+  - edge 단독: `:51`
+  - fill 단독: `:57`
+  - tie-break: `:64`
+  - 지름 1.4배: `:71`
+  - labels·fill·r+3·off_face 제외: `:75-90`
+  - 전환 방향·threshold: `:93-98`
+  - 판정 규칙 7개 매개 셀(0.05 포함 경계, 0.049, 대조 동률, 각 대조 초과, None, 대상 0): `:101-112`
+  - 미처리 표본 원본 logit: `:181-183`
+- 감사 결과:
+  - 판정 규칙 셀은 발동(정확히 0.05)과 미발동(각 조항 단독 위반)을 모두 갖춘다.
+  - 전환 셀은 과소 측(GEN→REAL, REAL→FN 집계)과 과잉 측(0.5~0.7 이동, 역방향)을 모두 갖춘다.
+  - 남은 공백: CLI 테스트의 판정 단언은 여전히 `isinstance(..., bool)`(`:180`)이다. CLI에서 전환 수는 단언하지 않는다. → Blocking R-B1
+
+### 변이 테스트(본 검증자 직접 수행)
+
+변이마다 `git status --short` 빈 상태 확인 → `src/face_mask.py` 치환 → 초점 테스트 → `git checkout -- src/face_mask.py` → `git status --short` 빈 상태 재확인. 18회 모두 clean이었다.
+
+| ID | 변이 | 결과 | 깨진 셀 |
+| --- | --- | --- | --- |
+| N1 | `:146` 주 > 대조 → `<` | 사망 | `test_dependence_rule…[1-20-shifts0-True]` |
+| N2 | `:147` 비율 조항 → True | 사망 | `…[49-1000-shifts1-False]` |
+| N3 | `:147` `>=` → `>` | 사망 | `…[1-20-shifts0-True]` |
+| N4 | `:140` 양방향 전환 | 사망 | `test_decision_flips_counts_only_correct_to_wrong_at_calibrated_threshold` |
+| **N5** | `:233` main이 threshold 대신 0.5 전달 | **생존** | — |
+| **N6** | `:239` 대조를 회색 하나로 | **생존** | — |
+| N7 | `:227` 미처리 표본 logit → 0 | 사망 | `test_face_mask_cli_reports_prevalence_shortcut_and_conditions` |
+| N8 | `:77` 지름/2 제거 | 사망 | `test_disc_for_face_uses_long_side_times_diameter_ratio` |
+| N9 | edge 조건 제거 | 사망 | `test_disc_detector_requires_dark_edge_even_when_filled` |
+| N10 | fill 조건 제거 | 사망 | `test_disc_detector_requires_filled_inside_even_with_edge` |
+| N11 | `:132` labels 필터 제거 | 사망 | `test_select_edits_follows_condition_labels_position_and_fill` |
+| N12 | `:125` fill → 255 고정 | 사망 | 같은 셀 |
+| N13 | off_face 자리 없음 → 얼굴 위치 대체 | 사망 | 같은 셀 |
+| N14 | `:119` r+3 → r | 사망 | 같은 셀 |
+| N15 | tie 키 → 넓이만 | 사망 | `test_largest_face_breaks_area_ties_deterministically` |
+| N16 | `:140` after `>=` → `>`(정확히 threshold) | 생존 | — |
+| N17 | main이 select_edits에 label 전부 0 전달 | 사망 | CLI 셀 |
+| **N18** | `:233` main이 decision_flips에 label 전부 0 전달 | **생존** | — |
+
+- 구현자 주장(1차 M1–M9·M11 + 양방향·tie 키·r+3, 13/13 사망)은 helper 내부 변이에 대해서는 재현된다(N1–N4, N7–N15).
+- 호출 지점 변이 N5·N6·N18은 생존한다.
+  - N5: 실제 데이터에서 전환 수가 바뀐다. 0.5 기준이면 주 조건 전환이 36보다 커질 수 있다.
+  - N6: 판정 조항 "두 대조 조건보다 각각"이 한 대조로 줄어든다.
+  - N18: `real_disc_gray`의 FN 전환이 GEN 방향으로 계산된다.
+- N16은 확률이 threshold와 정확히 같은 경우다. 실질 발생 확률은 0에 가까워 hardening으로 분류한다.
+
+### 산출물 변화와 결정성
+
+- `git diff aad9440 HEAD`의 산출물 변화:
+  - detections.csv 1행: `gen_000799`가 (328, 493, 68, 68) → (351, 129, 68, 68)
+  - predictions.csv 3행: gen_000799의 white/gray/offface logit
+  - report.json: 세 GEN 조건의 `after`·`edited_mean_shift`와 집합별 GEN `mean_score`·`mean_score_shift`
+  - 전환 수·AUC·판정은 변화 없다.
+- gen_000799(test, qwen_image_21)의 두 상자는 넓이가 같다(68 × 68). 새 키는 y가 작은 (351, 129)를 고른다. 오버레이로 확인하니 옛 상자는 **무릎(바지)**, 새 상자는 **얼굴**이다. README 주장과 일치한다.
+- aad9440 시점 두 실행(커밋본, 1차 재실행)에서 gen_000799는 둘 다 (328, 493)이었다. 따라서 이 변화는 실행 간 흔들림이 아니라 tie 규칙 변경에서 나온 것이다. gen_000806은 새 규칙으로 (374, 68)(얼굴)에 고정되며, 커밋본과 같다.
+- **CPU 검출 재실행**(HEAD 코드, 6,000장, dev 컨테이너, 6분 43초) → `detections.csv`와 **byte 동일**. 명령:
+
+  ```bash
+  docker compose run --rm -T -e PYTHONPATH=/app -v $S:/scratch -v /mnt/h/tracepector/images:/images:ro dev python /scratch/redetect.py
+  ```
+
+- **GPU 전체 재실행은 하지 않았다.** `nvidia-smi` 사용률이 15~39%로 지속됐고, 소유자의 `ai_writte_system` 컨테이너(embedding, generation_worker 등)가 실행 중이었다. GPU 정책(소유자 작업 중 시작·큐잉 금지)에 따랐다. predictions.csv의 HEAD 재현은 미검증이다. 다만 변화가 gen_000799 3행에 국한되고, 그 원인(상자 교체)은 위에서 확인했다. → Outstanding
+
+### 보고 수치 재계산(새 산출물)
+
+`recompute.py`(1차와 동일 스크립트)와 Wilson 구간 계산:
+
+| README 주장 | 재계산 | 일치 |
+| --- | --- | --- |
+| 주 0.31 → 10.51, +10.20, 36 (6.2%) | 0.313 → 10.512, +10.199, 36 (up 36 / down 0) | ✓ |
+| 회색 0.31 → 7.52, +7.20, 28 | 0.313 → 7.517, +7.204, 28 | ✓ |
+| 얼굴 밖 0.38 → 2.27, +1.89, 5 | 0.378 → 2.269, +1.892, 5 | ✓ |
+| REAL 99.94 → 99.67, −0.27, 0 | 99.938 → 99.671, −0.267, 0 | ✓ |
+| AUC 0.99914 / 0.99812 (원본 0.99994 / 0.99977) | 동일 | ✓ |
+| Wilson 36/581 = 4.5~8.5% | 4.51~8.46% | ✓ |
+| 413장 매칭: 흰 +9.03, 회색 +6.30, 얼굴 밖 +1.89, 흰 전환 20/413 = 4.8% | +9.030, +6.304, +1.892, 20 | ✓ |
+| 9/12 Wilson 47~91% | 46.8~91.1% | ✓ |
+| 순차이 8, 집합 9/1 | 36 − 28 = 8, 흰 원 단독 9, 회색 단독 1 | ✓ |
+| 약 70%, +3.0점 | 7.204/10.199 = 70.6%, +2.995 | ✓ |
+| A절 표·AUC 0.642/0.640/0.650, REAL 원 유무 score·FN | 1차와 동일(검출·original logit 불변) | ✓ |
+
+### README 사후 명시 절 ↔ 코드 문자 대조
+
+- 얼굴 밖 원:
+  - 후보 순서 `width − x`, `x + 3r`, `x − 3r`, 중심 거리 ≥ 2r, 이미지 안(`r ≤ cx ≤ width − r`, `r ≤ y ≤ height − r`)은 `src/face_mask.py:84-86`과 일치한다.
+  - 자리 없음 → 제외·원본 logit은 `:124-125`, `:227`과 일치한다(168장, 재계산 581 − 413).
+- r + 3: `:119`와 일치한다.
+- tie-break "넓이가 같으면 위·왼쪽": `:72` 키와 일치한다.
+- 검출 상수:
+  - `minDist` = 너비 × 0.05, `param1` 100: `:32`
+  - 상위 30: `:39`
+  - r < 6 제외, 0.9r 안쪽: `:40-41`
+  - r − 3 / r + 4 180점: `:23,47`
+  - 5×5 Gaussian σ 1.5 순백 마스크: `:31`
+  - 모두 일치한다. 누락은 Hough `dp=1`, `minRadius`/`maxRadius`의 `int()` 절사뿐이다(사소, R3).
+- H2(사전 고정 증빙 한계)는 README `## 한계`에, H3(Wilson·413 매칭)·H4(n = 12, 구간, 독립 표본)·H5(순차이·집합)는 해당 절에 반영됐다.
+
+### Issues / Risks
+
+#### Blocking (계약 의무)
+
+- **R-B1 main → helper 연결 미잠금**(1차 B2의 잔여): `src/face_mask.py:233`(threshold·label 인자)과 `:239`(대조 조건 이름)이 바뀌어도 모든 셀이 통과한다(N5, N6, N18).
+  - 조치: CLI 테스트(`tests/test_face_mask.py:140-184`)에 다음 두 단언을 추가한다.
+    - (a) 조건별 `edited_decision_flips`가 predictions.csv의 logit, `calibration.json`의 T·threshold, 표본 label로 독립 계산한 단방향 전환 수와 같다.
+    - (b) `report['dependence_evidence']`가 report의 `gen_gray_face`·`gen_white_offface` shift와 config `min_gen_flip_fraction`으로 다시 계산한 값과 같다.
+  - stub 모델 logit이 threshold 근처에 오지 않아 (a)가 약할 수 있다. 그렇다면 `predict_logits`를 monkeypatch해 전환이 생기는 logit을 주입한다.
+
+#### Hardening recommendations (비차단)
+
+- **R1** `tests/test_face_mask.py:96-97`: after가 threshold와 정확히 같은 경우(`>=` 포함)를 단언하는 케이스를 추가한다(N16).
+- **R2** `src/failure_analysis.py:83`의 `sets.*.decision_flips`(양방향)와 `edited_decision_flips`(단방향)가 한 report에 공존한다. README나 report 키 이름에 정의 차이를 명시한다. 또는 P06-02c에서 단방향 helper로 통일한다.
+- **R3** README 사후 명시 절에 Hough `dp=1`과 반지름 범위의 `int()` 절사도 적는다(P06-02c config 사전 고정 시 포함).
+
+### Outstanding items
+
+- GPU 전체 재실행(HEAD)은 소유자 GPU 작업으로 보류했다. GPU가 비면 다음을 실행해 predictions.csv·report.json byte 동일을 확인한다.
+
+  ```bash
+  docker compose --profile training run --rm -T -v $S:/scratch train python -m src.face_mask --config /scratch/rerun_config.yaml
+  ```
+
+- 이 기록의 추적 라운드 수정분은 커밋하지 않았다(working tree 변경).
+
+### Reproduction(추적 라운드)
+
+```bash
+git status --short                      # 빈 출력
+docker compose run --rm dev python -m pytest tests/test_face_mask.py -q; echo $?
+docker compose run --rm dev python -m pytest -q; echo $?
+python3 $S/recompute.py
+$S/mutate2.sh <ID> '<old>' '<new>'      # N1~N18
+docker compose run --rm -T -e PYTHONPATH=/app -v $S:/scratch -v /mnt/h/tracepector/images:/images:ro dev python /scratch/redetect.py
+cmp $S/redetect.csv experiments/p06_failure_analysis/face_mask/detections.csv
 ```
