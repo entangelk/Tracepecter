@@ -5,7 +5,7 @@
 - 고정 입력: [P05 artifact](../../p05_calibration/calibration.json)(T 0.79847842, 확률 threshold 0.69669911)와 primary SigLIP checkpoint.
 - 사전 고정: 대상·검출 기준·조건·판정 규칙은 모델을 실행하기 전에 [`configs/face_mask_ci.yaml`](../../../configs/face_mask_ci.yaml)에 고정해 커밋했다(`60bad9a`). 소유자 승인 항목은 YuNet, test∪val 합산, 대응표본 bootstrap 규칙이다.
 - 구현: `src/face_mask_ci.py`(P06-02b의 원 그리기·얼굴 밖 위치 규칙을 그대로 재사용).
-- 산출물: [detections.csv](detections.csv), [predictions.csv](predictions.csv), [report.json](report.json).
+- 산출물: [detections.csv](detections.csv), [predictions.csv](predictions.csv), [report.json](report.json)(config 사본·`git_commit` 포함), [qa_sample.json](qa_sample.json)(검출 QA 표본 목록).
 
 ## P06-02b와 달라진 점
 
@@ -21,7 +21,9 @@
 
 - 대상 GEN 1,320장 중 851장(64.5%)에서 얼굴을 검출했다.
 - 무작위 40장(seed 20261011)을 육안으로 확인했다. 40/40이 실제 사람의 머리·얼굴이었다(95% Wilson 구간 91~100%). 1.2배 원은 모든 표본에서 얼굴을 덮었다.
-- 미검출 무작위 20장 중 16장은 얼굴이 화면에 없었다(목 아래 크롭·뒷모습). 보이는 얼굴을 놓친 것은 4장이다(측면·고개 돌림).
+- 미검출 무작위 20장 중 12장은 z_image_turbo였고 전부 얼굴이 없는 크롭이었다. 나머지 8장 중 4장은 얼굴이 없거나 뒷모습이었고, 4장은 보이는 얼굴(측면·고개 돌림)을 놓친 경우였다.
+  - 독립검증의 별도 표본에서는 z_image_turbo가 아닌 미검출 16장 중 9장에 보이는 얼굴이 있었다(주로 측면).
+  - 따라서 z_image_turbo 밖의 미검출 중 약 절반은 측면 얼굴이다. 측면 얼굴은 대상에서 빠진다.
 - 생성기별 얼굴 검출률:
   - playground_25 173/180, sdxl 164/180, qwen_image_21 130/180, sd35_medium 382/600
   - **z_image_turbo는 2/180**이다. 이 생성기는 대부분 목 아래로 크롭된 구도라 얼굴이 없다. 따라서 이 진단은 z_image_turbo를 사실상 포함하지 않는다.
@@ -68,9 +70,13 @@
 
 ## 한계
 
-- 이미지 단위 bootstrap은 같은 prompt·look_group에서 나온 이미지 사이의 상관을 반영하지 않는다. 묶음 단위로 재추출하면 구간이 더 넓어질 수 있다. 다만 합산 전환율 하한(5.7%)과 D1·D3 하한은 기준에서 여유가 있다.
+- 이미지 단위 bootstrap은 같은 prompt에서 나온 이미지 사이의 상관을 반영하지 않는다. 민감도 확인으로 prompt_id 묶음(99개, 최대 27장) 단위 bootstrap(같은 seed·2,000회)을 사후에 계산했다.
+  - D1 [2.92, 5.08], D3 [5.65, 9.36], 흰 원 전환율 [5.36%, 10.07%]로, 두 판정 모두 그대로 확정이다.
+  - 다만 **전환율 하한과 기준(5%)의 여유는 0.36%p**뿐이다. D1·D3 하한은 0에서 충분히 떨어져 있다.
+  - look_group은 GEN에서 모두 단독이라 이미지 단위와 같다.
 - 단일 checkpoint·단일 실행이다. 구간은 표본 변동만 반영한다.
-- val은 P05 temperature·threshold fitting에 쓰였다. 그래서 threshold 근처 전환에 영향이 있을 수 있어 따로 보고했다. val만으로 보면 흰 원 전환율 하한은 1.9%다.
+- val은 P05 temperature·threshold fitting에 쓰였다. 그래서 threshold 근처 전환에 영향이 있을 수 있어 따로 보고했다. val만으로 규칙을 적용하면 흰 원 전환율 점추정이 4.76%(하한 1.9%)로 기준 아래이므로 "근거 불충분"이다. 판정은 사전 규칙대로 합산 대상에만 적용했다.
+- test 461장 중 390장은 P06-02b 흰 원 대상(581장)과 같은 이미지다. 둘 다 같은 test·test_unseen에서 뽑았고 검출기만 다르다. 따라서 이 결과는 독립 재현이 아니라, 같은 test 표본에 val을 더해 다시 추정한 것이다. 독립 확인은 미사용 holdout에서 해야 한다.
 - 얼굴이 검출되고 얼굴 밖 원을 둘 자리가 있는 GEN만 대상이다(1,320장 중 671장). 측면·뒷모습·얼굴 없는 크롭은 빠지고, z_image_turbo는 사실상 빠진다.
 - REAL 쪽 가림 의존의 크기는 측정하지 않았다. REAL에서 가림을 제거해 얼굴을 복원할 수 없기 때문이다(P06-02b와 같음).
 - 얼굴 검출 QA는 40장 표본이다.
