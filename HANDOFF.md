@@ -17,7 +17,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P08 착수**([계획](docs/plan/phase_8_face_anonymization.md)) — 소유자 지시: 계획 독립검증 합격 후 진행한다. DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
+1. **P08 진행 중**([계획](docs/plan/phase_8_face_anonymization.md)) — 계획 독립검증 4라운드 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p08_plan_db06.md)). DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
    - 순서: P08-01 측정(이미지만) → P08-02 익명화 모듈 → P08-03 진단·채택 규칙 사전 고정(**재학습 결과 전에 커밋**) → P08-04 재학습 → P08-05 재calibration → P08-06 판정. P08-07 holdout 설계는 병행하며 P07의 관문이 아니다.
    - P08-01 관문: YuNet의 보이는 얼굴 재현율이 80% 미만이면 재학습 전에 소유자에게 묻는다.
    - 채택 규칙: §20 AUC 기준과 '단서 해소'를 모두 만족할 때만 `configs/primary.yaml`을 교체한다. 기존 baseline artifact는 덮어쓰지 않는다. 미채택이면 P07은 대기하고 P08을 다시 시도한다(Q5).

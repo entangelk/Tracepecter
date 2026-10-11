@@ -1,7 +1,9 @@
 # 독립검증 — DB-06 C 확정 기록 · `project.md` §22 전처리 조항 · P08 계획
 
-**조건부 합격** — (3차, 커밋 `397abf2`) N1·N2와 H17–H21은 닫혔다. 남은 조건 하나: 학습 config에 허용한 명시적 `null` 키(`phase_8_face_anonymization.md:81`)를 score CLI·API가 어떻게 처리하는지 정해지지 않았다(`:84`는 "키 없음"만 거부). "score CLI·API는 키가 `null`이어도 거부"(§22)를 계약에 넣고, P08-02 검증 셀(`:51-56`)에 추가할 것.
+**합격** — (4차, 커밋 `08f6ecf`) R1이 닫혔다: score CLI·API는 키가 없거나 `null`인 checkpoint를 거부하고, 거부·통과 양방향 셀이 있다. 1–3차 차단 조건(C1–C3, N1–N2, R1)이 모두 닫혔고, 남은 것은 비차단 H25 하나다.
 
+> 3차 판정(커밋 `397abf2` 대상): **조건부 합격** — (3차, 커밋 `397abf2`) N1·N2와 H17–H21은 닫혔다. 남은 조건 하나: 학습 config에 허용한 명시적 `null` 키(`phase_8_face_anonymization.md:81`)를 score CLI·API가 어떻게 처리하는지 정해지지 않았다(`:84`는 "키 없음"만 거부). "score CLI·API는 키가 `null`이어도 거부"(§22)를 계약에 넣고, P08-02 검증 셀(`:51-56`)에 추가할 것.
+>
 > 2차 판정(커밋 `a412f74` 대상): **조건부 합격** — (2차, 커밋 `a412f74`) 1차 C1–C3은 닫혔다. 새 조건 2개: (N1) P08 채택 실패 시 baseline 유지 규칙(`phase_8_face_anonymization.md:58-59`)이 무조건 익명화를 요구하는 `project.md:780`(§22)·P07 선행 조건(`plan/00_index.md:14`)과 충돌하므로, 비채택 분기에서 P07이 무엇을 서빙하는지 소유자 결정으로 정할 것. (N2) checkpoint 결합 계약(`phase_8:73`)의 "규격이 없으면 거부"와 "규격이 없으면 원본 경로로 동작"이 같은 조건에 두 결과를 주므로 판별 규칙을 명시할 것.
 >
 > 1차 판정(커밋 `6f0f383` 대상): **조건부 합격** — (C1) 결정 반영 누락 정리: `docs/sot.md` 버전 로그에 project.md §22 변경 기록, `docs/plan/00_index.md:23`·`README.md:25`·`README.md:87`의 "무처리(DB-03)" 현행 서술 갱신. (C2) P08 계획에 익명화 규격이 checkpoint에 결합되어 evaluate·calibrate·score로 전달되는 계약을 명시. (C3) P08 결과가 나쁠 때(단서 잔존·지표 하락)의 채택/중단 분기와 P07이 쓸 checkpoint를 정하는 사전 규칙 또는 소유자 결정 지점을 계획에 명시.
@@ -297,3 +299,36 @@ sed -n 526,536p docs/project.md
 ### 3차 판정
 
 **조건부 합격** — R1(`null` 키 분기를 score·API에서 거부하고 검증 셀 추가)만 남았다. 한 줄짜리 계약 수정과 셀 한 개로 닫힌다. P08-01은 R1과 무관하다.
+
+## 4차 검증 (2026-10-11, 커밋 `08f6ecf`)
+
+### 대상·방법
+
+- 대상: 커밋 `08f6ecf`. R1과 H22–H24 반영. 작업 트리 clean에서 시작했다.
+- 방법:
+
+```bash
+git show --stat 08f6ecf
+git show 08f6ecf -- docs/plan CHANGELOG.md HANDOFF.md docs/daily_logs docs/project.md README.md
+grep -n 'null\|HANDOFF·README\|보조 척도' docs/plan/phase_8_face_anonymization.md
+```
+
+### 재확인
+
+| 항목 | 근거 | 판정 |
+| --- | --- | --- |
+| R1 계약 | `phase_8:85`: score CLI·API는 키가 없거나 `null`인 checkpoint를 거부한다(§22 근거 명시). | 닫힘 |
+| R1 검증 셀 | `phase_8:55`(거부: CLI·API에서 `null`), `:56`(통과: 평가 도구에서 `null`이면 원본 입력). 기존 셀(`:53-54`, `:57`)과 합쳐 키 없음·`null`·불일치·학습 config 누락의 네 분기가 모두 셀에 대응한다. | 닫힘 |
+| H22 | `phase_8:31`: 관문은 이미지 너비 척도에만 건다. 사람 영역 대비 크기는 관문 없는 보조 척도로 둔다(REAL은 rect 합집합, GEN은 측정 표본 수동 표시). 방법은 `anonymize_measure.yaml`에 적는다. 이제 측정 불가능한 기준이 관문에 들어가지 않는다. | 닫힘 |
+| H23 | `phase_8:86`: 구현 커밋에서 HANDOFF·README의 baseline score 예시를 함께 고친다. | 닫힘 |
+| H24 | `CHANGELOG.md:35`: Q5와 `null` 키 규칙 행이 있다(한국어). | 닫힘 |
+
+`08f6ecf`는 계획·CHANGELOG·검증 기록만 바꿨다. `project.md`, 색인, HANDOFF, work log는 3차 상태 그대로이고, 3차에서 확인한 정합이 유지된다.
+
+### 4차 Hardening (비차단)
+
+- **H25** `phase_8:84`: 계약 본문은 "키 없는 legacy checkpoint는 평가 도구에서만 원본 입력"이라고만 적고, `null` 키의 평가 도구 동작은 검증 셀(`:56`)에만 있다. 구현자가 본문만 읽어도 알 수 있도록 `:84`에 "키가 `null`인 checkpoint도 같다"를 한 구절 더하면 좋다. 셀이 계약을 고정하므로 차단 사유는 아니다.
+
+### 4차 판정
+
+**합격** — 1차부터 4차까지의 차단 조건이 모두 닫혔다. 결정 기록(DB-06 C, Q1–Q5), 사양(project.md v1.4 §15·§22·§23), P08 계획(관문·사전 고정·채택·비채택 분기·checkpoint 결합·좌표 캐시 계보·추론 계약), 기록 문서가 서로 맞는다. P08-01부터 착수할 수 있다.

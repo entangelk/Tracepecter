@@ -1,6 +1,6 @@
 # P08 — 공통 얼굴 익명화 재학습
 
-**상태:** Planned (2026-10-11 작성. 소유자 지시: 독립검증 합격 후 착수)
+**상태:** In Progress (2026-10-11 착수. 계획 독립검증 4라운드 합격, [기록](../verifications/2026-10-11/p08_plan_db06.md))
 
 `docs/project.md` §27의 Phase 0~6 밖에서 [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(C, 2026-10-11)으로 생긴 페이즈다. 상위 사양은 `project.md` v1.4 §15(학습·평가 전처리), §22(추론 전처리), §23(데모 표시)이다. P07(API)은 이 페이즈가 정한 전처리 계약과 채택된 artifact를 쓴다.
 
@@ -81,7 +81,7 @@
 - **checkpoint 결합**: 학습 시 checkpoint에 저장되는 config에 익명화 규격 내용 전체와 그 sha256을 넣는다. 평가·calibration·score·API 같은 하류는 checkpoint에 저장된 규격만 쓴다. fail closed 규칙은 키의 유무로 나눈다.
   - 새 학습 config는 익명화 키를 반드시 적는다(규격, 또는 명시적 `null`). 키가 없으면 학습을 거부한다.
   - 키가 있는데 내용·sha256이 맞지 않거나 YuNet 파일 sha256이 다르면 모든 하류가 거부한다.
-  - 키가 없는 legacy checkpoint(기존 baseline·DINO)는 평가·calibration 도구에서만 원본 입력으로 동작한다. 익명화 입력으로 평가하려면 규격을 명시적으로 넘겨야 한다.
+  - 키가 없는 legacy checkpoint(기존 baseline·DINO)와 키가 `null`인 checkpoint는 평가·calibration 도구에서만 원본 입력으로 동작한다. 익명화 입력으로 평가하려면 규격을 명시적으로 넘겨야 한다.
   - score CLI와 API는 키가 없거나 `null`인 checkpoint도 거부한다(§22: 모든 추론은 익명화).
   - 이 규칙을 구현하는 커밋에서 HANDOFF·README의 baseline score 실행 예시도 함께 고친다(baseline은 키가 없어 score CLI에서 거부된다).
 - **얼굴 좌표 캐시**: `experiments/p08_anonymized/face_boxes.csv`(Git 추적)로 둔 파생 artifact다.
