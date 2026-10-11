@@ -6,10 +6,14 @@ import numpy as np
 import yaml
 from PIL import Image, ImageDraw
 
-from src.face_mask import EditedDataset, detect_disc, off_face_disc, paint_disc
+import pytest
 
-DETECTOR = dict(white_min=245, outside_max=235, min_edge_fraction=0.35, min_fill=0.97,
-                radius_ratio=[0.015, 0.15], hough_param2=12)
+from src.face_mask import (EditedDataset, decision_flips, dependence_evidence, detect_disc, disc_for_face,
+                           largest_face, off_face_disc, paint_disc, select_edits)
+
+SETTINGS = yaml.safe_load(open('configs/face_mask_diagnostic.yaml'))
+DETECTOR = SETTINGS['disc_detector']
+CONDITIONS = SETTINGS['conditions']
 
 
 def _noise(width=300, height=200, seed=0):
@@ -42,6 +46,70 @@ def test_rejects_white_regions_that_are_not_discs():
     wall[:, :200] = 255
     assert detect_disc(wall, **DETECTOR) is None
     assert detect_disc(_noise(), **DETECTOR) is None
+
+
+def test_disc_detector_requires_dark_edge_even_when_filled():
+    """edge 단독 잠금: 꽉 찬 흰 원이라도 둘레 바깥이 outside_max보다 밝으면(240) 원이 아니다."""
+    light = np.full((200, 300, 3), 240, dtype=np.uint8)
+    assert detect_disc(_with_disc(light, 150, 100, 30), **DETECTOR) is None
+
+
+def test_disc_detector_requires_filled_inside_even_with_edge():
+    """fill 단독 잠금: 둘레는 경계가 뚜렷해도 안쪽이 비어 있는 흰 고리는 원이 아니다."""
+    ring = Image.fromarray(np.zeros((200, 300, 3), dtype=np.uint8))
+    ImageDraw.Draw(ring).ellipse((120, 70, 180, 130), outline=(255, 255, 255), width=8)
+    assert detect_disc(np.asarray(ring), **DETECTOR) is None
+
+
+def test_largest_face_breaks_area_ties_deterministically():
+    """넓이가 같으면 검출 순서와 무관하게 위·왼쪽 상자. 넓이가 크면 위치와 무관하게 큰 상자."""
+    a, b = (50, 10, 20, 20), (10, 40, 20, 20)
+    assert largest_face([a, b]) == largest_face([b, a]) == a
+    assert largest_face([(10, 10, 20, 20), (90, 90, 21, 21)]) == (90, 90, 21, 21)
+
+
+def test_disc_for_face_uses_long_side_times_diameter_ratio():
+    assert disc_for_face((10, 20, 40, 30), SETTINGS['disc_diameter_per_face']) == pytest.approx((30, 35, 28))
+
+
+def test_select_edits_follows_condition_labels_position_and_fill():
+    """labels 필터(GEN 원 오검출은 real_disc_gray 대상 아님), spec fill, REAL 원 r+3, off_face 자리 없음 제외."""
+    labels = [1, 0, 0, 1]
+    detections = [dict(disc=(50, 50, 10), face=None), dict(disc=(60, 60, 10), face=(40, 40, 20, 20)),
+                  dict(disc=None, face=(10, 10, 100, 100)), dict(disc=None, face=None)]
+    sizes = [(300, 200)] * 4
+    ratio = SETTINGS['disc_diameter_per_face']
+
+    def edits(name):
+        return select_edits(CONDITIONS[name], labels, range(4), detections, sizes, ratio)
+    assert edits('real_disc_gray') == {0: ((50, 50, 13), 128)}
+    face = disc_for_face((40, 40, 20, 20), ratio)
+    big = disc_for_face((10, 10, 100, 100), ratio)
+    assert edits('gen_white_face') == {1: (face, 255), 2: (big, 255)}
+    assert edits('gen_gray_face') == {1: (face, 128), 2: (big, 128)}
+    assert edits('gen_white_offface') == {1: (off_face_disc(face, (300, 200)), 255)}  # 2번은 자리가 없어 제외
+
+
+def test_decision_flips_counts_only_correct_to_wrong_at_calibrated_threshold():
+    """과소: threshold(0.7) 기준 GEN→REAL 판정, REAL→FN만 센다. 과잉: 0.5~0.7 이동·역방향 전환은 세지 않는다."""
+    threshold = 0.7
+    assert decision_flips([0.1, 0.1, 0.4], [0.75, 0.69, 0.6], [0, 0, 0], threshold) == 1
+    assert decision_flips([0.9, 0.9, 0.8], [0.65, 0.71, 0.4], [1, 1, 1], threshold) == 2
+    assert decision_flips([0.8, 0.3], [0.2, 0.9], [0, 1], threshold) == 0  # 틀렸던 판정이 맞게 바뀐 경우
+
+
+@pytest.mark.parametrize('flips, count, shifts, expected', [
+    (1, 20, (5.0, 4.0), True),     # 비율 정확히 0.05(경계 포함)
+    (49, 1000, (5.0, 4.0), False),  # 0.049
+    (36, 581, (10.0, 10.0), False),  # 회색 대조와 같으면 미발동(엄격히 커야 함)
+    (36, 581, (5.0, 11.0), False),  # 위치 대조보다 작으면 미발동
+    (36, 581, (11.0, 5.0), False),  # 회색 대조보다 작으면 미발동
+    (36, 581, (None, 5.0), False),
+    (0, 0, (5.0, 4.0), False),
+])
+def test_dependence_rule_fires_only_when_both_conditions_hold(flips, count, shifts, expected):
+    main = dict(edited_count=count, edited_mean_shift=10.0, edited_decision_flips=flips)
+    assert dependence_evidence(main, list(shifts), SETTINGS['dependence_rule']['min_gen_flip_fraction']) is expected
 
 
 def test_off_face_disc_keeps_size_and_avoids_face():
@@ -89,7 +157,7 @@ def test_face_mask_cli_reports_prevalence_shortcut_and_conditions(tmp_path, monk
         checkpoint=str(checkpoint), device='cpu', output_dir=str(tmp_path/'calibration'),
         fit=dict(temperature_min=0.05, temperature_max=20.0, iterations=100), metrics=dict(ece_bins=10))))
     calibrate(['--config', str(tmp_path/'calibration.yaml')])
-    settings = yaml.safe_load(open('configs/face_mask_diagnostic.yaml'))
+    settings = dict(SETTINGS)
     settings.update(calibration=str(tmp_path/'calibration/calibration.json'), device='cpu',
                     output_dir=str(tmp_path/'out'))
     (tmp_path/'face.yaml').write_text(yaml.safe_dump(settings))
@@ -110,4 +178,7 @@ def test_face_mask_cli_reports_prevalence_shortcut_and_conditions(tmp_path, monk
     assert report['conditions']['gen_white_face']['edited_count'] == 2
     assert report['model_by_real_disc']['standard/real_disc_false']['real_count'] == 0
     assert isinstance(report['dependence_evidence'], bool)
+    gray = report['conditions']['real_disc_gray']
+    assert gray['sets']['standard']['mean_score_shift']['generated'] == 0  # 미처리 표본은 원본 logit
+    assert gray['sets']['standard']['mean_score_shift']['real'] == pytest.approx(gray['edited_mean_shift'])
     assert json.loads((tmp_path/'out/report.json').read_text()) == report

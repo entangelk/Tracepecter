@@ -64,7 +64,12 @@ def detect_face(rgb: np.ndarray, scale_factor: float, min_neighbors: int, min_si
                                      minNeighbors=min_neighbors, minSize=(side, side))
     if len(faces) == 0:
         return None
-    return tuple(int(v) for v in max(faces, key=lambda f: f[2] * f[3]))
+    return largest_face(faces)
+
+
+def largest_face(faces):
+    """넓이가 같으면 위·왼쪽 상자를 고른다(검출 순서와 무관하게 결정적)."""
+    return tuple(int(v) for v in max(faces, key=lambda f: (f[2] * f[3], -f[1], -f[0])))
 
 
 def disc_for_face(face, diameter_per_face: float) -> tuple[float, float, float]:
@@ -120,6 +125,28 @@ def _edit_for(spec, detection, size, diameter_per_face):
     return (disc, spec['fill']) if disc else None
 
 
+def select_edits(spec, labels, targets, detections, sizes, diameter_per_face) -> dict[int, tuple]:
+    """조건 대상: spec labels에 속하고 그릴 원이 정해지는 표본만. 나머지는 원본 logit을 쓴다."""
+    edits = {}
+    for i in targets:
+        if labels[i] in spec['labels'] and (edit := _edit_for(spec, detections[i], sizes[i], diameter_per_face)):
+            edits[i] = edit
+    return edits
+
+
+def decision_flips(before, after, labels, threshold) -> int:
+    """사전 규칙의 전환: 맞던 판정이 틀린 쪽으로 넘어간 수(GEN → REAL 판정, REAL → FN). 역방향은 세지 않는다."""
+    before, after, real = np.asarray(before), np.asarray(after), np.asarray(labels) == 1
+    return int((((before >= threshold) == real) & ((after >= threshold) != real)).sum())
+
+
+def dependence_evidence(main_condition, control_shifts, min_flip_fraction) -> bool:
+    """사전 규칙: 주 조건 평균 상승이 각 대조보다 크고, 대상 중 전환 비율이 기준 이상(경계 포함)."""
+    return bool(main_condition['edited_count'] > 0 and None not in control_shifts
+                and all(main_condition['edited_mean_shift'] > c for c in control_shifts)
+                and main_condition['edited_decision_flips'] / main_condition['edited_count'] >= min_flip_fraction)
+
+
 def main(argv=None) -> dict:
     parser = argparse.ArgumentParser(description='P06-02b face mask dependence')
     parser.add_argument('--config', required=True)
@@ -156,11 +183,8 @@ def main(argv=None) -> dict:
     logits = {'original': predict(base, targets)}
     edited = {}
     for name, spec in settings['conditions'].items():
-        edits = {}
-        for i in targets:
-            if rows[i].label in spec['labels'] and (
-                    edit := _edit_for(spec, detections[i], sizes[i], settings['disc_diameter_per_face'])):
-                edits[i] = edit
+        edits = select_edits(spec, [row.label for row in rows], targets, detections, sizes,
+                             settings['disc_diameter_per_face'])
         edited[name] = sorted(edits)
         logits[name] = predict(EditedDataset(base, edits), edited[name]) if edits else {}
     with (output/'predictions.csv').open('w', newline='') as handle:
@@ -200,25 +224,20 @@ def main(argv=None) -> dict:
     for name, spec in settings['conditions'].items():
         indices = edited[name]
         before, after = probability(logits['original'], indices), probability(logits[name], indices)
-        crossed = (after >= threshold) != (before >= threshold)
         combined = logits['original'] | logits[name]
         conditions[name] = dict(
             spec=spec, edited_count=len(indices),
             edited_mean_score=dict(before=float(100 * before.mean()), after=float(100 * after.mean()))
             if indices else None,
             edited_mean_shift=float(100 * (after - before).mean()) if indices else None,
-            edited_decision_flips=int(crossed.sum()),
+            edited_decision_flips=decision_flips(before, after, [rows[i].label for i in indices], threshold),
             sets={set_name: _condition_metrics([rows[i] for i in s], [rows[i].label for i in s],
                                                probability(combined, s), probability(logits['original'], s),
                                                threshold) for set_name, s in sets.items()})
 
     main_condition = conditions['gen_white_face']
     controls = [conditions[name]['edited_mean_shift'] for name in ('gen_gray_face', 'gen_white_offface')]
-    rule = settings['dependence_rule']
-    dependence = (main_condition['edited_count'] > 0 and None not in controls
-                  and all(main_condition['edited_mean_shift'] > c for c in controls)
-                  and main_condition['edited_decision_flips'] / main_condition['edited_count']
-                  >= rule['min_gen_flip_fraction'])
+    dependence = dependence_evidence(main_condition, controls, settings['dependence_rule']['min_gen_flip_fraction'])
     report = dict(calibration=settings['calibration'], checkpoint_sha256=artifact['checkpoint_sha256'],
                   temperature=temperature, threshold_probability=threshold,
                   disc_prevalence=prevalence, shortcut_rule=shortcut, model_by_real_disc=by_disc,
