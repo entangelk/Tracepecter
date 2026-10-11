@@ -91,9 +91,9 @@
       "edited_count": 581,
       "edited_mean_score": {
         "before": 0.31304177865529076,
-        "after": 10.505174128280073
+        "after": 10.512197934793555
       },
-      "edited_mean_shift": 10.192132349624782,
+      "edited_mean_shift": 10.199156156138262,
       "edited_decision_flips": 36,
       "sets": {
         "standard": {
@@ -202,11 +202,11 @@
           },
           "mean_score": {
             "real": 99.43827183462014,
-            "generated": 5.280341221583924
+            "generated": 5.291934493130323
           },
           "mean_score_shift": {
             "real": 0.0,
-            "generated": 4.652581683901505
+            "generated": 4.664174955447904
           },
           "decision_flips": {
             "real": 0,
@@ -316,9 +316,9 @@
       "edited_count": 581,
       "edited_mean_score": {
         "before": 0.31304177865529076,
-        "after": 7.512496644275298
+        "after": 7.5173902113258935
       },
-      "edited_mean_shift": 7.199454865620006,
+      "edited_mean_shift": 7.204348432670601,
       "edited_decision_flips": 28,
       "sets": {
         "standard": {
@@ -427,11 +427,11 @@
           },
           "mean_score": {
             "real": 99.43827183462014,
-            "generated": 3.3662934558741244
+            "generated": 3.3743706219434317
           },
           "mean_score_shift": {
             "real": 0.0,
-            "generated": 2.738533918191706
+            "generated": 2.7466110842610125
           },
           "decision_flips": {
             "real": 0,
@@ -541,9 +541,9 @@
       "edited_count": 413,
       "edited_mean_score": {
         "before": 0.37762227890090233,
-        "after": 2.2841197854571833
+        "after": 2.269192801590656
       },
-      "edited_mean_shift": 1.906497506556281,
+      "edited_mean_shift": 1.891570522689753,
       "edited_decision_flips": 5,
       "sets": {
         "standard": {
@@ -652,11 +652,11 @@
           },
           "mean_score": {
             "real": 99.43827183462014,
-            "generated": 1.3291227904723426
+            "generated": 1.3116090281516721
           },
           "mean_score_shift": {
             "real": 0.0,
-            "generated": 0.7013632527899242
+            "generated": 0.6838494904692535
           },
           "decision_flips": {
             "real": 0,
