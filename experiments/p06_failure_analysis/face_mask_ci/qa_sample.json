@@ -1,5 +1,5 @@
 {
-  "note": "P06-02c 모델 실행 전 YuNet 검출 육안 QA 표본(seed 20261011, random.Random.sample). found 40장은 전부 실제 머리·얼굴로 판정했다.",
+  "note": "P06-02c 모델 실행 전 YuNet 검출 육안 QA 표본. 추출 절차: 대상 GEN 1,320장의 검출 결과에서 얼굴 있음·없음 image_id 목록을 각각 정렬하고, 하나의 random.Random(20261011)로 found 40장을 먼저, 이어서 miss 20장을 sample했다. found 40장은 전부 실제 머리·얼굴로 판정했다.",
   "seed": 20261011,
   "found": [
     "gen_002473",

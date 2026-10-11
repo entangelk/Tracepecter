@@ -2,6 +2,10 @@
 
 ## Verdict
 
+**합격** — (2차 추적 검증, HEAD `a8812f2`) 1차 Blocking B1–B5가 모두 해소됐다. 1차 생존 변이 11개와 새 변이 6개를 포함해 변이 36개가 전부 이름 있는 셀에서 죽는다. H1–H6도 반영됐다. 재생성 산출물은 GPU 재실행에서 `detections.csv`·`predictions.csv`가 byte 동일하고, `report.json`은 output_dir만 다르다. 남은 것은 비차단 문구 보정 3건(R-H1–R-H3)과 기록 갱신(Outstanding)이다. 상세는 아래 "2차 추적 검증" 절에 있다.
+
+1차 판정(HEAD `97aaf12`, 이력 보존):
+
 **조건부 합격** — 사전 고정 config의 경계·literal 일부를 잠그는 회귀 셀이 없어 변이 8개가 생존한다. D2 엄격 부등호(`>0`, 하한·점추정), 흰 원 전환율 점추정의 포함 부등호(`≥`), 전환 정의의 원본 엄격 부등호(`원본 p < threshold`), 얼굴 선택의 "왼쪽" 동점 규칙, `min_size_ratio` 필터, bootstrap `interval`·`resamples`·`seed` 연결이 해당한다. 이 셀들을 추가하면 닫힌다.
 
 판정 근거:
@@ -297,4 +301,149 @@ S=<scratch>; sed 's#^output_dir: .*#output_dir: /scratch/rerun#' configs/face_ma
 docker compose --profile training run --rm -T -v $S:/scratch train python -m src.face_mask_ci --config /scratch/ci_rerun.yaml
 for f in detections.csv predictions.csv report.json; do cmp experiments/p06_failure_analysis/face_mask_ci/$f $S/rerun/$f; done
 # 변이: Methodology의 mutate.py와 같은 치환을 하나씩 적용 → 집중 파일 실행 → git checkout -- src/face_mask_ci.py → git status --short 비어 있음 확인
+```
+
+## 2차 추적 검증 (HEAD `a8812f2`)
+
+### Subject metadata
+
+- 날짜: 2026-10-11. 검증자는 1차와 같다(Claude Code, Opus 5.5, 독립).
+- 대상 커밋:
+  - `5fe461e`: 테스트 추가와 `report.json`의 `config`·`git_commit` 기록
+  - `2670a30`: 1차 기록 커밋. 본 검증자 원문과 같다(`git diff HEAD`로 확인).
+  - `b980841`: README 보완과 `qa_sample.json` 추가
+  - `a8812f2`: `report.json` 재생성
+- 시작 시 작업 트리는 clean이었다. 정본 계약은 1차와 같다. `configs/face_mask_ci.yaml`은 `60bad9a` 이후 바뀌지 않았다.
+
+### Scope
+
+1. B1–B5 잠금 셀
+2. 코드 변경(`src/face_mask_ci.py`)
+3. 재생성 산출물과 재실행 결정성
+4. H1–H6 반영 주장(README·`qa_sample.json`)의 1차 자료 대조
+5. 변이 테스트(1차 30개 재실행과 신규 6개)
+6. 집중·전체 suite
+
+### Methodology
+
+```bash
+git diff 97aaf12 HEAD -- src/face_mask_ci.py configs/ tests/test_face_mask_ci.py experiments/p06_failure_analysis/face_mask_ci/
+# report.json: 97aaf12 판과 키별 비교, config 사본 == yaml
+# qa_sample.json: 정렬한 검출/미검출 id 목록에 random.Random(20261011) 하나로 found 40 → miss 20 순서 sample을 적용해 재현 시도
+# P06-02b 겹침: face_mask/detections.csv의 test·test_unseen GEN 얼굴 검출(581)과 ci 대상 test 461의 교집합
+# 미검출 QA 비-z 8장 육안 확인($S/qa_miss.jpg)
+# GPU 상태: 4–41%, 약 1GB(ai_writte_system 가동 중, 고부하 아님). 그다음 재실행:
+docker compose --profile training run --rm -T -e GIT_COMMIT=b9808418b23a7438c486e3dcfd907413aeb32b8f -v $S:/scratch train python -m src.face_mask_ci --config /scratch/ci_rerun2.yaml
+docker compose run --rm -T dev python -m pytest tests/test_face_mask_ci.py -q; echo exit=$?
+python3 $S/mutate2.py     # 매 변이 전 git status --short 비어 있음 assert, 복원 후 clean 재확인
+docker compose run --rm -T dev python -m pytest -q; echo exit=$?
+```
+
+### Findings
+
+**코드 변경**
+- 코드 변경은 `src/face_mask_ci.py:8,159-160`뿐이다. `report`에 `config=settings`와 `git_commit=os.environ.get('GIT_COMMIT')`를 더했다. 계산 경로는 바뀌지 않았다.
+
+**Blocking 해소 확인**
+
+| 1차 항목 | 추가 셀 | 확인 |
+| --- | --- | --- |
+| B1 D2 하한·점추정 엄격, F 점추정 포함 | `test_white_disc_rule_three_levels`의 `d2=(5,0)`→suggestive, `flip=(0.05,0.01)`→suggestive, `d2=(0,-1)`→insufficient | M1·M2·M3 사망 |
+| B2 원본 `< thr` 엄격 | `test_per_image_…`의 원본 = thr → 0, thr−0.01 → 1 | M15 사망 |
+| B3 왼쪽 동점 | `test_pick_face_…`의 같은 score·넓이·y 두 순서 | M11 사망 |
+| B4(+H3) 너비 기준·포함 경계·YuNet 인자 | `test_detect_face_filters_small_boxes_by_width_inclusive_and_passes_yunet_settings` | M13·M14·M31·M34·M36 사망 |
+| B5 구간 수준·연결 | `test_bootstrap_summary_…` 직접 백분위 대조(0.95, 0.9); `test_cli_decides_on_pooled_targets_with_configured_bootstrap` 인자 spy | M17·M24·M25·M26 사망 |
+
+- B4 셀은 YuNet stub이 세 상자를 돌려준다.
+  - 3.9×3.9(score 0.99)는 너비 100×0.04 = 4 미만이라 제외된다.
+  - 3×6(긴 변 6)은 높이 기준(8)이면 제외되지만, 너비 기준이라 남는다.
+  - 4×4는 경계에 정확히 걸리고 포함된다.
+  - 이 구성은 필터 제거·부등호 완화·높이 기준 세 방향을 각각 깬다.
+- H2 셀은 val 표본을 흰 > 회색 > 얼굴 밖으로, test_unseen 표본을 그 반대로 둔다.
+  - 그 결과 val 부분집합은 confirmed, test 부분집합은 insufficient, pooled는 suggestive다.
+  - pooled가 suggestive인 이유: n=2라 F 하한이 0이다.
+  - 판정 입력을 test·val로 바꾼 변이 M19·M35가 이 셀에서 직접 죽는다(1차의 KeyError 간접 잠금 해소).
+
+**산출물·재실행**
+- `report.json`(a8812f2)은 97aaf12 판과 비교해 키 `config`·`git_commit`만 추가됐다. 나머지 키는 전부 같다. `config` 사본은 `configs/face_mask_ci.yaml`과 같다.
+- `detections.csv`·`predictions.csv`는 97aaf12 이후 변경이 없다.
+- GPU 재실행(`GIT_COMMIT=b980841…`)은 exit 0, 3분 40초다.
+  - `detections.csv`·`predictions.csv`가 byte 동일하다.
+  - `report.json`은 `config.output_dir`(scratch 경로)만 다르다.
+  - 기록된 `git_commit`의 코드는 HEAD와 같다(b980841 이후 코드 변경 없음).
+
+**H4 — prompt 묶음 bootstrap**
+- 묶음 수 99, 최대 27장이 README와 일치한다.
+- README 구간: D1 [2.92, 5.08], D3 [5.65, 9.36], F [5.36%, 10.07%].
+- 본 검증자 구간(묶음 합/표본 수 방식): D1 [2.89, 5.09], D3 [5.76, 9.32], F [5.38%, 10.11%].
+- 차이는 재추출 방식의 Monte Carlo 차이 범위다(1차에서 seed 1–5의 F 하한이 5.27–5.48%). "여유 0.36%p"와 판정 불변은 정합한다.
+
+**H5**
+- val 단독 점추정 4.76% → insufficient가 맞다(1차 재계산).
+- test 대상 461장 중 390장이 P06-02b의 GEN 얼굴 검출 581장과 겹친다. 재계산 결과가 같다.
+
+**H6 — QA 표본 재현**
+- `qa_sample.json`은 다음 절차로 정확히 재현된다: 정렬한 검출 id 851개와 미검출 id 469개에 `random.Random(20261011)` 하나를 쓰고, found 40을 먼저 뽑은 뒤 miss 20을 뽑는다(found·miss 둘 다 일치). 다른 순서·독립 rng로는 재현되지 않는다.
+- miss 20장의 생성기는 z_image_turbo 12, sd35_medium 6, qwen_image_21 2다. README의 "12장 z"가 맞다.
+- 비-z 8장 육안 결과:
+  - 보이는 얼굴 4장은 `miss_visible_face`와 같다. 002889는 고개 숙인 3/4 얼굴, 002659·002923은 측면, 000588은 어깨 너머 얼굴이다.
+  - 나머지 4장(002767·002721 목 아래 크롭, 000936 뒷모습, 000685 뒤돌아선 원경)은 얼굴이 사실상 보이지 않는다.
+- 본 검증자 1차 기록 정정: 5절에서 gen_000685를 "정면에 가까운" 보이는 얼굴로 셌다. 다시 보면 뒤돌아 고개만 약간 돌린 원경이라 경계 사례다. 1차 표본의 보이는 얼굴은 8–9/16이다. README의 "약 절반" 문구는 이 범위와 정합한다.
+
+**테스트**
+- 집중 파일은 **24 passed**, exit 0이다. 전체 suite는 **96 passed**(경고 12), exit 0이다.
+
+### 변이 테스트(2차)
+
+- 사전 점검: 매 변이 전에 `git status --short`가 비어 있음을 assert했다. 복원은 `git checkout -- src/face_mask_ci.py`로 했고, 36/36 clean을 재확인했다.
+- 1차 M1–M30을 다시 돌렸다. 1차 생존 11개는 이제 모두 죽는다. 기존 사망 19개도 그대로 죽는다.
+
+| # | 변이 | 실패 셀 |
+| --- | --- | --- |
+| M1 | D2 하한 `>=0` | `white_disc_rule[summary5-suggestive]` |
+| M2 | D2 점추정 `>=0` | `white_disc_rule[summary9-insufficient]` |
+| M3 | F 점추정 `>` | `white_disc_rule[summary6-suggestive]` |
+| M11 | 왼쪽 동점 반전 | `test_pick_face_…` |
+| M13 | min_size 필터 제거 | `test_detect_face_…` |
+| M14 | min_size `>` | `test_detect_face_…` |
+| M15 | 원본 `<= thr` | `test_per_image_…` |
+| M17 | 구간 꼬리 5% | `test_bootstrap_summary_…` |
+| M19 | `decide(subsets['test'])` | `test_cli_decides_on_pooled_…`, `test_cli_excludes_…` |
+| M24 | resamples 200 | `test_cli_decides_on_pooled_…` |
+| M25 | seed 0 | `test_cli_decides_on_pooled_…` |
+| M26 | interval 0.9 | `test_cli_decides_on_pooled_…` |
+| M31(신규) | YuNet score·nms 인자 교환 | `test_detect_face_…` |
+| M32(신규) | `git_commit=None` | `test_cli_decides_on_pooled_…` |
+| M33(신규) | `config=None` | `test_cli_decides_on_pooled_…` |
+| M34(신규) | min_size 높이 기준 | `test_detect_face_…` |
+| M35(신규) | `decide(subsets['val'])` | `test_cli_decides_on_pooled_…` |
+| M36(신규) | YuNet 입력 크기 (h, w) | `test_detect_face_…` |
+
+- 나머지 M4–M10, M12, M16, M18, M20–M23, M27–M30은 1차와 같은 셀(또는 그 셀에 새 셀이 더해진 조합)에서 죽는다. 전체 출력은 `$S/mutations2.log`에 있다.
+
+### Issues / Risks (2차)
+
+**Blocking**
+- 없음.
+
+**Hardening recommendations(비차단)**
+- **R-H1** `experiments/p06_failure_analysis/face_mask_ci/README.md:76`의 "look_group은 GEN에서 모두 단독"은 정확하지 않다. `data/metadata.csv`의 GEN 3,000행은 look_group이 전부 비어 있다(NaN, 고유값 0). "비어 있어 묶음이 정의되지 않는다"로 바꾼다. 결론(묶음 단위 = 이미지 단위)은 같다.
+- **R-H2** `experiments/p06_failure_analysis/face_mask_ci/qa_sample.json:2`의 `note`에 추출 절차를 적는다. 정렬한 id 목록, 하나의 `random.Random(20261011)`, found → miss 순서다. 이 절차 없이는 seed만으로 재현되지 않는다.
+- **R-H3** README의 묶음 bootstrap 값은 사후 계산이고, 이를 만든 코드가 저장소에 없다. 재현용 스크립트나 명령을 남기면 이 수치도 다른 수치처럼 재계산할 수 있다.
+
+### Outstanding items(2차)
+
+- P06-02c의 work log·HANDOFF·CHANGELOG·plan 진행 상황 갱신과, config 2행 소유자 승인의 "User Decisions" 기록은 아직 없다(1차와 같음).
+- 이 2차 절은 본 검증자가 기록 파일에만 추가했다. 커밋하지 않았다.
+
+### Reproduction(2차)
+
+```bash
+cd /mnt/f/devel/Tracepecter && git status --short   # 비어 있어야 함
+docker compose run --rm -T dev python -m pytest tests/test_face_mask_ci.py -q; echo exit=$?   # 24 passed
+docker compose run --rm -T dev python -m pytest -q; echo exit=$?                              # 96 passed
+sed 's#^output_dir: .*#output_dir: /scratch/rerun2#' configs/face_mask_ci.yaml > $S/ci_rerun2.yaml
+docker compose --profile training run --rm -T -e GIT_COMMIT=$(git rev-parse b980841) -v $S:/scratch train python -m src.face_mask_ci --config /scratch/ci_rerun2.yaml
+cmp experiments/p06_failure_analysis/face_mask_ci/predictions.csv $S/rerun2/predictions.csv
+# 변이: 위 표의 치환을 하나씩 적용 → 집중 파일 → git checkout -- src/face_mask_ci.py → git status --short 비어 있음
 ```
