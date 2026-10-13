@@ -65,7 +65,16 @@
 - H2: P08 측정 스크립트의 CSV writer 5곳을 LF로 통일했다. 측정 CSV 3종의 raw LF 회귀 가드를 추가했다. 기존 CSV의 열·값은 바꾸지 않는다.
 - H3/H4: 기존 config를 사후 변경하지 않는다. 보조 표본 선정은 사전등록이 아니고 사람 높이는 에이전트 육안 표시(소유자 재확인 없음)라는 한계를 README에 명시했다. P08-03 진단 설계 시 표본·규칙을 결과 전에 고정해야 한다.
 - 구현 전 집중 테스트는 H1 필드 부재로 3 failed / 15 passed, 보강 후 18 passed다. B1 선택 코드는 변경하지 않았으므로 정상 코드에서 새 3개 사례는 처음부터 통과했다.
-- 양방향 변이 검출력 확인은 커밋·clean-tree pre-flight 후 진행한다. 완료 후 별도 표로 결과를 남긴다. 이 확인은 구현자의 자가 확인이며 독립 추적 검증을 대신하지 않는다.
+- 변이 전 체크포인트는 `8972d1e`다. 첫 변이 전 실제 `git status --short`가 빈 값임을 확인했으며, 각 변이 직전에도 같은 명령 결과가 빈 값인지 확인했다. 복원은 커밋된 HEAD 바이트로 했고 소스 byte 동일·트리 clean을 매번 확인했다.
+
+| 변이 | 파일·위치 | 재실패 셀 | 결과 |
+| --- | --- | --- | --- |
+| M1: `<= tolerance_px` → `< tolerance_px` (닫힌 경계 배제) | `scripts/p08_measure.py:337` | `test_edge_sigma_includes_both_tolerance_bounds_and_keeps_first_match[lower_inclusive_first_match]`, `[upper_inclusive_first_match]` | 2 failed, 1 passed(무매칭), exit 1 |
+| M2: `chosen is None and` 제거 (최소 σ 대신 마지막 매칭) | `scripts/p08_measure.py:337` | 위 하한·상한 경계 셀 | 2 failed, 1 passed(무매칭), exit 1 |
+
+- 변이별 실행 명령: `docker compose run --rm -T dev python -m pytest tests/test_p08_measure.py -k test_edge_sigma_includes_both_tolerance_bounds_and_keeps_first_match -q --tb=short`. 이 확인은 구현자의 자가 확인이며 독립 추적 검증을 대신하지 않는다.
+- 복원 후 관련 전체 회귀: `docker compose run --rm -T dev python -m pytest tests/test_p08_person_size.py tests/test_p08_measure.py tests/test_face_mask_ci.py tests/test_p06_patterns.py -q` **57 passed**. `node tests/test_p08_owner_review.cjs` **2 passed**.
+- 현재 소유자 CSV 두 해시는 원본 바이트와 일치하고, 기존 측정 결과·선택 규격·사전등록 config는 변경 전과 동일하다. 측정 CSV 3종은 LF 재직렬화 시 byte 동일하다. 작업 트리에 CRLF로 남아 있던 sd35 확인 목록·빈 양식은 Git blob과 같은 LF로 정규화했다. 문서 링크·`git diff --check`도 확인했다.
 
 ## 다음 작업
 
