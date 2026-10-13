@@ -1,5 +1,6 @@
 """P08-01: 사전 크기 실패를 보존하고 미완료 소유자 확인을 최종 통과로 만들지 않는다."""
 import csv
+import hashlib
 import json
 
 import numpy as np
@@ -147,6 +148,9 @@ def test_measure_report_keeps_original_failure_and_waits_for_owner(tmp_path, mon
     assert report['recall']['test_gen_sd35']['labels'] == 'agent_only'
     assert report['recall']['test_gen_sd35']['owner_review_missing'] == ['sd35', 'sd35_2']
     assert report['owner_check'] == 1
+    assert report['provenance']['owner_labels_sha256'] == {'train_gen': None, 'test_gen_sd35': None}
+    for name in ('recall_detections.csv', 'recall_owner_check.csv', 'recall_owner_check_sd35.csv'):
+        assert b'\r' not in (tmp_path / name).read_bytes()
     (tmp_path / 'recall_labels_owner.csv').write_text('image_id,owner_face_visible\ngen,1\n')
     measure.measure_stage(settings, meta, tmp_path, tmp_path, 0)
     report = json.loads((tmp_path / 'report.json').read_text())
@@ -159,3 +163,41 @@ def test_measure_report_keeps_original_failure_and_waits_for_owner(tmp_path, mon
     sd35 = report['recall']['test_gen_sd35']
     assert sd35['labels'] == 'owner_final' and sd35['owner_review_missing'] == []
     assert sd35['positives'] == 1 and sd35['passed'] is None and sd35['gate_applies'] is False
+    for pool, suffix in measure.OWNER_SUFFIX.items():
+        expected = hashlib.sha256((tmp_path / f'recall_labels_owner{suffix}.csv').read_bytes()).hexdigest()
+        assert report['provenance']['owner_labels_sha256'][pool] == expected
+
+
+@pytest.mark.parametrize('widths, expected_sigma', [
+    ([0., 1., 2., 2.], .5),
+    ([0., 3., 2., 2.], .5),
+    ([0., 0., 4., 4.], None),
+], ids=['lower_inclusive_first_match', 'upper_inclusive_first_match', 'no_match'])
+def test_edge_sigma_includes_both_tolerance_bounds_and_keeps_first_match(tmp_path, monkeypatch, widths, expected_sigma):
+    """±1px 경계는 허용하고 가장 작은 σ를 유지하며, 범위 밖뿐이면 통과를 만들지 않는다."""
+    (tmp_path / 'real_disc_candidates.csv').write_text(
+        'candidate_id,image_id,cx,cy,axis_a,axis_b,major,minor,angle\nd,real,10,10,10,10,10,10,0\n')
+    (tmp_path / 'real_disc_review.csv').write_text('candidate_id,confirmed\nd,1\n')
+    (tmp_path / 'recall_labels_agent.csv').write_text('pool,image_id,agent_face_visible\ntrain_gen,gen,1\n')
+    config = tmp_path / 'config.yaml'
+    config.write_text('fixed inputs')
+    monkeypatch.setattr(measure, 'CONFIG', str(config))
+    monkeypatch.setattr(measure, 'METADATA', str(config))
+    monkeypatch.setattr(measure, 'load_rgb', lambda row: np.zeros((100, 100, 3), dtype=np.uint8))
+    monkeypatch.setattr(measure, 'detect_face', lambda *args, **kwargs: (0, 0, 20, 20))
+    grid = [.25, .5, .75, 1.]
+    width_by_sigma = dict(zip(grid, widths))
+    monkeypatch.setattr(measure, 'paint_synthetic', lambda rgb, face, k, ellipse, sigma: (rgb, {'sigma': sigma}))
+    monkeypatch.setattr(measure, 'disc_edge_width',
+                        lambda rgb, disc, angles: width_by_sigma[disc['sigma']] if 'sigma' in disc else 2.)
+    settings = dict(face_detector={'model_sha256': 'fixed'}, real_discs={'seed': 1},
+                    size_match={'tolerance': .15, 'k_min': 1., 'k_max': 1.6},
+                    edge_match={'angles': 72, 'sigma_grid': grid, 'tolerance_px': 1.},
+                    recall_gate={'seed': 1, 'owner_random_fraction': 1., 'min_recall': .8, 'min_positives': 1},
+                    ellipse_ratio=.85, ellipse_fraction_gate=.2)
+    meta = {'real': {'label': '1', 'split': 'train'}, 'gen': {'label': '0', 'split': 'train'}}
+    measure.measure_stage(settings, meta, tmp_path, tmp_path, 0)
+    synthetic = json.loads((tmp_path / 'report.json').read_text())['synthetic']
+    assert synthetic['edge_width_by_sigma'] == {str(sigma): width_by_sigma[sigma] for sigma in grid}
+    assert synthetic['sigma'] == expected_sigma
+    assert synthetic['edge_passed'] is (expected_sigma is not None)

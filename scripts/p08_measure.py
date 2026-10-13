@@ -175,7 +175,7 @@ def owner_stage(settings, meta, output: Path, sheets: Path, max_images: int, poo
                 for r in csv.DictReader(open(output / 'recall_detections.csv')) if r['pool'] == pool}
     rows = owner_check_rows(labels, [detected[r['image_id']] for r in labels], settings['recall_gate'])
     with (output / f'recall_owner_check{suffix}.csv').open('w', newline='') as handle:
-        writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'])
+        writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'], lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
     cases = []
@@ -190,7 +190,7 @@ def owner_stage(settings, meta, output: Path, sheets: Path, max_images: int, poo
                    .replace('/*DOWNLOAD_NAME*/"recall_labels_owner.csv"',
                             json.dumps(f'recall_labels_owner{suffix}.csv')))
     with (output / f'recall_labels_owner_template{suffix}.csv').open('w', newline='') as handle:
-        writer = csv.DictWriter(handle, fieldnames=['image_id', 'owner_face_visible'])
+        writer = csv.DictWriter(handle, fieldnames=['image_id', 'owner_face_visible'], lineterminator='\n')
         writer.writeheader()
         writer.writerows(dict(image_id=r['image_id'], owner_face_visible='') for r in rows)
     print(f'{page}: {len(rows)} images')
@@ -246,7 +246,7 @@ def candidates_stage(settings, meta, output: Path, sheets: Path, max_images: int
     if tiles:
         _sheet(tiles, sheets / f'disc_candidates_{batch:02d}.jpg')
     with (output / 'real_disc_candidates.csv').open('w', newline='') as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
     (output / 'real_disc_order.json').write_text(json.dumps(order[:rank + 1]) + '\n')
@@ -338,7 +338,7 @@ def measure_stage(settings, meta, output: Path, sheets: Path, max_images: int):
             chosen = sigma
 
     labels = list(csv.DictReader(open(output / 'recall_labels_agent.csv')))
-    recall, checks, detections = {}, {}, []
+    recall, checks, detections, owner_hashes = {}, {}, [], {}
     for pool in ('train_gen', 'test_gen_sd35'):
         rows = [r for r in labels if r['pool'] == pool]
         detected = []
@@ -346,19 +346,20 @@ def measure_stage(settings, meta, output: Path, sheets: Path, max_images: int):
             hit = detect_face(load_rgb(meta[r['image_id']]), **face) is not None
             detected.append(hit)
             detections.append(dict(pool=pool, image_id=r['image_id'], yunet_detected=int(hit)))
-        owner = read_owner_labels(output / f'recall_labels_owner{OWNER_SUFFIX[pool]}.csv',
-                                  {r['image_id'] for r in rows})
+        owner_path = output / f'recall_labels_owner{OWNER_SUFFIX[pool]}.csv'
+        owner = read_owner_labels(owner_path, {r['image_id'] for r in rows})
+        owner_hashes[pool] = hashlib.sha256(owner_path.read_bytes()).hexdigest() if owner_path.exists() else None
         checks[pool] = owner_check_rows(rows, detected, gate)
         recall[pool] = recall_summary(rows, detected, owner,
                                       [r['image_id'] for r in checks[pool]],
                                       gate['min_recall'], gate['min_positives'], pool == 'train_gen')
     with (output / 'recall_detections.csv').open('w', newline='') as handle:
-        writer = csv.DictWriter(handle, fieldnames=['pool', 'image_id', 'yunet_detected'])
+        writer = csv.DictWriter(handle, fieldnames=['pool', 'image_id', 'yunet_detected'], lineterminator='\n')
         writer.writeheader()
         writer.writerows(detections)
     for pool, to_check in checks.items():
         with (output / f'recall_owner_check{OWNER_SUFFIX[pool]}.csv').open('w', newline='') as handle:
-            writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'])
+            writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'], lineterminator='\n')
             writer.writeheader()
             writer.writerows(to_check)
 
@@ -374,7 +375,8 @@ def measure_stage(settings, meta, output: Path, sheets: Path, max_images: int):
         recall=recall, owner_check=len(checks['train_gen']),
         provenance=dict(measurement_config_sha256=hashlib.sha256(Path(CONFIG).read_bytes()).hexdigest(),
                         metadata_sha256=hashlib.sha256(Path(METADATA).read_bytes()).hexdigest(),
-                        detector_sha256=face['model_sha256'], selected_anonymization=selected))
+                        detector_sha256=face['model_sha256'], selected_anonymization=selected,
+                        owner_labels_sha256=owner_hashes))
     (output / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False) + '\n')
     print(json.dumps(report, ensure_ascii=False, indent=1))
 

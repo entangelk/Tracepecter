@@ -133,6 +133,10 @@
         255
       ],
       "edge_sigma": 0.5
+    },
+    "owner_labels_sha256": {
+      "train_gen": "501a6053ce7f290265540f223f52507cc87f7f3e3f8c87180fc7af2262af19b9",
+      "test_gen_sd35": "5c1c570bbe0dc961c249b1e6cde92ebcb557cfa189f187b3ebbf17be7715efcf"
     }
   }
 }
