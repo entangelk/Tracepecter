@@ -1,6 +1,6 @@
 # P08-01 — 원 규격·YuNet 재현율 측정
 
-**상태: 진행 중.** 학습 GEN·sd35 소유자 확인은 반영했으며, 사람 영역 대비 보조 크기 측정·전체 슬라이스 독립검증이 남았다. 모델 score와 재학습 결과는 사용하지 않았다.
+**상태: 진행 중.** 학습 GEN·sd35 소유자 확인은 반영했으며, 전체 슬라이스 독립검증이 남았다. 모델 score와 재학습 결과는 사용하지 않았다.
 
 이번 재개 변경의 [독립검증](../../../docs/verifications/2026-10-11/p08_01_resume.md)은 합격했다(47개 회귀 테스트, 7종 변이, CPU 재측정 산출물 byte 동일). 이 판정은 P08-01 전체 완료나 소유자 표시의 최종 판정을 뜻하지 않는다.
 
@@ -30,6 +30,21 @@
 
 경계 σ와 실제 재계산 결과는 `report.json`이 소유한다. k=1.2 재측정의 σ=0.5는 `configs/anonymize.yaml`과 같다. 경계 관문 통과가 원 크기 단서 해소를 의미하지는 않는다.
 
+## 사람 영역 대비 보조 크기 (보고 전용)
+
+[보조 보고서](person_size_report.json)는 사전 규격의 보조 척도를 계산한다. 기존 이미지 너비 대비 관문과 별개이며 `report.json`의 크기 관문 실패를 바꾸지 않는다.
+
+| 측정군 | 표본 | 분모 | 지름/높이 1사분위·중앙값·3사분위 |
+| --- | --- | --- | --- |
+| REAL | 확인 원 150개 | K-Fashion 의복 부위 rect 합집합 높이 | 0.12406 / 0.14229 / 0.18582 |
+| GEN | 50장 | 수동 표시한 보이는 사람 영역 높이 | 0.12481 / 0.13501 / 0.20806 |
+
+- REAL은 원래 확인한 원을 그대로 사용한다. 부위 4종의 유효 rect에서 최소 Y와 최대 Y+높이의 차이를 잰다. 좌표를 이미지 경계로 잘라내거나 의복 밖 신체 영역을 추정하지 않는다. [부위 rect 발췌](person_rects_real.json)는 외부 라벨의 파생 자료이며, 원 ZIP의 SHA256은 보고서에 기록했다. [REAL별 측정값](person_size_real.csv)도 보관한다.
+- GEN은 학습 재현율 표본 중 소유자 판정 반영 후 얼굴이 보이고 YuNet이 검출한 87장에서, 기존 REAL 측정 seed `20261011`의 정렬·shuffle 순서로 앞 50장을 고정했다([표본](person_sample_gen.csv)). GEN 전체 검출 1,084장의 대표 표본이라고 해석하지 않는다.
+- [GEN 수동 표시](person_height_gen.csv)가 사람 높이의 정본이다. 에이전트가 원본을 320×480 표시 크기로 변환한 시트에서 머리카락·모자부터 최하단 신체·의복·신발까지의 세로 범위를 읽고, 이미지 높이 대비 `top_fraction,bottom_fraction`으로 기록했다. 배경 인물·소품은 제외했다. 원본 높이에 비율을 곱해 픽셀 높이를 복원한다. 시트 눈금은 40px, 육안 경계의 오차는 표시 크기에서 수 px 수준이며 정밀한 분할 마스크가 아니다.
+- 프레임 밖으로 잘린 인물은 보이는 높이만 잰다. 29/50장의 표시가 위 또는 아래 경계에 닿았다. GEN 원 지름은 기존 대표 얼굴 검출의 긴 변 × 선택 k=1.2다([GEN별 측정값](person_size_gen.csv)). 이 대표 얼굴 측정은 P08-02의 모든 얼굴 익명화 구현을 대신하지 않는다.
+- 두 분모의 의미·표본 구성·수동 표시 정밀도가 다르므로 비슷한 중앙값만으로 원 크기 단서 해소를 판정하지 않는다. P08-03의 사전 고정 진단은 여전히 필요하다.
+
 ## 소유자 확인
 
 **학습 GEN 40장 소유자 확인을 반영했다(2026-10-13).** 눈·코·입 중 둘 이상이 보이면 1, 하나만 보이면 0이라는 사전 기준을 사용했다. [최종 표시](recall_labels_owner.csv)는 40장 중 보임 31장·안 보임 9장이며, 에이전트 표시와 다른 3장을 교체했다. 전체 150장 기준 양성 98장·검출 87장으로 재현율 관문을 통과했다. 아래는 검토·재현 절차다.
@@ -54,12 +69,16 @@
 docker compose run --rm -T -v /mnt/h/tracepector/images:/images:ro dev \
   python -m scripts.p08_measure measure --anonymization-config configs/anonymize.yaml
 
+# 보조 크기 재계산: 고정 표본·수동 표시 CSV를 사용한다.
+docker compose run --rm -T -v /mnt/h/tracepector/images:/images:ro dev \
+  python -m scripts.p08_person_size --label-zip '/data/K-Fashion 이미지/Training/라벨링데이터.zip'
+
 # sd35 블라인드 검토 페이지 재생성(이미지 포함 생성물은 review/ 비추적 경로에 둔다).
 docker compose run --rm -T -v /mnt/h/tracepector/images:/images:ro dev \
   python -m scripts.p08_measure owner --pool test_gen_sd35 --sheets reports/errors/review/p08_sd35
 
 docker compose run --rm -T dev python -m pytest \
-  tests/test_p08_measure.py tests/test_face_mask_ci.py tests/test_p06_patterns.py -q
+  tests/test_p08_person_size.py tests/test_p08_measure.py tests/test_face_mask_ci.py tests/test_p06_patterns.py -q
 
 # 호스트 Node.js에서 브라우저 저장 로직 회귀 확인
 node tests/test_p08_owner_review.cjs
@@ -70,7 +89,6 @@ node tests/test_p08_owner_review.cjs
 ## 남은 작업과 한계
 
 - 학습 GEN은 소유자 확인 후 양성 98장으로 최소 80장을 충족해 추가 표본이 필요하지 않다.
-- 사람 영역 대비 보조 크기: REAL의 K-Fashion 부위 rect 합집합 높이, GEN 측정 표본 50장의 수동 사람 영역 높이. **아직 측정하지 않았다.** 관문 없이 보고할 보조 지표다.
 - P08-01 독립검증. 이번 테스트·재측정은 구현자 자가 확인이며 독립검증 합격 기록을 대체하지 않는다.
 - P08-02는 모든 얼굴 검출을 처리해야 한다. 이 측정 스크립트의 P06 대표 얼굴 검출을 그대로 재사용해 여러 얼굴 익명화를 구현하지 않는다.
 - P08-03 크기 진단의 표본·확대 규칙·구간 판정은 학습 결과 전에 고정한다. 원이 커졌을 때 REAL score가 바뀌는지 확인하며, 기존 익명화 원 밑의 얼굴은 복원할 수 없다.

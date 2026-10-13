@@ -1,0 +1,37 @@
+{
+  "real": {
+    "n": 150,
+    "denominator": "clothing_part_rect_union_height",
+    "ratio_quartiles": [
+      0.1240612139226756,
+      0.1422923090852649,
+      0.18582443715846994
+    ]
+  },
+  "gen": {
+    "n": 50,
+    "denominator": "manually_marked_visible_person_height",
+    "ratio_quartiles": [
+      0.12481133012323828,
+      0.13500881837232184,
+      0.20806079273147865
+    ],
+    "frame_clipped": 29
+  },
+  "gate_applies": false,
+  "sample_seed": 20261011,
+  "selected_k": 1.2,
+  "inputs_sha256": {
+    "configs/anonymize_measure.yaml": "65c1917804270e34a171bfeb75585d177d185604b390bfb4d7e3043dc15a198b",
+    "data/metadata.csv": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+    "configs/anonymize.yaml": "0831fbd2a6e9818b9ae3d290b4dd0f982442cb4a96d76598e4184adb5f29e5d7",
+    "/data/K-Fashion 이미지/Training/라벨링데이터.zip": "63b9fb8a4e94b73cc696c4a595b127e86dc476894a94e5d0f720c8bece708dba",
+    "experiments/p08_anonymized/measure/real_disc_candidates.csv": "47eb8a243c780131d0fb080a7fcd3edc3597dc168456f05aa4339b3957ce3bdb",
+    "experiments/p08_anonymized/measure/real_disc_review.csv": "8f241e8be58196645eb995bb470d58d54c2a46d7b5fa091240fe487b94d7471e",
+    "experiments/p08_anonymized/measure/recall_labels_agent.csv": "2e0db47e4fb99f1ca16a3a8953544cf047945ce132f851c3d12c6ab7dd010952",
+    "experiments/p08_anonymized/measure/recall_detections.csv": "dbd0eee40a4842cc557b2c07674da5ba58a58b705b6966d7d577613e6a968ea4",
+    "experiments/p08_anonymized/measure/recall_labels_owner.csv": "501a6053ce7f290265540f223f52507cc87f7f3e3f8c87180fc7af2262af19b9",
+    "experiments/p08_anonymized/measure/person_sample_gen.csv": "79fd218a332a5d68c37eb6e657727271b1b9076c7ee4f5aa3dc1c12257659caa",
+    "experiments/p08_anonymized/measure/person_height_gen.csv": "9b41f5e96537deaf11743f9ae0da3095db3a768e7279eff5c33e52989dcd326f"
+  }
+}
