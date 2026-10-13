@@ -1,4 +1,4 @@
-**조건부 합격** — B1(경계 관문 σ 선택 계약의 회귀 가드 부재) 해소 시 합격.
+**합격** — 라운드 1 조건부(B1) → 보강 `8972d1e`·`526438d` → 라운드 2 추적 검증(같은 검증자, 2026-10-13)으로 조건 해소·H1~H4 반영 확인.
 
 # P08-01 전체 슬라이스 독립검증
 
@@ -120,7 +120,7 @@ PY
 
 ## 판정
 
-**조건부 합격** — B1(경계 관문 σ 선택 회귀 셀 추가) 해소 시 합격.
+라운드 1(2026-10-13, 보강 전): **조건부 합격** — B1(경계 관문 σ 선택 회귀 셀 추가) 해소 시 합격. 최종 판정은 문서 첫 줄을 따른다(라운드 2에서 합격 확정).
 
 - 수치·계보 전면 재현: 재현율 train 87/98(88.78%, Wilson 81.01~93.62) 관문 통과, sd35 64/74(86.49%) 보고 전용, 보조 크기 사분위·frame_clipped·표본 계보·행별 산술 전부 원자료 재도출과 일치.
 - 재현성: 임시 복사본 전량 CPU 재실행에서 `report.json`·sd35 확인 목록·보조 산출물 4종 byte 동일, 나머지 2개 CSV는 줄바꿈만 차이(내용 동일, H2).
@@ -128,13 +128,46 @@ PY
 - 변이 10종 중 8종 기대 셀 재실패(소유자 최종성·sd35 비적용·CSV 검증·k 사용·rect 합집합·표본 계보·ellipse 방향·미완료 저장). M1·M2만 무저항이며 이것이 B1이다.
 - 소유자 육안 표시(원 확인·재현율 1차 표시의 정답 자체·사람 높이 범위 판독)는 재판독하지 않았다 — 원자료의 소유자 서술은 소유자 확인 절차(불일치+무작위 20%)와 기록으로 수용했다.
 
+## 추적 검증 — 라운드 2 (2026-10-13)
+
+- 대상: 보강 커밋 `8972d1e`(B1 회귀 셀·H1 provenance·H2 LF)·`526438d`(구현자 변이 자가확인 기록). 요청: 소유자. 검증자는 라운드 1과 동일하며, 구현자 설명·자가확인 표는 신뢰하지 않고 전 항목을 원자료에서 재확증했다. 변이 전 `git status --short` 빈 값 확인(트리 클린).
+
+### B1 해소 확인
+
+- 신규 셀 `tests/test_p08_measure.py:176` `test_edge_sigma_includes_both_tolerance_bounds_and_keeps_first_match`는 σ grid [.25,.5,.75,1.0]·REAL 전이 폭 2px stub에서 (a) 하한 경계(σ=0.5→폭 1.0, delta=1.0) 선택, (b) 상한 경계(σ=0.5→폭 3.0, delta=1.0) 선택, (c) 전 σ 매칭 없음 → `sigma=null`·`edge_passed=false`를 잠근다. `sigma` 값·`edge_width_by_sigma` 전체·`edge_passed`를 모두 단언한다. 선택 코드(`scripts/p08_measure.py:337`) 자체는 변경하지 않았다(보강은 셀 추가만 — 계약 리터럴 불변).
+- 변이 3종 독립 실행(적용→guarding 셀 실행→`git checkout --` 복원→`git status --short` 빈 값 확인 each):
+
+| 변이 | 방향 | 결과 |
+| --- | --- | --- |
+| M1r `:337` `<= tolerance_px` → `<` (닫힌 경계 배제) | 과잉 | exit 1 — 하한·상한 경계 2셀 재실패(무매칭 1셀은 통과) |
+| M2r `:337` `chosen is None and` 제거(최소 σ→마지막 매칭 σ) | 과소 | exit 1 — 같은 2셀 재실패 |
+| M3r `edge_passed=chosen is not None` → `True`(무매칭도 통과) | 과소 | exit 1 — 무매칭 셀 재실패 |
+
+### H1~H4 반영 확인
+
+- H1: `report.json` `provenance.owner_labels_sha256` 두 pool 값이 소유자 CSV 실측 sha256과 일치(재계산). 표시 파일 부재 시 `null` 처리도 `tests/test_p08_measure.py:151`이 잠근다.
+- H2: csv writer 5곳 `lineterminator='\n'`(`scripts/p08_measure.py:178`·`:193`·`:249`·`:357`·`:362`), 측정 출력 3종 `\r` 부재 회귀 셀(`tests/test_p08_measure.py:153`), worktree sd35 확인 목록·빈 양식의 LF 정규화 확인. 재실행 산출물 4종이 HEAD blob·worktree와 모두 byte 동일(아래).
+- H3/H4: 측정 README "남은 작업과 한계"에 보조 표본 선정의 사후 고정 성격, 사람 높이가 소유자 재확인 없는 에이전트 육안 표시임, P08-03에서 진단 표본·판정 규칙을 재학습 결과 전에 별도 고정한다는 명시를 확인했다.
+
+### 수치 불변·재현
+
+- `report.json`은 라운드 1 대비 `owner_labels_sha256` 추가 외 전 필드 동일(역직렬화 비교). `person_size_report.json` 입력 해시 11종 유효 — 보조 산출물은 본 변경의 영향이 없다.
+- 집중 회귀 **57 passed**(`tests/test_p08_person_size.py`·`test_p08_measure.py`·`test_face_mask_ci.py`·`test_p06_patterns.py`) + `node tests/test_p08_owner_review.cjs` **2 passed** — 독립 재현. `git diff --check` 통과, 갱신 문서(README·계획·index·HANDOFF·일지) 링크 전수 존재.
+- 임시 복사본 전량 CPU 재실행(보강 코드, 이미지 읽기 전용 mount, 산출물은 mount로 꺼내 host에서 비교): `report.json`(sha256 `9237f055…`)·`recall_detections.csv`(`dbd0eee4…`)·`recall_owner_check.csv`(`bb525ec1…`)·`recall_owner_check_sd35.csv`(`75afd38f…`) 4종 전부 **HEAD blob·worktree와 byte 동일** — 라운드 1의 EOL 차이(H2)가 해소됐다.
+
+### 라운드 2 잔여 (비차단)
+
+- R1: 스크립트가 다시 쓰지 않는 입력 CSV(`real_disc_candidates.csv`·`real_disc_review.csv`·`recall_labels_agent.csv`·train 빈 양식)는 worktree CRLF·blob LF 상태로 남는다(`core.autocrlf=input`). 이 머신에서는 안정적이나 신규 clone에서 체크아웃하면 worktree가 LF가 되어 `person_size_report.json`이 기록한 `recall_labels_agent.csv` 해시와 재실행 결과가 어긋날 수 있다(검증 시 불일치로 드러나는 형태라 조용한 오염은 아니다). 향후 기회에 입력 CSV도 LF로 정규화하면 blob 기준 재현이 완전해진다.
+
 ## 남은 운영 상태
 
-1. B1 회귀 셀 추가 후 같은 검증자의 추적 검증이 필요하다(합격 확정 전까지 P08-02 착수 보류 권장 — 소유자 표준 루프).
-2. H1~H4는 비차단이나 소유자 루프 표준상 반영 여부를 소유자가 결정한다.
-3. 합격 확정 시 측정 README·계획 `:29`·`00_index.md`·HANDOFF의 "독립검증 대기" 문구를 갱신하고 CHANGELOG에 P08-01 종결 항목을 추가한다(현재 CHANGELOG 마지막 P08 항목은 2026-10-11 재개 검증까지).
-4. 본 검증기록은 검증자가 커밋한다(소유자 지시 2026-10-13). 검증으로 슬라이스 코드·산출물은 변경하지 않았다.
+1. B1 해소·H1~H4 반영 확인으로 **P08-01 슬라이스 독립검증은 합격**이다(라운드 2 확정).
+2. 구현자 다음 작업: 측정 README·계획 §P08-01·`00_index.md`·HANDOFF의 "조건부 합격·추적 검증 대기" 문구를 합격으로 갱신하고 CHANGELOG에 P08-01 종결 항목을 추가한 뒤 P08-02(익명화 모듈)에 착수한다.
+3. R1(입력 CSV EOL)은 비차단이며 P08-02 이후 기회에 반영할 수 있다.
+4. 검증으로 슬라이스 코드·산출물은 변경하지 않았다. 본 기록의 라운드 2 갱신을 검증자가 커밋한다.
 
 ## 재현
 
 위 "테스트·정적 검사" 명령 → "독립 재도출" 스크립트(호스트 표준 라이브러리: CSV 결합·Wilson·사분위·표본 seed·확인 목록·해시) → 임시 복사본 CPU 재실행(measure·person_size, 이미지 읽기 전용 mount) → 변이 표의 literal을 1개씩 적용·guarding 셀 실행·`git checkout --` 복원·`git status --short` 확인(매번) → combined focused suite. 실측은 GPU 미사용. 컨테이너 실행은 Docker socket 권한으로 승인된 escalation을 사용했다.
+
+라운드 2 재현: 집중 회귀 57+2 → 소유자 CSV 해시·report 필드 차이·EOL 상태 재계산 → 변이 M1r~M3r(`tests/test_p08_measure.py::test_edge_sigma_includes_both_tolerance_bounds_and_keeps_first_match` guarding 셀) → 임시 복사본 재실행 후 산출물 4종 sha256을 `git show HEAD:<경로>` blob·worktree와 비교(컨테이너에는 git이 없으므로 산출물을 mount로 꺼내 host에서 비교).
