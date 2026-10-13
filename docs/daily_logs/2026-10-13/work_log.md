@@ -177,6 +177,18 @@
 - config의 cue_model과 채택 상태 이름은 첫 커밋 전에 정리했고 사전등록 hash만 재생성했다. manifest 3개의 바이트·표본·기하는 그대로다. 이후 결과 전에 커밋으로 고정한다.
 - 독립검증 결과는 별도 검증 기록으로 남긴다. 이번 구현자 확인을 독립 판정으로 취급하지 않는다.
 
+### 독립검증 1차 지적 보강
+
+- 사용자 지시에 따라 한 명의 서브에이전트를 구현자 대화 맥락 없이 스폰했다. 첫 사전등록 커밋은 `77da668`, 독립검증 보고서 커밋은 `a0cbc42`이고 판정은 B1~B3 불합격이다. 보고서 원문은 검증자가 소유하며 구현자는 수정하지 않는다.
+- B1: 같은 이미지 한 번 재추출이라는 모호한 문구를 제거했다. 이미지별 공동 편집·한 예측과 bootstrap의 n개 인덱스 복원추출/반복 허용을 구분했다.
+- B2: config의 (a) 상태·주석/구간·표본, (b/c/d) 기하/개입, 구간 허용폭·결측·채택 실패 분기를 named 계약 셀로 잠갔다. alpha45/beta43/gamma2+무얼굴1 fixture의 cap40·seed 순차 shuffle golden 제외 ID·부족 생성기 all·원2개/이미지1개 집계·manifest hash를 확인한다. cache 누락/추가/중복·review 중복·REAL label/image_id 불일치 거부 셀도 추가했다.
+- B3: 실제 REAL `1287673`은 기존 원과 별개 위치의 YuNet 얼굴을 가진다. REAL shape/size는 정상 익명화 RGB 위의 추가 overlay로 다른 마스크도 보존하고, GEN gray/restore만 원본 기반으로 구성한다. config의 `construction_base`와 문서를 일치시켰다.
+- H1: bootstrap `numpy.random.Generator(numpy.random.PCG64(seed))`·행별 `(20000,n)` 정수 복원추출·percentile `method="linear"`를 config/문서에 고정했다. seed·표본·허용폭은 그대로다.
+- H2: 선택 REAL 기하의 모든 수치 유한성·너비/축 양수·major≥minor를 출력 전에 검사한다. 음수 중심·등축은 정상 clipping으로 허용하며 양방향 회귀로 잠근다.
+- `docker compose run --rm -T dev python -m pytest tests/test_p08_preregister.py tests/test_anonymize.py -q`: **50 passed**. 이 명령은 사전등록 변경과 재사용한 hash/좌표 계약의 관련 회귀이며 GPU 학습을 하지 않는다.
+- 새 학습 결과가 없는 상태에서 보강된 config raw hash만 사전등록에 반영했다. 7개 원본 input hash·3개 CSV·REAL149/GEN162/주석952·크기 목표는 최초와 동일하다. config hash는 `b526e3923b95368f7ca99e2d44f87e723109009f21163e82934cab9a2ec605cb`다. source/표본 변경 없이 config 해석·회귀만 고정했다.
+- 보강 커밋 후 같은 검증자에게 추적검증을 요청한다. 최종 합격 전 P08-04는 대기한다.
+
 ## 다음 작업
 
 - P08-03 서브에이전트 독립검증·차단/비차단 보강. 합격 후 P08-04 재학습 준비로 넘긴다.

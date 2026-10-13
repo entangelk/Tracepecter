@@ -10,6 +10,8 @@
 docker compose run --rm -T dev python -m scripts.p08_preregister
 ```
 
+선택된 REAL 기하는 width/cx/cy/major/minor/angle이 모두 유한한 숫자여야 하고 width·두 축은 양수, major≥minor여야 한다. 화면 가장자리의 음수 중심은 허용한다. 잘못된 기하는 출력 전에 거부한다.
+
 재생성은 동일 바이트일 때만 허용한다. 다른 입력·config로 기존 파일을 덮어쓰는 것은 거부한다. 동일 커밋의 config·입력 raw-byte 해시는 `preregistration.json`에 있고 3개 CSV의 해시도 함께 보존한다. 입력 파일의 줄바꿈도 해시에 포함한다. CSV는 LF다. 주석 완성 파일 `face_review.csv`는 빈 양식과 다른 파일이며 예측 전 커밋·해시 고정이 필요하다.
 
 ## 2×2 평가
@@ -30,7 +32,7 @@ baseline(P05 artifact의 checkpoint)·candidate(P08-05 artifact의 checkpoint) �
 
 ## 개입 기하·순서
 
-모든 reference는 해당 이미지의 정상 익명화 입력이다. variant는 같은 원본 RGB에서 구성한 뒤 checkpoint의 resize·정규화만 적용한다. 증강은 없다. variant를 만든 뒤 일반 익명화 함수를 다시 호출하면 회색/복원 조건이 흰 원으로 되돌아가므로 재적용하지 않는다. snapshot·파일 검증은 variant에서도 생략하지 않는다.
+모든 reference는 해당 이미지의 정상 익명화 입력이다. REAL shape/size variant는 **정상 익명화 RGB** 위에 confirmed 기존 원만 추가 overlay하여 다른 위치의 모든 YuNet 마스크도 보존한다. GEN gray/restore variant만 원본 RGB에서 구성한다. 각 variant에는 checkpoint의 resize·정규화만 적용한다. 증강은 없다. variant를 만든 뒤 일반 익명화 함수를 다시 호출하면 회색/복원 조건이 흰 원으로 되돌아가므로 재적용하지 않는다. snapshot·파일 검증은 variant에서도 생략하지 않는다.
 
 - (b) **real_shape**: 기존 타원을 포함하는 원을 동일 중심에 덧칠한다. 반지름 = 측정 장축/2 + edge guard. 기존 익명화 영역을 줄이거나 숨겨진 얼굴을 복원하지 않는다. fill·Gaussian alpha·좌표 반올림은 checkpoint 익명화 커널과 같다.
 - (d) **real_size**: 같은 중심에서 반지름 = `max(real_shape 반지름, width*GEN 목표 지름비/2 + edge guard)`. 목표 비율은 P08-01 `report.json`의 `synthetic.selected_size.synthetic_quartiles[1]`(k=1.2 GEN 중앙값, **0.1631602984208327**)이다. 이 측정은 당시 대표 얼굴 표본에서 유도된 값이며 새 전체 얼굴 캐시에서 재추정하지 않는다. 절대 목표 크기·원별 실제 확장비·이미지 경계 clipping을 보고한다. 이미 큰 원은 축소하지 않고 그대로 두며 해당 개입의 확장 없는 이미지 수를 보고한다.
@@ -50,7 +52,7 @@ Wilson 구간은 반올림 전 값을 사용한다. Newcombe: rate `p1,p2`, 각�
 
 **개입(b/c/d)**: 각 조건마다 최소 80개 고유 이미지가 필요하다. 두 관문을 모두 만족해야 통과한다.
 
-1. 이미지별 `abs(variant score-reference score)`를 구해 평균을 내고, seed 고정·20,000회 이미지 bootstrap의 양측 percentile 95% 구간 상한이 **5점 이하**인지 확인한다. 동일 이미지는 한 번만 재추출하며 각 조건에서 image_id 정렬 후 동일 seed를 초기화해 같은 bootstrap 추출을 사용한다. 서로 다른 표본군 사이에는 paired 추출이라고 주장하지 않는다. signed 평균·분포·generator 분해도 별도로 보고한다.
+1. 이미지별 `abs(variant score-reference score)`를 구해 평균을 내고, seed 고정·20,000회 이미지 bootstrap의 양측 percentile 95% 구간 상한이 **5점 이하**인지 확인한다. n개 이미지 인덱스를 복원추출해 각 resample에 n개를 뽑으며 **반복 인덱스를 허용**한다. 같은 이미지의 여러 원은 공동 편집·한 예측으로 고정하고 원별로 독립 추출하지 않는다. 각 조건에서 image_id 정렬 후 `numpy.random.Generator(numpy.random.PCG64(seed))`를 초기화하고 `integers(0, n, size=(20000, n))`로 행별 추출 인덱스를 만든다. `numpy.percentile(..., [2.5, 97.5], method="linear")`로 구간을 계산한다. 같은 표본군의 조건은 같은 seed로 같은 bootstrap 추출을 사용한다. 서로 다른 표본군 사이에는 paired 추출이라고 주장하지 않는다. signed 평균·분포·generator 분해도 별도로 보고한다.
 2. reference에서 맞았으나 variant에서 틀린 이미지 수를 전체 개입 이미지 수로 나눈 위험에 Wilson 양측 95% 구간을 구하고 상한이 **0.05 이하**인지 확인한다. 오답 전환 0개라도 Wilson 상한은 양수이므로 작은 표본을 확신으로 처리하지 않는다. 반대 전환도 보고하되 관문에서 상쇄하지 않는다.
 
 허용 경계는 포함한다. NaN/무한대·필요 예측 누락·중복 이미지·표본 부족은 미확정이며, 일부 유효 표본만으로 통과시키지 않는다. 신뢰구간이 허용폭을 벗어나면 관문 실패다. 이것은 ‘유의차 없음’ 판정이 아니라 고정 허용폭 안에 구간이 들어가는 운영상 등가성 기준이다. 5점·5%·10%p는 P08 개발 진단용 허용폭이며 사용자 체감·외부 holdout에서 검증된 한계값은 아니다. 다중 비교는 모두 통과해야 하는 교집합 관문으로 운영하며 각 95% 구간을 가족 전체의 동시 95% 구간이라고 주장하지 않는다.

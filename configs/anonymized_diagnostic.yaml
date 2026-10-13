@@ -53,22 +53,26 @@ interventions:
   real_shape:
     cohort: real
     reference: anonymized
+    construction_base: normal_anonymized
     edit: white_circle_covering_existing_ellipse
     radius: measured_major_half_plus_edge_guard
   real_size:
     cohort: real
     reference: anonymized
+    construction_base: normal_anonymized
     edit: enlarge_existing_white_circle_only
     target: measurement_synthetic_selected_size_median_diameter_over_width
     radius: max_shape_radius_and_target_radius
   gen_gray:
     cohort: detected_gen
     reference: anonymized
+    construction_base: original
     edit: paint_all_cached_face_discs_gray_from_original
     fill: [128, 128, 128]
   gen_restore:
     cohort: detected_gen
     reference: anonymized
+    construction_base: original
     edit: original_image_without_synthetic_face_discs
   # REAL은 숨은 얼굴 복원·축소 금지. 덧칠 후 checkpoint 전처리를 다시 적용하지 않는다.
   edge_guard_sigma_multiplier: 3.0
@@ -102,6 +106,9 @@ intervention_rules:
     statistic: mean_absolute_paired_score_shift
     scale: [0, 100]
     bootstrap: image_cluster_percentile_two_sided
+    rng: numpy_generator_pcg64
+    index_draw: integers_zero_to_n_exclusive_shape_resamples_by_n_with_replacement
+    percentile_method: linear
     resamples: 20000
     confidence: 0.95
     max_upper: 5.0

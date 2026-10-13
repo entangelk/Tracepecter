@@ -63,6 +63,11 @@ def prepare(config_path):
             source = meta[row['image_id']]
             if review['image_id'] != row['image_id'] or source['label'] != '1' or source['split'] != settings['sampling']['real_split']:
                 raise ValueError('real review lineage mismatch')
+            geometry = {k: float(row[k]) for k in ('width', 'cx', 'cy', 'major', 'minor', 'angle')}
+            if (not all(math.isfinite(v) for v in geometry.values())
+                    or geometry['width'] <= 0 or geometry['minor'] <= 0
+                    or geometry['major'] < geometry['minor']):
+                raise ValueError('invalid real geometry')
             real.append({k: row[k] for k in ('candidate_id', 'image_id', 'width', 'cx', 'cy', 'major', 'minor', 'angle')})
     real.sort(key=lambda r: (r['image_id'], r['candidate_id']))
     gen = sorted((r for r in metadata if r['label'] == '0' and r['split'] in settings['sampling']['gen_splits']),
