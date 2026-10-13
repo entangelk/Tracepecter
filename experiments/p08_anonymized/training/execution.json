@@ -1,0 +1,36 @@
+{
+  "observed_machine_date": "2026-10-13",
+  "started_at": "2026-10-13T08:07:38.746673242Z",
+  "finished_at": "2026-10-13T08:23:47.224049555Z",
+  "checkpoint_mount": {
+    "Type": "bind",
+    "Source": "/mnt/h/tracepector/checkpoints",
+    "Destination": "/app/checkpoints",
+    "Mode": "rw",
+    "RW": true,
+    "Propagation": "rprivate"
+  },
+  "image_mount": {
+    "Type": "bind",
+    "Source": "/mnt/h/tracepector/images",
+    "Destination": "/images",
+    "Mode": "ro",
+    "RW": false,
+    "Propagation": "rprivate"
+  },
+  "hf_home": "/app/checkpoints/hf_cache",
+  "training_git_commit": "6ace79b968adba3515462938916ca08f0e3d57f7",
+  "supervisor_exit_code": 1,
+  "supervisor_message": "setsid: wait: Success",
+  "training_exit_code_not_captured_by_supervisor": true,
+  "completed_checkpoint_resume_cli_exit_code": 0,
+  "completed_checkpoint_resume_additional_epochs": 0,
+  "epochs_done": 10,
+  "training_device": "NVIDIA GeForce RTX 3060",
+  "dependencies": {
+    "torch": "2.9.0+cu128",
+    "torchvision": "0.24.0+cu128",
+    "transformers": "5.19.0",
+    "opencv": "4.13.0"
+  }
+}

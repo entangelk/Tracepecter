@@ -223,6 +223,23 @@
 - 보강 후 `tests/test_p08_training_config.py tests/test_anonymize.py tests/test_train_smoke.py tests/test_baseline.py` 집중 회귀 **31 passed**, 실제 YuNet `src.train --config configs/anonymized.yaml --smoke`도 1epoch 완료했다. 학습 설정·smoke 보강을 먼저 커밋한 뒤 해당 commit을 GIT_COMMIT으로 실학습에 기록한다.
 - 긴 실학습은 setsid + disk log, epoch마다 best/last/experiment.json으로 보존하고 중단은 같은 config의 --resume으로 이어간다. baseline artifact는 변경하지 않으며 학습 후 independent 검증까지 진행한다.
 
+### 실학습 실행·H: 저장 확인
+
+- 학습 출처는 `6ace79b`이며 GIT_COMMIT 환경변수로 고정했다. 실행 직전 GPU919MiB/12%, 동일 학습 컨테이너 없음, working tree clean을 확인했다.
+- 호스트 `setsid bash ... &` supervisor는 도구 종료 시 정리되어 로그가 비어 있고 컨테이너/학습 결과가 없었다. Docker daemon의 detached 컨테이너 내부 `setsid --wait bash`로 바꾸어 실행 지속을 실제 확인했다. 모델 결과 없는 첫 시도에서 학습을 중복 시작하지 않았다.
+- 실제 명령은 `GIT_COMMIT=<6ace79b 전체 hash> CHECKPOINT_DIR=/mnt/h/tracepector/checkpoints docker compose --profile training run -d --name tracepecter-p08-train train setsid --wait bash -c '<python -u -m src.train --config configs/anonymized.yaml 실행·training.log redirect·exit_code.tmp 기록>'`이다. 컨테이너 이름은 이 머신의 실행 식별자이며 프로젝트 고정 API가 아니다.
+- `docker inspect`에서 checkpoint RW mount는 `/mnt/h/tracepector/checkpoints`, images는 `/mnt/h/tracepector/images:ro`로 실제 일치했다. StartedAt 2026-10-13T08:07:38Z(17:07 KST), CPU/GPU 학습 입력 초기화와 weight 로드를 확인했다.
+- 첫 epoch train_loss0.264921/val_loss0.079515/val ROC-AUC0.998106, 실제 H: `anonymized/best.pt`357MiB·`last.pt`362MiB·experiment.json 생성 확인. 이 시점 GPU약1.8GiB이며 가용메모리를 침범하는 다른 큰 작업 정황은 없다. 완료 epoch와 상태는 디스크에 남는다.
+
+### 실학습 완료·artifact 자가 확인
+
+- 10epoch 출력·checkpoint saved 완료. 실제 경과는 17:07:38~17:23:47 KST(약16분)다. train3,780/val820, best epoch10·val_loss0.0215848964·val ROC-AUC0.9997955945·accuracy0.9914634146이다. 최종 loss 최소의 best를 선택했으며 val 수치를 Test 성능으로 해석하지 않는다.
+- best357MiB·last362MiB는 H:의 `tracepector/checkpoints/anonymized/`에 있다. hash·크기·history·지표는 `experiments/p08_anonymized/training/result.json`, 실제 mount·기계 관측·종료 구분은 `execution.json`에 남겼다. 새 binary 파일은 Git에 넣지 않는다.
+- supervisor는 `setsid: wait: Success`/exit1로 Python exit code를 포착하지 못했고 exit_code.tmp도 없다. 10epoch·last·history·best는 완결돼 있었다. 완료 checkpoint의 같은 config --resume은 start_epoch11이라 추가 학습/쓰기 없이 정상 exit0로 확인됐다. 원 wrapper의 종료 코드와 정상 CLI 재개 검증을 구분해 기록했고 앞으로 이 머신에서 그 wrapper를 재사용하지 않는다. detached Docker Python PID1·disk log/epoch 재개가 더 신뢰 가능한 운영 경로다.
+- 실제 torch.load CPU 검증으로 best/last/experiment config==training_config(YAML), last10epoch/history1~10/record 동일, best loss 최소·metric/history 대응·tensor 유한·encoder baseline byte 동일/head 변경·임시 checkpoint 잔여 없음·baseline/사전등록 hash 불변을 확인했다. 초기 외부 helper script import 경로 실패는 cwd runpy 실행으로 수정해 최종 검증이 통과했다.
+- 결과 기록의 best SHA256은 `091ac45424099c41bf50bb0adf7932d4b0b1ace3ceba9b9a27e25af99732c54b`다. P05·P06 기존 artifact·primary는 변경하지 않았다. 비교 재평가는 고정된 P08-06 2×2에서 수행하며 기존 baseline을 재학습하지 않는다.
+- 실학습·자가 검증 기록을 커밋하고 신규 서브에이전트 한 명에게 독립검증을 맡긴다. 차단·비차단 모두 보강해 합격까지 진행한다.
+
 ## 다음 작업
 
-- P08-04 실학습10epoch → artifact/입력 무결성 확인 → 한 명 독립검증·전 지적 보강·추적 합격.
+- P08-04 독립검증·보강·추적 합격 후 P08-05 재calibration.

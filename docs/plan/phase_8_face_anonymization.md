@@ -72,7 +72,7 @@
      - 새 모델이 §20 기준(Standard Test ROC-AUC ≥ 0.90, Unseen ≥ 0.80)을 익명화 입력에서 만족하고, "단서 해소" 판정을 받으면 `configs/primary.yaml`을 교체한다.
      - 아니면 primary를 교체하지 않고(baseline artifact 그대로) 소유자에게 보고한다. 이 경우 **P07은 대기하고 P08을 다시 시도**한다(검출 보강·원 규격 조정). 재시도도 미채택이면 그때 소유자에게 다시 묻는다(소유자 결정 2026-10-11, Q5). §22(모든 추론에 익명화)는 바꾸지 않는다.
 4. **P08-04 재학습**
-   - 현재 상태: **In Progress (2026-10-13)** — 설정·사전 확인, 실학습 실행 준비([기록](../../experiments/p08_anonymized/training/README.md)).
+   - 현재 상태: **In Progress (2026-10-13)** — 10 epoch 재학습·artifact 자가 확인, 독립검증 대기([기록](../../experiments/p08_anonymized/training/README.md)).
    - `configs/anonymized.yaml`은 `configs/primary.yaml`과 같은 설정(SigLIP frozen + MLP, 10 epoch, seed 42)에 익명화 규격만 더한 것이다.
    - checkpoint는 `checkpoints/anonymized/`에 저장한다.
    - baseline 비교값은 기존 checkpoint를 다시 평가해 얻는다(재학습하지 않음). 학습 결정성은 입증되지 않았다(테스트 stub 비결정성 V1).
