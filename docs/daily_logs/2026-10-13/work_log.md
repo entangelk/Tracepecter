@@ -248,6 +248,25 @@
 - 실제 H: 모델 opt-in `tests/test_p08_training_config.py`: **3 passed**. 기본 `tests/test_p08_training_config.py tests/test_train_smoke.py`: **5 passed, 1 skipped**. source·학습 config·실제 모델 binary는 보강에서 변경하지 않는다.
 - 검사 중 source mutation3종의 복원·clean은 검증자가 담당했으며 표는 원 독립 기록에 있다. H1 보강 커밋 후 같은 agent에 추적검증을 요청한다.
 
+### 독립검증 라운드 2 합격·P08-04 종결
+
+- 같은 검증자가 H1을 추적 검증하고 보고서 commit `6a848c3`에서 최종 합격·남은 차단/비차단0을 확정했다. 실제 opt-in3 passed, 기본5 passed/1 skipped와 실제 H: artifact hash·임시 잔여 없음·source/config 불변을 다시 확인했다.
+- 검증자가 수행한 두 라운드 변이는 모두 guarding cell을 재실패시키고 각 변이마다 byte 동일·clean으로 복원했다. artifact binary는 변이하지 않았다. 세부 재현/위치·최종 판정은 원 독립검증 보고서가 소유한다.
+
+| 독립검증 변이 | 재실패 셀 | 결과 |
+| --- | --- | --- |
+| smoke CLI 원본32px 복귀, `src/train.py:188` | `test_smoke_uses_model_resolution_and_preserves_default_fixture` | exit1 |
+| direct fixture default32→224 과교정, `src/train.py:45` | 같은 셀 | exit1 |
+| candidate seed42→43, `configs/anonymized.yaml:15` | `test_anonymized_training_matches_primary_except_preprocessing_and_output` | exit1 |
+| 학습 anonymizer=None 우회, `src/train.py:66` | `test_real_yunet_anonymized_cpu_smoke_completes` | exit1, observed[] |
+| detector 모델 경로 누락, `configs/anonymize.yaml:4` | 같은 실제 smoke 셀 | exit1, unavailable |
+| detector hash의 유효64자리 문자열 변조, `configs/anonymize.yaml:5` | 같은 실제 smoke 셀 | exit1, sha256 mismatch |
+
+- 첫 hash 변이 `0*64`는 YAML int0으로 해석되어 shape 검사를 맞았으므로 hash 검사의 증거로 세지 않았다. 검증자가 문자열 `f*64`로 다시 실행해 hash 불일치 거부를 확인했다. 원 검증기록에 이 구분을 남겼다.
+- 설정·smoke 보강·실학습·H: 모델 저장·result/execution 근거·독립검증·H1 보강·추적 합격까지 사용자 요청 절차를 마쳤다. 기존 baseline·primary·P05/P06·P08-03 사전등록은 유지한다. wrapper 원 exit 미포착 사실은 그대로 기록하며 완료 CLI 정상 재개로 증거를 보완했다.
+- 계획·인덱스·학습 README를 P08-04 Complete, HANDOFF는 P08-05로 대체했다. 현재 handoff43줄, 지적/과거 실행 PID를 추가하지 않았다. 완료 문서 diff·상대 링크 확인 후 종결 commit을 남긴다. 모델학습 byte 결정성·Test A/B 성능·최종 채택은 이 작업에서 주장하지 않는다.
+
 ## 다음 작업
 
-- P08-04 H1 추적검증·잔여 보강·합격 확정 후 P08-05 재calibration.
+- P08-05: `configs/calibration_anonymized.yaml`에 새 checkpoint·face_cache·별도 output을 설정해 validation-only fitting/고정 Test 지표를 만들고 같은 독립검증·전 지적 보강 절차를 적용한다.
+- P08-06: 고정 2×2/단서 관문 실행기, 진단 예측 전952장 얼굴 주석·소유자 확인/hash 고정, 사전 규칙으로 최종 채택 판정.

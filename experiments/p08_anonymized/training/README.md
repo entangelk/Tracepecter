@@ -1,6 +1,6 @@
 # P08-04 익명화 재학습
 
-상태: **10 epoch 재학습·artifact 자가 확인, 독립검증 대기**. [P08-03 사전등록](../diagnostic/README.md)은 결과 전에 고정·독립검증 합격이다. [학습 config](../../../configs/anonymized.yaml)는 primary와 모델·seed·10 epoch·batch32·lr·증강·split이 같고 익명화 규격/좌표 캐시·별도 checkpoint 경로만 다르다.
+상태: **Complete (2026-10-13)**. [독립검증 라운드 2 합격](../../../docs/verifications/2026-10-13/p08_04_anonymized_training.md), 비차단 H1까지 보강·남은 지적 없음. [P08-03 사전등록](../diagnostic/README.md)은 결과 전에 고정·독립검증 합격이다. [학습 config](../../../configs/anonymized.yaml)는 primary와 모델·seed·10 epoch·batch32·lr·증강·split이 같고 익명화 규격/좌표 캐시·별도 checkpoint 경로만 다르다.
 
 Compose가 `checkpoints/`와 `HF_HOME=/app/checkpoints/hf_cache`를 같은 checkpoint bind mount에 연결한다. 이 머신의 2026-10-13 실제 연결은 `/mnt/h/tracepector/checkpoints`(H:)이며 새 artifact는 `anonymized/` 아래다. baseline은 덮어쓰지 않는다. 학습 로그 `training.log`는 작은 텍스트이고 Git 비추적이다.
 
@@ -39,7 +39,7 @@ CHECKPOINT_DIR=/mnt/h/tracepector/checkpoints \
   python -u -m src.train --config configs/anonymized.yaml --resume
 ```
 
-Python CPU `torch.load(..., weights_only=True)`로 실제 best/last를 읽어 위 config·epoch·loss·history·tensor 검사를 수행했다. 바이너리는 Git 비추적이고 이 결과/실행 JSON·README만 추적한다. smoke 원본 해상도 회귀와 config 차이 회귀, 기존 학습/재개 관련 테스트31개가 통과했다. 독립검증은 별도 후속이며 모델 자체의 byte 결정성은 주장하지 않는다.
+Python CPU `torch.load(..., weights_only=True)`로 실제 best/last를 읽어 위 config·epoch·loss·history·tensor 검사를 수행했다. 바이너리는 Git 비추적이고 이 결과/실행 JSON·README만 추적한다. smoke 원본 해상도 회귀와 config 차이 회귀, 기존 학습/재개 관련 테스트31개가 통과했다. 독립검증은 라운드 2 합격이며 모델 자체의 byte 결정성은 주장하지 않는다.
 
 ## 실제 YuNet opt-in 회귀
 

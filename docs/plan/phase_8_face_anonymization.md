@@ -60,7 +60,7 @@
        - 키가 `null`인 checkpoint는 평가 도구에서 원본 입력으로 동작한다.
        - 새 학습 config에 키가 없으면 거부한다.
 3. **P08-03 진단·채택 규칙 사전 고정** — 학습 결과를 보기 전에 config(`configs/anonymized_diagnostic.yaml`)를 커밋한다.
-   - 현재 상태: **Complete (2026-10-13)**. [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_03_diagnostic_preregistration.md), 차단·비차단 모두 보강. [진단 계약·표본](../../experiments/p08_anonymized/diagnostic/README.md)은 재학습 결과 전에 커밋됐다. 실제 진단 실행기는 P08-06에서 구현한다. 다음은 P08-04다.
+   - 현재 상태: **Complete (2026-10-13)**. [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_03_diagnostic_preregistration.md), 차단·비차단 모두 보강. [진단 계약·표본](../../experiments/p08_anonymized/diagnostic/README.md)은 재학습 결과 전에 커밋됐다. 실제 진단 실행기는 P08-06에서 구현한다.
    - 2×2 평가: {baseline, 새 모델} × {원본 입력, 익명화 입력}에서 val·Test A·Test B 지표를 낸다. 재학습 효과와 입력 변화 효과를 나눠 보기 위해서다.
    - 단서 진단:
      - (a) P06-04 집계를 새 모델에 다시 돌린다. GEN 오류가 얼굴 상태(익명화됨 / 얼굴 없음 / YuNet이 놓친 측면 얼굴)에 몰리는지 본다. 놓친 얼굴은 익명화 뒤 더 강한 GEN 단서가 될 수 있으므로 따로 센다.
@@ -72,7 +72,7 @@
      - 새 모델이 §20 기준(Standard Test ROC-AUC ≥ 0.90, Unseen ≥ 0.80)을 익명화 입력에서 만족하고, "단서 해소" 판정을 받으면 `configs/primary.yaml`을 교체한다.
      - 아니면 primary를 교체하지 않고(baseline artifact 그대로) 소유자에게 보고한다. 이 경우 **P07은 대기하고 P08을 다시 시도**한다(검출 보강·원 규격 조정). 재시도도 미채택이면 그때 소유자에게 다시 묻는다(소유자 결정 2026-10-11, Q5). §22(모든 추론에 익명화)는 바꾸지 않는다.
 4. **P08-04 재학습**
-   - 현재 상태: **In Progress (2026-10-13)** — 10 epoch 재학습·artifact 자가 확인, 독립검증 대기([기록](../../experiments/p08_anonymized/training/README.md)).
+   - 현재 상태: **Complete (2026-10-13)** — 10 epoch·best epoch10, [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_04_anonymized_training.md)·H1까지 보강([학습 기록](../../experiments/p08_anonymized/training/README.md)). 다음은 P08-05다.
    - `configs/anonymized.yaml`은 `configs/primary.yaml`과 같은 설정(SigLIP frozen + MLP, 10 epoch, seed 42)에 익명화 규격만 더한 것이다.
    - checkpoint는 `checkpoints/anonymized/`에 저장한다.
    - baseline 비교값은 기존 checkpoint를 다시 평가해 얻는다(재학습하지 않음). 학습 결정성은 입증되지 않았다(테스트 stub 비결정성 V1).
