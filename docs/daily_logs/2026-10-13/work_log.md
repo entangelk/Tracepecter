@@ -189,6 +189,24 @@
 - 새 학습 결과가 없는 상태에서 보강된 config raw hash만 사전등록에 반영했다. 7개 원본 input hash·3개 CSV·REAL149/GEN162/주석952·크기 목표는 최초와 동일하다. config hash는 `b526e3923b95368f7ca99e2d44f87e723109009f21163e82934cab9a2ec605cb`다. source/표본 변경 없이 config 해석·회귀만 고정했다.
 - 보강 커밋 후 같은 검증자에게 추적검증을 요청한다. 최종 합격 전 P08-04는 대기한다.
 
+### 독립검증 라운드 2 합격·종결
+
+- 같은 검증자가 `b0b1b84`를 추적검증했고 보고서 커밋 `ce1ba79`에서 **합격**으로 확정했다. B1~B3·H1~H2 모두 해결됐고 남은 차단·비차단 지적은 없다. 구현자 확인과 구별되는 독립 기록이다.
+- 검증자가 사전등록 31개·관련 50개 회귀를 재실행해 통과했고 6종 변이(cap 축소·generator 역순·허용폭 확대·REAL 원본 기반·기하 검사 제거·등축 과잉 거부)가 각각 guarding cell을 재실패시켰다. 변이별 위치·셀·결과와 복원 byte/clean 근거는 [독립검증 라운드 2](../../verifications/2026-10-13/p08_03_diagnostic_preregistration.md)에 있다. 구현자가 같은 파괴적 검증을 중복하지 않았다.
+
+| 독립검증자 변이·위치 | 재실패 셀 | 결과 |
+| --- | --- | --- |
+| `ids[:cap]` → `ids[:1]`, `scripts/p08_preregister.py:81` | `test_stratified_cap_seed_undersized_generator_and_multi_disc_images` | 1 failed |
+| generator 정렬 역순, `scripts/p08_preregister.py:78` | 위 표본 셀 | 1 failed |
+| score 상한 5→50, `configs/anonymized_diagnostic.yaml` score 블록 | `test_intervention_equivalence_contract_uses_images_and_absolute_effects` | 1 failed |
+| REAL shape 기반 normal_anonymized→original, 동일 config interventions 블록 | `test_intervention_construction_preserves_other_real_face_masks` | 1 failed |
+| 기하 조건 제거, `scripts/p08_preregister.py:67` | `test_registration_rejects_invalid_real_geometry` | 7 failed, 비숫자는 float 변환이 계속 거부하여 1 passed |
+| major<minor→major≤minor, `scripts/p08_preregister.py:69` | `test_registration_allows_finite_clipped_disc_geometry` | 1 failed |
+
+- 독립 재현에서도 7개 원본 hash·3개 CSV는 최초 사전등록과 byte 동일하고 config 해시만 변경됐다. 기존 checkpoint·P05/P06 artifact·metadata·이미지와 새 학습 결과는 변경/생성하지 않았다.
+- 계획·페이즈 인덱스·진단 README는 P08-03 Complete로 갱신하고 HANDOFF는 P08-04 재학습으로 대체했다. 소유자의 한 명 독립검증→전 지적 보강→추적 합격 절차를 현재 작업 방식으로 명시했다. HANDOFF는 43줄이며 완료 사건을 덧붙이지 않고 다음 작업과 절차를 유지한다. 문서 링크·diff 검사를 마친 뒤 종결 기록을 커밋한다.
+
 ## 다음 작업
 
-- P08-03 서브에이전트 독립검증·차단/비차단 보강. 합격 후 P08-04 재학습 준비로 넘긴다.
+- P08-04: primary와 같은 설정의 익명화 학습 config를 만들고 사전등록 고정 상태에서 재학습한다. GPU 점유 정책·기존 artifact 비덮어쓰기·재개 가능한 작업 방식을 지킨다.
+- P08-05 calibration 이후 P08-06 진단 실행기를 사전등록 계약대로 구현한다. 얼굴 주석 952장과 확인 목록/hash는 candidate 진단 예측 전에 확정한다.

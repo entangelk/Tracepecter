@@ -1,6 +1,6 @@
 # P08-03 진단·채택 규칙 사전등록
 
-상태: 사전등록 구현·자가 확인, 독립검증 대기. [P08 계획](../../../docs/plan/phase_8_face_anonymization.md) §P08-03이 범위를 소유하고 [configs/anonymized_diagnostic.yaml](../../../configs/anonymized_diagnostic.yaml)이 표본·개입·판정 규칙의 정본이다. 새 모델 학습·예측·calibration은 실행하지 않았다.
+상태: **Complete (2026-10-13)**. [독립검증 라운드 2 합격](../../../docs/verifications/2026-10-13/p08_03_diagnostic_preregistration.md), 차단 B1~B3·비차단 H1~H2 모두 해결. [P08 계획](../../../docs/plan/phase_8_face_anonymization.md) §P08-03이 범위를 소유하고 [configs/anonymized_diagnostic.yaml](../../../configs/anonymized_diagnostic.yaml)이 표본·개입·판정 규칙의 정본이다. 새 모델 학습·예측·calibration은 실행하지 않았다.
 
 ## 범위·실행 순서
 

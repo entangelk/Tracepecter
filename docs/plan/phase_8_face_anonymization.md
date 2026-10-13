@@ -43,7 +43,7 @@
      - 관문 미통과면 P08-04 전에 소유자에게 검출 보강 여부를 묻는다.
    - REAL 원 위 검출: 기존 흰 원이 있는 REAL에서 YuNet이 원 근처에 얼굴을 잡는 비율을 잰다.
 2. **P08-02 익명화 전처리 모듈**(`src/anonymize.py`, config `configs/anonymize.yaml`)
-   - 현재 상태: **Complete (2026-10-13)**. [독립검증 합격](../verifications/2026-10-13/p08_02_anonymize_module.md), 비차단 H1·H2 회귀 보강·변이 재실패 확인([작업 기록](../daily_logs/2026-10-13/work_log.md)). [전처리·캐시 계약](../../experiments/p08_anonymized/README.md). 다음은 P08-03이다.
+   - 현재 상태: **Complete (2026-10-13)**. [독립검증 합격](../verifications/2026-10-13/p08_02_anonymize_module.md), 비차단 H1·H2 회귀 보강·변이 재실패 확인([작업 기록](../daily_logs/2026-10-13/work_log.md)). [전처리·캐시 계약](../../experiments/p08_anonymized/README.md).
    - 학습·평가·추론이 같은 함수를 쓴다. 검출된 얼굴은 모두 가린다(여러 명이면 전부).
    - 익명화는 증강(`src/dataset.py`의 transform)보다 먼저 원본 이미지에 적용한다.
    - 얼굴이 기존 원과 겹쳐도 같은 규칙으로 칠한다(추론 경로에는 원 검출기가 없으므로 예외를 두지 않는다).
@@ -60,7 +60,7 @@
        - 키가 `null`인 checkpoint는 평가 도구에서 원본 입력으로 동작한다.
        - 새 학습 config에 키가 없으면 거부한다.
 3. **P08-03 진단·채택 규칙 사전 고정** — 학습 결과를 보기 전에 config(`configs/anonymized_diagnostic.yaml`)를 커밋한다.
-   - 현재 상태: **사전등록 구현·자가 확인, 독립검증 대기 (2026-10-13)**. [진단 계약·표본](../../experiments/p08_anonymized/diagnostic/README.md). 실제 진단 실행기는 P08-06에서 구현한다.
+   - 현재 상태: **Complete (2026-10-13)**. [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_03_diagnostic_preregistration.md), 차단·비차단 모두 보강. [진단 계약·표본](../../experiments/p08_anonymized/diagnostic/README.md)은 재학습 결과 전에 커밋됐다. 실제 진단 실행기는 P08-06에서 구현한다. 다음은 P08-04다.
    - 2×2 평가: {baseline, 새 모델} × {원본 입력, 익명화 입력}에서 val·Test A·Test B 지표를 낸다. 재학습 효과와 입력 변화 효과를 나눠 보기 위해서다.
    - 단서 진단:
      - (a) P06-04 집계를 새 모델에 다시 돌린다. GEN 오류가 얼굴 상태(익명화됨 / 얼굴 없음 / YuNet이 놓친 측면 얼굴)에 몰리는지 본다. 놓친 얼굴은 익명화 뒤 더 강한 GEN 단서가 될 수 있으므로 따로 센다.
