@@ -136,7 +136,21 @@
 - `docker compose run --rm -T dev python -m pytest tests/test_anonymize.py -q`: **19 passed**. production 코드·규격·실측 캐시는 변경하지 않았다.
 - 변이 전 새 테스트와 본 기록을 체크포인트 커밋으로 보존한다. 이후 각 변이 전 실제 `git status --short` 빈 값 확인 → 변이 → 집중 셀 재실패 확인 → HEAD 바이트 복원·byte 일치·clean 확인을 수행한다. 변이 결과와 종결 상태는 후속 기록에 남긴다.
 
+### 변이 검증·종결
+
+- 체크포인트 `aec27b3` 이후 각 변이 직전 `git status --short` 빈 값을 실행·확인했다. 복원은 `git show HEAD:src/anonymize.py`의 바이트를 파일에 쓰고 byte 일치·트리 clean을 확인했다. 원 검증기록과 production 코드는 변경하지 않는다.
+
+| 변이 | 파일·위치 | 재실패 셀 | 결과 |
+| --- | --- | --- | --- |
+| M1: `return sorted(validate_boxes(boxes))` → `return validate_boxes(boxes)` | `src/anonymize.py:153` | `test_detect_sorts_unordered_overlapping_faces` | 1 failed, exit 1 |
+| M2: `for ... in sorted(boxes)` → `for ... in boxes` | `src/anonymize.py:171` | `test_paint_sorts_unordered_overlapping_faces` | 1 failed(겹침 픽셀 불일치), exit 1 |
+| M3: `cache_path is not None` 거부 블록 제거 | `src/anonymize.py:89` | `test_evaluate_rejects_face_cache_without_anonymization[legacy]`, `[null]` | 2 failed(정해진 ValueError 대신 하류 KeyError), exit 1 |
+
+- 각 변이 명령은 `docker compose run --rm -T dev python -m pytest tests/test_anonymize.py -k <표의 함수명> -q --tb=short`다. 각각 HEAD 바이트로 복원했고 마지막 `tests/test_anonymize.py -q`는 **19 passed**다. 이번 변경은 테스트 보강뿐이므로 이미 독립검증된 전체 suite·6,000장 캐시 실측은 반복하지 않았다.
+- 독립검증자의 최종 `d667327` 전체 suite는 **144 passed**다. 앞선 구현 기록의 137은 중간 실행 수치이고 당시 최종 집중 회귀는 30이었다. 이력을 재작성하지 않고 최종 커밋 기준 수치를 여기 명시한다.
+- 사용자 요청에 따라 P08-02를 Complete로 종결했다. 계획·인덱스·전처리 README의 독립검증 대기를 합격·보강 결과로 교체하고, HANDOFF의 다음 작업은 P08-03으로 대체했다. HANDOFF는 42줄이고 완료 서술을 덧붙이지 않았다. CHANGELOG에 종결 항목을 추가했다.
+- 새 테스트는 검출·칠하기 순서를 직접 잠그며, 현재 구현·규격·캐시·기존 artifact에 행동 변경은 없다. 문서의 상대 링크와 `git diff --check`를 확인했다.
+
 ## 다음 작업
 
-- P08-02 독립검증: 전처리·좌표 캐시·checkpoint 결합·학습/평가/calibration/score 연결 전체 슬라이스.
-- 합격 후 P08-03 진단·채택 규칙을 재학습 결과 전에 사전 고정·커밋한다. 보조 표본 사후 고정 성격과 에이전트 수동 높이 표시 한계는 유지한다.
+- P08-03 진단·채택 규칙을 재학습 결과 전에 사전 고정·커밋한다. 보조 표본 사후 고정 성격과 에이전트 수동 높이 표시 한계는 유지한다.

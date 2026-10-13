@@ -1,6 +1,6 @@
 # P08-02 공통 얼굴 익명화 전처리
 
-현재 상태: 구현·자가 검증, 슬라이스 독립검증 대기. 재학습·재calibration·primary 채택은 아직 수행하지 않았다. [계획](../../docs/plan/phase_8_face_anonymization.md), [P08-01 측정](measure/README.md)이 선행 근거다.
+현재 상태: **Complete (2026-10-13)**. [독립검증 합격](../../docs/verifications/2026-10-13/p08_02_anonymize_module.md) 후 비차단 H1(검출·칠하기 좌표순 정렬)·H2(legacy/null 캐시 단독 거부) 회귀를 보강하고 변이 재실패를 확인했다. 재학습·재calibration·primary 채택은 아직 수행하지 않았다. [계획](../../docs/plan/phase_8_face_anonymization.md), [P08-01 측정](measure/README.md)이 선행 근거다.
 
 ## 규격·계보
 
