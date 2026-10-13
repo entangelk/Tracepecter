@@ -240,6 +240,14 @@
 - 결과 기록의 best SHA256은 `091ac45424099c41bf50bb0adf7932d4b0b1ace3ceba9b9a27e25af99732c54b`다. P05·P06 기존 artifact·primary는 변경하지 않았다. 비교 재평가는 고정된 P08-06 2×2에서 수행하며 기존 baseline을 재학습하지 않는다.
 - 실학습·자가 검증 기록을 커밋하고 신규 서브에이전트 한 명에게 독립검증을 맡긴다. 차단·비차단 모두 보강해 합격까지 진행한다.
 
+### 독립검증 1차 합격·비차단 H1 보강
+
+- 새 독립검증자가 보고서 `docs/verifications/2026-10-13/p08_04_anonymized_training.md`·commit `b611e15`에서 합격으로 판정했다. 실제 H: checkpoint·history·규격·best 선택·frozen encoder208 tensor/head4개 변경·hash/size·기존 baseline/사전등록 불변을 독립 계산했다. train/val 이미지4,600개의 raw hash도 cache와 일치했다. 전체181 passed, 기존 Pillow warning12개다.
+- 검증자는 supervisor 원 Python exit 미포착과 완료 checkpoint resume0를 구분한 기록이 충분함을 확인했다. 원종료코드는 복구할 수 없으며 이를 exit0로 정정하지 않는다. 실제10epoch 학습 완료 증거는 checkpoint/history/로그/정상 재개로 확인한다.
+- 비차단 H1은 실제 YuNet smoke를 자동 suite로 잠그자는 제안이다. 사용자 전 지적 보강 요청에 따라 `TRACEPECTER_REAL_YUNET_SMOKE=1` opt-in 셀을 추가했다. 모델없는 기본 CI는 skip, opt-in이면 모델 부재/불일치도 fail closed다. 원 실제 detect를 wrapping계수해 fake 반환 없이224px16회·CPU/stub·1epoch·규격 결합·validation8개·checkpoint 완료를 확인한다.
+- 실제 H: 모델 opt-in `tests/test_p08_training_config.py`: **3 passed**. 기본 `tests/test_p08_training_config.py tests/test_train_smoke.py`: **5 passed, 1 skipped**. source·학습 config·실제 모델 binary는 보강에서 변경하지 않는다.
+- 검사 중 source mutation3종의 복원·clean은 검증자가 담당했으며 표는 원 독립 기록에 있다. H1 보강 커밋 후 같은 agent에 추적검증을 요청한다.
+
 ## 다음 작업
 
-- P08-04 독립검증·보강·추적 합격 후 P08-05 재calibration.
+- P08-04 H1 추적검증·잔여 보강·합격 확정 후 P08-05 재calibration.

@@ -40,3 +40,12 @@ CHECKPOINT_DIR=/mnt/h/tracepector/checkpoints \
 ```
 
 Python CPU `torch.load(..., weights_only=True)`로 실제 best/last를 읽어 위 config·epoch·loss·history·tensor 검사를 수행했다. 바이너리는 Git 비추적이고 이 결과/실행 JSON·README만 추적한다. smoke 원본 해상도 회귀와 config 차이 회귀, 기존 학습/재개 관련 테스트31개가 통과했다. 독립검증은 별도 후속이며 모델 자체의 byte 결정성은 주장하지 않는다.
+
+## 실제 YuNet opt-in 회귀
+
+일반 CI는 모델 파일에 의존하지 않고 해당 셀을 skip한다. 실제 YuNet이 준비된 환경에서는 아래 명령으로 CPU smoke를 실행한다. opt-in 상태의 모델 부재·hash 불일치는 skip하지 않고 거부한다. 실제 검출 함수를 wrapping해 224px 원본의 train/val16회 호출을 확인하며 검출을 fake 반환으로 대체하지 않는다. CPU/stub encoder·1epoch·규격 결합·8개 validation·checkpoint 완료를 검증하고 임시 smoke 디렉터리를 지운다.
+
+```bash
+docker compose run --rm -T -e TRACEPECTER_REAL_YUNET_SMOKE=1 dev \
+  python -m pytest tests/test_p08_training_config.py -q
+```
