@@ -258,3 +258,48 @@ def test_score_rejects_before_encoder_loading(binding, tmp_path, monkeypatch):
     monkeypatch.setattr('src.evaluate.build_encoder', forbidden)
     with pytest.raises(ValueError, match='requires anonymization'):
         score(['--image', str(tmp_path / 'unused.png'), '--calibration', str(artifact)])
+
+
+def test_detect_sorts_unordered_overlapping_faces(spec, monkeypatch):
+    """정렬 누락을 잡고 역순 검출도 모든 겹침 얼굴을 좌표순으로 보존한다."""
+    faces = [[12., 12., 18., 24.], [8., 8., 18., 24.]]
+    class Detector:
+        def detect(self, bgr):
+            return None, np.array([box + [0] * 10 + [0.95] for box in faces])
+    monkeypatch.setattr(cv2.FaceDetectorYN, 'create', lambda *args: Detector())
+    worker = Anonymizer(bind_spec(spec))
+    image = Image.new('RGB', (60, 60), 'black')
+    expected = [faces[1], faces[0]]
+    assert worker.detect(image) == expected
+    faces.reverse()
+    assert worker.detect(image) == expected
+
+
+def test_paint_sorts_unordered_overlapping_faces(spec, monkeypatch):
+    """칠하기 정렬 누락을 픽셀로 잡고 같은 얼굴 집합의 양 순서를 모두 허용한다."""
+    from scripts.p08_measure import paint_synthetic
+    faces = [[12., 12., 18., 24.], [8., 8., 18., 24.]]
+    rgb = np.random.default_rng(42).integers(0, 256, (60, 60, 3), dtype=np.uint8)
+    expected = rgb.copy()
+    for face in sorted(faces):
+        expected, _ = paint_synthetic(expected, face, spec['diameter_per_face'], False, spec['edge_sigma'])
+    monkeypatch.setattr(Anonymizer, 'detect', lambda self, image: faces)
+    worker = Anonymizer(bind_spec(spec))
+    image = Image.fromarray(rgb)
+    first, count = worker(image)
+    assert count == 2 and np.array_equal(first, expected)
+    faces.reverse()
+    second, count = worker(image)
+    assert count == 2 and np.array_equal(second, expected)
+    assert tuple(np.asarray(second)[20, 20]) == (255, 255, 255)
+    assert np.array_equal(np.asarray(second)[55, 55], rgb[55, 55])
+
+
+@pytest.mark.parametrize('config', [{}, {'anonymization': None}], ids=['legacy', 'null'])
+def test_evaluate_rejects_face_cache_without_anonymization(config, monkeypatch):
+    """캐시만 지정한 무익명화 평가를 거부하고 캐시 없는 원본 평가는 허용한다."""
+    from src.evaluate import main as evaluate
+    assert checkpoint_anonymizer(config) is None
+    monkeypatch.setattr('src.evaluate.load_model', lambda *args: (None, config))
+    with pytest.raises(ValueError, match='face cache requires anonymization'):
+        evaluate(['--checkpoint', 'unused.pt', '--face-cache', 'unused.csv'])

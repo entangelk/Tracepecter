@@ -122,6 +122,20 @@
 - baseline score를 encoder 로드 후에 거부하면 불필요한 모델 로드/다운로드가 먼저 일어날 수 있다. `load_model(require_anonymization=True)`에서 snapshot 검사를 먼저 수행하도록 정리하고 legacy/null 양쪽을 encoder 구성 전 거부하는 셀로 잠갔다.
 - 타원은 측정 결과 미채택이며 현재 모듈은 원 규격만 허용한다. 원 크기 관문 실패와 검출 누락 한계는 그대로 유지한다.
 
+## P08-02 합격 후 비차단 보강
+
+### 목표·사용자 요청
+
+- 소유자가 독립검증 합격 기록 `docs/verifications/2026-10-13/p08_02_anonymize_module.md`의 비차단 H1·H2 보강 후 작업 마무리를 요청했다. P08-03을 이번 작업에서 착수하지 않는다.
+- 검증자 판정은 합격이고 차단 건은 없다. 원 검증기록은 변경하지 않으며, 보강은 현재 구현의 방어를 잠그는 테스트로 한정한다.
+
+### 수행 내용·첫 검증
+
+- H1: `test_detect_sorts_unordered_overlapping_faces`는 YuNet stub의 역순 겹침 얼굴을 좌표순으로 전부 반환하는지 확인한다. `test_paint_sorts_unordered_overlapping_faces`는 detect를 우회한 비정렬 상자에서도 양 순서의 최종 픽셀이 P08-01 커널을 좌표순으로 적용한 기준 이미지와 동일한지 확인한다. 두 얼굴 보존·원 내부 흰색·배경 보존도 함께 잠근다.
+- H2: `test_evaluate_rejects_face_cache_without_anonymization[legacy/null]`은 실제 평가 CLI 인자 경로에 캐시만 지정하면 거부함을 확인한다. 캐시 없는 정상 원본 평가 허용도 같은 셀에서 확인한다. 모델 로드는 stub 처리해 외부 모델·이미지·캐시 파일 없이 해당 경계만 검증한다.
+- `docker compose run --rm -T dev python -m pytest tests/test_anonymize.py -q`: **19 passed**. production 코드·규격·실측 캐시는 변경하지 않았다.
+- 변이 전 새 테스트와 본 기록을 체크포인트 커밋으로 보존한다. 이후 각 변이 전 실제 `git status --short` 빈 값 확인 → 변이 → 집중 셀 재실패 확인 → HEAD 바이트 복원·byte 일치·clean 확인을 수행한다. 변이 결과와 종결 상태는 후속 기록에 남긴다.
+
 ## 다음 작업
 
 - P08-02 독립검증: 전처리·좌표 캐시·checkpoint 결합·학습/평가/calibration/score 연결 전체 슬라이스.
