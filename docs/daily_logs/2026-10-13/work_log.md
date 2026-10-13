@@ -206,7 +206,23 @@
 - 독립 재현에서도 7개 원본 hash·3개 CSV는 최초 사전등록과 byte 동일하고 config 해시만 변경됐다. 기존 checkpoint·P05/P06 artifact·metadata·이미지와 새 학습 결과는 변경/생성하지 않았다.
 - 계획·페이즈 인덱스·진단 README는 P08-03 Complete로 갱신하고 HANDOFF는 P08-04 재학습으로 대체했다. 소유자의 한 명 독립검증→전 지적 보강→추적 합격 절차를 현재 작업 방식으로 명시했다. HANDOFF는 43줄이며 완료 사건을 덧붙이지 않고 다음 작업과 절차를 유지한다. 문서 링크·diff 검사를 마친 뒤 종결 기록을 커밋한다.
 
+## P08-04 재학습 준비
+
+### 목표·사용자 요청
+
+- 소유자가 재학습 진행을 요청하고 용량 문제로 모델이 H:에 생성되는지 확인했다. 실제 Compose resolved mount·HF_HOME을 확인해 binary checkpoint와 HF 캐시는 H:로 저장하도록 고정한다. 완료 후 같은 한 명 독립검증·전 지적 보강 절차를 적용한다.
+- P08-03은 결과 전에 사전등록·최종 합격 상태다. 이번 슬라이스는 primary와 같은 frozen SigLIP 학습·best/last artifact·학습 기록이며 calibration/최종 채택은 후속이다.
+
+### 준비·검증
+
+- `configs/anonymized.yaml`은 primary 설정에 `anonymization: configs/anonymize.yaml`, `data.face_cache`, 출력 `checkpoints/anonymized`만 다르다. 모델 revision·10 epoch·seed42·batch32·lr0.0001·증강·split은 변경하지 않는다. config 비교 회귀로 허용 차이만 잠근다.
+- 실제 resolved Compose에서 `/mnt/h/tracepector/checkpoints`→`/app/checkpoints`, `/mnt/h/tracepector/images`→`/images:ro`, HF_HOME `/app/checkpoints/hf_cache`다. 이 머신 2026-10-13 관측 H: 여유 약1.2TB, F: 약124GB. GPU RTX3060 12GB 점유918MiB/7%로 낮았다. 해당 숫자는 기계 관측이며 프로젝트 보장으로 취급하지 않는다.
+- 실제 GPU training 이미지에서 CUDA 사용 가능, torch2.9.0+cu128·torchvision0.24.0+cu128·transformers5.19.0·OpenCV4.13.0을 확인했다. dependency canonical과 일치한다. 기존 P05 baseline hash `151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe` 및 사전등록 config·7개 입력 hash가 일치했다. 후보 출력 디렉터리는 아직 없었다.
+- 최초 config·익명화·기존 smoke 회귀 **23 passed**. 실제 YuNet을 쓴 새 config smoke는 기존 32×32 toy 색상에서 inf/0 축 검출로 fail closed 거부했다. 8개 색상에서32/64/224px를 비교해 64·224에서는 검출없음으로 정상인 것을 확인했다.
+- 새 regression을 먼저 실행해 CLI 원본32px≠설정224px 때문에 **1 failed / 1 passed**를 확인했다. `build_smoke_dataset`의 선택적 해상도 인자를 추가하고 CLI가 모델 설정 해상도를 전달한다. 직접 호출 default32px은 유지하며 실학습/익명화 검사/좌표캐시는 바꾸지 않는다. 인접 검색에서 다른 같은 root-cause 경로는 없었다.
+- 보강 후 `tests/test_p08_training_config.py tests/test_anonymize.py tests/test_train_smoke.py tests/test_baseline.py` 집중 회귀 **31 passed**, 실제 YuNet `src.train --config configs/anonymized.yaml --smoke`도 1epoch 완료했다. 학습 설정·smoke 보강을 먼저 커밋한 뒤 해당 commit을 GIT_COMMIT으로 실학습에 기록한다.
+- 긴 실학습은 setsid + disk log, epoch마다 best/last/experiment.json으로 보존하고 중단은 같은 config의 --resume으로 이어간다. baseline artifact는 변경하지 않으며 학습 후 independent 검증까지 진행한다.
+
 ## 다음 작업
 
-- P08-04: primary와 같은 설정의 익명화 학습 config를 만들고 사전등록 고정 상태에서 재학습한다. GPU 점유 정책·기존 artifact 비덮어쓰기·재개 가능한 작업 방식을 지킨다.
-- P08-05 calibration 이후 P08-06 진단 실행기를 사전등록 계약대로 구현한다. 얼굴 주석 952장과 확인 목록/hash는 candidate 진단 예측 전에 확정한다.
+- P08-04 실학습10epoch → artifact/입력 무결성 확인 → 한 명 독립검증·전 지적 보강·추적 합격.

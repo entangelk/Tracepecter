@@ -19,7 +19,7 @@
 
 1. **P08 진행 중**([계획](docs/plan/phase_8_face_anonymization.md)) — 계획 독립검증 4라운드 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p08_plan_db06.md)). DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
    - 순서: P08-01 측정(이미지만) → P08-02 익명화 모듈 → P08-03 진단·채택 규칙 사전 고정(**재학습 결과 전에 커밋**) → P08-04 재학습 → P08-05 재calibration → P08-06 판정. P08-07 holdout 설계는 병행하며 P07의 관문이 아니다.
-   - **다음은 P08-04 재학습이다.** `configs/anonymized.yaml`을 primary와 같은 설정에 익명화 규격·캐시만 추가해 만들고 `checkpoints/anonymized/`에 저장한다. 진단 config·표본은 [사전등록 계약](experiments/p08_anonymized/diagnostic/README.md)을 고정해 사용한다. 전처리·좌표 캐시·실행 계약은 [P08 전처리 기록](experiments/p08_anonymized/README.md)을 참고한다. P08 측정·캐시 CSV는 LF, 기존 실험에 연결된 `data/metadata.csv`는 CRLF로 체크아웃한다(`.gitattributes`).
+   - **현재 P08-04 재학습 실행 준비다.** 설정은 `configs/anonymized.yaml`, 출력은 H: mount의 `checkpoints/anonymized/`이며 [학습 기록](experiments/p08_anonymized/training/README.md)을 따른다. 진단 config·표본은 [사전등록 계약](experiments/p08_anonymized/diagnostic/README.md)을 고정해 사용한다. 전처리·좌표 캐시·실행 계약은 [P08 전처리 기록](experiments/p08_anonymized/README.md)을 참고한다. P08 측정·캐시 CSV는 LF, 기존 실험에 연결된 `data/metadata.csv`는 CRLF로 체크아웃한다(`.gitattributes`).
    - 익명화 규격은 `configs/anonymize.yaml`(k=1.2). 사전 크기 관문 실패는 보존하며 사전등록의 `real_size` 관문으로 크기 단서를 진단한다. 재현율 관문 미통과면 재학습 전에 소유자에게 묻는다.
    - 채택 규칙: §20 AUC 기준과 '단서 해소'를 모두 만족할 때만 `configs/primary.yaml`을 교체한다. 기존 baseline artifact는 덮어쓰지 않는다. 미채택이면 P07은 대기하고 P08을 다시 시도한다(Q5).
    - 작업 절차(소유자 요청): 구현·자가 확인·커밋 후 서브에이전트 한 명의 독립검증을 받고, 차단·비차단 모두 보강·추적검증 합격까지 진행한다.

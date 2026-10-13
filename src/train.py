@@ -42,7 +42,7 @@ def build_loss() -> nn.Module:
     return nn.BCELoss()
 
 
-def build_smoke_dataset(directory: Path) -> Path:
+def build_smoke_dataset(directory: Path, image_size: int = 32) -> Path:
     """tiny synthetic dataset — 실데이터 없이 전체 파이프라인을 관통시킨다(§35 thin-slice 원칙)."""
     images_dir = directory / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -50,7 +50,7 @@ def build_smoke_dataset(directory: Path) -> Path:
     records = []
     for i in range(SMOKE_NUM_IMAGES):
         name = f"img_{i:06d}.png"
-        Image.new("RGB", (32, 32), color=(i * 28 % 256, 64, 128)).save(images_dir / name)
+        Image.new("RGB", (image_size, image_size), color=(i * 28 % 256, 64, 128)).save(images_dir / name)
         records.append(f"img_{i:06d},images/{name},{i % 2},smoke,{'real' if i % 2 else 'generated'}")
     csv_path.write_text(
         "image_id,path,label,category,source_type\n" + "\n".join(records) + "\n",
@@ -185,7 +185,7 @@ def main(argv: list[str] | None = None) -> Path:
         config = copy.deepcopy(config)
         config["model"].update(encoder="stub", embedding_dim=64)
         config["training"].update(device="cpu", num_workers=0)
-        smoke_csv = str(build_smoke_dataset(smoke_root / "train"))
+        smoke_csv = str(build_smoke_dataset(smoke_root / "train", image_size=config["model"]["image_size"]))
         config["data"] = {"train_csv": smoke_csv, "val_csv": smoke_csv}
         try:
             checkpoint_path = run_training(

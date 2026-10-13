@@ -1,0 +1,32 @@
+# P08-04: primary와 같은 SigLIP 학습 설정에 익명화만 추가. 출력은 Compose의 H: checkpoint mount.
+model:
+  encoder: siglip
+  model_id: google/siglip-base-patch16-224
+  revision: 7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed
+  image_size: 224
+  freeze_encoder: true
+
+training:
+  epochs: 10
+  batch_size: 32
+  num_workers: 2
+  learning_rate: 0.0001
+  device: cuda
+  seed: 42
+
+data:
+  metadata_csv: data/metadata.csv
+  image_root: /images
+  face_cache: experiments/p08_anonymized/face_boxes.csv
+
+augmentation:
+  horizontal_flip: true
+  jpeg_aug: true
+  minor_crop: true
+  color_jitter: true
+
+output:
+  checkpoint_dir: checkpoints/anonymized
+
+# P08-03 사전등록 커밋 이후 실행. checkpoint에 규격 전체·해시를 저장한다.
+anonymization: configs/anonymize.yaml
