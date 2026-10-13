@@ -1,6 +1,8 @@
-**불합격** — bootstrap 계약 충돌(B1), 사전등록 계약·선정 회귀 공백(B2), REAL 개입의 별개 얼굴 마스크 복원(B3)을 닫아야 한다.
+**합격** — 라운드 2에서 B1~B3·H1~H2 해결, 남은 차단·비차단 지적 없음.
 
 # P08-03 진단·채택 규칙 사전등록 독립검증
+
+> 아래 최초 검증은 라운드 1(`77da668`)의 역사적 기록이다. 현재 판정·남은 작업은 문서 끝의 라운드 2(`b0b1b84`)를 따른다.
 
 ## 대상·범위
 
@@ -110,3 +112,48 @@ assert p['size_target_diameter_over_width']==json.load(open(c['inputs']['measure
 print('Independent hashes/CSV bytes/selection/size target matched')
 PY
 ```
+
+## 라운드 2 — 보강 추적검증 (2026-10-13)
+
+**합격** — 기존 B1~B3·H1~H2가 모두 해결됐고 새 차단·비차단 지적은 없다.
+
+### 대상·방법
+
+- 동일 소유자 요청·동일 독립검증자. 대상 main `b0b1b8490b46b256110301394d803d5bafa68ecb`, 시작 시 clean. 정본 범위는 라운드 1과 같다. `git show b0b1b84`로 변경 표면을 확인한 뒤 실제 config·README·코드·전체 focused 테스트를 대조했다.
+- `docker compose run --rm -T dev python -m pytest -q tests/test_p08_preregister.py`: **31 passed (1.11s)**.
+- 라운드 1 재현 절의 Python을 그대로 실행해 독립 재현: config/입력 SHA-256와 CSV 바이트·선정·목표가 모두 일치했다. 추가로 `git show 77da668:<artifact>` 원본 바이트와 비교해 CSV 3개가 byte 동일, preregistration의 입력 7개 해시·표본 수·목표·manifest 해시가 동일하고 **config_sha256만 변경**됐음을 확인했다. 이것은 선언 보강이며 모델 결과를 보고 표본/허용폭을 바꾼 변경이 아니다.
+- 아래 변이 6종을 각각 focused cell로 실행했고 전부 재실패했다. 각 복구 후 원래 파일 바이트 직접 비교와 `git status --short` 빈 출력을 확인했다.
+- 마지막 복구 후 `docker compose run --rm -T dev python -m pytest -q tests/test_p08_preregister.py tests/test_anonymize.py`: **50 passed (4.53s)**. `git diff --check` 성공·보고서 편집 전 clean.
+- 복구 SHA-256: script `7ecb543d4cd1b5d6ab23221fe214f8e324fc0b4eaf89fad5b2625ea15ae94ce2`, config `b526e3923b95368f7ca99e2d44f87e723109009f21163e82934cab9a2ec605cb`.
+
+### 지적별 종결·경계 행렬 갱신
+
+| 지적 | 확인 근거·종결 |
+| --- | --- |
+| B1 bootstrap 충돌 | `experiments/p08_anonymized/diagnostic/README.md:55`이 n개 인덱스 복원추출·반복 허용·이미지당 한 예측·원별 독립 추출 금지를 구분한다. 구간이 퇴화하던 비복원 해석이 제거됐다. `test_intervention_equivalence_contract_uses_images_and_absolute_effects`가 config의 복원추출 선언을 잠근다. |
+| B2 선언 계약 잠금 | `tests/test_p08_preregister.py:142`의 `test_face_state_and_annotation_contract`가 얼굴 상태·annotation·집중 구간을, :168의 construction 셀이 b/c/d·기하를, :188의 equivalence 셀이 이미지 단위/두 통계/상한/결측을, :206의 `test_sampling_and_non_adoption_contract`가 표본·Test REAL 재사용·calibration 고정·metric·실패 후 분기를 잠근다. 원래 채택 셀과 합쳐 라운드 1에서 지적한 사전등록 경계가 모두 추적된다. 실제 runner의 수치/입력 경로 행동은 P08-06에서 구현·검증한다. |
+| B2 구현 표본·계보 | :227의 `test_stratified_cap_seed_undersized_generator_and_multi_disc_images`는 alpha45/beta43/gamma2/빈 검출1과 역순 metadata에서 고정 제외 ID를 검증한다. cap·순차 seed/generator 순서·부족분 전수·빈 검출 보존·다원 이미지 2원/1장·manifest hash를 잠근다. :257의 parametrized ID/REAL 계보 셀은 cache 중복/누락/추가·review 중복/image 불일치·label 불일치 거부를 추가한다. 선정 cap과 순서 변이가 직접 실패했다. |
+| B3 REAL 기반 | README:35와 config 각 `construction_base`가 REAL은 normal_anonymized·GEN만 original로 일치한다. image_id 1287673의 별개 cache 마스크도 REAL 편집 기반에 남는다. construction 셀은 REAL 원복을 거부하고 GEN original을 허용한다. 원복 변이가 직접 실패했다. |
+| H1 수치 재현 | README:55와 config score 블록이 `Generator(PCG64(seed))`, `integers(0,n,size=(20000,n))`, `percentile([2.5,97.5],method="linear")`를 고정한다. :188의 equivalence 셀이 RNG/index_draw/percentile_method를 잠근다. 현재 요구는 수치 규약 사전 고정이며 아직 예측 실행은 없다. |
+| H2 기하 검사 | README:13에 선택 REAL의 유한 numeric/양수 width·두 축/major≥minor·음수 중심 허용/출력 전 거부가 명시됐다. script:66~70이 동일 검사하며 `minor>0`와 `major≥minor`로 major 양수도 보장한다. :281의 8개 거부 경우와 :294의 정상 음수 중심·등축 허용이 양방향으로 잠근다. 검사 제거/등축 오거부 변이가 직접 실패했다. |
+
+### 라운드 2 변이 대응표
+
+각 명령은 `docker compose run --rm -T dev python -m pytest -q tests/test_p08_preregister.py::<아래 함수명>`이다.
+
+| 정확한 변이·위치 | 함수명 | 결과 |
+| --- | --- | --- |
+| script:81 설정 cap → `ids[:1]` | `test_stratified_cap_seed_undersized_generator_and_multi_disc_images` | 1 failed (0.41s). 라운드 1 생존 변이를 이제 검출 |
+| script:78 generator `sorted(...)` → `sorted(..., reverse=True)` | `test_stratified_cap_seed_undersized_generator_and_multi_disc_images` | 1 failed (0.41s). RNG 소비 순서 변화로 golden 선정 불일치 검출 |
+| config score `max_upper: 5.0` → `50.0` | `test_intervention_equivalence_contract_uses_images_and_absolute_effects` | 1 failed (0.41s). 라운드 1 생존 변이를 이제 검출 |
+| config 첫 `construction_base: normal_anonymized` → `original` | `test_intervention_construction_preserves_other_real_face_masks` | 1 failed (0.43s). REAL shape의 원복 검출 |
+| script:67~69 기하 조건 전체 → `if False:` | `test_registration_rejects_invalid_real_geometry` | 7 failed, 1 passed (0.70s). width0/major0/minor0/major8/cx NaN/cy inf/angle -inf가 재실패. width bad 셀은 앞선 float 변환이 계속 거부한 정상 이중 방어 |
+| script:69의 major `<` minor → `<=` | `test_registration_allows_finite_clipped_disc_geometry` | 1 failed (0.44s). 정상 등축 오거부 검출 |
+
+복구는 매 행 `git checkout -- <변이 파일>` 후 pre-mutation 바이트와 직접 비교·clean 확인으로 진행했다. 보고서는 모든 복구와 마지막 관련 suite 이후에만 수정했다.
+
+### 현재 판정·남은 작업
+
+사전등록 계약은 a/b/c/d·2×2·허용구간·채택/비채택·입력/표본 계보를 구체화했고 현재 scope의 회귀 셀과 독립 artifact 재현이 이를 잠근다. 보강 후 새 불필요한 외부 호출·unbounded retry·복잡도 증가가 없으며 유한 기하 검사 추가는 REAL 원 수에 선형이다. 이전 차단·비차단 모두 종결됐고 추가 지적은 없다.
+
+P08-03 사전등록 슬라이스는 합격이다. 실제 얼굴 주석 완성/해시 고정, 새 모델 재학습·calibration·진단 실행·관문 판정은 후속 슬라이스에 남은 계획된 작업이며 이번 사전등록 합격이 실제 모델 채택을 뜻하지 않는다. 보고서만 커밋하며 구현·테스트의 영구 변경은 없다. P08-04 착수 상태 및 프로젝트 기록 종결은 root가 반영한다.
