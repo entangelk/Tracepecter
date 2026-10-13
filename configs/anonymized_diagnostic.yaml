@@ -1,0 +1,131 @@
+# P08-03 사전등록. 새 학습 결과를 보기 전에 config와 manifest를 커밋한다.
+version: 1
+seed: 20261013
+output_dir: experiments/p08_anonymized/diagnostic
+inputs:
+  metadata: data/metadata.csv
+  anonymization: configs/anonymize.yaml
+  face_cache: experiments/p08_anonymized/face_boxes.csv
+  real_candidates: experiments/p08_anonymized/measure/real_disc_candidates.csv
+  real_review: experiments/p08_anonymized/measure/real_disc_review.csv
+  measurement: experiments/p08_anonymized/measure/report.json
+  baseline_calibration: experiments/p05_calibration/calibration.json
+cue_model: candidate
+candidate_calibration: experiments/p08_anonymized/calibration/calibration.json
+
+# P08-06 실행기는 snapshot과 이미지/cache hash를 검증한 후 offline 입력 조건을 구성한다.
+# 원본 입력 비교는 명시적 진단 경로이고 score/API의 익명화 필수 계약을 완화하지 않는다.
+evaluation:
+  models: [baseline, candidate]
+  inputs: [original, anonymized]
+  cohorts: [val, standard, unseen]
+  standard_split: test
+  unseen_real: standard_test_real_reuse
+  unseen_generated_split: test_unseen
+  calibration_per_model: fixed_for_both_inputs
+  metrics: [roc_auc, pr_auc, accuracy, precision, recall, f1, nll, brier, ece]
+  ece_bins: 10
+  grouping: [generator, category, source_domain]
+
+sampling:
+  real: all_confirmed_measurement_discs
+  # 이미지 아닌 원 행은 먼저 image_id로 묶어서 bootstrap한다.
+  real_split: train
+  gen_splits: [test, test_unseen]
+  gen_detected_per_generator: 40
+  face_review: all_gen_in_gen_splits
+  # 부족한 generator는 전부 포함. 부족분을 다른 generator로 채우지 않는다.
+  undersized_generator: take_all_report_count
+
+annotations:
+  output: face_review.csv
+  timing: before_candidate_diagnostic_predictions
+  score_blind: true
+  visible_definition: at_least_two_of_eyes_nose_mouth_including_partial_profile
+  fields: [image_id, visible_faces, uncovered_visible_faces, confirmed]
+  # 눈·코·입 중 둘 이상이 보이는 원본 얼굴 및 익명화 후에도 남은 얼굴 수.
+  review: agent_all_owner_all_disagreements_and_seeded_20_percent
+  owner_random_fraction: 0.20
+  final_owner_overrides_agent: true
+  incomplete: indeterminate
+
+interventions:
+  real_shape:
+    cohort: real
+    reference: anonymized
+    edit: white_circle_covering_existing_ellipse
+    radius: measured_major_half_plus_edge_guard
+  real_size:
+    cohort: real
+    reference: anonymized
+    edit: enlarge_existing_white_circle_only
+    target: measurement_synthetic_selected_size_median_diameter_over_width
+    radius: max_shape_radius_and_target_radius
+  gen_gray:
+    cohort: detected_gen
+    reference: anonymized
+    edit: paint_all_cached_face_discs_gray_from_original
+    fill: [128, 128, 128]
+  gen_restore:
+    cohort: detected_gen
+    reference: anonymized
+    edit: original_image_without_synthetic_face_discs
+  # REAL은 숨은 얼굴 복원·축소 금지. 덧칠 후 checkpoint 전처리를 다시 적용하지 않는다.
+  edge_guard_sigma_multiplier: 3.0
+  edge_guard_extra_px: 1.0
+  geometry_and_edge: checkpoint_anonymization
+  resize_normalization: checkpoint_model
+  augmentation: false
+
+face_concentration:
+  cohort: all_gen_in_gen_splits
+  # 검출 여부만으로 놓친 얼굴을 '없음'으로 간주하지 않는다.
+  states: [anonymized, no_visible_face, missed_visible_face]
+  state_priority: missed_then_no_visible_then_anonymized
+  comparisons:
+    - [anonymized, no_visible_face]
+    - [anonymized, missed_visible_face]
+    - [no_visible_face, missed_visible_face]
+  outcome: false_positive_rate
+  interval: newcombe_wilson_independent_difference_two_sided
+  confidence: 0.95
+  max_absolute_rate_difference: 0.10
+  min_images_per_state: 20
+  missing_state: indeterminate
+  per_generator: report_only_no_causal_claim
+
+# 구간이 닫힌 허용 범위 안이어야 통과. 유의차 없음만으로 해소라고 판정하지 않는다.
+intervention_rules:
+  unit: image
+  min_images: 80
+  score:
+    statistic: mean_absolute_paired_score_shift
+    scale: [0, 100]
+    bootstrap: image_cluster_percentile_two_sided
+    resamples: 20000
+    confidence: 0.95
+    max_upper: 5.0
+    repeated_discs: jointly_edit_then_one_prediction_per_image
+  error:
+    statistic: previously_correct_becomes_incorrect
+    denominator: all_selected_images
+    interval: wilson_two_sided
+    confidence: 0.95
+    max_upper: 0.05
+  threshold: calibrated_probability_threshold_of_same_model
+  signed_shift_and_reverse_flips: report_only
+  generator_breakdown: report_only
+  missing_nonfinite_or_insufficient: indeterminate
+
+adoption:
+  # project.md §20이 기준 소유자. 이 두 숫자는 실행용 projection이며 spec 변경 시 함께 검증한다.
+  standard_anonymized_roc_auc_min: 0.90
+  unseen_anonymized_roc_auc_min: 0.80
+  required_cue_gates: [face_concentration, real_shape, real_size, gen_gray, gen_restore]
+  all_required: true
+  indeterminate: do_not_adopt
+  failed: do_not_adopt
+  pass: replace_primary_and_report_owner
+  non_adoption: keep_baseline_artifacts_wait_p07_retry_p08
+  retry_failed: ask_owner
+  face_visible_real_holdout: limitation_not_p07_gate

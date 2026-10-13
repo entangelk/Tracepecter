@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "config_sha256": "b198b8a9df0c40f0e61d2d36298cbba0aa1590a4c09d9fce3e1c9f78fb3f5624",
+  "inputs_sha256": {
+    "metadata": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+    "anonymization": "6bb59051930a63d5736126d86260ae98fbece2b979ccdb2d6fdf3975bdc88438",
+    "face_cache": "319d5376f71e3c65155857b33fa2e4dc653d2094a7b8f8cbef90812393d15af8",
+    "real_candidates": "c29c0656a8910bf5b13842c529d86913682ff46a3932f3756a21691745beef43",
+    "real_review": "8e8025ba37c5192e7d550361e0d746a758af5eb9c51eecff6e686490c0899273",
+    "measurement": "9237f05565313445aedb85963f7cc0a8edf10fe7b9df9bc7a42a3c5a204f5efe",
+    "baseline_calibration": "eb9e63967b4fa9cdbc21fa4c173900f1141d0244f22e0f4bc6431e9bd99d3161"
+  },
+  "size_target_diameter_over_width": 0.1631602984208327,
+  "real_discs": 150,
+  "real_images": 149,
+  "face_review_images": 952,
+  "gen_interventions_by_generator": {
+    "playground_25": {
+      "eligible": 83,
+      "selected": 40
+    },
+    "qwen_image_21": {
+      "eligible": 60,
+      "selected": 40
+    },
+    "sd35_medium": {
+      "eligible": 382,
+      "selected": 40
+    },
+    "sdxl": {
+      "eligible": 82,
+      "selected": 40
+    },
+    "z_image_turbo": {
+      "eligible": 2,
+      "selected": 2
+    }
+  },
+  "manifests_sha256": {
+    "real_interventions.csv": "c7f3b515b8a444c2600e871aeb40adc0667fa562eb066ea27f8776dfe8018da3",
+    "gen_interventions.csv": "da800e26fc5c2417caa03e85842931a67bcfcfbd053e6542d46d1ff139c90ffa",
+    "face_review_template.csv": "609a3a8b07e461710aa9ae80af67360ba481798a889a427b4c6b929012ca712d"
+  }
+}

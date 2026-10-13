@@ -3,3 +3,4 @@ data/metadata.csv text eol=crlf
 # Keep P08 measurement inputs identical across working trees and Git blobs.
 experiments/p08_anonymized/measure/*.csv text eol=lf
 experiments/p08_anonymized/face_boxes.csv text eol=lf
+experiments/p08_anonymized/diagnostic/*.csv text eol=lf

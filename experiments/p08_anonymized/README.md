@@ -2,6 +2,8 @@
 
 현재 상태: **Complete (2026-10-13)**. [독립검증 합격](../../docs/verifications/2026-10-13/p08_02_anonymize_module.md) 후 비차단 H1(검출·칠하기 좌표순 정렬)·H2(legacy/null 캐시 단독 거부) 회귀를 보강하고 변이 재실패를 확인했다. 재학습·재calibration·primary 채택은 아직 수행하지 않았다. [계획](../../docs/plan/phase_8_face_anonymization.md), [P08-01 측정](measure/README.md)이 선행 근거다.
 
+P08-03 진단·채택 사전등록은 [진단 계약](diagnostic/README.md)을 참고한다.
+
 ## 규격·계보
 
 - 정본은 [configs/anonymize.yaml](../../configs/anonymize.yaml)이다. k=1.2 원·흰 fill·σ=0.5 Gaussian alpha를 원본 RGB 이미지에 칠한 뒤 기존 resize·증강·정규화를 적용한다. 모든 검출 얼굴을 처리하며 기존 원과 겹쳐도 예외를 두지 않는다. 무얼굴이면 픽셀은 그대로다.
