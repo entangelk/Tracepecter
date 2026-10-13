@@ -1,4 +1,4 @@
-**합격** — P08-04의 설정·실제 10 epoch 산출물·checkpoint 결합·기존 산출물 보존·회귀 양방향 경계를 확인했다. 비차단 H1은 실제 YuNet smoke 자동 회귀의 추가 후보다.
+**합격** — 라운드2에서 실제 YuNet opt-in 회귀 H1까지 해결했다. P08-04 필수 계약을 충족하며 차단·비차단 지적 모두 남은 항목이 없다.
 
 ## 대상·정본·범위
 
@@ -72,7 +72,7 @@ best/last/experiment config는 current YAML을 canonical JSON snapshot으로 결
 
 복원 source SHA256 `c88ef9a4ba7004f4cdc0d9f41bb38292649ecbad3be9e3cf571a487eb25d94de`, config SHA256 `db4fd75dacc03eaefd0232cfd356fddfa4ed2d8061974781d0038eb6e3622d22`.
 
-## 지적·위험
+## 라운드1 지적·위험(51afcdb 당시)
 
 ### 차단 사항
 
@@ -84,7 +84,7 @@ best/last/experiment config는 current YAML을 canonical JSON snapshot으로 결
 
 ## 미해결 운영 항목
 
-원 Python 종료 코드는 복구할 수 없으며 이를 exit0로 정정하면 안 된다. H1의 채택/보강 및 동일 검증자의 추적검증은 소유자 지속 지시에 따라 구현자가 진행할 항목이다. P08-04 상태 승격과 P08-05/06 실행은 root가 기록을 반영한 뒤 진행한다. 이번 검증자는 보고서만 커밋하며 모델/구현/상태를 직접 수정하지 않는다.
+원 Python 종료 코드는 복구할 수 없으며 이를 exit0로 정정하면 안 된다. 라운드1 당시 H1의 보강·추적검증이 남았으며, 아래 라운드2에서 해결됐다. P08-04 상태 승격과 P08-05/06 실행은 root가 기록을 반영한 뒤 진행한다. 이번 검증자는 보고서만 커밋하며 모델/구현/상태를 직접 수정하지 않는다.
 
 ## 재현
 
@@ -176,6 +176,74 @@ for name,file,old,new,cell in cases:
   p.write_text(p.read_text().replace(old,new))
   r=subprocess.run(['docker','compose','run','--rm','-T','dev','python','-m','pytest',f'tests/test_p08_training_config.py::{cell}','-q'],capture_output=True,text=True)
   print(name,'exit',r.returncode, r.stdout, r.stderr,flush=True)
+  assert r.returncode==1
+ finally:
+  subprocess.run(['git','checkout','--',file],check=True)
+  assert p.read_bytes()==before
+  assert subprocess.check_output(['git','status','--short'])==b''
+  print(name,'byte-identical clean restore',hashlib.sha256(before).hexdigest(),flush=True)
+
+```
+
+
+## 라운드2 — H1 보강 추적검증
+
+### 대상·범위·판정
+
+2026-10-13, 동일 검증자가 구현 commit `3337f398afc2d583791b713763c037ea5cae32c7`을 clean tree에서 검증했다. 정본과 라운드1 필수 계약 범위는 그대로이며, 추가된 opt-in 실제 YuNet CPU smoke 셀·README 실행 계약과 H1만 다시 감사했다. `git diff --exit-code 51afcdb 3337f39 -- src configs experiments/p08_anonymized/training/result.json experiments/p08_anonymized/training/execution.json`는 빈 diff다. source/config가 바뀌지 않아 라운드1 전체181개 결과는 유효하고 전체 suite를 반복하지 않았다.
+
+**합격**. H1 해결, 새 차단·비차단 지적 없음. 상태 승격/P08-05·06 기록은 root의 다음 작업이다.
+
+### 증거·경계 행렬
+
+`tests/test_p08_training_config.py:55~60`은 원 `Anonymizer.detect`를 보관해 wrapping 안에서 호출한다. 가짜 얼굴 목록으로 반환을 바꾸지 않는다. :61의 실제 main은 CPU/stub1epoch를 수행한다. :63~69는 실파일을 CPU로 읽어 epoch1·validation8·CPU/stub·정본 spec 및224px train/val16회 호출을 검사한다. :70~71은 성공/후속 assertion 실패에서도 smoke temp를 삭제하며 main 내부 실패는 기존 `src/train.py:196~199`가 정리한다.
+
+| H1 경계 | 회귀/독립 증거 | 결과 |
+| --- | --- | --- |
+| opt-in인 정상 실제 모델은 실제 검출·checkpoint 완료 | `test_real_yunet_anonymized_cpu_smoke_completes`, 실제 env=1 실행 | opt-in 파일3 passed, 최초2.43s·복원 뒤2.36s |
+| 기본 CI는 모델 접근 없이 명시 skip | :46~47 env 조건, 기본 파일+기존 smoke suite | 5 passed/1 skipped, 4.50s |
+| 학습에서 익명화/검출을 우회하면 guard 실패 | R2M1 exact 새 셀 | observed16회 대신[]로 assertion 실패 |
+| opt-in 모델 부재는 skip하지 않고 거부 | R2M2 exact 새 셀 | ValueError face detector model unavailable |
+| opt-in 모델 SHA256 불일치는 skip하지 않고 거부 | R2M3 exact 새 셀 | ValueError face detector model sha256 mismatch |
+| 실제 학습 산출물은 보존 | H: best/last/experiment raw-byte SHA256 재계산 | result.json 세 hash 그대로, *.tmp 없음 |
+
+새 smoke는 고정8개 이미지·train/val16회로 bounded이며 source 변경/새 abstraction이 없다. hash 결합은 기존 bind/fail-closed 회귀와 라운드1 CPU 검사에서 확인했고 새 셀은 full spec와 실제 checkpoint 생성까지 추가로 검증한다.
+
+### 변이표·복원
+
+모든 변이는 `git status --short` empty preflight 후 source/config만 바꿨다. H: binary는 건드리지 않았다. 각 exact cell은 `TRACEPECTER_REAL_YUNET_SMOKE=1`로 실행했고 exit1을 요구했다. `git checkout -- <file>` 후 원 bytes와 비교하고 status empty를 확인했다.
+
+| 변이 | diff·위치 | 실패 셀 | 관측 |
+| --- | --- | --- | --- |
+| R2M1 | `src/train.py:66` checkpoint_anonymizer 호출 → `anonymizer = None` | `test_real_yunet_anonymized_cpu_smoke_completes` | :69 observed[] 실패, exit1 |
+| R2M2 | `configs/anonymize.yaml:4` 모델 path → 존재하지 않는 `checkpoints/face/nonexistent_audit_model.onnx` | 같은 셀 | :61 main에서 unavailable 거부, exit1 |
+| R2M3 | `configs/anonymize.yaml:5` detector SHA256 → 문자열 `f`64개 | 같은 셀 | :61 main에서 실제 file SHA256 mismatch 거부, exit1 |
+
+처음 R2M3의 0문자64개는 YAML이 int0로 읽어 spec validation에서 먼저 거부했다. 이는 hash 경계의 증거로 인정하지 않고 복원한 뒤 문자열 `f`64개로 교정해 실제 hash mismatch를 확인했다. 복원 source SHA256은 `c88ef9a4ba7004f4cdc0d9f41bb38292649ecbad3be9e3cf571a487eb25d94de`, 규격 YAML SHA256은 `6bb59051930a63d5736126d86260ae98fbece2b979ccdb2d6fdf3975bdc88438`로 라운드1과 같다.
+
+### 최소 재현
+
+```bash
+docker compose run --rm -T -e TRACEPECTER_REAL_YUNET_SMOKE=1 dev python -m pytest tests/test_p08_training_config.py -q
+docker compose run --rm -T dev python -m pytest tests/test_p08_training_config.py tests/test_train_smoke.py -q
+git diff --exit-code 51afcdb 3337f39 -- src configs experiments/p08_anonymized/training/result.json experiments/p08_anonymized/training/execution.json
+git diff --check
+```
+
+아래 script를 `/tmp/p08_h1_mutate.py`로 저장하고 clean tree에서 `python3 /tmp/p08_h1_mutate.py`로 실행한다. 복원 뒤 위 opt-in/default combined focused suite를 실행한다.
+
+```python
+from pathlib import Path
+import subprocess,hashlib
+assert subprocess.check_output(['git','status','--short'])==b''
+cases=[('R2M1','src/train.py','anonymizer = checkpoint_anonymizer(config, cache_path=config["data"].get("face_cache"))','anonymizer = None'),('R2M2','configs/anonymize.yaml','model: checkpoints/face/face_detection_yunet_2023mar.onnx','model: checkpoints/face/nonexistent_audit_model.onnx'),('R2M3','configs/anonymize.yaml','model_sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4','model_sha256: '+'f'*64)]
+cell='tests/test_p08_training_config.py::test_real_yunet_anonymized_cpu_smoke_completes'
+for name,file,old,new in cases:
+ p=Path(file); before=p.read_bytes(); assert old in p.read_text()
+ try:
+  p.write_text(p.read_text().replace(old,new))
+  r=subprocess.run(['docker','compose','run','--rm','-T','-e','TRACEPECTER_REAL_YUNET_SMOKE=1','dev','python','-m','pytest',cell,'-q'],capture_output=True,text=True)
+  print(name,'exit',r.returncode,r.stdout,r.stderr,flush=True)
   assert r.returncode==1
  finally:
   subprocess.run(['git','checkout','--',file],check=True)
