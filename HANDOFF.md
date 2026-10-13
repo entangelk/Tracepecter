@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-11 · 42줄
+> 마지막 자가 검수: 2026-10-13 · 42줄
 
 ## 현재 상태
 
@@ -19,7 +19,7 @@
 
 1. **P08 진행 중**([계획](docs/plan/phase_8_face_anonymization.md)) — 계획 독립검증 4라운드 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p08_plan_db06.md)). DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
    - 순서: P08-01 측정(이미지만) → P08-02 익명화 모듈 → P08-03 진단·채택 규칙 사전 고정(**재학습 결과 전에 커밋**) → P08-04 재학습 → P08-05 재calibration → P08-06 판정. P08-07 holdout 설계는 병행하며 P07의 관문이 아니다.
-   - **다음 작업은 소유자가 직접 40장을 확인하는 것부터 시작한다.** `reports/errors/review/p08/index.html`에서 표시하고 저장한 CSV를 `experiments/p08_anonymized/measure/recall_labels_owner.csv`에 둔다. 그 뒤 재현율을 재계산한다. P08-01 전체 종료에는 sd35 소유자 확인·보조 크기 측정·전체 슬라이스 독립검증도 남는다([측정 기록](experiments/p08_anonymized/measure/README.md)).
+   - **다음 작업은 사람 영역 대비 보조 크기 측정과 P08-01 전체 슬라이스 독립검증이다.** 학습 GEN·sd35 소유자 표시 정본은 `experiments/p08_anonymized/measure/recall_labels_owner.csv`·`recall_labels_owner_sd35.csv`다. 학습 GEN 재현율 관문은 통과 상태이며 sd35는 보고 전용이다([측정 기록](experiments/p08_anonymized/measure/README.md)).
    - 익명화 규격은 `configs/anonymize.yaml`(k=1.2). 사전 크기 관문 실패는 보존하며 P08-03에 원 크기 단서 진단이 필요하다. 재현율 관문 미통과면 재학습 전에 소유자에게 묻는다.
    - 채택 규칙: §20 AUC 기준과 '단서 해소'를 모두 만족할 때만 `configs/primary.yaml`을 교체한다. 기존 baseline artifact는 덮어쓰지 않는다. 미채택이면 P07은 대기하고 P08을 다시 시도한다(Q5).
    - P07(API)은 P08의 전처리 계약과 채택 artifact를 기다린다.

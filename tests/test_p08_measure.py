@@ -39,6 +39,11 @@ def test_owner_review_requires_every_selected_id_and_keeps_test_reporting_only()
     assert corrected['passed'] is False and corrected['positives'] == 1
     test = measure.recall_summary(rows, [True, True], {}, [], 0.8, 80, False)
     assert test['passed'] is None and test['gate_applies'] is False
+    test_partial = measure.recall_summary(rows, [True, True], {'a': 1}, ['a', 'b'], 0.8, 80, False)
+    assert test_partial['labels'] == 'owner_partial' and test_partial['owner_review_missing'] == ['b']
+    test_final = measure.recall_summary(rows, [True, True], {'a': 1, 'b': 0}, ['a', 'b'], 0.8, 80, False)
+    assert test_final['labels'] == 'owner_final' and test_final['passed'] is None
+    assert test_final['positives'] == 1 and test_final['gate_applies'] is False
 
 
 def test_owner_labels_reject_duplicates_invalid_values_and_unknown_ids(tmp_path):
@@ -52,19 +57,38 @@ def test_owner_labels_reject_duplicates_invalid_values_and_unknown_ids(tmp_path)
     assert measure.read_owner_labels(path, {'a'}) == {'a': 0}
 
 
-def test_owner_stage_builds_blind_page_and_blank_export_template(tmp_path, monkeypatch):
+@pytest.mark.parametrize('pool, suffix', [('train_gen', ''), ('test_gen_sd35', '_sd35')])
+def test_owner_stage_builds_blind_page_and_blank_export_template(tmp_path, monkeypatch, pool, suffix):
     """브라우저 자료에는 정답·검출·선정 사유를 넣지 않고 원본과 동일 ID로 소유자 CSV를 만든다."""
     output = tmp_path / 'measure'
     output.mkdir()
-    (output / 'recall_owner_check.csv').write_text('image_id,reason\ngen_1,disagreement\n')
+    (output / 'recall_labels_agent.csv').write_text(
+        f'pool,image_id,agent_face_visible\n{pool},gen_1,1\n')
+    (output / 'recall_detections.csv').write_text(f'pool,image_id,yunet_detected\n{pool},gen_1,0\n')
+    owner = output / 'recall_labels_owner.csv'
+    owner.write_text('image_id,owner_face_visible\nprevious,1\n')
     monkeypatch.setattr(measure, 'load_rgb', lambda row: np.zeros((20, 20, 3), dtype=np.uint8))
-    measure.owner_stage({}, {'gen_1': {}}, output, tmp_path / 'review', 0)
+    settings = {'recall_gate': {'seed': 1, 'owner_random_fraction': .2}}
+    measure.owner_stage(settings, {'gen_1': {}}, output, tmp_path / 'review', 0, pool=pool)
     html = (tmp_path / 'review/index.html').read_text()
     assert 'data:image/jpeg;base64,' in html and 'gen_1' in html
     assert 'disagreement' not in html and 'yunet_detected' not in html and 'agent_face_visible' not in html
-    with (output / 'recall_labels_owner_template.csv').open() as handle:
+    assert f'recall_labels_owner{suffix}.csv' in html
+    with (output / f'recall_labels_owner_template{suffix}.csv').open() as handle:
         assert list(csv.DictReader(handle)) == [{'image_id': 'gen_1', 'owner_face_visible': ''}]
-    assert not (output / 'recall_labels_owner.csv').exists()
+    assert owner.read_text() == 'image_id,owner_face_visible\nprevious,1\n'
+    if suffix:
+        assert not (output / f'recall_labels_owner{suffix}.csv').exists()
+
+
+def test_owner_selection_includes_all_disagreements_and_seeded_random_agreements():
+    """불일치를 빠뜨리지 않고, 나머지는 전수가 아닌 사전 seed의 20%만 뽑는다."""
+    rows = [dict(image_id=str(i), agent_face_visible='1') for i in range(12)]
+    selected = measure.owner_check_rows(rows, [False] * 2 + [True] * 10,
+                                        {'seed': 1, 'owner_random_fraction': .2})
+    assert selected == [dict(image_id='0', reason='disagreement'),
+                        dict(image_id='1', reason='disagreement'),
+                        dict(image_id='4', reason='random'), dict(image_id='3', reason='random')]
 
 
 @pytest.mark.parametrize('selected_update, rejected', [
@@ -82,7 +106,8 @@ def test_measure_report_keeps_original_failure_and_waits_for_owner(tmp_path, mon
     (tmp_path / 'real_disc_candidates.csv').write_text(
         'candidate_id,image_id,cx,cy,axis_a,axis_b,major,minor,angle\nd,real,10,10,10,10,10,10,0\n')
     (tmp_path / 'real_disc_review.csv').write_text('candidate_id,confirmed\nd,1\n')
-    (tmp_path / 'recall_labels_agent.csv').write_text('pool,image_id,agent_face_visible\ntrain_gen,gen,1\n')
+    (tmp_path / 'recall_labels_agent.csv').write_text(
+        'pool,image_id,agent_face_visible\ntrain_gen,gen,1\ntest_gen_sd35,sd35,1\ntest_gen_sd35,sd35_2,1\n')
     config = tmp_path / 'config.yaml'
     config.write_text('fixed inputs')
     monkeypatch.setattr(measure, 'CONFIG', str(config))
@@ -102,7 +127,8 @@ def test_measure_report_keeps_original_failure_and_waits_for_owner(tmp_path, mon
                     ellipse_ratio=.85, ellipse_fraction_gate=.2,
                     selected_anonymization={'diameter_per_face': 1.2, 'face_detector': {'model_sha256': 'abc'},
                                             'shape': 'circle', 'fill': [255, 255, 255]})
-    meta = {'real': {'label': '1', 'split': 'train'}, 'gen': {'label': '0', 'split': 'train'}}
+    meta = {'real': {'label': '1', 'split': 'train'}, 'gen': {'label': '0', 'split': 'train'},
+            'sd35': {'label': '0', 'split': 'test_unseen'}, 'sd35_2': {'label': '0', 'split': 'test_unseen'}}
     settings['selected_anonymization'].update(selected_update)
     if rejected:
         with pytest.raises(ValueError, match='selected anonymization'):
@@ -118,7 +144,18 @@ def test_measure_report_keeps_original_failure_and_waits_for_owner(tmp_path, mon
     assert report['recall']['train_gen']['passed'] is None
     assert report['recall']['train_gen']['owner_review_missing'] == ['gen']
     assert report['recall']['test_gen_sd35']['gate_applies'] is False
+    assert report['recall']['test_gen_sd35']['labels'] == 'agent_only'
+    assert report['recall']['test_gen_sd35']['owner_review_missing'] == ['sd35', 'sd35_2']
+    assert report['owner_check'] == 1
     (tmp_path / 'recall_labels_owner.csv').write_text('image_id,owner_face_visible\ngen,1\n')
     measure.measure_stage(settings, meta, tmp_path, tmp_path, 0)
     report = json.loads((tmp_path / 'report.json').read_text())
     assert report['recall']['train_gen']['passed'] is True
+    (tmp_path / 'recall_labels_owner_sd35.csv').write_text(
+        'image_id,owner_face_visible\nsd35,0\nsd35_2,1\n')
+    measure.measure_stage(settings, meta, tmp_path, tmp_path, 0)
+    report = json.loads((tmp_path / 'report.json').read_text())
+    assert report['recall']['train_gen']['passed'] is True
+    sd35 = report['recall']['test_gen_sd35']
+    assert sd35['labels'] == 'owner_final' and sd35['owner_review_missing'] == []
+    assert sd35['positives'] == 1 and sd35['passed'] is None and sd35['gate_applies'] is False

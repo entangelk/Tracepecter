@@ -23,6 +23,7 @@ button[aria-pressed=true]{background:#245ea1;color:white}h1{font-size:1.3rem}a{c
 <dialog id="zoom"><button id="close">닫기</button><img id="zoom-image" alt="확대 원본"></dialog>
 <script>
 const CASES = /*CASES*/null;
+const DOWNLOAD_NAME = /*DOWNLOAD_NAME*/"recall_labels_owner.csv";
 const answers = {};
 const progress = document.querySelector('#progress');
 function update(){progress.textContent = `${Object.keys(answers).length} / ${CASES.length} 확인`;}
@@ -44,7 +45,7 @@ document.querySelector('#save').onclick = ()=>{
   if(Object.keys(answers).length!==CASES.length){document.querySelector('#status').textContent='모든 사진을 확인해 주세요.';return;}
   const csv = 'image_id,owner_face_visible\n'+CASES.map(item=>`${item.image_id},${answers[item.image_id]}`).join('\n')+'\n';
   const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  const link = document.createElement('a');link.href=url;link.download='recall_labels_owner.csv';link.click();
+  const link = document.createElement('a');link.href=url;link.download=DOWNLOAD_NAME;link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
   document.querySelector('#status').textContent='CSV를 저장했습니다. 페이지를 닫으면 선택 내용이 초기화됩니다.';
 };

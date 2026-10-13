@@ -32,6 +32,7 @@ CONFIG = 'configs/anonymize_measure.yaml'
 METADATA = 'data/metadata.csv'
 IMAGE_ROOT = Path('/images')
 REVIEW_SET = 'reports/errors/review_set.csv'
+OWNER_SUFFIX = {'train_gen': '', 'test_gen_sd35': '_sd35'}
 
 
 def white_mask(rgb: np.ndarray, white_min: int) -> np.ndarray:
@@ -151,15 +152,32 @@ def recall_summary(rows, detected, owner, required_ids, min_recall, min_positive
     result = recall_gate(final, detected, min_recall, min_positives)
     missing = sorted(set(required_ids) - owner.keys())
     reviewed = any(r['image_id'] in owner for r in rows)
-    labels = 'owner_final' if gate_applies and not missing else 'owner_partial' if reviewed else 'agent_only'
+    labels = 'owner_final' if not missing and (gate_applies or reviewed) else 'owner_partial' if reviewed else 'agent_only'
     return dict(result, point_gate_passed=result['passed'],
                 passed=result['passed'] if gate_applies and not missing else None,
                 gate_applies=gate_applies, labels=labels, owner_review_missing=missing, n=len(rows))
 
 
-def owner_stage(settings, meta, output: Path, sheets: Path, max_images: int):
+def owner_check_rows(rows, detected, gate):
+    disagree = [r['image_id'] for r, d in zip(rows, detected) if int(r['agent_face_visible']) != d]
+    disagree_ids = set(disagree)
+    rest = [r['image_id'] for r in rows if r['image_id'] not in disagree_ids]
+    extra = random.Random(gate['seed']).sample(rest, round(gate['owner_random_fraction'] * len(rest)))
+    return [dict(image_id=i, reason='disagreement') for i in disagree] + \
+           [dict(image_id=i, reason='random') for i in extra]
+
+
+def owner_stage(settings, meta, output: Path, sheets: Path, max_images: int, pool='train_gen'):
     """검출·에이전트 표시를 숨긴 원본 검토 페이지와 빈 소유자 CSV 양식을 만든다."""
-    rows = list(csv.DictReader(open(output / 'recall_owner_check.csv')))
+    suffix = OWNER_SUFFIX[pool]
+    labels = [r for r in csv.DictReader(open(output / 'recall_labels_agent.csv')) if r['pool'] == pool]
+    detected = {r['image_id']: bool(int(r['yunet_detected']))
+                for r in csv.DictReader(open(output / 'recall_detections.csv')) if r['pool'] == pool}
+    rows = owner_check_rows(labels, [detected[r['image_id']] for r in labels], settings['recall_gate'])
+    with (output / f'recall_owner_check{suffix}.csv').open('w', newline='') as handle:
+        writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'])
+        writer.writeheader()
+        writer.writerows(rows)
     cases = []
     for row in rows:
         buffer = io.BytesIO()
@@ -168,8 +186,10 @@ def owner_stage(settings, meta, output: Path, sheets: Path, max_images: int):
     template = Path(__file__).with_name('p08_owner_review.html').read_text()
     sheets.mkdir(parents=True, exist_ok=True)
     page = sheets / 'index.html'
-    page.write_text(template.replace('/*CASES*/null', json.dumps(cases).replace('</', '<\\/')))
-    with (output / 'recall_labels_owner_template.csv').open('w', newline='') as handle:
+    page.write_text(template.replace('/*CASES*/null', json.dumps(cases).replace('</', '<\\/'))
+                   .replace('/*DOWNLOAD_NAME*/"recall_labels_owner.csv"',
+                            json.dumps(f'recall_labels_owner{suffix}.csv')))
+    with (output / f'recall_labels_owner_template{suffix}.csv').open('w', newline='') as handle:
         writer = csv.DictWriter(handle, fieldnames=['image_id', 'owner_face_visible'])
         writer.writeheader()
         writer.writerows(dict(image_id=r['image_id'], owner_face_visible='') for r in rows)
@@ -318,9 +338,7 @@ def measure_stage(settings, meta, output: Path, sheets: Path, max_images: int):
             chosen = sigma
 
     labels = list(csv.DictReader(open(output / 'recall_labels_agent.csv')))
-    owner_path = output / 'recall_labels_owner.csv'
-    owner = read_owner_labels(owner_path, {r['image_id'] for r in labels})
-    recall, to_check, detections = {}, [], []
+    recall, checks, detections = {}, {}, []
     for pool in ('train_gen', 'test_gen_sd35'):
         rows = [r for r in labels if r['pool'] == pool]
         detected = []
@@ -328,23 +346,21 @@ def measure_stage(settings, meta, output: Path, sheets: Path, max_images: int):
             hit = detect_face(load_rgb(meta[r['image_id']]), **face) is not None
             detected.append(hit)
             detections.append(dict(pool=pool, image_id=r['image_id'], yunet_detected=int(hit)))
-        if pool == 'train_gen':
-            disagree = [r['image_id'] for r, d in zip(rows, detected) if int(r['agent_face_visible']) != d]
-            rest = [r['image_id'] for r in rows if r['image_id'] not in disagree]
-            extra = random.Random(gate['seed']).sample(rest, round(gate['owner_random_fraction'] * len(rest)))
-            to_check = [dict(image_id=i, reason='disagreement') for i in disagree] + \
-                       [dict(image_id=i, reason='random') for i in extra]
+        owner = read_owner_labels(output / f'recall_labels_owner{OWNER_SUFFIX[pool]}.csv',
+                                  {r['image_id'] for r in rows})
+        checks[pool] = owner_check_rows(rows, detected, gate)
         recall[pool] = recall_summary(rows, detected, owner,
-                                      [r['image_id'] for r in to_check] if pool == 'train_gen' else [],
+                                      [r['image_id'] for r in checks[pool]],
                                       gate['min_recall'], gate['min_positives'], pool == 'train_gen')
     with (output / 'recall_detections.csv').open('w', newline='') as handle:
         writer = csv.DictWriter(handle, fieldnames=['pool', 'image_id', 'yunet_detected'])
         writer.writeheader()
         writer.writerows(detections)
-    with (output / 'recall_owner_check.csv').open('w', newline='') as handle:
-        writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'])
-        writer.writeheader()
-        writer.writerows(to_check)
+    for pool, to_check in checks.items():
+        with (output / f'recall_owner_check{OWNER_SUFFIX[pool]}.csv').open('w', newline='') as handle:
+            writer = csv.DictWriter(handle, fieldnames=['image_id', 'reason'])
+            writer.writeheader()
+            writer.writerows(to_check)
 
     report = dict(
         real_discs=dict(confirmed=len(discs), size_ratio_quartiles=quartiles(real_ratio),
@@ -355,7 +371,7 @@ def measure_stage(settings, meta, output: Path, sheets: Path, max_images: int):
                        selected_size=selected_size,
                        edge_sample=len(edge_sample), edge_width_by_sigma=sigma_widths, sigma=chosen,
                        edge_passed=chosen is not None),
-        recall=recall, owner_check=len(to_check),
+        recall=recall, owner_check=len(checks['train_gen']),
         provenance=dict(measurement_config_sha256=hashlib.sha256(Path(CONFIG).read_bytes()).hexdigest(),
                         metadata_sha256=hashlib.sha256(Path(METADATA).read_bytes()).hexdigest(),
                         detector_sha256=face['model_sha256'], selected_anonymization=selected))
@@ -368,6 +384,8 @@ def main(argv=None):
     parser.add_argument('stage', choices=['candidates', 'missed', 'recall', 'measure', 'owner'])
     parser.add_argument('--anonymization-config', type=Path, help='소유자 결정 후 규격(사전 측정 기준은 유지)')
     parser.add_argument('--sheets', default='/tmp/p08_sheets')
+    parser.add_argument('--pool', choices=list(OWNER_SUFFIX), default='train_gen',
+                        help='owner: 블라인드 검토 대상 (기본 train_gen)')
     parser.add_argument('--max-images', type=int, default=1200,
                         help='candidates: 후보를 만들 REAL 이미지 수 상한(앞에서부터 확인된 원 min_discs개를 쓰므로 결과에 영향 없음)')
     args = parser.parse_args(argv)
@@ -381,8 +399,11 @@ def main(argv=None):
     output, sheets = Path(settings['output_dir']), Path(args.sheets)
     output.mkdir(parents=True, exist_ok=True)
     sheets.mkdir(parents=True, exist_ok=True)
-    dict(candidates=candidates_stage, missed=missed_stage, recall=recall_stage, measure=measure_stage,
-         owner=owner_stage)[args.stage](settings, meta, output, sheets, args.max_images)
+    if args.stage == 'owner':
+        owner_stage(settings, meta, output, sheets, args.max_images, pool=args.pool)
+    else:
+        dict(candidates=candidates_stage, missed=missed_stage, recall=recall_stage,
+             measure=measure_stage)[args.stage](settings, meta, output, sheets, args.max_images)
 
 
 if __name__ == '__main__':
