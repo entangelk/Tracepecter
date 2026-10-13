@@ -66,7 +66,7 @@ def test_failure_analysis_cli_saves_errors_and_condition_predictions(tmp_path):
     for name in ('train_1.png', 'val_1.png', 'test_1.png'):  # REAL은 실제 데이터처럼 JPEG 내용
         with Image.open(tmp_path/name) as image:
             image.convert('RGB').save(tmp_path/name, format='JPEG', quality=80)
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
+    config = dict(anonymization=None, model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=1, device='cpu'),
                   augmentation=dict(horizontal_flip=False, jpeg_aug=False),
                   data=dict(metadata_csv=str(metadata)))

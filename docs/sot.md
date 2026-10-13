@@ -1,6 +1,6 @@
 # Tracepecter — Source of Truth (SoT)
 
-> 최종 갱신: 2026-10-11
+> 최종 갱신: 2026-10-13
 
 ## 1. 프로젝트 정의
 
@@ -24,7 +24,7 @@
 | calibration parameter·threshold·checkpoint 결합 | `experiments/p05_calibration/calibration.json` | fitting 설정은 `configs/calibration.yaml`, score/score threshold는 유도 |
 | primary encoder·실행 설정 | `configs/primary.yaml` | 선정 근거는 `experiments/p03_comparison/README.md`; baseline 실험 config와 구분 |
 | 학습·추론 parameter | `configs/*.yaml` | 코드에 직접 기입하지 않는다 (`docs/project.md` §25) |
-| 공통 얼굴 익명화 규격 | `configs/anonymize.yaml` | P08-01 소유자 선택 k=1.2; P08-02 구현 전. 사전 측정 기준은 `configs/anonymize_measure.yaml`에 별도 보존 |
+| 공통 얼굴 익명화 규격 | `configs/anonymize.yaml` | P08-01 소유자 선택 k=1.2; P08-02 checkpoint snapshot의 원본. 사전 측정 기준은 `configs/anonymize_measure.yaml`에 별도 보존 |
 | 실험 config·metric | `experiments/` | 실험마다 config와 metric을 함께 보관 (§26) |
 | 시스템의 실제 동작 | 코드 자체 | 문서와 불일치 시 코드가 사실이다. 문서를 고치거나 소유자 결정을 올린다 |
 

@@ -46,8 +46,8 @@ def test_threshold_prefers_balanced_accuracy_and_handles_ties():
     assert calibration_metrics([0, 0], [0, 1], 1, 10)['ece'] == 0
 
 
-def test_calibration_cli_uses_only_validation_and_scores_deterministically(tmp_path):
-    """test 변경은 fitting에 영향 없고, 정상 scoring·artifact hash 거부를 확인한다."""
+def test_calibration_cli_uses_only_validation_and_rejects_unanonymized_score(tmp_path):
+    """test 변경은 fitting에 영향 없고, 무익명화 score·artifact hash 거부를 확인한다."""
     import csv
     import json
     import yaml
@@ -57,7 +57,7 @@ def test_calibration_cli_uses_only_validation_and_scores_deterministically(tmp_p
     from src.score import main as score, load_calibration
 
     metadata = make_data(tmp_path)
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
+    config = dict(anonymization=None, model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=1, device='cpu'),
                   augmentation=dict(horizontal_flip=False, jpeg_aug=False),
                   data=dict(metadata_csv=str(metadata)))
@@ -87,11 +87,8 @@ def test_calibration_cli_uses_only_validation_and_scores_deterministically(tmp_p
     assert again['threshold_probability'] == artifact['threshold_probability']
     artifact_path = tmp_path/'calibration/calibration.json'
     arguments = ['--image', str(tmp_path/'val_1.png'), '--calibration', str(artifact_path)]
-    first, second = score(arguments), score(arguments)
-    assert first == second
-    assert set(first) == {'realism_score', 'classification'}
-    assert 0 <= first['realism_score'] <= 100
-    assert first['classification'] in {'photographic_like', 'synthetic_like'}
+    with pytest.raises(ValueError, match='requires anonymization'):
+        score(arguments)
     damaged = dict(artifact, temperature=-1)
     artifact_path.write_text(json.dumps(damaged))
     with pytest.raises(ValueError, match='temperature'):

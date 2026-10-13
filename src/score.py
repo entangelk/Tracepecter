@@ -9,6 +9,7 @@ from pathlib import Path
 import torch
 from PIL import Image
 
+from src.anonymize import checkpoint_anonymizer
 from src.calibration import apply_temperature
 from src.dataset import build_transform
 from src.evaluate import load_model, file_sha256
@@ -34,11 +35,13 @@ def main(argv=None) -> dict:
     parser.add_argument('--device', default='cpu')
     args = parser.parse_args(argv)
     artifact = load_calibration(args.calibration)
-    model, config = load_model(artifact['checkpoint'], args.device)
+    model, config = load_model(artifact['checkpoint'], args.device, require_anonymization=True)
+    anonymizer = checkpoint_anonymizer(config, required=True)
     mc = config['model']
     transform = build_transform(mc['image_size'], False, False, normalization=mc.get('normalization'))
     with Image.open(args.image) as handle:
-        image = transform(handle.convert('RGB')).unsqueeze(0).to(args.device)
+        anonymized, _ = anonymizer(handle.convert('RGB'))
+        image = transform(anonymized).unsqueeze(0).to(args.device)
     with torch.inference_mode():
         logit = model.forward_logits(image).item()
     probability = float(apply_temperature([logit], artifact['temperature'])[0])

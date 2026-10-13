@@ -23,6 +23,7 @@ from PIL import Image
 from torch import nn
 from torch.utils.data import DataLoader
 
+from src.anonymize import training_config, checkpoint_anonymizer
 from src.dataset import MetadataDataset
 from src.evaluate import binary_metrics, predict
 from src.model import RealismScorer, build_encoder, set_encoder_frozen
@@ -61,6 +62,8 @@ def build_smoke_dataset(directory: Path) -> Path:
 def run_training(config: dict, train_csv: str, epochs: int, checkpoint_dir: Path,
                  resume: bool = False) -> Path:
     """config 대로 dataset·model·optimizer 를 구성해 학습하고 checkpoint 를 저장한다."""
+    config = training_config(config)
+    anonymizer = checkpoint_anonymizer(config, cache_path=config["data"].get("face_cache"))
     device = config["training"].get("device", "cpu")
     mc = config["model"]
     augmentation = config["augmentation"]
@@ -70,12 +73,12 @@ def run_training(config: dict, train_csv: str, epochs: int, checkpoint_dir: Path
         horizontal_flip=augmentation["horizontal_flip"], jpeg_aug=augmentation["jpeg_aug"],
         split=split, minor_crop=augmentation.get("minor_crop", False),
         color_jitter=augmentation.get("color_jitter", False),
-        image_root=config["data"].get("image_root"), normalization=mc.get("normalization"),
+        image_root=config["data"].get("image_root"), normalization=mc.get("normalization"), anonymizer=anonymizer,
     )
     val_csv = config["data"].get("metadata_csv", config["data"].get("val_csv", train_csv))
     val_dataset = MetadataDataset(val_csv, mc["image_size"], False, False,
                                   split="val" if split else None, image_root=config["data"].get("image_root"),
-                                  normalization=mc.get("normalization"))
+                                  normalization=mc.get("normalization"), anonymizer=anonymizer)
     if not train_dataset or not val_dataset:
         raise ValueError("train and validation datasets must be nonempty")
     loader_options = dict(batch_size=config["training"]["batch_size"],

@@ -19,12 +19,12 @@
 
 1. **P08 진행 중**([계획](docs/plan/phase_8_face_anonymization.md)) — 계획 독립검증 4라운드 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p08_plan_db06.md)). DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
    - 순서: P08-01 측정(이미지만) → P08-02 익명화 모듈 → P08-03 진단·채택 규칙 사전 고정(**재학습 결과 전에 커밋**) → P08-04 재학습 → P08-05 재calibration → P08-06 판정. P08-07 holdout 설계는 병행하며 P07의 관문이 아니다.
-   - **다음 작업은 P08-02 익명화 전처리 모듈이다.** 선행 측정 근거는 [P08-01 전체 검증 합격](docs/verifications/2026-10-13/p08_01_full_slice.md)과 [측정 기록](experiments/p08_anonymized/measure/README.md)이다. `src/anonymize.py`는 모든 검출 얼굴을 처리해야 하며 P06 대표 얼굴 검출을 그대로 재사용하지 않는다. P08 측정 CSV는 LF, 기존 실험에 연결된 `data/metadata.csv`는 CRLF로 체크아웃한다(`.gitattributes`).
+   - **다음은 P08-02 독립검증이다.** 구현·좌표 캐시·실행 계약은 [P08 전처리 기록](experiments/p08_anonymized/README.md), 자가 검증은 [작업 기록](docs/daily_logs/2026-10-13/work_log.md)을 참고한다. 이후 P08-03 진단·채택 규칙을 사전 고정한다. P08 측정·캐시 CSV는 LF, 기존 실험에 연결된 `data/metadata.csv`는 CRLF로 체크아웃한다(`.gitattributes`).
    - 익명화 규격은 `configs/anonymize.yaml`(k=1.2). 사전 크기 관문 실패는 보존하며 P08-03에 원 크기 단서 진단이 필요하다. 재현율 관문 미통과면 재학습 전에 소유자에게 묻는다.
    - 채택 규칙: §20 AUC 기준과 '단서 해소'를 모두 만족할 때만 `configs/primary.yaml`을 교체한다. 기존 baseline artifact는 덮어쓰지 않는다. 미채택이면 P07은 대기하고 P08을 다시 시도한다(Q5).
    - P07(API)은 P08의 전처리 계약과 채택 artifact를 기다린다.
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
-3. score 실행: `docker compose --profile training run --rm train python -m src.score --image /images/<path> --calibration experiments/p05_calibration/calibration.json --device cuda`. artifact는 `checkpoints/baseline/best.pt`에 결합된다. 재현 fitting은 `GIT_COMMIT=$(git rev-parse HEAD) docker compose --profile training run --rm train python -m src.calibrate --config configs/calibration.yaml`.
+3. score CLI는 익명화 규격이 없는 P05 baseline을 거부한다. 현재 서빙 가능한 채택 artifact는 없고 P08-05·06을 기다린다. baseline 평가·calibration은 원본 입력을 허용한다. 익명화 비교 평가는 `src.evaluate --anonymize configs/anonymize.yaml --face-cache experiments/p08_anonymized/face_boxes.csv`(별도 비교 checkpoint 경로 사용: 출력은 checkpoint 디렉터리에 기록된다).
 
 ## 주의
 

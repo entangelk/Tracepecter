@@ -151,7 +151,7 @@ def _prepare_cli(tmp_path, monkeypatch):
         array = _noise(seed=seed)
         Image.fromarray(_with_disc(array, 150, 100, 30) if name == 'test_1.png' else array).save(tmp_path/name)
     monkeypatch.setattr(face_mask, 'detect_face', lambda rgb, **_: (130, 80, 40, 40))
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
+    config = dict(anonymization=None, model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=1, device='cpu'),
                   augmentation=dict(horizontal_flip=False, jpeg_aug=False),
                   data=dict(metadata_csv=str(metadata)))

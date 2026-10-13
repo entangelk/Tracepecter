@@ -29,3 +29,6 @@ augmentation:
 
 output:
   checkpoint_dir: checkpoints/dino
+
+# 얼굴 전처리 없음. 기존 checkpoint의 legacy 평가와 같은 원본 경로.
+anonymization: null

@@ -13,6 +13,7 @@ import yaml
 from torch.utils.data import DataLoader, Subset
 
 from src.calibration import apply_temperature, fit_temperature, choose_threshold, calibration_metrics
+from src.anonymize import checkpoint_anonymizer
 from src.dataset import MetadataDataset
 from src.evaluate import load_model, evaluation_indices, binary_metrics, file_sha256
 
@@ -37,9 +38,10 @@ def main(argv=None) -> dict:
     settings = yaml.safe_load(Path(args.config).read_text())
     checkpoint = settings['checkpoint']
     model, config = load_model(checkpoint, settings['device'])
+    anonymizer = checkpoint_anonymizer(config, cache_path=settings.get('face_cache'), override=settings.get('anonymize'))
     mc = config['model']
     dataset = MetadataDataset(config['data']['metadata_csv'], mc['image_size'], False, False,
-                              image_root=config['data'].get('image_root'), normalization=mc.get('normalization'))
+                              image_root=config['data'].get('image_root'), normalization=mc.get('normalization'), anonymizer=anonymizer)
     val = [i for i, row in enumerate(dataset.rows) if row.split == 'val']
     logits, labels = predict_logits(model, dataset, val, settings['device'], config['training'])
     output = Path(settings['output_dir'])

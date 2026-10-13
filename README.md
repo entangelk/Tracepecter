@@ -99,10 +99,12 @@ docker compose --profile training run --rm train python -m scripts.compare_basel
 
 ## Calibrated image score
 
+P08-02부터 score CLI는 익명화 규격이 결합된 checkpoint만 허용한다. 현재 P05 baseline artifact는 평가·calibration에서 원본 입력으로 쓸 수 있으나 score CLI에서는 거부된다. P08-05 artifact는 아직 없다. 재학습·채택 후 사용할 명령은 다음과 같다.
+
 ```bash
 docker compose --profile training run --rm train python -m src.score \
   --image /images/<image-path> \
-  --calibration experiments/p05_calibration/calibration.json --device cuda
+  --calibration experiments/p08_anonymized/calibration/calibration.json --device cuda
 ```
 
-`realism_score`(0~100)와 `classification`(`photographic_like`/`synthetic_like`)을 출력한다. temperature와 threshold는 validation에서만 선택했으며 artifact의 checkpoint hash를 검증한다. [P05 보고서](experiments/p05_calibration/README.md)에 전후 지표와 한계를 기록했다. Test B의 NLL/Brier는 소폭 악화돼 추가 검증이 필요하다. 사람 체감 score 일치는 아직 별도 평가하지 않았다.
+`realism_score`(0~100)와 `classification`(`photographic_like`/`synthetic_like`)을 출력한다. temperature와 threshold는 validation에서만 선택했으며 artifact의 checkpoint hash와 checkpoint 내부 익명화 규격·YuNet hash를 검증한다. 전처리 설정과 좌표 캐시 사용법은 [P08 전처리 기록](experiments/p08_anonymized/README.md)에 있다. [P05 보고서](experiments/p05_calibration/README.md)에 전후 지표와 한계를 기록했다. Test B의 NLL/Brier는 소폭 악화돼 추가 검증이 필요하다. 사람 체감 score 일치는 아직 별도 평가하지 않았다.

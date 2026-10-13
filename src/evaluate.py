@@ -10,6 +10,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, Subset
 
+from src.anonymize import checkpoint_anonymizer
 from src.dataset import MetadataDataset, MetadataRow
 from src.model import RealismScorer, build_encoder, set_encoder_frozen
 
@@ -94,9 +95,10 @@ def file_sha256(path) -> str:
     return digest.hexdigest()
 
 
-def load_model(checkpoint, device):
+def load_model(checkpoint, device, *, require_anonymization=False):
     """학습 checkpoint의 config가 모델 구조를 소유한다."""
     saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    checkpoint_anonymizer(saved['config'], required=require_anonymization)
     mc = saved['config']['model']
     encoder = build_encoder(mc['encoder'], mc.get('embedding_dim', 64), mc.get('model_id'), mc.get('revision'))
     model = RealismScorer(encoder, encoder.embedding_dim)
@@ -109,11 +111,14 @@ def main(argv=None) -> dict:
     parser = argparse.ArgumentParser(description='Tracepecter test evaluation')
     parser.add_argument('--checkpoint', required=True)
     parser.add_argument('--device', default='cpu')
+    parser.add_argument('--anonymize', help='legacy/null checkpoint 비교 평가용 규격 YAML')
+    parser.add_argument('--face-cache', help='검증된 얼굴 좌표 CSV (미지정 시 즉시 검출)')
     args = parser.parse_args(argv)
     model, config = load_model(args.checkpoint, args.device)
+    anonymizer = checkpoint_anonymizer(config, cache_path=args.face_cache, override=args.anonymize)
     mc = config['model']
     dataset = MetadataDataset(config['data']['metadata_csv'], mc['image_size'], False, False,
-                              image_root=config['data'].get('image_root'), normalization=mc.get('normalization'))
+                              image_root=config['data'].get('image_root'), normalization=mc.get('normalization'), anonymizer=anonymizer)
     standard, unseen = evaluation_indices(dataset.rows)
     result = dict(shared_real_count=sum(dataset.rows[i].label == 1 for i in standard),
                   unseen_real_policy='standard_test_real_reuse', pr_auc_method='trapezoidal')

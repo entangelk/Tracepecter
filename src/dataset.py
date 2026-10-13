@@ -107,7 +107,9 @@ class MetadataDataset(Dataset):
         color_jitter: bool = False,
         image_root: str | Path | None = None,
         normalization: dict | None = None,
+        anonymizer=None,
     ) -> None:
+        self.anonymizer = anonymizer
         self.csv_path = Path(csv_path)
         self.image_root = Path(image_root) if image_root is not None else None
         self.rows = read_metadata(self.csv_path)
@@ -127,4 +129,6 @@ class MetadataDataset(Dataset):
         row = self.rows[index]
         with Image.open(self.image_path(index)) as handle:
             image = handle.convert("RGB")
+        if self.anonymizer is not None:
+            image, _ = self.anonymizer(image, row.image_id, self.image_path(index))
         return self.transform(image), float(row.label)

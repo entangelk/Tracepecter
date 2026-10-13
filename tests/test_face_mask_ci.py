@@ -133,7 +133,7 @@ def _prepare_cli(tmp_path, monkeypatch, threshold):
     from test_baseline import make_data
 
     metadata = make_data(tmp_path)
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
+    config = dict(anonymization=None, model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=1, device='cpu'),
                   augmentation=dict(horizontal_flip=False, jpeg_aug=False),
                   data=dict(metadata_csv=str(metadata)))

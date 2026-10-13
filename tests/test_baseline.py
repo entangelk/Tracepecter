@@ -108,7 +108,7 @@ def test_training_validation_checkpoint_and_evaluation(tmp_path, monkeypatch):
         return MetadataDataset(*args, **kwargs)
     monkeypatch.setattr('src.train.MetadataDataset', dataset_factory)
     monkeypatch.setattr('src.evaluate.MetadataDataset', dataset_factory)
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True,
+    config = dict(anonymization=None, model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True,
                             normalization=normalization),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=3, device='cpu'),
                   augmentation=dict(horizontal_flip=False, jpeg_aug=False),
@@ -152,7 +152,7 @@ def test_image_root_mount_and_invalid_unseen(tmp_path):
 def test_resume_matches_uninterrupted_training(tmp_path):
     """중단 시 optimizer/RNG 누락을 잡고 정상 재개는 연속 실행과 같은 결과를 낸다."""
     path = make_data(tmp_path)
-    config = dict(model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
+    config = dict(anonymization=None, model=dict(encoder='stub', embedding_dim=8, image_size=16, freeze_encoder=True),
                   training=dict(batch_size=2, learning_rate=0.01, epochs=3, device='cpu', num_workers=2),
                   augmentation=dict(horizontal_flip=True, jpeg_aug=True,
                                     minor_crop=True, color_jitter=True),

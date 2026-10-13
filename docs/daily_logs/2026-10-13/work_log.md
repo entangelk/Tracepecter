@@ -86,7 +86,43 @@
 - 측정 README·계획·페이즈 인덱스를 P08-01 Complete로 갱신하고 CHANGELOG에 종결 항목을 추가했다. HANDOFF는 추적 검증 대기를 P08-02 착수로 교체했다. 원 검증기록은 수정하지 않는다.
 - 오늘은 P08-02를 착수하지 않고 다음 작업을 명시한 상태로 마무리한다.
 
+## P08-02 익명화 전처리 구현
+
+### 목표
+
+- P08-01 측정·관문을 근거로 모든 얼굴을 같은 함수에서 가린다. 캐시/즉시 결과·증강 전 적용·checkpoint snapshot·fail closed 계약을 검증한다.
+- 사용자의 핸드오프 다음 작업 요청은 P08-02 슬라이스 구현으로 해석했다. P08-03 결과 사전 고정과 재학습은 이 작업에서 수행하지 않는다.
+
+### 수행 내용·계약 감사
+
+- `src/anonymize.py`: 규격 필드·범위 검사, canonical JSON 해시, 학습 YAML→snapshot 변환, YuNet 전체 검출, 결정적 원·경계 처리, 무결성 검증 캐시, CPU 생성 CLI를 추가했다. P06 대표 얼굴 선택 함수는 사용하지 않는다. 검출된 작은 얼굴의 최소 크기 경계는 포함한다.
+- `src/dataset.py`: 원본 RGB를 익명화한 뒤 기존 transform을 적용한다. `src/train.py`는 train/val에 같은 worker를 전달하고 best/last checkpoint에 전체 규격·해시를 결합한다. `src/evaluate.py`·`src/calibrate.py`·`src/score.py`는 checkpoint 규격을 검증·사용한다. score의 legacy/null 거부는 encoder 구성 이전에 수행한다.
+- 정본 `configs/anonymize.yaml` → 학습 진입 snapshot → checkpoint → 평가/calibration/score로 흐른다. 규격 해시는 파생 무결성 값, checkpoint snapshot은 당시 설정 보존에 필요한 의도적 복제다. P06 검출 config는 과거 진단 스냅샷이라 변경하지 않는다. API 구현·응답 변경은 P07 범위다.
+- 얼굴 좌표는 `experiments/p08_anonymized/face_boxes.csv`가 소유하는 파생 artifact다. 키는 metadata image_id·이미지 바이트 hash·검출 모델 hash·검출 파라미터 hash이며 값은 모든 상자 목록이다. 모델 경로는 배포 위치이므로 파라미터 hash에서 제외하며 모델 identity는 별도 키로 검증한다. 원 크기·fill·경계 규격은 좌표 검출에 영향이 없어 캐시 해시에 포함하지 않는다. metadata에는 열을 추가하지 않는다.
+- 캐시 생성은 각 행 flush와 기존 행 이미지 hash 검증 후 재개를 제공한다. 기존 행 재검증에는 이미지 디코딩이 필요 없으므로 바이트 해시만 검사한다. Dataset 캐시 경로는 매 접근마다 이미지 hash를 검사하며 누락/불일치에 즉시 검출 fallback을 하지 않는다.
+- 새 학습 config에는 익명화 YAML 경로 또는 명시적 null이 필수다. 기존 `baseline.yaml`·`dino.yaml`·`primary.yaml`에는 null만 추가했다. 기존 모델 설정·선정·checkpoint·P05/P06 artifact는 변경하지 않았다. 기존 학습 fixture도 명시 null로 갱신하고 P05 score 테스트는 null 거부로 전환했다. 정상 익명화 score 결정성·출력은 신규 통합 셀이 검증한다.
+- legacy/null 비교 평가에는 명시적 규격 override를 제공한다. 결합된 규격 덮어쓰기는 거부한다. baseline 평가 명령은 checkpoint 디렉터리에 결과를 쓰므로 별도 비교용 사본 경로를 쓰도록 문서에 명시했다. 새 모델 원본 입력 진단은 P08-03 후속 범위다.
+- README·HANDOFF의 기존 baseline score 실행 예시를 제거하고 P08 artifact 대기 상태를 반영했다. 페이즈·인덱스는 독립검증 대기로 맞췄다. 규격의 stale 측정 대기 주석을 고쳤으며 `.gitattributes`에 좌표 캐시 LF를 추가했다.
+
+### 검증
+
+- 회귀 테스트를 먼저 작성했으며 신규 모듈 부재로 수집 실패(exit 2)를 확인했다. Docker 접근은 sandbox에서 거부되어 승인된 Docker 실행 경로를 사용했다.
+- 첫 집중 회귀 `tests/test_anonymize.py tests/test_baseline.py tests/test_calibration.py tests/test_train_smoke.py`: **21 passed**.
+- 전체 Python suite `docker compose run --rm -T dev python -m pytest -q`: **137 passed**, 기존 Pillow deprecation warning 12개. 이후 신규 경계 커널·규격 범위·모델 로드 전 거부 셀과 관련 변경은 최신 집중 회귀로 확인했다.
+- 최종 집중 회귀(같은 4개 파일): **30 passed**. 캐시 재개 경로 정리 후 `tests/test_anonymize.py`를 다시 확인해 **15 passed**. 캐시 검출을 무시하는 변경과 정상 빈 목록·최소 크기 포함·legacy/null 평가·올바른 snapshot 양방향을 잠근다. P08-01 단일 원 경계 커널은 랜덤 RGB/소수 좌표에서 byte 동일하다.
+- 실측 생성 명령: `docker compose run --rm -T -v /mnt/h/tracepector/images:/images:ro dev python -m src.anonymize`(CPU). 캐시 6,000행은 metadata ID 전수와 일치하며 train 3,780 / val 820 / test 800 / test_unseen 600, REAL 3,000 / GEN 3,000이다. 얼굴 있음 1,949장·없음 4,051장·다중 얼굴 7장·전체 얼굴 1,957개다.
+- 같은 캐시에 `write_face_cache`를 재실행해 6,000장 이미지 바이트 hash를 전수 확인했고 출력 CSV SHA256 `319d5376f71e3c65155857b33fa2e4dc653d2094a7b8f8cbef90812393d15af8`이 byte 동일했다. 원본 이미지·metadata·기존 실험 파일은 수정하지 않았다.
+- 실제 split × source_type 7개 층에서 seed 20261013으로 층별 5장(35장)을 뽑았다. 캐시 좌표 목록은 즉시 YuNet 좌표와 float값까지 동일했고, 가린 얼굴 수·최종 이미지 픽셀도 전부 동일했다. 전수 즉시 재검출 동등성을 입증한 것은 아니며 실표본 비교와 stub 회귀로 검증했다.
+- 변경 문서 로컬 링크 전수 존재·`git diff --check`를 확인했다. HANDOFF diff는 2행 추가/2행 삭제이고 기존 P08-02 착수·baseline score 실행을 대체했다. 마지막 자가 검수는 42줄로 유지된다. GPU 재학습은 실행하지 않았다.
+- 자가 검증이며 독립검증 판정을 대신하지 않는다. 슬라이스 완료는 독립검증 합격 후 갱신한다.
+
+### 발견한 문제·판단
+
+- 초기 원 칠하기 구현에서 fill을 int64 배열로 만들면 측정 커널과 float 정밀도가 달라질 여지가 있었다. float32 alpha·fill로 맞추고 P08-01 `paint_synthetic`과 실제 픽셀의 byte 일치 셀을 추가했다.
+- baseline score를 encoder 로드 후에 거부하면 불필요한 모델 로드/다운로드가 먼저 일어날 수 있다. `load_model(require_anonymization=True)`에서 snapshot 검사를 먼저 수행하도록 정리하고 legacy/null 양쪽을 encoder 구성 전 거부하는 셀로 잠갔다.
+- 타원은 측정 결과 미채택이며 현재 모듈은 원 규격만 허용한다. 원 크기 관문 실패와 검출 누락 한계는 그대로 유지한다.
+
 ## 다음 작업
 
-- P08-02 `src/anonymize.py`: 모든 얼굴 검출·공통 흰 원 전처리·결정성·거부 계약 구현.
-- P08-03 진단·채택 규칙 사전 고정 후 재학습으로 진행한다. 보조 표본의 사후 고정 성격과 에이전트 수동 높이 표시 한계는 유지한다.
+- P08-02 독립검증: 전처리·좌표 캐시·checkpoint 결합·학습/평가/calibration/score 연결 전체 슬라이스.
+- 합격 후 P08-03 진단·채택 규칙을 재학습 결과 전에 사전 고정·커밋한다. 보조 표본 사후 고정 성격과 에이전트 수동 높이 표시 한계는 유지한다.
