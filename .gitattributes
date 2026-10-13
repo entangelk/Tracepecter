@@ -1,0 +1,4 @@
+# Preserve the metadata bytes bound to existing experiment artifacts.
+data/metadata.csv text eol=crlf
+# Keep P08 measurement inputs identical across working trees and Git blobs.
+experiments/p08_anonymized/measure/*.csv text eol=lf

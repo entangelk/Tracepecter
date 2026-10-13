@@ -76,7 +76,17 @@
 - 복원 후 관련 전체 회귀: `docker compose run --rm -T dev python -m pytest tests/test_p08_person_size.py tests/test_p08_measure.py tests/test_face_mask_ci.py tests/test_p06_patterns.py -q` **57 passed**. `node tests/test_p08_owner_review.cjs` **2 passed**.
 - 현재 소유자 CSV 두 해시는 원본 바이트와 일치하고, 기존 측정 결과·선택 규격·사전등록 config는 변경 전과 동일하다. 측정 CSV 3종은 LF 재직렬화 시 byte 동일하다. 작업 트리에 CRLF로 남아 있던 sd35 확인 목록·빈 양식은 Git blob과 같은 LF로 정규화했다. 문서 링크·`git diff --check`도 확인했다.
 
+## P08-01 종결·당일 마감
+
+- 소유자가 합격 기록을 확인하고 남은 비차단 보강 후 오늘 작업을 마무리하도록 요청했다. 검증자 커밋 `8f5346e`의 라운드 2 판정은 합격이며, B1 해소와 H1~H4 반영 확인을 읽었다.
+- 라운드 2 잔여 R1: P08 입력 CSV 4개(`real_disc_candidates.csv`, `real_disc_review.csv`, `recall_labels_agent.csv`, train 빈 양식)를 CRLF에서 LF로 정규화했다. 파싱한 행·값은 동일하며 Git blob과 byte 동일하다. 보조 보고서의 입력 해시 3개만 갱신했다.
+- 추가로 공통 `data/metadata.csv`도 worktree CRLF·blob LF임을 확인했다. 이 파일은 기존 실험 해시에 결합돼 있으므로 바이트를 변경하지 않고 `.gitattributes`로 체크아웃 CRLF를 유지한다. P08 측정 CSV는 체크아웃 LF로 지정했다. 사전 규격·소유자 표시·기존 주 측정 수치는 바꾸지 않는다.
+- 보조 측정을 CPU로 재실행했고 파생 CSV 2개·rect 발췌 JSON·갱신 보고서 JSON 4종이 기대 산출물과 byte 동일했다. 측정 수치와 기존 주 보고서도 보존했다. 코드 변경은 없어 이미 독립검증된 전체 회귀는 반복하지 않았다.
+- `git -c core.autocrlf=false checkout-index --prefix=<임시 디렉터리>/ -- <P08 CSV 14개> data/metadata.csv`와 `core.autocrlf=true` 설정 각각에서 임시 체크아웃을 실행했다. 15개 파일의 바이트가 현재 작업 트리와 동일하며, 보조 보고서에 연결된 입력 해시도 일치했다. `.gitattributes` 설정·합격 판정 첫 줄·문서 상대 링크·staged diff check를 확인했다.
+- 측정 README·계획·페이즈 인덱스를 P08-01 Complete로 갱신하고 CHANGELOG에 종결 항목을 추가했다. HANDOFF는 추적 검증 대기를 P08-02 착수로 교체했다. 원 검증기록은 수정하지 않는다.
+- 오늘은 P08-02를 착수하지 않고 다음 작업을 명시한 상태로 마무리한다.
+
 ## 다음 작업
 
-- 같은 검증자의 P08-01 B1 보강 추적 검증 및 최종 합격 확정.
-- 이후 P08-02 익명화 모듈, P08-03 진단·채택 규칙 사전 고정으로 진행한다.
+- P08-02 `src/anonymize.py`: 모든 얼굴 검출·공통 흰 원 전처리·결정성·거부 계약 구현.
+- P08-03 진단·채택 규칙 사전 고정 후 재학습으로 진행한다. 보조 표본의 사후 고정 성격과 에이전트 수동 높이 표시 한계는 유지한다.
