@@ -11,8 +11,13 @@
 - config·테스트를 커밋(`3106aee`)한 뒤 GPU 점유 25%·986MiB를 확인하고 detached 컨테이너로 실행했다. exit 0, 2분 21초. 같은 commit으로 재실행한 결과 산출물 세 파일이 byte 동일했다.
 - 결과: T 0.968747, threshold 0.383150. checkpoint sha256이 P08-04 best와 일치했고, metadata hash가 불변이며, prediction ID가 val 820장과 정확히 일치했다.
 - validation NLL은 개선됐지만 Brier·ECE는 근소하게 악화됐다. Test A/B 지표는 개선됐다. Test B threshold 정확도는 0.987595에서 0.983779로 떨어졌다(sd35 FP 12→16). 사후 조정하지 않았다.
-- score CLI의 직접 YuNet 경로 결과가 캐시 기반 logit과 일치했다(REAL 92.676153 두 번 동일, GEN 0.000238).
+- score CLI의 직접 YuNet 경로 결과가 캐시 기반 logit과 logit 차 약 4e-6 이내로 일치했다(REAL 92.676153 두 번 동일, 캐시 경로와 score 차 2.5e-5; GEN 0.000238).
 - 전체 CPU suite는 182 passed, 1 skipped.
+
+## 독립검증
+
+- 서브에이전트 독립검증 합격(`a937278`, [기록](../../verifications/2026-10-19/p08_05_anonymized_calibration.md)). 차단 0건. GPU 재실행 byte 동일, CPU 재계산 T/threshold 비트 일치, 다른 축의 변이 6종 재실패를 확인했다.
+- 비차단 H1: score CLI와 캐시 경로가 '일치'한다는 표현을 실제 오차(logit 약 4e-6)로 정정했다.
 
 ## 다음 작업
 

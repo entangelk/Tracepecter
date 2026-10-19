@@ -40,7 +40,7 @@ docker compose --profile training run --rm -T train python -m src.score \
 ```
 
 - 2026-10-19 이 머신(RTX 3060, H: checkpoint mount)에서 daemon이 관리하는 detached 컨테이너로 실행했다. exit 0, 약 2분 21초 걸렸다. 같은 commit으로 다시 실행했을 때 `calibration.json`·`metrics.json`·`validation_predictions.csv` 세 파일이 byte 단위로 같았다.
-- score CLI는 캐시 없이 YuNet으로 직접 검출한다. val REAL `998959`의 score는 92.676153(`photographic_like`)이었고, 두 번 실행해도 같았다. val GEN `gen_000676`의 score는 0.000238(`synthetic_like`)이었다. 두 값 모두 캐시 기반 예측 logit(2.458660, -12.542751)에 temperature를 적용한 값과 일치한다. 표본 두 장으로 일반화하지 않는다.
+- score CLI는 캐시 없이 YuNet으로 직접 검출한다. val REAL `998959`의 score는 92.676153(`photographic_like`)이었고, 두 번 실행해도 같았다. val GEN `gen_000676`의 score는 0.000238(`synthetic_like`)이었다. 캐시 기반 예측 logit(2.458660, -12.542751)에 temperature를 적용한 값과 logit 차 약 4e-6 이내로 일치한다(REAL score 차 2.5e-5, GEN 9.4e-10). batch 크기에 따른 부동소수점 차이로 보이며 판정에는 영향이 없다. 표본 두 장으로 일반화하지 않는다.
 - 회귀 가드:
   - `tests/test_p08_calibration_config.py`는 config 변이 4종(iterations 변경, P05 출력 경로 재사용, `face_cache` 삭제, baseline checkpoint 지정)에서 모두 실패하고, 원래 config에서는 통과한다.
   - P05 회귀 가드(`tests/test_calibration.py`)와 익명화 calibrate/score 연결 테스트(`tests/test_anonymize.py`)는 코드 변경 없이 그대로 유지된다.
