@@ -21,6 +21,13 @@
 
 - 같은 검증자가 H1 보강(`0b1c6d4`)을 추적검증해 라운드 2 합격을 확정했다(`3e9cd63`). 남은 지적은 없다. P08-05를 Complete로 종결한다.
 
+## P08-06 선행: GEN 얼굴 상태 주석
+
+- `scripts/p08_face_review.py`(sheets/owner/merge)와 블라인드 소유자 페이지 `scripts/p08_face_review.html`을 추가했다. 선택 규칙(flagged 전부 + 나머지 seed shuffle `ceil(0.2n)`)·병합 검증 회귀 테스트와 node 저장 테스트를 커밋했고, 변이 3종(ceil→round, 남은 얼굴 flag 제거, 소유자 우선 제거)에서 재실패를 확인했다. 첫 변이 시도에서 미추적 파일에 `git checkout` 복원을 시도한 실수가 있었으나 즉시 수동 복원했고, 커밋 후 변이를 다시 수행했다.
+- 952장 에이전트 주석(모델 점수 미사용): anonymized 607·no_visible_face 207·missed_visible_face 138. 세 상태 모두 최소 20장 충족. 확인 목록 301장(flagged 138 + random 163). 커밋 `8592952`.
+- 후반부는 토큰 절감을 위해 2×2 contact sheet로 주석했다. 코·입 아랫부분만 보이는 하관은 '둘 이상'으로 보고 남은 얼굴로 표시해 소유자 확인 대상에 넣었다.
+
 ## 다음 작업
 
-- P08-06: 2×2·단서 진단 실행기와 사전 규칙 채택 판정.
+- 소유자: 확인 페이지 301장 표시 후 `face_review_owner.csv` 전달(절차는 HANDOFF).
+- 작업자: merge → `face_review.csv` 커밋 → 진단 실행기 구현·실행·채택 판정 → 독립검증.
