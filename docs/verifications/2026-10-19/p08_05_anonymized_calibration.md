@@ -98,3 +98,17 @@ print('ok', T, th)
 ```
 
 GPU 재실행은 출력 디렉터리를 먼저 백업하고, 실행 후 세 산출물을 `cmp`로 비교한다.
+
+## 라운드 2 — H1 추적검증
+
+**합격** — H1 해결. 새 차단·비차단 지적 없음.
+
+- 대상: 보강 commit `0b1c6d4`(`experiments/p08_anonymized/calibration/README.md:43`, `docs/daily_logs/2026-10-19/work_log.md:14`, 독립검증 절 :17~21 추가). 시작 시 working tree clean. 변경은 문서 두 파일뿐이다.
+- 수치 재계산(전체 정밀도 logit·T 사용):
+  - REAL `998959`: 캐시 logit 2.458660364151001 → score 92.67617840. CLI 92.676153346(라운드 1 실행) → score 차 **2.51e-5**, CLI 역산 logit 2.458656788 → logit 차 **3.58e-6**.
+  - GEN `gen_000676`: 이번 라운드에서 score CLI를 GPU로 다시 실행했다(사용률 20%·856MiB 확인). CLI 0.00023824279964, 캐시 logit -12.542750359 → score 0.00023824186150 → score 차 **9.38e-10**, logit 차 **3.81e-6**.
+  - 보강 문구의 "logit 차 약 4e-6 이내", "REAL score 차 2.5e-5", "GEN 9.4e-10"이 모두 정확하다. 판정 등급(`photographic_like`/`synthetic_like`)도 그대로다.
+- 정정: 라운드 1의 H1 본문에 쓴 직접 계산값 92.676176·차 2.3e-5는 6자리로 반올림한 logit(2.458660)으로 계산한 값이었다. 전체 정밀도 기준은 92.676178·차 2.5e-5이며 보강 문구가 맞다.
+- work log 독립검증 절의 링크 `../../verifications/2026-10-19/p08_05_anonymized_calibration.md`는 존재한다. 내용(차단 0건, GPU byte 동일, T/threshold 비트 일치, 변이 6종)은 라운드 1 기록과 일치한다.
+- 참고(지적 아님): `work_log.md:24` "다음 작업"의 "P08-05 독립검증…" 항목은 이 라운드 합격 뒤 완료 상태로 정리하면 된다. 상태 승격은 root의 다음 작업이다.
+- 실행 뒤 `git status --short` 빈 출력.
