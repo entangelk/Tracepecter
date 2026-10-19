@@ -1,6 +1,6 @@
 # P08-05 익명화 checkpoint 재calibration
 
-상태: **구현·실행·자가 확인 완료, 독립검증 대기 (2026-10-19)**. [P08 계획](../../../docs/plan/phase_8_face_anonymization.md) §P08-05가 범위를 소유한다. 절차는 [P05](../../p05_calibration/README.md)와 같고, 익명화 checkpoint `checkpoints/anonymized/best.pt`([학습 기록](../training/README.md))를 validation 820장에서만 fitting했다. P05 artifact와 `configs/calibration.yaml`은 바꾸지 않았다.
+상태: **Complete (2026-10-19)**. [독립검증 라운드 2 합격](../../../docs/verifications/2026-10-19/p08_05_anonymized_calibration.md), 비차단 H1(score 일치 오차 표현)까지 보강했다. [P08 계획](../../../docs/plan/phase_8_face_anonymization.md) §P08-05가 범위를 소유한다. 절차는 [P05](../../p05_calibration/README.md)와 같고, 익명화 checkpoint `checkpoints/anonymized/best.pt`([학습 기록](../training/README.md))를 validation 820장에서만 fitting했다. P05 artifact와 `configs/calibration.yaml`은 바꾸지 않았다.
 
 ## 설정·산출물
 
