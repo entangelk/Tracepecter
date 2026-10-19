@@ -1,0 +1,11 @@
+# P08-05: P05와 같은 절차로 익명화 checkpoint를 validation에서만 fitting한다. 익명화 규격은 checkpoint 결합본을 쓴다.
+checkpoint: checkpoints/anonymized/best.pt
+face_cache: experiments/p08_anonymized/face_boxes.csv
+output_dir: experiments/p08_anonymized/calibration
+device: cuda
+fit:
+  temperature_min: 0.05
+  temperature_max: 20.0
+  iterations: 100
+metrics:
+  ece_bins: 10
