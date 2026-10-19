@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P08 얼굴 상태 확인</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:auto;padding:20px;background:#f5f5f5;color:#222}
+header{position:sticky;top:0;background:#f5f5f5;padding:12px 0;border-bottom:1px solid #ccc;z-index:1}
+article{background:white;padding:16px;margin:16px 0}
+img{width:100%;max-height:760px;object-fit:contain}button{padding:10px 14px;margin:4px;font:inherit}
+dialog{max-width:95vw;max-height:95vh}dialog img{width:auto;max-width:90vw;max-height:85vh}
+button[aria-pressed=true]{background:#245ea1;color:white}h1{font-size:1.3rem}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:4px}.row span{min-width:15em}
+.bad{outline:3px solid #b00020}
+</style>
+<header>
+<h1>P08 얼굴 상태 확인 (왼쪽 원본 · 오른쪽 익명화)</h1>
+<p>‘보이는 얼굴’은 <b>원본</b>에서 눈·코·입 중 둘 이상이 보이는 얼굴 수입니다. 측면·부분 얼굴도 포함하며, 뒷모습과 프레임 밖은 제외합니다.
+‘남은 얼굴’은 <b>익명화 후에도</b> 같은 기준으로 여전히 보이는 얼굴 수이며, 보이는 얼굴 수보다 클 수 없습니다.
+사진을 누르면 크게 볼 수 있습니다. 모든 사진을 표시한 뒤 CSV를 저장하세요.</p>
+<strong id="progress"></strong> <button id="save">CSV 저장</button>
+<span id="status" role="status"></span>
+</header>
+<main id="cases"></main>
+<dialog id="zoom"><button id="close">닫기</button><img id="zoom-image" alt="확대"></dialog>
+<script>
+const CASES = /*CASES*/null;
+const DOWNLOAD_NAME = "face_review_owner.csv";
+const FIELDS = ['visible_faces', 'uncovered_visible_faces'];
+const answers = {};
+const progress = document.querySelector('#progress');
+function valid(id){const a = answers[id]; return a && FIELDS.every(f => f in a) && a.uncovered_visible_faces <= a.visible_faces;}
+function update(){progress.textContent = `${CASES.filter(c => valid(c.image_id)).length} / ${CASES.length} 확인`;}
+for(const item of CASES){
+  const card = document.createElement('article');
+  const link = document.createElement('button');link.style.padding='0';
+  const img = document.createElement('img');img.src = `data:image/jpeg;base64,${item.image}`;img.alt = item.image_id;link.append(img);
+  link.onclick = ()=>{document.querySelector('#zoom-image').src=img.src;document.querySelector('#zoom').showModal();};
+  const id = document.createElement('p');id.textContent = item.image_id;
+  card.append(link, id);
+  for(const [field,label] of [['visible_faces','원본에서 보이는 얼굴'],['uncovered_visible_faces','익명화 후 남은 얼굴']]){
+    const row = document.createElement('div');row.className = 'row';
+    const name = document.createElement('span');name.textContent = label;row.append(name);
+    for(const value of [0,1,2,3,4]){
+      const button = document.createElement('button');button.textContent = String(value);button.setAttribute('aria-pressed','false');
+      button.onclick = ()=>{
+        answers[item.image_id] = Object.assign(answers[item.image_id] || {}, {[field]: value});
+        for(const b of row.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));
+        card.className = (item.image_id in answers && FIELDS.every(f => f in answers[item.image_id]) && !valid(item.image_id)) ? 'bad' : '';
+        update();
+      };
+      row.append(button);
+    }
+    card.append(row);
+  }
+  document.querySelector('#cases').append(card);
+}
+document.querySelector('#save').onclick = ()=>{
+  if(!CASES.every(c => valid(c.image_id))){document.querySelector('#status').textContent='모든 사진에 두 값을 표시해 주세요(남은 얼굴 ≤ 보이는 얼굴).';return;}
+  const csv = 'image_id,visible_faces,uncovered_visible_faces\n'+CASES.map(c=>`${c.image_id},${answers[c.image_id].visible_faces},${answers[c.image_id].uncovered_visible_faces}`).join('\n')+'\n';
+  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const link = document.createElement('a');link.href=url;link.download=DOWNLOAD_NAME;link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  document.querySelector('#status').textContent='CSV를 저장했습니다. 페이지를 닫으면 선택 내용이 초기화됩니다.';
+};
+update();
+document.querySelector('#close').onclick = ()=>document.querySelector('#zoom').close();
+</script>
+</html>
