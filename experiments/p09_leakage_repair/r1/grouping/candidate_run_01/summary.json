@@ -1,0 +1,48 @@
+{
+  "candidate_pairs": 947696,
+  "priority_pairs": 47456,
+  "reasons": {
+    "phash": 907820,
+    "embedding_topk": 46963,
+    "legacy_nearest": 2220,
+    "legacy_review": 14,
+    "existing_group": 90,
+    "legacy_cross_phash": 145
+  },
+  "labels": {
+    "11": 924265,
+    "01": 68,
+    "00": 23363
+  },
+  "split_boundaries": {
+    "train|train": 473639,
+    "train|val": 195198,
+    "test|train": 193263,
+    "test|test": 20003,
+    "test|val": 39698,
+    "val|val": 20253,
+    "test_unseen|train": 1445,
+    "test|test_unseen": 290,
+    "test_unseen|val": 249,
+    "test_unseen|test_unseen": 3658
+  },
+  "seed_review": {
+    "confirmed_same_look": 8,
+    "unconfirmed": 6
+  },
+  "provisional_groups": 5921,
+  "generation_train_overlap": {
+    "prompt": {
+      "val": 108,
+      "test": 132,
+      "test_unseen": 480
+    },
+    "prompt+noise_seed": {
+      "val": 0,
+      "test": 0,
+      "test_unseen": 420
+    }
+  },
+  "review_complete": false,
+  "grouping_final": false
+}

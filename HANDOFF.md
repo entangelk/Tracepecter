@@ -17,7 +17,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **[P09 누출 수리](docs/plan/phase_9_leakage_repair.md)의 P09-01부터 진행** — 상태 Planned, 후보 확장·재분할·학습 실행은 미착수다. 계획에 그룹 검토·버전별 경로·재분할→재학습→재보정 관문을 정의했다.
+1. **[P09 누출 수리](docs/plan/phase_9_leakage_repair.md)의 P09-01 우선순위 검토 계속** — 상태 In Progress, [후보·첫 검토 기록](experiments/p09_leakage_repair/r1/grouping/README.md). DB-07은 우선순위 검토·미검토 범위 명시로 Resolved다. 그룹 최종 확정·재분할·학습은 미착수다.
    - 먼저 감사 `audit_lock.json`의 입력·원자료 hash를 검증하고 `visual_review.csv` 확정 8쌍·미확정 6쌍을 구별한다. embedding 자료는 평가→train 최근접 1개뿐이므로 전체 REAL 관계 후보를 split 무관하게 확장해야 한다. pHash≤10 또는 cosine≥.99만으로 거르지 않는다.
    - 새 출력은 `data/versions/p09_r1/metadata.csv`·`checkpoints/leakage_repair/r1/`·`experiments/p09_leakage_repair/r1/`로 분리한다. 기존 metadata·primary·checkpoint·calibration·감사 원자료·소유자 주석은 보존한다.
    - 재현 명령은 [감사 보고서](experiments/p08_anonymized/leakage_audit/README.md), embedding cache는 비추적 `reports/errors/review/p08_leakage_probe/`에 있다. GEN prompt·seed 공유는 실제 중복과 구별하고 generator holdout 계약을 유지한다. 새 split도 개발 평가이며 신규 미접촉 holdout이 아니다.

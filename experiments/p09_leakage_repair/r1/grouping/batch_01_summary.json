@@ -1,0 +1,17 @@
+{
+  "reviewed_pairs": 48,
+  "verdicts": {
+    "confirmed_same_look": 18,
+    "unconfirmed": 5,
+    "different_look": 25
+  },
+  "confirmed_split_pairs": {
+    "train|train": 9,
+    "train|val": 4,
+    "test|train": 1,
+    "test|val": 4
+  },
+  "provisional_groups": 5907,
+  "grouping_final": false,
+  "review_complete": false
+}

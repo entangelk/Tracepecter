@@ -1,0 +1,36 @@
+{
+  "verified_audit_files": {
+    "data/metadata.csv": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+    "experiments/p08_anonymized/face_boxes.csv": "319d5376f71e3c65155857b33fa2e4dc653d2094a7b8f8cbef90812393d15af8",
+    "experiments/p08_anonymized/calibration/calibration.json": "6f1fd7a36e045bb34ebe09b7dc59db774fe38a7e59abb61bdcf13b689d5836aa",
+    "scripts/p08_leakage_audit.py": "d3575441effa520ee9e82853dfa88f64b9ae5d68c7444e47f29a78e26b5118c0",
+    "scripts/p08_leakage_probe.py": "009f279298a8ab128496a47ab4d9a91139bf814472682e5cb3802d4b99349aad",
+    "scripts/deduplicate.py": "1f66c7711ee407f83cfccfb56cd58af898a122965efe423b430e083aa66379cc",
+    "src/train.py": "c88ef9a4ba7004f4cdc0d9f41bb38292649ecbad3be9e3cf571a487eb25d94de",
+    "src/dataset.py": "1f941caa078ab6ddd426100a3d4fa81449958d553b6a9027bf33f45400542c41",
+    "src/model.py": "65337bbee247ba05f07e5d0a9e8ba810267e9f6e081f8db2062dd70ddab2be98",
+    "src/calibrate.py": "cf0535bd1a4d6979569ddedb1123f93ec143083779ad4f551558c60721a9742e",
+    "src/evaluate.py": "9e18769a14cc22a25d5262487a61bae405bc726a64f10cf7d293a6ea8bce75f5",
+    "experiments/p08_anonymized/leakage_audit/audit_summary.json": "3cbcbc29716df0e3eafe6ab69a5858889a4d4375e5eead73ad961778a5ce2902",
+    "experiments/p08_anonymized/leakage_audit/cross_split_phash.json": "3484dda4b2bef4ea277fa2b9372344414dc7bd9d1bcfeb27224a2ce79529c524",
+    "experiments/p08_anonymized/leakage_audit/embedding_nearest_train.json": "be9ec1209529db816da5dfff7400963ebb6a98df55516c909c284893315f54cb",
+    "experiments/p08_anonymized/leakage_audit/generation_provenance.json": "f9aa82421b02e968c3ad242fe179818c26db96bb620b6910f5922bc8ced8cd46",
+    "experiments/p08_anonymized/leakage_audit/image_audit.jsonl": "8dfe72057e2eeadaf286425e01b5ba6bfdc489fbba987849fb9136657de71de8",
+    "experiments/p08_anonymized/leakage_audit/jpeg_q70.csv": "37ab17a1fbec74f074c53c5231eac4dc2e65294ed2d35ba854c8ebe23b5bed22",
+    "experiments/p08_anonymized/leakage_audit/jpeg_q95.csv": "5a58bca8ff84d16808043b31d9179b8b80a1a0c4613994810ffe249977fee422",
+    "experiments/p08_anonymized/leakage_audit/mutation_results.json": "80001c657e386f10e354b150ca45a4ac7222a6946c81663d18adae46cd584264",
+    "experiments/p08_anonymized/leakage_audit/nearest_train_phash.json": "bd03150aab8e966791249ffe5894286215aac11f721f225f016cff80259d109a",
+    "experiments/p08_anonymized/leakage_audit/posthoc_sensitivity.json": "b8b5de669a34a6feb33e7f54ad0f686b7b020eae840d69926e6b6446c004c396",
+    "experiments/p08_anonymized/leakage_audit/probe_exit_code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "experiments/p08_anonymized/leakage_audit/probe_result.json": "86bb343ee6dfc6a47277c12c3602da63c61d92c6267d7cdb00823e75d07163c9",
+    "experiments/p08_anonymized/leakage_audit/visual_review.csv": "d739e13ae0e377e5d652a39213442919763ca40f846791b17bc540a0d819a3ab"
+  },
+  "label_zip_sha256": "63b9fb8a4e94b73cc696c4a595b127e86dc476894a94e5d0f720c8bece708dba",
+  "source_sha256": "d3b440de2976a9f825f8eb98957fc3ecc1bb53fd053dc60e7754f669e3145a77",
+  "filename_rule_sha256": "ccf83f57c9be1998a173ad0845620851922e1c49985e10d8b106eb7615d52133",
+  "outputs_sha256": {
+    "filename_candidates.csv": "d411677168d523345fae7f17b2210e509ade2315b8659324501952a48e10decf",
+    "filename_provenance.csv": "01232a60664b637494a88cce83f6edda97dabcd870a8be23380c2d98f9f47cce",
+    "summary.json": "4f130afdebc946d374a3acc46afa49e22412c12b83fe15dcc0bd6f2d44edf686"
+  }
+}
