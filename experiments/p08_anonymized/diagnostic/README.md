@@ -83,3 +83,47 @@ docker compose --profile training run --rm -T train \
 예측은 모델·조건별 `baseline_*.csv`/`candidate_*.csv`의 이미지 ID·logit으로 저장하고 배치마다 flush/fsync한다. 마지막 불완전 행만 복구하여 재개하며 중복·다른 cohort·비유한 logit은 거부한다. `execution.json`은 사전등록·주석 고정 커밋·calibration·checkpoint·실행 코드·라이브러리·device를 결합하므로 다른 실행의 예측을 섞지 않는다. `result.json`은 2×2 전체/분해 지표, 다섯 관문, 채택 판정, REAL 원별 목표 크기·실제 확장·경계 clipping과 크기 개입에서 확장 없는 이미지 수를 보존한다. 원본·회색·복원 입력 모두 이미지/cache hash를 검증한다.
 
 주석과 설정은 입력 정본이고, logit은 모델 예측 원자료다. 확률·score·FP·지표·판정은 이 정본에서 유도하는 보고용 projection이다. checkpoint/calibration, split, §20 기준, 진단 허용폭을 바꾸지 않는다. Bootstrap은 사전 고정된 20,000×n 복원추출로 O(20,000n) 시간·공간이며 n은 REAL 149 / GEN 162로 제한된다.
+
+## P08-06 진단 결과 (2026-10-20)
+
+사전 규칙 판정은 **채택**이다. Test A/B AUC 기준과 다섯 단서 관문을 모두 통과하여 `configs/primary.yaml`을 익명화 모델로 전환했다. **독립검증은 아직 대기 중**이므로 P08을 Complete로 표시하지 않는다. 기존 baseline checkpoint·calibration은 비교용으로 보존한다.
+
+### 2×2 비교
+
+모델별 temperature·threshold는 원래 artifact 값으로 고정했다. 아래는 val/Test A/Test B ROC-AUC이며, 전체 지표와 category/generator/source 분해는 `result.json`에 있다. Test A 800장, Test B 1,048장은 REAL 448장을 공유한다.
+
+| 모델 | 입력 | val AUC | Test A AUC | Test B AUC | Test A accuracy | Test B accuracy |
+| --- | --- | --- | --- | --- | --- | --- |
+| baseline | original | 0.999874 | 0.999937 | 0.999766 | 0.993750 | 0.989504 |
+| baseline | anonymized | 0.998202 | 0.998998 | 0.995919 | 0.982500 | 0.938931 |
+| candidate | original | 0.999693 | 0.999880 | 0.999717 | 0.996250 | 0.985687 |
+| candidate | anonymized | 0.999796 | 0.999867 | 0.999647 | 0.993750 | 0.983779 |
+
+기존 모델에 익명화만 적용하면 Test B accuracy가 0.989504 → 0.938931로 떨어지지만, 익명화 재학습 모델은 0.983779이다. 새 모델이 무처리 baseline보다 모든 지표에서 개선됐다는 주장은 하지 않는다. 채택은 사전 AUC 기준과 단서 관문으로 판정했다.
+
+### 단서 관문
+
+| 개입 | 이미지 | 평균 절대 score 변화 | 평균 절대 변화 95% 구간 | 맞음→틀림 | 전환 위험 95% 상한 | 판정 |
+| --- | --- | --- | --- | --- | --- | --- |
+| real_shape | 149 | 0.0905점 | [0.0460, 0.1518]점 | 0 | 2.513% | 통과 |
+| real_size | 149 | 1.0526점 | [0.3640, 1.9466]점 | 0 | 2.513% | 통과 |
+| gen_gray | 162 | 0.4407점 | [0.0981, 0.9322]점 | 0 | 2.316% | 통과 |
+| gen_restore | 162 | 0.8474점 | [0.1332, 1.8535]점 | 0 | 2.316% | 통과 |
+
+절대 score 변화의 구간 상한은 모두 5점 이하이며, 맞음→틀림 위험 구간 상한도 5% 이하이다. 0건 관측을 위험 0으로 확정하지 않았다. REAL 크기 개입은 149장 중 8장에서 추가 확장이 없었고, 원별 실제 크기·확장비·경계 clipping은 `result.json.geometry`에 보존했다.
+
+| 얼굴 상태 | 이미지 | GEN→REAL 오류 | FP rate |
+| --- | --- | --- | --- |
+| anonymized | 607 | 10 | 1.647% |
+| no_visible_face | 237 | 5 | 2.110% |
+| missed_visible_face | 108 | 5 | 4.630% |
+
+세 쌍의 FP rate 차이 95% 구간은 모두 사전 허용폭 ±10%p 안에 들어 얼굴 상태 집중 관문도 통과했다. 익명화됨 대 남은 얼굴 있음의 구간은 [-8.784, -0.017]%p로 0을 포함하지 않는다. 따라서 ‘차이가 없다’가 아니라 **사전 운영 허용폭 안**이라는 판정이다. generator·얼굴 상태의 교란, 얼굴이 보이는 실사 holdout 미평가, REAL 학습 표본 개입, z_image_turbo 개입 2장의 한계는 유지한다.
+
+### 실행·재현 확인
+
+- 구현 커밋 `1102343`, 최종 주석 고정 커밋 `0c4eb6e`. 2,369개 고유 입력 이미지(평가 2,220 + REAL 개입 149)와 모든 결합 해시를 검증했다.
+- GPU 실행은 이 머신의 RTX 3060에서 수행했다. 시작 전 1,044MiB·7%로 다른 연산 점유가 낮았다. 실행 identity는 `execution.json`, 8개 예측 CSV의 해시는 `result.json.prediction_sha256`에 있다.
+- 처음 `setsid --wait` 래퍼가 결과 저장 후 `wait: Success`·exit 1을 남겼다. Docker daemon이 직접 관리하는 detached 컨테이너로 재개하여 Python CLI exit 0(`cli_exit_code.txt`)을 확인했다. 예측을 다시 하지 않고 저장된 CSV를 읽었으며 재생성한 `result.json`은 최초 결과와 byte 동일했다.
+- 저장된 8개 CSV의 SHA-256·고유 ID·cohort 완전성을 확인하고, 원자료에서 bootstrap과 Wilson 상한을 별도 수식으로 재계산했다. 상태별 FP도 다시 집계했다. P08-05의 candidate 익명화 Test A/B AUC·accuracy와 일치하며 NLL 차이는 최대 4.3e-12다.
+- 단위/통합/채택 연결 테스트와 전체 CPU suite를 실행했다. 상세 명령·결과는 [작업 기록](../../../docs/daily_logs/2026-10-20/work_log.md). 구현자의 자가 검증이며 독립검증 합격을 뜻하지 않는다.

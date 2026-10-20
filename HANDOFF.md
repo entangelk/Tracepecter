@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-20 · 45줄
+> 마지막 자가 검수: 2026-10-20 · 42줄
 
 ## 현재 상태
 
@@ -8,8 +8,8 @@
 - **P01(데이터 파이프라인) Complete (2026-10-09)** — §27 Phase 1 완료 조건 전부 충족. 최종 `data/metadata.csv` **6,000행**(REAL 3,000 K-Fashion + Generated 3,000 = 5종 × 600): train 3,780 / val 820 / test 800 + test_unseen 600(sd35_medium 전량). 누출 0, 층화 축은 **source_type × category × generator**(train 생성기별 420/92/88 — generator별 평가 가능화, P01-07 검증 H1). P01-06·P01-07 독립검증 모두 최종 합격([P01-06](docs/verifications/2026-10-08/p01_06_split.md) · [P01-07](docs/verifications/2026-10-09/p01_07_scale_expansion.md) — 각 보강 라운드 포함).
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
-- primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/baseline/best.pt`. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
-- scoring: `experiments/p05_calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p05_calibration/README.md) 참고. Test B NLL/Brier 소폭 악화는 P06에서 분해했다(아래).
+- primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/anonymized/best.pt`(P08-06 채택). DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
+- scoring: `experiments/p08_anonymized/calibration/calibration.json`(checkpoint hash 결합), `src.score` CLI. score=`100*sigmoid(logit/T)`, threshold는 확률에서 유도. [calibration 보고서](experiments/p08_anonymized/calibration/README.md) 참고.
 - **P06(Failure analysis) Complete (2026-10-11)** — [오류 패턴 문서](experiments/p06_failure_analysis/patterns/README.md). 슬라이스별 독립검증 합격. 핵심: 얼굴이 보이지 않는 GEN이 REAL로 통과하는 단축 단서(개입 실험 확정)와, 그 원인인 얼굴 노출 비대칭(REAL 학습 0.4% 대 GEN 64.5%). DB-03 트리거 발동 → DB-06 C로 확정(P08).
 - P06 실행: `docker compose --profile training run --rm -T train python -m src.failure_analysis --config configs/failure_analysis.yaml` → `reports/errors/*/manifest.csv`(이미지 사본은 비추적)·`experiments/p06_failure_analysis/`. Test B NLL/Brier 악화는 오답 쪽으로 기운 12장(sd35 GEN 10, REAL FN 2) 때문으로 분해됐다.
 - 얼굴 검출 모델(P06-02c): YuNet `/mnt/h/tracepector/checkpoints/face/face_detection_yunet_2023mar.onnx`(컨테이너 `/app/checkpoints/face/`, sha256은 `configs/face_mask_ci.yaml`).
@@ -17,17 +17,14 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P08 진행 중**([계획](docs/plan/phase_8_face_anonymization.md)) — 계획 독립검증 4라운드 합격(2026-10-11, [기록](docs/verifications/2026-10-11/p08_plan_db06.md)). DB-06은 C로 확정됐고, `project.md`는 v1.4다(§15·§22·§23).
-   - 순서: P08-01 측정(이미지만) → P08-02 익명화 모듈 → P08-03 진단·채택 규칙 사전 고정(**재학습 결과 전에 커밋**) → P08-04 재학습 → P08-05 재calibration → P08-06 판정. P08-07 holdout 설계는 병행하며 P07의 관문이 아니다.
-   - **P08-05 Complete (2026-10-19)**(독립검증 라운드 2 합격, [calibration 기록](experiments/p08_anonymized/calibration/README.md): T 0.968747, threshold 0.383150). **P08-06 진행 중 — 소유자 CSV 수령·얼굴 상태 고정.** GEN 952장 에이전트 얼굴 상태 주석과 소유자 확인 목록 301장(flagged 138 + seed 20% 163)을 예측 전에 커밋했다(`8592952`, 도구 [scripts/p08_face_review.py](scripts/p08_face_review.py)). candidate 진단 예측은 최종 `face_review.csv` 커밋 전에는 실행하지 않는다([사전등록 계약](experiments/p08_anonymized/diagnostic/README.md)).
-   - 소유자 301장 확인 파일은 수령했다. 원본은 `face_review_owner_features.csv`(눈·코·입 개수), 얼굴 기준으로 변환한 입력은 `face_review_owner.csv`다. 최종 `face_review.csv`는 952장(익명화 607 / 얼굴 없음 237 / 남은 얼굴 108), 해시는 `face_review_lock.json`. 세부 변환 근거는 [진단 기록](experiments/p08_anonymized/diagnostic/README.md).
-   - **다음 작업자**: 최종 주석 고정 커밋을 확인한 뒤 진단 실행기(2×2, 개입 b/c/d, 얼굴 상태 집중 a, 채택 판정) 구현·stub 테스트 → GPU 실행·판정 → 독립검증. 새 checkpoint는 `checkpoints/anonymized/best.pt`(H: mount), 전처리 계약은 [P08 전처리 기록](experiments/p08_anonymized/README.md). P08 CSV는 LF, `data/metadata.csv`는 CRLF(`.gitattributes`).
-   - 익명화 규격은 `configs/anonymize.yaml`(k=1.2). 사전 크기 관문 실패는 보존하며 사전등록의 `real_size` 관문으로 크기 단서를 진단한다. 재현율 관문 미통과면 재학습 전에 소유자에게 묻는다.
-   - 채택 규칙: §20 AUC 기준과 '단서 해소'를 모두 만족할 때만 `configs/primary.yaml`을 교체한다. 기존 baseline artifact는 덮어쓰지 않는다. 미채택이면 P07은 대기하고 P08을 다시 시도한다(Q5).
-   - 작업 절차(소유자 요청): 구현·자가 확인·커밋 후 서브에이전트 한 명의 독립검증을 받고, 차단·비차단 모두 보강·추적검증 합격까지 진행한다.
-   - P07(API)은 P08의 전처리 계약과 채택 artifact를 기다린다.
+1. **P08-06 사전 진단 통과·primary 반영, 독립검증 대기**([계획](docs/plan/phase_8_face_anonymization.md), [진단·채택 근거](experiments/p08_anonymized/diagnostic/README.md)). P08은 아직 In Progress다.
+   - primary는 `configs/primary.yaml`의 익명화 SigLIP, checkpoint `checkpoints/anonymized/best.pt`, calibration `experiments/p08_anonymized/calibration/calibration.json`. 기존 baseline artifact는 비교용으로 보존한다.
+   - 최종 얼굴 상태는 `experiments/p08_anonymized/diagnostic/face_review.csv`와 `face_review_lock.json`으로 고정돼 있다. 소유자 301장 확인은 반영됐고 추가 이미지 검토 요청은 없다.
+   - **다음 작업자**: 소유자가 서브에이전트 독립검증을 승인했다(2026-10-20). P08-06 독립검증 → 차단·비차단 보강·추적검증 → P08 상태 갱신. 구현·예측·채택 결과의 자가 검증은 [작업 기록](docs/daily_logs/2026-10-20/work_log.md) 참고.
+   - 실행기 `scripts/p08_diagnostic.py`는 모델별 원본/익명화 2×2·개입 b/c/d·얼굴 상태 집중 a를 사전등록 설정 그대로 계산한다. `execution.json`의 코드·모델·입력 identity가 다르면 기존 예측과 섞어 재개하지 않는다. 로그의 첫 setsid 래퍼 exit 1은 [진단 기록](experiments/p08_anonymized/diagnostic/README.md) 참조; detached Docker 재개에서 CLI exit 0·결과 byte 동일성을 확인했다.
+   - P07(API) 다음 선행 작업은 P08-06 독립검증이다. API는 채택 checkpoint·calibration·공통 전처리를 사용한다. P08-07 실사 holdout 설계는 병행하며 P07 관문이 아니다.
 2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
-3. score CLI는 익명화 규격이 없는 P05 baseline을 거부한다. 현재 서빙 가능한 채택 artifact는 없고 P08-06 판정을 기다린다. baseline 평가·calibration은 원본 입력을 허용한다. 익명화 비교 평가는 `src.evaluate --anonymize configs/anonymize.yaml --face-cache experiments/p08_anonymized/face_boxes.csv`(별도 비교 checkpoint 경로 사용: 출력은 checkpoint 디렉터리에 기록된다).
+3. score CLI는 채택된 P08 calibration artifact로 실행한다([README](README.md#calibrated-image-score)). 익명화 키가 없는 P05 baseline은 score에서 거부하고, offline 평가·calibration에서만 원본 입력으로 허용한다.
 
 ## 주의
 

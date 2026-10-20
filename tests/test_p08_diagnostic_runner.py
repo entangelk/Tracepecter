@@ -117,8 +117,17 @@ def test_variants_preserve_other_masks_all_discs_and_no_second_anonymization(fix
     assert tuple(pixels[30,8]) == tuple(pixels[30,24]) == (255,255,255) # 기존 두 원 모두 덧칠
     geometry = runner.real_geometry(state, (32,40), 'train_1.png', 'real_size')
     assert len(geometry) == 2 and all(g['expansion_ratio'] > 1 for g in geometry)
+    gray = runner.Variants(state, config, ['test_0.png'], 'gen_gray').image('test_0.png')
+    assert tuple(np.asarray(gray)[6,6]) == tuple(np.asarray(gray)[6,24]) == (128,128,128)
     restore = runner.Variants(state, config, ['test_0.png'], 'gen_restore').image('test_0.png')
     assert np.array_equal(restore, Image.open(path.parent/'test_0.png').convert('RGB'))
+    # 이미 큰 원은 크기 목표 때문에 축소하지 않는다. 경계 clipping도 보고한다.
+    state['real']['train_1.png'][0].update(major='100', minor='100', cx='-2')
+    geometry = runner.real_geometry(state, (32,40), 'train_1.png', 'real_size')
+    assert geometry[0]['expansion_ratio'] == 1 and not geometry[0]['expanded'] and geometry[0]['clipped']
+    normal = runner.Variants(state, config, ['train_1.png'], 'anonymized').image('train_1.png')
+    expanded = runner.Variants(state, config, ['train_1.png'], 'real_size').image('train_1.png')
+    assert np.all(np.asarray(expanded) >= np.asarray(normal))
 
 
 @pytest.mark.parametrize('damage', ['registration','annotation','candidate_binding','metadata','image','missing_cache'])

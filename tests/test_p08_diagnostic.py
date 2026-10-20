@@ -66,6 +66,17 @@ def test_error_gate_uses_all_images_and_does_not_cancel_reverse_flips(settings):
     assert intervention(ids, ref, ref, labels, .5, settings)['status'] == 'pass'
 
 
+def test_intervention_minimum_and_error_interval_are_inclusive(settings):
+    """80장·Wilson 상한의 정확한 경계를 허용하고 79장·허용폭 초과를 거부한다."""
+    ids = [str(i) for i in range(80)]
+    p = {i:.2 for i in ids}; labels = {i:0 for i in ids}
+    settings['intervention_rules']['error']['max_upper'] = wilson(0,80)[1]
+    assert intervention(ids,p,p,labels,.5,settings)['status'] == 'pass'
+    assert intervention(ids[:79],p,p,labels,.5,settings)['status'] == 'indeterminate'
+    settings['intervention_rules']['error']['max_upper'] -= 1e-8
+    assert intervention(ids,p,p,labels,.5,settings)['status'] == 'fail'
+
+
 @pytest.mark.parametrize('damage', ['missing', 'duplicate', 'nan', 'infinite', 'insufficient'])
 def test_invalid_interventions_are_indeterminate_not_partial_pass(settings, damage):
     ids = [str(i) for i in range(80)]

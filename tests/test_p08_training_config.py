@@ -7,8 +7,9 @@ import pytest
 import yaml
 
 
-def test_anonymized_training_matches_primary_except_preprocessing_and_output():
-    baseline = yaml.safe_load(Path('configs/primary.yaml').read_text())
+def test_anonymized_training_matches_baseline_except_preprocessing_and_output():
+    # primary는 P08 채택 후 이동하므로 원래 비교 대상인 P02 baseline과 비교한다.
+    baseline = yaml.safe_load(Path('configs/baseline.yaml').read_text())
     candidate = yaml.safe_load(Path('configs/anonymized.yaml').read_text())
     assert candidate['anonymization'] == 'configs/anonymize.yaml'
     assert candidate['data'].pop('face_cache') == 'experiments/p08_anonymized/face_boxes.csv'

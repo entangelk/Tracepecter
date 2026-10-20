@@ -1,4 +1,4 @@
-# P03 primary: SigLIP — 선정 근거는 experiments/p03_comparison/README.md. --smoke는 다운로드 없이 stub/CPU로 실행한다.
+# P08-06 채택 primary: 공통 얼굴 익명화 SigLIP. 근거: experiments/p08_anonymized/diagnostic/README.md.
 model:
   encoder: siglip
   model_id: google/siglip-base-patch16-224
@@ -17,6 +17,7 @@ training:
 data:
   metadata_csv: data/metadata.csv
   image_root: /images
+  face_cache: experiments/p08_anonymized/face_boxes.csv
 
 augmentation:
   horizontal_flip: true
@@ -25,7 +26,7 @@ augmentation:
   color_jitter: true
 
 output:
-  checkpoint_dir: checkpoints/baseline
+  checkpoint_dir: checkpoints/anonymized
 
-# 얼굴 전처리 없음. 기존 checkpoint의 legacy 평가와 같은 원본 경로.
-anonymization: null
+# P08-03 사전등록 커밋 이후 실행. checkpoint에 규격 전체·해시를 저장한다.
+anonymization: configs/anonymize.yaml

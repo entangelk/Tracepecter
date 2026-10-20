@@ -49,4 +49,4 @@ docker compose --profile training run --rm -T train python -m src.score \
 ## 한계
 
 - REAL/Generated 라벨의 calibrated probability proxy라는 P05의 한계를 그대로 가진다. 얼굴이 보이는 실사에서의 calibration은 P08-07 holdout 없이 측정할 수 없다.
-- 이 artifact는 P08-06에서 채택될 때까지 서빙 primary가 아니다. `configs/primary.yaml`은 바꾸지 않았다.
+- 이 artifact는 [P08-06 사전등록 진단](../diagnostic/README.md)을 통과하여 2026-10-20 primary로 채택됐다. `configs/primary.yaml`은 익명화 모델을 가리키며, P08-06 독립검증은 대기 중이다.

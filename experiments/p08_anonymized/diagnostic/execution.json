@@ -1,0 +1,24 @@
+{
+  "config_sha256": "b526e3923b95368f7ca99e2d44f87e723109009f21163e82934cab9a2ec605cb",
+  "registration_sha256": "31cab1168a11072b89633ef5cec311874e1dbbb5c24fbc84acf5be07bfeac78c",
+  "annotation_lock_sha256": "4e24fd1009a08340ce3ff839e7097eb5ccd4ee19206fe38b0d492c67e5c54f23",
+  "annotation_commit": "0c4eb6e72927a40df2168d0c8b7ac1c8aa713d64",
+  "candidate_calibration_sha256": "6f1fd7a36e045bb34ebe09b7dc59db774fe38a7e59abb61bdcf13b689d5836aa",
+  "source_sha256": {
+    "/app/scripts/p08_diagnostic.py": "857cf0711a46c34d608aa0ba5177a5fb016dffb1f52fb53bf9bd4d9af1379e24",
+    "src/diagnostic.py": "8007a9d4cebf60d51dc1898cb075e65f0a68d0bcfebd58bb8d6861dd0302240e",
+    "src/anonymize.py": "c3ccbde108c3a520cbafec755137ccf38e970fb42589117f31ec26b1f2e17bb2",
+    "src/calibration.py": "3a37f85e2770719ab6b6df0c99aeb54b1fd375ed71f97261ffd53dbc3837d5d9",
+    "src/dataset.py": "1f941caa078ab6ddd426100a3d4fa81449958d553b6a9027bf33f45400542c41",
+    "src/evaluate.py": "9e18769a14cc22a25d5262487a61bae405bc726a64f10cf7d293a6ea8bce75f5",
+    "src/score.py": "ceb92294e98688fa23321f7938788bb660182682a4bc23f9a00aa9952b3a0b52",
+    "src/model.py": "65337bbee247ba05f07e5d0a9e8ba810267e9f6e081f8db2062dd70ddab2be98"
+  },
+  "checkpoints": {
+    "baseline": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe",
+    "candidate": "091ac45424099c41bf50bb0adf7932d4b0b1ace3ceba9b9a27e25af99732c54b"
+  },
+  "device": "cuda",
+  "torch_version": "2.9.0+cu128",
+  "numpy_version": "2.3.3"
+}

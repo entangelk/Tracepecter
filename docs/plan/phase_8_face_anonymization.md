@@ -79,7 +79,7 @@
 5. **P08-05 재calibration** — P05 절차를 `configs/calibration_anonymized.yaml`로 실행하고, 결과는 `experiments/p08_anonymized/calibration/`에 둔다. `configs/calibration.yaml`(P05 artifact 경로)은 쓰지 않는다. 검증: P05와 같은 회귀 가드.
    - 현재 상태: **Complete (2026-10-19)** — [독립검증 라운드 2 합격](../verifications/2026-10-19/p08_05_anonymized_calibration.md) — temperature 0.968747, 확률 threshold 0.383150([calibration 기록](../../experiments/p08_anonymized/calibration/README.md)).
 6. **P08-06 진단 실행·채택 판정** — P08-03 config를 그대로 실행하고 사전 규칙으로 판정한다. 채택되면 `configs/primary.yaml`과 HANDOFF·README를 갱신한다.
-   - 현재 상태: **In Progress (2026-10-20)** — 소유자 301장 수령. 이목구비 개수 표시를 얼굴 기준으로 변환하고 최종 GEN 952장·해시를 예측 전에 고정한다([진단 기록](../../experiments/p08_anonymized/diagnostic/README.md)). 진단 실행기는 미착수.
+   - 현재 상태: **In Progress (2026-10-20, 독립검증 대기)** — 최종 얼굴 상태 고정 후 2×2·개입·얼굴 상태 집중을 실행했다. 사전 관문 전부 통과(Test A AUC 0.999867 / Test B 0.999647), 익명화 primary를 반영했다([진단·채택 기록](../../experiments/p08_anonymized/diagnostic/README.md)). CLI 재개 exit 0·결과 byte 동일. 소유자가 별도 에이전트 검증을 승인했으며 아직 독립검증 합격은 아니다.
 7. **P08-07 얼굴이 보이는 실사 평가 holdout 설계** — K-Fashion 밖 출처·라이선스·규모를 정한다. 출처 선택은 결정 브리프로 올린다. **P07의 관문이 아니다**(소유자 결정 2026-10-11: 측정 결과는 준비되는 대로 사후 보고).
 
 ## 계약·소유권
