@@ -38,4 +38,29 @@
 
 ## 변이·검사
 
-감사 도구 양성/음성 대조와 실제 loader 관측 가드는 통과했다(집중 5 passed, 기존 split 포함10 passed). 커밋 checkpoint와 clean pre-flight 후 누출 방어를 제거하는 변이를 실행하고 정확한 회귀 셀·원복 결과를 여기에 추가한다.
+감사 도구 양성/음성 대조와 실제 loader 관측 가드는 통과했다(집중 5 passed, 기존 split 포함10 passed). `c66c726` checkpoint 이후 누출 방어 변이5종이 모두 정확한 셀에서 재실패했고 원복했다. 아래 표와 원자료를 참고한다.
+
+### 변이 검증 결과
+
+전수 감사와 도구를 `c66c726`에 커밋한 뒤 최초·매 변이 전에 `git status --short`가 빈 것을 실제 실행 확인했다. 각 변이는 try/finally에서 HEAD 복원 후 원본 byte동일·clean을 확인했다. 원본 데이터·checkpoint는 변이하지 않았다.
+
+| 변이 | 파일·실제 변경 | guarding cell | 관측 |
+| --- | --- | --- | --- |
+| M1 | `scripts/p08_leakage_audit.py:73` `if len({r['split'] for r in v})>1` → `if False` | `tests/test_p08_leakage_audit.py::test_cross_split_fingerprints_find_duplicates_without_flagging_unrelated_images` | exit 1, 재실패·원복 확인 |
+| M2 | `scripts/p08_leakage_audit.py:73` `if len({r['split'] for r in v})>1` → `if len({r['split'] for r in v})>0` | `tests/test_p08_leakage_audit.py::test_cross_split_fingerprints_find_duplicates_without_flagging_unrelated_images` | exit 1, 재실패·원복 확인 |
+| M3 | `src/train.py:70` `split = "train" if "metadata_csv" in config["data"] else None` → `split = None` | `tests/test_p08_leakage_audit.py::test_real_training_configuration_reads_only_train_and_validation_rows` | exit 1, 재실패·원복 확인 |
+| M4 | `src/calibrate.py:45` `val = [i for i, row in enumerate(dataset.rows) if row.split == 'val']` → `val = list(range(len(dataset.rows)))` | `tests/test_calibration.py::test_calibration_cli_uses_only_validation_and_rejects_unanonymized_score` | exit 1, 재실패·원복 확인 |
+| M5 | `src/evaluate.py:55` `real = [i for i in standard if rows[i].label == 1]` → `real = [i for i,row in enumerate(rows) if row.label == 1]` | `tests/test_baseline.py::test_split_and_test_b_real_reuse` | exit 1, 재실패·원복 확인 |
+
+정상 fixture는 실제 train/val ID만 읽는 것을 허용하며, test 혼입 시 실패한다. 감사 지문 대조는 진짜 cross-split 동일 지문은 찾고 split 내부 중복·다른 지문은 오탐하지 않는다. 누출 방어 테스트가 실패할 수 있음을 확인한 사실과 실제 데이터에 같은 룩 교차가 있다는 사실을 구분한다.
+
+재현은 `mutation_results.json`의 file/old/new/cell을 하나씩 적용하고 해당 pytest cell을 실행한 뒤 복원한다. **반드시 clean checkpoint 이후에만** 실행한다. 전체 pytest 출력도 같은 artifact에 보존했다.
+
+## 최종 검사·재현 범위
+
+- 변이 원복 후 집중 16 passed (3.74초), 전체 CPU 214 passed / 1 skipped (45.22초). opt-in 실제 YuNet 학습 smoke는 실행하지 않았으며, 실제 YuNet·cache로 수행한 6000장 GPU 감사와 구분한다. 기존 Pillow deprecation warning12개 외 실패 없음.
+- GPU 감사 CLI exit0. 현재 원본6000개·동결 모델·재압축 결과를 저장했다. `audit_lock.json`에 input/source/artifact SHA-256을 고정했고 실제 실행 중인 probe source hash도 일치한다.
+- 생산 `src/`·기존 `configs/`·`data/metadata.csv`·checkpoint/calibration을 수정하지 않았다. 새 테스트가 누출 방어를 깨면 실패한다는 확인은 실제 데이터의 누출을 수리한 것이 아니다.
+- 사용자에게 동일 룩 train/test·train/val 교차를 진행 중에 알렸다. 모델·split을 고치는 대신 이번 감사 범위의 반례·한계·수리 권고를 보존했다.
+
+주요 코드 근거: `src/train.py:70`의 split 선택, `src/train.py:79`의 val 선택, `src/calibrate.py:45`의 val fitting 인덱스, `src/evaluate.py:53`의 Test B 구성. 사례는 `visual_review.csv:2`·`:3` 등을 통해 ID와 원본 경로를 추적한다. 코드 줄 번호는 감사 커밋의 파일 기준이다.

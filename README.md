@@ -82,6 +82,8 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 
 ## Known limitations
 
+- 현재 테스트의 데이터 독립성은 [추가 적대적 감사](experiments/p08_anonymized/leakage_audit/README.md)에서 불합격이다. 같은 룩의 train/test·train/val 교차가 확인됐으며 높은 개발 AUC를 독립 일반화 성능으로 확정하지 않는다.
+
 - 실제 촬영 여부의 forensic 증명이 아니다 — "실제 촬영처럼 *보이는* 정도"를 평가한다(§4).
 - 특정 생성 모델 탐지·EXIF/워터마크 판별·영상·얼굴 deepfake 탐지·artifact 영역 segmentation 은 범위 외(§4).
 - 얼굴: 무처리 baseline은 얼굴 노출 여부를 단축 단서로 쓴다(P06). 현재 primary는 검출된 얼굴을 흰 원으로 가리고 점수를 계산한다. 검출되지 않은 얼굴(주로 측면)은 남는다. 얼굴 deepfake 판별이나 얼굴만의 위변조 증명은 범위 외다.

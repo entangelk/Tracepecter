@@ -86,6 +86,8 @@ docker compose --profile training run --rm -T train \
 
 ## P08-06 진단 결과 (2026-10-20)
 
+**추가 감사 주의:** [테스트 누출 적대적 감사](../leakage_audit/README.md)에서 같은 룩의 train/test·train/val 교차를 최소8쌍 확인했다. 아래 AUC와 사전 관문 계산은 재현되지만, 누출 없는 독립 성능으로 해석할 수 없다. 기존 artifact와 split은 수리하지 않았다.
+
 사전 규칙 판정은 **채택**이다. Test A/B AUC 기준과 다섯 단서 관문을 모두 통과하여 `configs/primary.yaml`을 익명화 모델로 전환했다. [독립검증 및 B1 보강 추적검증도 합격](../../../docs/verifications/2026-10-20/p08_06_diagnostic.md)하여 P08-01~06을 Complete로 표시한다. 기존 baseline checkpoint·calibration은 비교용으로 보존한다.
 
 ### 2×2 비교

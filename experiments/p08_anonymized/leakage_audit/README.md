@@ -44,7 +44,7 @@ REAL 최근접 상위 후보 중 14쌍을 원본으로 시각 점검해 8쌍에�
 
 여덟 쌍 모두 pHash 거리 10을 넘는다. 따라서 pHash만으로는 놓친다. `scripts/deduplicate.py`의 embedding 층은 P02+로 미뤄졌고 현재까지 split에 반영되지 않았다. `docs/project.md` §8·§13·§14가 요구하는 같은 룩/유사 이미지 그룹 독립성을 현재 그룹 ID 검사만으로 입증할 수 없다.
 
-한편 pHash≤10인 cross-split 후보는 145쌍(REAL/REAL 1, GEN/GEN 105, 서로 다른 클래스 39)이다. 이 숫자는 확인된 중복 수가 아니다. REAL 후보 469348/231863은 시각적으로 다른 옷이고, 최저거리 GEN 1286/165도 회색 코트 구도는 비슷하지만 옷 질감·신발이 다르다. 낮은 pHash 거리만으로 합치는 것도 오탐 위험이 있다.
+한편 pHash≤10인 cross-split 후보는 145쌍(REAL/REAL 1, GEN/GEN 105, 서로 다른 클래스 39)이다. 이 숫자는 확인된 중복 수가 아니다. REAL 후보 469348/231863은 시각적으로 다른 옷이고, 최저거리 GEN gen_001286/gen_000165도 회색 코트 구도는 비슷하지만 옷 질감·신발이 다르다. 낮은 pHash 거리만으로 합치는 것도 오탐 위험이 있다.
 
 ## 3. unseen generator도 새로운 생성 시나리오는 아니다
 
@@ -99,7 +99,7 @@ header 단서는 현재 vision model에 직접 입력되지 않는다. 이 100% 
 
 ```bash
 # 원본 전수 지문·픽셀 통계와 실제 PNG 계보, train-only 대조
-OPENBLAS_NUM_THREADS=1 docker compose run --rm -T \
+docker compose run --rm -T -e OPENBLAS_NUM_THREADS=1 \
   -v /mnt/h/tracepector/images:/images:ro dev python -m scripts.p08_leakage_audit
 # GPU 여유를 확인한 뒤 frozen embedding·재압축·음성 대조
 # 청크: reports/errors/review/p08_leakage_probe (비추적, 재개 가능)
@@ -109,4 +109,33 @@ docker compose --profile training run --rm -T -e HF_HUB_OFFLINE=1 train \
 docker compose run --rm -T dev python -m pytest tests/test_p08_leakage_audit.py tests/test_split_dataset.py -q
 ```
 
-시각 확인은 `visual_review.csv`의 ID를 metadata 경로로 열어 같은 옷과 촬영 세트의 다른 컷인지 확인한다. cosine threshold만으로 자동 확정하지 않는다. 감사 원자료와 요약은 이 디렉터리에 보존한다. 생산 코드 변이와 최종 검사 결과는 별도 검증 기록에 갱신한다.
+시각 확인은 `visual_review.csv`의 ID를 metadata 경로로 열어 같은 옷과 촬영 세트의 다른 컷인지 확인한다. cosine threshold만으로 자동 확정하지 않는다. 감사 원자료와 요약은 이 디렉터리에 보존한다. 생산 코드 변이와 최종 검사 결과는 별도 검증 기록에 보존했다.
+
+### 사후 민감도 재계산
+
+아래 코드는 보존된 실제 P08 logit에서 새 prompt/seed 부분집합과 확인된 누출 사례 제외의 지표를 재계산한다. 새로운 학습이나 보정은 하지 않는다.
+
+```python
+import csv,json,numpy as np
+from pathlib import Path
+from scripts.p08_leakage_audit import rank_auc
+root=Path('experiments/p08_anonymized/leakage_audit')
+meta={r['image_id']:r for r in csv.DictReader(open('data/metadata.csv',newline=''))}
+z={r['image_id']:float(r['logit']) for r in csv.DictReader(open('experiments/p08_anonymized/diagnostic/candidate_anonymized.csv'))}
+a=json.load(open('experiments/p08_anonymized/calibration/calibration.json'))
+prov=json.load((root/'generation_provenance.json').open())
+known={(r['prompt'],r['noise_seed']) for r in prov if r['split']=='train'}
+knownprompt={r['prompt'] for r in prov if r['split']=='train'}
+real=[i for i,r in meta.items() if r['split']=='test' and r['label']=='1']
+confirmed={r['image_id'] for r in csv.DictReader((root/'visual_review.csv').open()) if r['verdict']=='confirmed_same_look'}
+def metrics(ids):
+ y=np.array([int(meta[i]['label']) for i in ids]);v=np.array([z[i] for i in ids]);p=1/(1+np.exp(-v/a['temperature']))
+ return dict(count=len(ids),real=int(y.sum()),gen=int((1-y).sum()),roc_auc=rank_auc(y,v),accuracy=float(((p>=a['threshold_probability'])==y).mean()),false_positive_gen=int(((y==0)&(p>=a['threshold_probability'])).sum()))
+for name,condition in [('same_prompt_seed',lambda r:(r['prompt'],r['noise_seed']) in known),('novel_prompt_seed',lambda r:(r['prompt'],r['noise_seed']) not in known),('novel_positive_prompt',lambda r:r['prompt'] not in knownprompt)]:
+ print(name,metrics(real+[r['image_id'] for r in prov if r['split']=='test_unseen' and condition(r)]))
+for name in ['standard','unseen']:
+ ids=[i for i,r in meta.items() if (r['split']=='test' if name=='standard' else r['split']=='test_unseen' or (r['split']=='test' and r['label']=='1')) and i not in confirmed]
+ print(name,metrics(ids))
+```
+
+최종 검사: 집중16 passed, 전체214 passed/1 skipped. opt-in 실제 YuNet 학습 smoke의 skip과 실제 cache 기반 GPU 감사를 구분한다. 변이5종은 모두 예상 셀에서 재실패하고 byte 원복을 확인했다. `audit_lock.json`에 감사 input/source/원자료 hash를 보존하며 상세는 [검증 기록](../../../docs/verifications/2026-10-20/test_leakage_adversarial.md) 참고.

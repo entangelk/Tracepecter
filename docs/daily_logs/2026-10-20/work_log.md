@@ -80,3 +80,22 @@
 - 같은 룩의 교차를 최소8쌍 확인했다(검토14쌍 중 test4/val4). 완전 동일 파일·decoded RGB는0이고, 기존 ID/look_group 문자열 교차 검사만으로 이 누출을 잡지 못한다.
 - actual embedded PNG 기준 sd35 420/600이 train 다른 생성기와 같은 positive prompt·seed다. 원본 header3개만 쓰는 train-only ridge도 두 test accuracy1.0이다. 원본 class/source 교란은 확인되지만 현재 CNN이 header를 읽는다고 주장하지 않는다.
 - 동결 모델 JPEG 공통 조건에도 AUC는 높고, 확인된 몇 장을 제거해도 거의 불변이다. 현재 고성능 전체를 한 원인으로 확정하지 않았다. 실제 모델·metadata·split은 변경하지 않았다.
+
+### 변이 검증 결과
+
+전수 감사와 도구를 `c66c726`에 커밋한 뒤 최초·매 변이 전에 `git status --short`가 빈 것을 실제 실행 확인했다. 각 변이는 try/finally에서 HEAD 복원 후 원본 byte동일·clean을 확인했다. 원본 데이터·checkpoint는 변이하지 않았다.
+
+| 변이 | 파일·실제 변경 | guarding cell | 관측 |
+| --- | --- | --- | --- |
+| M1 | `scripts/p08_leakage_audit.py:73` `if len({r['split'] for r in v})>1` → `if False` | `tests/test_p08_leakage_audit.py::test_cross_split_fingerprints_find_duplicates_without_flagging_unrelated_images` | exit 1, 재실패·원복 확인 |
+| M2 | `scripts/p08_leakage_audit.py:73` `if len({r['split'] for r in v})>1` → `if len({r['split'] for r in v})>0` | `tests/test_p08_leakage_audit.py::test_cross_split_fingerprints_find_duplicates_without_flagging_unrelated_images` | exit 1, 재실패·원복 확인 |
+| M3 | `src/train.py:70` `split = "train" if "metadata_csv" in config["data"] else None` → `split = None` | `tests/test_p08_leakage_audit.py::test_real_training_configuration_reads_only_train_and_validation_rows` | exit 1, 재실패·원복 확인 |
+| M4 | `src/calibrate.py:45` `val = [i for i, row in enumerate(dataset.rows) if row.split == 'val']` → `val = list(range(len(dataset.rows)))` | `tests/test_calibration.py::test_calibration_cli_uses_only_validation_and_rejects_unanonymized_score` | exit 1, 재실패·원복 확인 |
+| M5 | `src/evaluate.py:55` `real = [i for i in standard if rows[i].label == 1]` → `real = [i for i,row in enumerate(rows) if row.label == 1]` | `tests/test_baseline.py::test_split_and_test_b_real_reuse` | exit 1, 재실패·원복 확인 |
+
+정상 fixture는 실제 train/val ID만 읽는 것을 허용하며, test 혼입 시 실패한다. 감사 지문 대조는 진짜 cross-split 동일 지문은 찾고 split 내부 중복·다른 지문은 오탐하지 않는다. 누출 방어 테스트가 실패할 수 있음을 확인한 사실과 실제 데이터에 같은 룩 교차가 있다는 사실을 구분한다.
+
+재현은 `mutation_results.json`의 file/old/new/cell을 하나씩 적용하고 해당 pytest cell을 실행한 뒤 복원한다. **반드시 clean checkpoint 이후에만** 실행한다. 전체 pytest 출력도 같은 artifact에 보존했다.
+
+- 추가 감사 최종 검증: 변이5종 모두 guarding cell 재실패·byte 원복·clean 확인. 집중16 passed(3.74초), 전체214 passed/1 skipped(45.22초), 기존 Pillow warning12개. GPU probe exit0, 기존 score·metadata·primary·checkpoint 보존. 감사 판정은 데이터 독립성 **불합격**이며 기존 P08 명시 통계 관문 계산 통과와 구분한다.
+- HANDOFF·P08 진단 문서·phase 상태 설명에 새 반례와 해석 제한을 반영했다. 기존 외부 holdout 비관문 결정을 변경하지 않았으며 재분할/재학습은 미착수다.

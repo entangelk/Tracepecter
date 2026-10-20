@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-20 · 41줄
+> 마지막 자가 검수: 2026-10-20 · 44줄
 
 ## 현재 상태
 
@@ -17,13 +17,16 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P07(API + Demo) 상세 계획·구현** — P08의 채택 artifact와 공통 전처리 계약을 사용한다([P08 진단](experiments/p08_anonymized/diagnostic/README.md), [독립검증](docs/verifications/2026-10-20/p08_06_diagnostic.md)).
+1. **누출 적대적 감사 후속 검토** — [감사 보고서](experiments/p08_anonymized/leakage_audit/README.md), [검증 기록](docs/verifications/2026-10-20/test_leakage_adversarial.md). 같은 룩의 train/test4쌍·train/val4쌍을 최소 확인했다. 기존 그룹 문자열 검사는0이지만 실제 촬영 시퀀스 독립성에는 반례가 있다.
+   - 기존 모델·split·calibration은 감사 요청 범위에서 보존했다. 현재 높은 AUC는 누출 없는 독립 시험으로 확정할 수 없다. REAL 그룹 보강·재분할/재학습 범위부터 검토한다.
+   - 출처·해상도·용량과 class가 강하게 교란돼 있고 sd35 420/600은 train과 positive prompt·seed를 공유한다. 몇 장만 제외해도 AUC는 높으므로 누출 하나로 전체 고성능이 설명된다는 주장도 하지 않는다.
+2. **P07(API + Demo) 상세 계획·구현** — P08의 채택 artifact와 공통 전처리 계약을 사용한다([P08 진단](experiments/p08_anonymized/diagnostic/README.md), [독립검증](docs/verifications/2026-10-20/p08_06_diagnostic.md)).
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
    - artifact는 `checkpoints/anonymized/best.pt` + `experiments/p08_anonymized/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).
    - 소유자 301장 확인을 다시 요청할 필요는 없다. P08-07 실사 holdout 설계는 병행하며 P07 관문이 아니다.
-2. GEN pHash/embedding 근사중복 점검·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
-3. score CLI는 채택된 P08 calibration artifact로 실행한다([README](README.md#calibrated-image-score)). 익명화 키가 없는 P05 baseline은 score에서 거부하고, offline 평가·calibration에서만 원본 입력으로 허용한다.
+3. 감사의 pHash/embedding 후보 추가 검토·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
+4. score CLI는 채택된 P08 calibration artifact로 실행한다([README](README.md#calibrated-image-score)). 익명화 키가 없는 P05 baseline은 score에서 거부하고, offline 평가·calibration에서만 원본 입력으로 허용한다.
 
 ## 주의
 
