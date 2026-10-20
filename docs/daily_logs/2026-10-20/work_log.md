@@ -72,3 +72,11 @@
 | M10 calibration 지표 T→1 | `scripts/p08_diagnostic.py:243` | 위 셀 | NLL assertion 재실패 |
 | M11 cue threshold→.5 | `scripts/p08_diagnostic.py:295` | `test_cue_boundary_uses_candidate_temperature_threshold_and_all_predictions` | .53 assertion 재실패 |
 | M12 ECE bins→1 | `scripts/p08_diagnostic.py:243` | `test_stub_end_to_end_fixed_calibration_and_resume` | ECE assertion 재실패 |
+
+## 추가 요청 — 테스트 누출 적대적 감사
+
+- 소유자가 높은 AUC를 의심해 누출 재점검·적대적 검증을 요청했다. 기존 채택 규칙의 계산을 다시 통과시키는 대신 데이터 독립성을 반박하는 쪽으로 조사했다.
+- 전수 지문/PNG 렌더 계보/frozen embedding·수집 단서·JPEG/상수/셔플 대조를 수행했다. [감사 보고서](../../../experiments/p08_anonymized/leakage_audit/README.md), [검증 기록](../../verifications/2026-10-20/test_leakage_adversarial.md).
+- 같은 룩의 교차를 최소8쌍 확인했다(검토14쌍 중 test4/val4). 완전 동일 파일·decoded RGB는0이고, 기존 ID/look_group 문자열 교차 검사만으로 이 누출을 잡지 못한다.
+- actual embedded PNG 기준 sd35 420/600이 train 다른 생성기와 같은 positive prompt·seed다. 원본 header3개만 쓰는 train-only ridge도 두 test accuracy1.0이다. 원본 class/source 교란은 확인되지만 현재 CNN이 header를 읽는다고 주장하지 않는다.
+- 동결 모델 JPEG 공통 조건에도 AUC는 높고, 확인된 몇 장을 제거해도 거의 불변이다. 현재 고성능 전체를 한 원인으로 확정하지 않았다. 실제 모델·metadata·split은 변경하지 않았다.

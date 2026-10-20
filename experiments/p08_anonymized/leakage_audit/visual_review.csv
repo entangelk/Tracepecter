@@ -1,0 +1,15 @@
+image_id,split,train_image_id,cosine,phash_distance,look_group,train_look_group,verdict,reason
+1325559,test,1331504,0.985373318195343,16,phash_392,phash_494,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+767339,test,767324,0.9662529826164246,26,phash_2018,phash_1827,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+1283747,val,646833,0.9643239378929138,18,phash_2023,phash_1745,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+1236748,val,499801,0.9630653858184814,30,phash_2119,phash_1998,unconfirmed,유사성은 있으나 동일 룩으로 확정하지 않음
+705886,val,1335623,0.9608763456344604,12,phash_1368,phash_1280,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+801545,test,802855,0.9571462273597717,14,phash_745,phash_926,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+898255,val,1005884,0.9530379772186279,16,phash_810,phash_3,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+296302,test,337704,0.9512536525726318,24,phash_1882,phash_1714,unconfirmed,유사성은 있으나 동일 룩으로 확정하지 않음
+1231839,test,205220,0.9504035115242004,16,phash_1873,FLY_365,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
+296278,test,139035,0.9483968019485474,22,phash_1907,BYBLING_009,unconfirmed,유사성은 있으나 동일 룩으로 확정하지 않음
+1208861,val,745054,0.9474195837974548,32,phash_2059,phash_432,unconfirmed,유사성은 있으나 동일 룩으로 확정하지 않음
+294571,test,425729,0.9472713470458984,34,phash_2024,vicky_032,unconfirmed,유사성은 있으나 동일 룩으로 확정하지 않음
+294738,val,499801,0.9458088874816895,30,phash_2104,phash_1998,unconfirmed,유사성은 있으나 동일 룩으로 확정하지 않음
+1346304,val,1346302,0.9454708099365234,20,phash_2038,phash_1771,confirmed_same_look,옷·촬영 배경/소품이 일치하는 다른 컷
