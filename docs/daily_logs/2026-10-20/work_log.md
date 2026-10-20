@@ -29,6 +29,9 @@
 
 ## 발견한 문제
 
+- 독립검증 1차는 조건부 합격(B1)이다. 원자료·실제 구현·판정은 독립 일치했지만 평가 확률 T→1.0(M7), 단서 확률 T→1.0(M8), 실제 분류 threshold→0.5(M9)를 새 suite가 잡지 못했다. M1~M6은 guarding cell에서 재실패했고 원복 후 전체 208 passed/1 skipped를 확인했다.
+- B1 보강: fixture threshold를 baseline .42 / candidate .53으로 바꿔 T=1과 모델별 T=2/3 및 threshold=.5와 artifact threshold가 실제 분류 차이를 만들도록 했다. 저장 logit에서 별도 sigmoid·혼동행렬·NLL/Brier/ECE 수식을 계산해 2×2의 모든 cohort 수치를 assertion한다. 단서 경계는 실제 domain 함수에 위임하는 spy로 candidate 확률·threshold·전체 ID 연결을 독립 수식과 비교한다. runtime 코드·실제 예측·판정은 바꾸지 않았다.
+
 - 첫 detached 실행의 `setsid`가 곧바로 종료되어 `--wait`로 재시작했다. 두 번째는 결과 저장까지 수행했으나 래퍼가 `setsid: wait: Success`·exit 1을 반환했다. Docker daemon 직접 관리 detached 컨테이너로 재개하여 CLI 자체 exit 0과 결과 재현성을 확인했다. 컨테이너 감독과 디스크 재개 상태로 터미널/전원 단절을 대비한다.
 
 - 최초 병합은 구조상 유효했으나 얼굴 수와 이목구비 수의 의미가 달랐다. candidate 진단 예측을 실행하기 전에 발견했고, 소유자 의미 확인 후 변환하여 잘못된 수를 최종 주석으로 고정하지 않았다.
