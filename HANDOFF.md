@@ -1,11 +1,11 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-20 · 44줄
+> 마지막 자가 검수: 2026-10-20 · 46줄
 
 ## 현재 상태
 
 - P00(프로젝트 초기화) **Complete** — 독립검증 초회+재검증 합격. 기록: `docs/verifications/2026-10-07/p00_initialization.md`.
-- **P01(데이터 파이프라인) Complete (2026-10-09)** — §27 Phase 1 완료 조건 전부 충족. 최종 `data/metadata.csv` **6,000행**(REAL 3,000 K-Fashion + Generated 3,000 = 5종 × 600): train 3,780 / val 820 / test 800 + test_unseen 600(sd35_medium 전량). 누출 0, 층화 축은 **source_type × category × generator**(train 생성기별 420/92/88 — generator별 평가 가능화, P01-07 검증 H1). P01-06·P01-07 독립검증 모두 최종 합격([P01-06](docs/verifications/2026-10-08/p01_06_split.md) · [P01-07](docs/verifications/2026-10-09/p01_07_scale_expansion.md) — 각 보강 라운드 포함).
+- 현재 `data/metadata.csv`는 **6,000행**(REAL 3,000 K-Fashion + GEN 3,000): train 3,780 / val 820 / test 800 / test_unseen 600(sd35_medium 전량). **선언된 ID·look_group 교차는 0이지만 실제 같은 룩의 train/test 최소 4쌍·train/val 최소 4쌍이 존재한다. 데이터 독립성 감사 판정은 불합격이다.** P08 사전등록 통계 관문 통과와 구분한다.
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/anonymized/best.pt`(P08-06 채택). DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
@@ -17,14 +17,16 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **누출 적대적 감사 후속 검토** — [감사 보고서](experiments/p08_anonymized/leakage_audit/README.md), [검증 기록](docs/verifications/2026-10-20/test_leakage_adversarial.md). 같은 룩의 train/test4쌍·train/val4쌍을 최소 확인했다. 기존 그룹 문자열 검사는0이지만 실제 촬영 시퀀스 독립성에는 반례가 있다.
-   - 기존 모델·split·calibration은 감사 요청 범위에서 보존했다. 현재 높은 AUC는 누출 없는 독립 시험으로 확정할 수 없다. REAL 그룹 보강·재분할/재학습 범위부터 검토한다.
-   - 출처·해상도·용량과 class가 강하게 교란돼 있고 sd35 420/600은 train과 positive prompt·seed를 공유한다. 몇 장만 제외해도 AUC는 높으므로 누출 하나로 전체 고성능이 설명된다는 주장도 하지 않는다.
-2. **P07(API + Demo) 상세 계획·구현** — P08의 채택 artifact와 공통 전처리 계약을 사용한다([P08 진단](experiments/p08_anonymized/diagnostic/README.md), [독립검증](docs/verifications/2026-10-20/p08_06_diagnostic.md)).
+1. **누출 수리 범위·계획 작성부터 시작** — [감사 보고서](experiments/p08_anonymized/leakage_audit/README.md), [검증 기록](docs/verifications/2026-10-20/test_leakage_adversarial.md), [검토한 14쌍](experiments/p08_anonymized/leakage_audit/visual_review.csv)을 읽는다. 재분할·재학습은 미착수이며 오늘은 문서 정리까지로 종료한다.
+   - 확인된 8쌍은 하한이다. 감사 디렉터리의 `embedding_nearest_train.json`·`cross_split_phash.json`에서 REAL 촬영 시퀀스·같은 룩 후보를 확장하고 연결된 그룹 전체를 같은 split에 두는 방안을 설계한다. 알려진 반례의 pHash 거리는 12~26이므로 거리 10 또는 cosine ≥.99만으로 거르면 놓친다.
+   - 출처·해상도·용량과 class가 강하게 교란돼 있고 sd35 420/600은 train과 positive prompt·seed를 공유한다. GEN 렌더 계보도 검토하되 생성기 holdout 계약 위반이나 동일 이미지 누출로 단정하지 않는다. 몇 장만 제외해도 AUC는 높으므로 누출 하나로 전체 고성능이 설명된다는 주장도 하지 않는다.
+   - [계획 작성 지침](docs/guides/phase-and-decision-briefs.md)에 따라 그룹 보강→재분할→재학습→재calibration 범위와 새 metadata·checkpoint·calibration의 버전별 경로를 먼저 정한다. 기존 `data/metadata.csv`·모델·calibration·감사 원자료와 `audit_lock.json`을 보존한다. 알려진 test 4장 제외만으로 수리됐다고 판정하지 않는다.
+   - 재현 명령은 감사 보고서에 있다. embedding cache는 비추적 `reports/errors/review/p08_leakage_probe/`에 있다. 현재 Test A/B는 개발 평가이며 높은 AUC를 누출 없는 독립 시험 결과로 해석할 수 없다.
+2. **P07(API + Demo) 상세 계획·구현** — 누출 수리 범위 검토를 먼저 이어간다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
    - artifact는 `checkpoints/anonymized/best.pt` + `experiments/p08_anonymized/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).
-   - 소유자 301장 확인을 다시 요청할 필요는 없다. P08-07 실사 holdout 설계는 병행하며 P07 관문이 아니다.
+   - 소유자 301장 확인의 원본·변환본·최종 주석을 보존한다. 현재 추가 소유자 검토 요청은 없으며 cohort 변경 시 주석 ID·사전등록 적용 범위부터 재확인한다. P08-07 실사 holdout은 기존 결정대로 P07 관문이 아니다.
 3. 감사의 pHash/embedding 후보 추가 검토·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 4. score CLI는 채택된 P08 calibration artifact로 실행한다([README](README.md#calibrated-image-score)). 익명화 키가 없는 P05 baseline은 score에서 거부하고, offline 평가·calibration에서만 원본 입력으로 허용한다.
 
