@@ -23,6 +23,7 @@
 | 데이터 메타데이터 schema | `docs/project.md` §12 | 구현 시점에 `docs/guides/data-contracts.md` 규칙 적용 |
 | primary calibration parameter·threshold·checkpoint 결합 | `experiments/p08_anonymized/calibration/calibration.json` | fitting 설정은 `configs/calibration_anonymized.yaml`, score/score threshold는 유도. 기존 P05 artifact는 baseline 비교 정본으로 보존 |
 | primary encoder·실행 설정 | `configs/primary.yaml` | encoder 선정은 `experiments/p03_comparison/README.md`, 익명화 모델 채택은 `experiments/p08_anonymized/diagnostic/README.md`; baseline 실험 config와 구분 |
+| P09 수리용 배정 그룹 | `experiments/p09_leakage_repair/r1/grouping/final/group_mapping.csv` + `group_lock.json` | 시각적 동일성/미확정 공동 배정 구별, P09-02에서 소비. 현재 metadata·primary 소유 경로는 불변 |
 | 학습·추론 parameter | `configs/*.yaml` | 코드에 직접 기입하지 않는다 (`docs/project.md` §25) |
 | 공통 얼굴 익명화 규격 | `configs/anonymize.yaml` | P08-01 소유자 선택 k=1.2; P08-02 checkpoint snapshot의 원본. 사전 측정 기준은 `configs/anonymize_measure.yaml`에 별도 보존 |
 | P08 단서 진단·채택 규칙 | `configs/anonymized_diagnostic.yaml` | P08-03 결과 전 사전등록; 파생 표본·입력 hash는 `experiments/p08_anonymized/diagnostic/` |
@@ -57,3 +58,4 @@
 | sot.md | v1.2 | 2026-10-09 | calibration artifact의 parameter/threshold/checkpoint 결합 소유권 명시 | [P05](plan/phase_5_calibration.md) |
 | project.md | v1.4 | 2026-10-11 | §15·§22에 공통 얼굴 익명화(학습·평가·추론 같은 전처리) 추가, §23 데모에 원본 미리보기·익명화 여부·"얼굴 영역은 점수 미반영" 문구 추가. DB-03(무처리)을 대체 | [DB-06](decision_briefs/DB-06_P06_face-exposure.md), 소유자 결정 2026-10-11 |
 | sot.md | v1.3 | 2026-10-20 | P08-06 사전 채택 관문 통과로 primary calibration 소유 경로를 익명화 artifact로 전환. 기존 P05 경로는 baseline 비교 정본으로 유지 | [P08-06 진단](../experiments/p08_anonymized/diagnostic/README.md) |
+| sot.md | v1.4 | 2026-10-20 | DB-07 한정 검토 범위와 P09-01 배정 그룹 정본 등록. 시각적 동일성/공동 배정 구별, 현재 metadata·primary 불변 | [P09](plan/phase_9_leakage_repair.md) · [DB-07](decision_briefs/DB-07_P09_review-coverage.md) |

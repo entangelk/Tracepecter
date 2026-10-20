@@ -1,0 +1,70 @@
+{
+  "review_scope_complete": true,
+  "full_candidate_review_complete": false,
+  "grouping_final": true,
+  "metadata_rows": 6000,
+  "allocation_groups": 5692,
+  "largest_allocation_groups": [
+    [
+      "p09_fb07381c8a4f72e69971",
+      89
+    ],
+    [
+      "p09_3638ba31f474d9f2fa44",
+      44
+    ],
+    [
+      "p09_f53eb2aea3ae36515973",
+      19
+    ],
+    [
+      "p09_df5b7d4cda747bac1a4f",
+      12
+    ],
+    [
+      "p09_55c50c8982ecda281ab4",
+      9
+    ],
+    [
+      "p09_a5a0e89ef783ec95af03",
+      9
+    ],
+    [
+      "p09_bbb92c884693c8fff7e9",
+      7
+    ],
+    [
+      "p09_dd5bc1d2660af176b91c",
+      7
+    ],
+    [
+      "p09_734ef1e7833aad929ac7",
+      7
+    ],
+    [
+      "p09_98dc169edf1f5741abd2",
+      6
+    ]
+  ],
+  "visual_reviews": {
+    "confirmed_same_look": 53,
+    "unconfirmed": 269,
+    "different_look": 1064
+  },
+  "reviewed_pairs": 1386,
+  "initial_candidate_pairs": 947696,
+  "reviewed_initial_candidates": 1385,
+  "unreviewed_initial_candidates": 946311,
+  "conservative_colocation_edges": 269,
+  "confirmed_original_split_pairs": {
+    "test|train": 14,
+    "train|val": 15,
+    "train|train": 16,
+    "test|val": 6,
+    "val|val": 1,
+    "test|test": 1
+  },
+  "neighbor_pending_pairs": 0,
+  "split_changed": false,
+  "retrained": false
+}

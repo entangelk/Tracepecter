@@ -1,0 +1,5 @@
+a,b,verdict,reason,reviewer,source
+491169,491172,confirmed_same_look,크림 무칼라 검정단추 재킷·흰 안쪽 옷·청바지·가방 끈과 긴 갈색 머리가 일치하는 전신/거울 컷,Codex(root),neighbor unique-image catalog; visually found outside anchor pairs
+1135750,498574,confirmed_same_look,잔 도트 프릴 상의·청바지·빨간 구두와 격자 창문 그림자/커튼/헤링본 바닥이 일치하는 다른 컷,Codex(root),neighbor unique-image catalog; visually found outside anchor pairs
+723640,723642,confirmed_same_look,갈색 긴소매 상의·회색 트위드 짧은 치마·검정 구두와 꽃병/흰 단/장식 소품이 일치하는 전신/확대 컷,Codex(root),neighbor unique-image catalog; visually found outside anchor pairs
+1072916,895560,unconfirmed,보라 꽃무늬 프릴 원피스·흰 구두가 유사하나 작은 전신 컷/배경 차이로 같은 룩 확정 보류,Codex(root),neighbor unique-image catalog

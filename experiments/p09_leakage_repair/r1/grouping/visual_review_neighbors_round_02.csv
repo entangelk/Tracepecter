@@ -1,0 +1,55 @@
+a,b,verdict,reason,reviewer,source,cosine,phash_distance
+1090894,498574,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.904114379,36
+1135750,498694,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.904066426,28
+1090894,1135750,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.901473949,36
+491172,992863,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.899298437,30
+1135750,502448,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.897220587,32
+498574,498694,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.896023966,28
+491172,953534,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.892756981,28
+498574,502448,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.890446474,32
+1084947,1135750,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.889535163,28
+1084947,498574,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.888093658,28
+491172,760162,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.885182767,18
+491169,492359,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.88000956,36
+1135750,767339,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.878581976,30
+1135750,765777,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.877515511,34
+1135750,1213258,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.877158273,22
+1213258,498574,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.87615969,22
+498574,765777,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.874440823,34
+491169,604361,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.874079831,30
+1135750,890127,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.872955275,34
+491169,648148,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.872314593,32
+294571,498574,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.871511262,32
+498574,767339,different_look,잔 도트 프릴 상의/청바지/빨간 구두 기준과 비교해 상의 색·소매·신발/바지 세부 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.871370184,30
+491169,992863,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.870426196,32
+491169,75149,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.866940752,34
+1034021,491169,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.865673071,34
+1275755,491169,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.864978875,36
+491172,648148,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.864907258,20
+1330003,491172,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.862886471,30
+310887,491172,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.862528511,30
+1275755,491172,different_look,크림 무칼라 검정단추 재킷/청바지 기준과 비교해 라펠·옷 길이/색·안쪽 옷·소품 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.86222053,30
+1117209,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.850669664,38
+427440,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.850393422,30
+1163161,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.848478235,36
+1003992,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.847383073,24
+257141,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.841763446,30
+280888,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.840829504,36
+340146,723642,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.839557194,32
+723642,950135,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.837648109,36
+723640,828788,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.818692028,36
+723640,956837,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.808848998,32
+723640,742390,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.808205409,34
+723640,799880,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.806592133,32
+664930,797088,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.804652362,28
+723640,949957,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.804228806,34
+723640,908871,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.803927545,38
+664930,695943,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.802753228,22
+723640,747539,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.802162723,30
+723640,923075,different_look,갈색 긴소매/회색 트위드 짧은 치마/검정 구두 기준과 비교해 치마 색·무늬/길이·상의·신발 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.800255457,28
+1057848,664930,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.797749436,26
+1293589,664930,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.79724631,26
+664930,952125,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.795667672,30
+664930,929714,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.790633018,30
+664930,890426,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.789181626,32
+664930,761973,different_look,청재킷/꽃무늬 긴 원피스/흰 구두 기준과 비교해 상의·하의 형태/배색·신발·장소 차이 확인,Codex(root),round 2 hash-checked unique-image index; all 51 endpoints viewed,0.788762674,36

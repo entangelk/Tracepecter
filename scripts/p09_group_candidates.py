@@ -170,13 +170,6 @@ def build_groups(rows, reviews):
         if by_id[a]['label'] != by_id[b]['label']:
             raise ValueError('cross-class group relation')
         parent[find(b)] = find(a)
-    existing = {}
-    for i, r in by_id.items():
-        if r['label'] == '1' and r['look_group']:
-            key = (r['source_domain'], r['look_group'])
-            if key in existing:
-                union(existing[key], i)
-            existing[key] = i
     seen = set()
     for review in reviews:
         a, b = review['a'], review['b']
@@ -190,11 +183,22 @@ def build_groups(rows, reviews):
             raise ValueError('unknown review verdict')
         if not review['reason'].strip():
             raise ValueError('empty review reason')
-        if review['verdict'] in ('confirmed_same_look', 'conservative_colocation'):
+        if review['verdict'] == 'confirmed_same_look':
             union(a, b)
     for review in reviews:
         if review['verdict'] == 'different_look' and find(review['a']) == find(review['b']):
             raise ValueError('review conflict within connected component')
+    existing = {}
+    for i, r in by_id.items():
+        if r['label'] == '1' and r['look_group']:
+            key = (r['source_domain'], r['look_group'])
+            if key in existing:
+                union(existing[key], i)
+            existing[key] = i
+    # Co-location is an allocation constraint, not a claim of visual equivalence.
+    for review in reviews:
+        if review['verdict'] == 'conservative_colocation':
+            union(review['a'], review['b'])
     members = defaultdict(list)
     for i in by_id:
         members[find(i)].append(i)
@@ -206,12 +210,43 @@ def build_groups(rows, reviews):
     return dict(sorted(result.items()))
 
 
+
+def review_neighbors(rows, features, hashes, reviews, top_k=10):
+    """Expand each confirmed member's directed neighbors, excluding resolved pairs."""
+    semantic = [dict(r, verdict='unconfirmed') if r['verdict'] == 'conservative_colocation' else r
+                for r in reviews]
+    groups = build_groups(rows, semantic)
+    anchor_groups = {groups[r[k]] for r in semantic if r['verdict'] == 'confirmed_same_look'
+                     for k in ('a', 'b')}
+    anchors = {i for i in groups if groups[i] in anchor_groups}
+    seen = {tuple(sorted((r['a'], r['b']))) for r in reviews}
+    vectors = normalized(features)
+    pairs = {}
+    for label in ('1', '0'):
+        indices = sorted((i for i, r in enumerate(rows) if r['label'] == label),
+                         key=lambda i: rows[i]['image_id'])
+        for i in indices:
+            if rows[i]['image_id'] not in anchors:
+                continue
+            others = [j for j in indices if j != i]
+            scores = vectors[others] @ vectors[i]
+            for position in np.argsort(-scores, kind='stable')[:top_k]:
+                j = others[position]
+                a, b = sorted((rows[i]['image_id'], rows[j]['image_id']))
+                if (a, b) not in seen and groups[a] != groups[b]:
+                    pairs[a, b] = dict(a=a, b=b, cosine=round(float(scores[position]), 9),
+                                       phash_distance=(hashes[i]^hashes[j]).bit_count(),
+                                       reasons='confirmed_member_directed_topk')
+    return sorted(pairs.values(), key=lambda r: (-r['cosine'], r['a'], r['b']))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--audit', type=Path, default=Path('experiments/p08_anonymized/leakage_audit'))
     parser.add_argument('--cache', type=Path, default=Path('reports/errors/review/p08_leakage_probe'))
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--queue', type=Path, required=True)
+    parser.add_argument('--neighbors-from', type=Path, nargs='+', help='additional visual reviews; original 14 are implicit')
     args = parser.parse_args()
     if args.out.exists() or args.queue.exists():
         raise ValueError('output exists; use a new run directory, never overwrite')
@@ -231,6 +266,10 @@ def main():
     hashes = [int(images[r['image_id']]['phash'], 16) for r in rows]
     legacy = read_csv(args.audit/'visual_review.csv')
     reviews = [dict(a=r['image_id'], b=r['train_image_id'], verdict=r['verdict'], reason=r['reason']) for r in legacy]
+    if args.neighbors_from:
+        # Keep rich visual evidence in its source CSV; grouping consumes this projection.
+        reviews += [{k: r[k] for k in ('a', 'b', 'verdict', 'reason')}
+                    for path in args.neighbors_from for r in read_csv(path)]
     seeds = [(r['a'], r['b'], 'legacy_review') for r in reviews]
     seeds += [(r['image_id'], r['nearest_train'], 'legacy_nearest') for r in nearest]
     seeds += [(r['a'], r['b'], 'legacy_cross_phash') for r in json.loads((args.audit/'cross_split_phash.json').read_text())]
@@ -248,7 +287,9 @@ def main():
     with queue.open('wb') as raw, gzip.GzipFile(filename='', fileobj=raw, mode='wb', mtime=0) as compressed:
         with io.TextIOWrapper(compressed, encoding='utf-8', newline='') as handle:
             writer = csv.DictWriter(handle, fields, lineterminator='\n'); writer.writeheader()
-            for pair in candidate_pairs(rows, features, hashes, seeds=seeds):
+            candidates = (review_neighbors(rows, features, hashes, reviews) if args.neighbors_from
+                          else candidate_pairs(rows, features, hashes, seeds=seeds))
+            for pair in candidates:
                 writer.writerow(pair); total += 1
                 counts.update(pair['reasons'].split('|'))
                 a, b = by_id[pair['a']], by_id[pair['b']]
@@ -273,7 +314,8 @@ def main():
     write_json(args.out/'summary.json', summary)
     input_lock = dict(verified_audit_files=verified, audit_lock_sha256=sha256(args.audit/'audit_lock.json'),
                       cache_identity=identity, cache_sha256={p.name: sha256(p) for p in sorted(args.cache.glob('*.npz'))},
-                      source_sha256=sha256(__file__), parameters=dict(top_k=10, real_phash=26, gen_phash=10),
+                      source_sha256=sha256(__file__), parameters=dict(top_k=10, real_phash=26, gen_phash=10, mode='neighbors' if args.neighbors_from else 'initial'),
+                      review_inputs_sha256={str(p): sha256(p) for p in args.neighbors_from or []},
                       outputs_sha256={p.name: sha256(p) for p in sorted(args.out.iterdir()) if p.is_file()},
                       queue=dict(path=str(queue), sha256=sha256(queue)))
     write_json(args.out/'input_lock.json', input_lock)

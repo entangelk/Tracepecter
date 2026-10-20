@@ -1,0 +1,14 @@
+{
+  "parent_input_lock_sha256": "83316c7d99944533b257aa77a2c3fe608dbf5d9dbebe62f5d1aed77312d1a0e2",
+  "rule": "each confirmed component member: own directed REAL top-10, same-class, excluding reviewed and known same component",
+  "review_inputs_sha256": {
+    "experiments/p09_leakage_repair/r1/grouping/candidate_run_01/seed_review.csv": "61b83927040ca95fb641c26b8e8a7f0a7013fe166654ad98800ad50cecd7bd47",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_batch_01.csv": "7c0f8483ffa623b098eed0b029e17e24be69f5d81b53c8576b321542615551b8",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_batch_02.csv": "2e99c1d839ff8509afeefdb6e3d4910bf33f9dee6aae8d7c022d722edad8d130",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_gen_batch_01.csv": "4b40d38f760e6af5688c9b87890a1bb360b1fc3aea6980cc8306b6355a9dd701"
+  },
+  "outputs_sha256": {
+    "priority_candidates.csv": "9cff777b014e2681a4b3cc96a3d87c05815ce28658db4795bcf3c7a396a9fde2",
+    "seed_review.csv": "3173da310e0b7383c01aa165b7e2f7d1217694ae56daaadfe90b04bb1b77488c"
+  }
+}

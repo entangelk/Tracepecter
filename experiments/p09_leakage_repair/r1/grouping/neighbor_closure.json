@@ -1,0 +1,15 @@
+{
+  "rule": "each confirmed allocation-component member: own same-class directed top-10; reviewed/known same component excluded",
+  "pending_pairs": 0,
+  "review_inputs_sha256": {
+    "experiments/p09_leakage_repair/r1/grouping/candidate_run_01/seed_review.csv": "61b83927040ca95fb641c26b8e8a7f0a7013fe166654ad98800ad50cecd7bd47",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_batch_01.csv": "7c0f8483ffa623b098eed0b029e17e24be69f5d81b53c8576b321542615551b8",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_batch_02.csv": "2e99c1d839ff8509afeefdb6e3d4910bf33f9dee6aae8d7c022d722edad8d130",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_gen_batch_01.csv": "4b40d38f760e6af5688c9b87890a1bb360b1fc3aea6980cc8306b6355a9dd701",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_neighbors_round_01.csv": "479ec5d49c61ffc3c28992d341f7c88364880bd5b1a3a2a68748770e98ac0024",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_catalog_extra.csv": "5399f3572e349c0a454068db635bd6f7ebbda95a74102affd7a38b4ee4213b7d",
+    "experiments/p09_leakage_repair/r1/grouping/visual_review_neighbors_round_02.csv": "2a8b5a57176c66396d41b45de78c7a2f0829612ed0e17e6e496aaafd20ac8e25"
+  },
+  "source_sha256": "3b697f66828a584e3c1e4623169f7f032cbbb24aee0c4f9888ddc89560c6c0f6",
+  "full_candidate_review_complete": false
+}

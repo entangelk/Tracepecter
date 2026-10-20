@@ -1,0 +1,101 @@
+a,b,verdict,reason,reviewer,pair_number,cosine,phash_distance,sheet
+gen_000412,gen_002223,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),1,0.974909821,38,unique image index
+gen_000410,gen_000412,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),2,0.973477018,22,unique image index
+gen_000167,gen_001248,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),3,0.972472779,22,unique image index
+gen_001232,gen_001242,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),4,0.972093166,22,unique image index
+gen_002188,gen_002194,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),5,0.971650644,26,unique image index
+gen_000167,gen_001230,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),6,0.971556874,22,unique image index
+gen_001230,gen_001290,different_look,코트 색·바지 밑단과 부츠/로퍼가 다름,Codex(root),7,0.970722984,28,unique image index
+gen_000413,gen_002280,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),8,0.97037701,26,unique image index
+gen_000157,gen_001280,different_look,안쪽 상의 목선과 코트 라펠/질감·주머니가 다름,Codex(root),9,0.969991073,14,unique image index
+gen_002178,gen_002223,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),10,0.969845703,30,unique image index
+gen_000410,gen_002223,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),11,0.969793787,30,unique image index
+gen_002453,gen_002491,unconfirmed,흰 티셔츠·노란 허리끈 바지·빨간 배경이 유사하나 주름/포즈/머리 세부가 달라 근사 렌더 관계 확정 보류,Codex(root),12,0.969177205,18,unique image index
+gen_000163,gen_001272,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),13,0.968815249,22,unique image index
+gen_001230,gen_001294,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),14,0.968497548,18,unique image index
+gen_000178,gen_001335,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),15,0.968049051,30,unique image index
+gen_001242,gen_001328,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),16,0.967811905,26,unique image index
+gen_002190,gen_002252,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),17,0.967703731,24,unique image index
+gen_001230,gen_001296,different_look,코트 색·라펠/여밈 디테일이 다름,Codex(root),18,0.967672642,16,unique image index
+gen_000410,gen_002178,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),19,0.967561809,22,unique image index
+gen_001317,gen_001335,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),20,0.966762203,32,unique image index
+gen_001276,gen_001310,different_look,코트 색/질감·라펠과 배경이 다름,Codex(root),21,0.966506486,30,unique image index
+gen_000410,gen_002267,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),22,0.966236687,32,unique image index
+gen_001279,gen_001312,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),23,0.966235741,22,unique image index
+gen_000433,gen_002228,different_look,안쪽 셔츠/타이 색·코트 여밈/라펠과 배경이 다름,Codex(root),24,0.966230799,26,unique image index
+gen_001312,gen_001328,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),25,0.965602379,20,unique image index
+gen_000412,gen_002178,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),26,0.965455072,28,unique image index
+gen_001271,gen_001279,different_look,코트 목걸이/벨트·단추 배치·라펠이 다름,Codex(root),27,0.965326295,24,unique image index
+gen_001230,gen_001232,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),28,0.965027357,26,unique image index
+gen_000167,gen_001324,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),29,0.965019332,28,unique image index
+gen_000178,gen_001317,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),30,0.964932761,32,unique image index
+gen_001306,gen_001312,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),31,0.964839214,24,unique image index
+gen_001163,gen_001209,unconfirmed,검정 원피스·팔/다리 실루엣이 유사하나 옷 주름·포즈/배경 차이로 근사 렌더 관계 확정 보류,Codex(root),32,0.96479783,24,unique image index
+gen_001221,gen_001301,different_look,코트 허리벨트·길이/단추 배치와 배경이 다름,Codex(root),33,0.964733275,28,unique image index
+gen_001242,gen_001298,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),34,0.964359237,22,unique image index
+gen_002256,gen_002270,different_look,코트 허리벨트·라펠/윤곽과 안쪽 옷 배색이 다름,Codex(root),35,0.964217178,24,unique image index
+gen_002244,gen_002260,different_look,코트 실루엣/목선·헤어스타일·포즈와 배경이 다름,Codex(root),36,0.964140742,34,unique image index
+gen_002231,gen_002259,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),37,0.964078369,38,unique image index
+gen_000167,gen_001232,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),38,0.963872615,22,unique image index
+gen_001220,gen_001258,different_look,코트 길이·단추 배치와 주머니 윤곽이 다름,Codex(root),39,0.963853021,26,unique image index
+gen_001129,gen_001149,unconfirmed,검정 원피스·팔/다리 실루엣이 유사하나 옷 주름·포즈/배경 차이로 근사 렌더 관계 확정 보류,Codex(root),40,0.963785363,10,unique image index
+gen_001230,gen_001324,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),41,0.963650813,32,unique image index
+gen_001232,gen_001294,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),42,0.963611726,28,unique image index
+gen_001242,gen_001282,different_look,코트 색·질감과 윤곽이 다름,Codex(root),43,0.963587492,12,unique image index
+gen_000436,gen_002256,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),44,0.963524613,32,unique image index
+gen_002194,gen_002228,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),45,0.963301828,30,unique image index
+gen_000413,gen_002229,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),46,0.96323188,36,unique image index
+gen_002182,gen_002256,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),47,0.963186051,28,unique image index
+gen_000162,gen_001312,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),48,0.963134744,28,unique image index
+gen_002332,gen_002420,different_look,바지 색·포켓/허리 구조와 티셔츠 핏이 다름,Codex(root),49,0.962830795,26,unique image index
+gen_001221,gen_001328,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),50,0.962706506,32,unique image index
+gen_002200,gen_002250,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),51,0.962545394,30,unique image index
+gen_001238,gen_001242,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),52,0.962470161,26,unique image index
+gen_001306,gen_001328,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),53,0.962434678,22,unique image index
+gen_002226,gen_002256,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),54,0.962296144,30,unique image index
+gen_000432,gen_002256,different_look,안쪽 바지 색·코트 라펠과 프레이밍이 다름,Codex(root),55,0.962108653,30,unique image index
+gen_000288,gen_001800,different_look,안쪽 상의 목선/질감·하의/신발과 거리 배경이 다름,Codex(root),56,0.961985953,28,unique image index
+gen_001427,gen_001505,different_look,검정 상의의 잘린 모양/컷아웃·반바지 허리/밑단과 배경이 다름,Codex(root),57,0.961957072,36,unique image index
+gen_001232,gen_001282,different_look,코트 색·질감과 윤곽이 다름,Codex(root),58,0.961731344,26,unique image index
+gen_001143,gen_001209,unconfirmed,검정 원피스·팔/다리 실루엣이 유사하나 옷 주름·포즈/배경 차이로 근사 렌더 관계 확정 보류,Codex(root),59,0.961679798,16,unique image index
+gen_001233,gen_001287,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),60,0.961669,22,unique image index
+gen_000240,gen_001435,different_look,검정 상의 길이/목선과 허리 노출 범위가 다름,Codex(root),61,0.961647768,22,unique image index
+gen_002204,gen_002259,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),62,0.961618606,20,unique image index
+gen_002182,gen_002253,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),63,0.961444661,34,unique image index
+gen_000436,gen_002252,different_look,안쪽 상의 색/질감·코트 라펠과 포즈가 다름,Codex(root),64,0.961228144,34,unique image index
+gen_000412,gen_002267,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),65,0.961171429,28,unique image index
+gen_000159,gen_001330,different_look,검정 하의가 바지/긴 치마로 다르고 코트 주머니/라펠이 다름,Codex(root),66,0.961161252,14,unique image index
+gen_000423,gen_002221,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),67,0.961156372,28,unique image index
+gen_002223,gen_002259,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),68,0.961118328,26,unique image index
+gen_002252,gen_002264,different_look,안쪽 니트의 목선/가슴 노출과 배색이 다름,Codex(root),69,0.961094292,22,unique image index
+gen_000391,gen_002062,different_look,빨간 원피스 목선/열린 부분·허리끈과 헤어스타일이 다름,Codex(root),70,0.960924999,24,unique image index
+gen_000428,gen_002212,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),71,0.960540884,32,unique image index
+gen_002224,gen_002238,different_look,안쪽 상의 색·하의 색과 코트 여밈이 다름,Codex(root),72,0.960533423,20,unique image index
+gen_002173,gen_002191,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),73,0.96049242,30,unique image index
+gen_002172,gen_002256,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),74,0.960444574,26,unique image index
+gen_000180,gen_001261,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),75,0.960426744,24,unique image index
+gen_002188,gen_002228,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),76,0.96041021,34,unique image index
+gen_002252,gen_002276,different_look,안쪽 니트 색·코트 라펠/벨트가 다름,Codex(root),77,0.960365537,20,unique image index
+gen_002223,gen_002267,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),78,0.960321773,22,unique image index
+gen_001224,gen_001298,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),79,0.960213311,20,unique image index
+gen_002234,gen_002276,different_look,안쪽 상의 색/질감·하의 색과 코트 벨트/단추가 다름,Codex(root),80,0.960196725,24,unique image index
+gen_000419,gen_002270,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),81,0.960152682,30,unique image index
+gen_000288,gen_000308,different_look,안쪽 상의 목선/색·하의/신발과 거리 구도가 다름,Codex(root),82,0.959959958,36,unique image index
+gen_002187,gen_002287,different_look,안쪽 상의/조끼 색·코트 라펠과 헤어스타일/포즈가 다름,Codex(root),83,0.959896402,22,unique image index
+gen_000409,gen_002172,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),84,0.959839066,32,unique image index
+gen_000167,gen_001290,different_look,코트 색·바지 밑단과 부츠/로퍼가 다름,Codex(root),85,0.959785495,18,unique image index
+gen_000426,gen_000428,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),86,0.959766515,24,unique image index
+gen_000432,gen_002210,different_look,안쪽 하의 색·윤곽과 코트 여밈이 다름,Codex(root),87,0.959524326,28,unique image index
+gen_001258,gen_001312,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),88,0.959468581,24,unique image index
+gen_000162,gen_001279,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),89,0.959416785,30,unique image index
+gen_002219,gen_002239,different_look,안쪽 상의 목선·코트 라펠/주머니와 포즈가 다름,Codex(root),90,0.959386255,30,unique image index
+gen_001318,gen_001328,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),91,0.959241813,24,unique image index
+gen_001224,gen_001242,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),92,0.959147608,28,unique image index
+gen_000167,gen_001296,different_look,코트 색·주름/라펠과 배경이 다름,Codex(root),93,0.959102284,14,unique image index
+gen_000164,gen_001297,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),94,0.959038565,12,unique image index
+gen_002219,gen_002226,different_look,안쪽 상의 목선·코트 여밈/기장과 포즈가 다름,Codex(root),95,0.958967285,28,unique image index
+gen_000436,gen_002182,different_look,안쪽 상의 색/질감·허리벨트와 코트 라펠이 다름,Codex(root),96,0.958935895,38,unique image index
+gen_000404,gen_002090,different_look,빨간 원피스 목선/끈·주름/허리끈과 헤어스타일이 다름,Codex(root),97,0.958909145,24,unique image index
+gen_002182,gen_002276,different_look,안쪽 상의 색·코트 라펠/벨트가 다름,Codex(root),98,0.958872686,22,unique image index
+gen_001220,gen_001328,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),99,0.95881416,32,unique image index
+gen_000412,gen_002213,unconfirmed,의상 윤곽/배색이 매우 유사하나 원단/여밈·포즈·배경 차이로 같은 룩의 근사 렌더인지 확정 보류,Codex(root),100,0.958702263,26,unique image index

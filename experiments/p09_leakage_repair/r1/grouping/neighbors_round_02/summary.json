@@ -1,0 +1,38 @@
+{
+  "candidate_pairs": 54,
+  "priority_pairs": 54,
+  "reasons": {
+    "confirmed_member_directed_topk": 54
+  },
+  "labels": {
+    "11": 54
+  },
+  "split_boundaries": {
+    "train|train": 13,
+    "train|val": 16,
+    "test|train": 15,
+    "test|test": 6,
+    "test|val": 3,
+    "val|val": 1
+  },
+  "seed_review": {
+    "confirmed_same_look": 53,
+    "unconfirmed": 269,
+    "different_look": 1010
+  },
+  "provisional_groups": 5883,
+  "generation_train_overlap": {
+    "prompt": {
+      "val": 108,
+      "test": 132,
+      "test_unseen": 480
+    },
+    "prompt+noise_seed": {
+      "val": 0,
+      "test": 0,
+      "test_unseen": 420
+    }
+  },
+  "review_complete": false,
+  "grouping_final": false
+}

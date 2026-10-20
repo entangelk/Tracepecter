@@ -1,4 +1,5 @@
 """P09 후보는 검토 근거이며 숫자 유사도를 동일 룩 확정으로 승격하지 않는다."""
+import csv
 import json
 
 import numpy as np
@@ -45,7 +46,8 @@ def test_grouping_preserves_existing_groups_and_transitivity_without_merging_unc
     reviews[1]['verdict'] = 'different_look'
     assert build_groups(data, reviews) == groups
     with pytest.raises(ValueError, match='conflict'):
-        build_groups(data, reviews + [dict(a='a', b='c', verdict='different_look', reason='opposite')])
+        build_groups(data, reviews + [dict(a='a', b='b', verdict='confirmed_same_look', reason='visual'),
+                                     dict(a='a', b='c', verdict='different_look', reason='opposite')])
     with pytest.raises(ValueError, match='unknown'):
         build_groups(data, [dict(a='a', b='missing', verdict='unconfirmed', reason='bad')])
 
@@ -116,7 +118,8 @@ def test_grouping_rejects_cross_class_and_duplicate_review_relations():
         build_groups(data, [dict(review, b='d')])
 
 
-def test_contact_sheets_accept_originals_and_reject_changed_images(tmp_path, monkeypatch):
+@pytest.mark.parametrize('label', ['1', '0'])
+def test_contact_sheets_accept_originals_and_reject_changed_images(tmp_path, monkeypatch, label):
     """Under: reject stale originals; over: allow valid hash-matched review images."""
     from PIL import Image
     from scripts.p09_group_candidates import sha256, write_csv
@@ -125,7 +128,7 @@ def test_contact_sheets_accept_originals_and_reject_changed_images(tmp_path, mon
     audit = tmp_path/'experiments/p08_anonymized/leakage_audit'; audit.mkdir(parents=True)
     (audit/'audit_lock.json').write_text(json.dumps(dict(inputs_sha256={}, source_sha256={}, artifacts_sha256={})))
     (tmp_path/'data').mkdir()
-    data = rows()[:2]; data[0]['look_group'] = 'g1'; data[1]['look_group'] = 'g2'
+    data = [dict(r, label=label) for r in rows()[:2]]; data[0]['look_group'] = 'g1'; data[1]['look_group'] = 'g2'
     write_csv(tmp_path/'data/metadata.csv', data, list(data[0]))
     images = tmp_path/'images/real'; images.mkdir(parents=True)
     for i in ('a', 'b'):
@@ -136,7 +139,10 @@ def test_contact_sheets_accept_originals_and_reject_changed_images(tmp_path, mon
     write_csv(run/'priority_candidates.csv', [pair], list(pair))
     write_csv(run/'seed_review.csv', [], ['a', 'b', 'verdict', 'reason'])
     (run/'input_lock.json').write_text(json.dumps(dict(outputs_sha256={p.name: sha256(p) for p in run.iterdir()})))
-    args = ['review', '--run', str(run), '--image-root', str(images.parent), '--out', str(tmp_path/'valid')]
+    args = ['review', '--run', str(run), '--image-root', str(images.parent), '--label', label]
+    if label == '0':
+        args.append('--unique-images')
+    args += ['--out', str(tmp_path/'valid')]
     monkeypatch.setattr('sys.argv', args)
     main()
     assert (tmp_path/'valid/000.jpg').exists()
@@ -159,3 +165,78 @@ def test_original_label_filenames_recover_sequences_without_using_numeric_id_pro
     assert len(records) == 4
     assert pairs == [dict(a='a', b='b', filename_group='MALL_001')]
     assert all(len(r['label_sha256']) == 64 for r in records)
+
+
+def test_conservative_colocation_does_not_claim_all_members_are_the_same_look():
+    """Under: keep uncertain edges together; over: allow distinct looks in that split group."""
+    data = rows()
+    reviews = [dict(a='a', b='b', verdict='conservative_colocation', reason='uncertain, keep together'),
+               dict(a='b', b='c', verdict='confirmed_same_look', reason='visual'),
+               dict(a='a', b='c', verdict='different_look', reason='visually distinct')]
+    groups = build_groups(data, reviews)
+    assert groups['a'] == groups['b'] == groups['c'] != groups['d']
+    reviews[0]['verdict'] = 'confirmed_same_look'
+    with pytest.raises(ValueError, match='conflict'):
+        build_groups(data, reviews)
+
+
+def test_neighbor_expansion_uses_each_confirmed_members_own_topk_and_keeps_reviewed_pairs_out():
+    """Under: include a confirmed member's new neighbor; over: exclude incoming-only links."""
+    from scripts.p09_group_candidates import review_neighbors
+    data = rows()
+    features = np.array([[1, 0], [1, .01], [.9, .1], [0, 1]])
+    reviews = [dict(a='a', b='b', verdict='confirmed_same_look', reason='visual')]
+    assert review_neighbors(data, features, [0, 0, 0, 0], reviews, top_k=1) == []
+    result = review_neighbors(data, features, [0, 0, 0, 0], reviews, top_k=2)
+    assert {(p['a'], p['b']) for p in result} == {('a', 'c'), ('b', 'c')}
+    reviews.append(dict(a='a', b='c', verdict='different_look', reason='different'))
+    assert [(p['a'], p['b']) for p in review_neighbors(data, features, [0, 0, 0, 0], reviews, top_k=2)] == [('b', 'c')]
+
+
+def test_existing_phash_group_is_preserved_as_allocation_without_asserting_visual_identity():
+    """Under: preserve old split groups; over: allow known different looks in coarse old groups."""
+    data = rows()
+    data[0]['look_group'] = data[1]['look_group'] = 'coarse_phash'
+    reviews = [dict(a='a', b='b', verdict='different_look', reason='distinct outfits')]
+    assert build_groups(data, reviews)['a'] == build_groups(data, reviews)['b']
+    reviews.append(dict(a='b', b='c', verdict='confirmed_same_look', reason='visual'))
+    assert build_groups(data, reviews)['a'] == build_groups(data, reviews)['c']
+
+
+def test_neighbor_cli_projects_rich_reviews_and_locks_outputs_without_overwriting(tmp_path, monkeypatch):
+    """Under: consume real review metadata; over: preserve raw evidence and refuse overwrites."""
+    from scripts.p09_group_candidates import main, sha256, write_csv
+    monkeypatch.chdir(tmp_path)
+    audit = tmp_path/'audit'; audit.mkdir()
+    cache = tmp_path/'cache'; cache.mkdir()
+    (tmp_path/'data').mkdir(); (tmp_path/'scripts').mkdir()
+    (tmp_path/'scripts/p08_leakage_probe.py').write_text('pinned source')
+    p08 = tmp_path/'experiments/p08_anonymized'; (p08/'calibration').mkdir(parents=True)
+    (p08/'face_boxes.csv').write_text('face cache')
+    artifact = p08/'calibration/calibration.json'; artifact.write_text(json.dumps(dict(checkpoint_sha256='checkpoint')))
+    data = rows()[:3]
+    write_csv(tmp_path/'data/metadata.csv', data, list(data[0]))
+    identity = dict(checkpoint='checkpoint', calibration=sha256(artifact), metadata=sha256('data/metadata.csv'),
+                    cache=sha256(p08/'face_boxes.csv'), source=sha256('scripts/p08_leakage_probe.py'))
+    (cache/'identity.json').write_text(json.dumps(identity))
+    np.savez(cache/'00000.npz', features=np.array([[1., 0], [1., 0], [0, 1.]]), logits=np.zeros(3))
+    # a/b are train, so only c is a saved query.
+    (audit/'embedding_nearest_train.json').write_text(json.dumps([dict(image_id='c', nearest_train='a', cosine=0.)]))
+    (audit/'audit_lock.json').write_text(json.dumps(dict(inputs_sha256={}, source_sha256={}, artifacts_sha256={})))
+    (audit/'image_audit.jsonl').write_text(''.join(json.dumps(dict(image_id=r['image_id'], phash='0'))+'\n' for r in data))
+    (audit/'cross_split_phash.json').write_text('[]'); (audit/'generation_provenance.json').write_text('[]')
+    write_csv(audit/'visual_review.csv', [], ['image_id', 'train_image_id', 'verdict', 'reason'])
+    rich = dict(a='a', b='b', verdict='confirmed_same_look', reason='visual', reviewer='Codex', sheet='000.jpg')
+    review = tmp_path/'review.csv'; write_csv(review, [rich], list(rich)); original = review.read_bytes()
+    out, queue = tmp_path/'out', tmp_path/'queue'
+    monkeypatch.setattr('sys.argv', ['tool', '--audit', str(audit), '--cache', str(cache), '--out', str(out),
+                                   '--queue', str(queue), '--neighbors-from', str(review)])
+    main()
+    snapshot = list(csv.DictReader((out/'seed_review.csv').open()))
+    assert snapshot == [{k: rich[k] for k in ('a', 'b', 'verdict', 'reason')}]
+    assert review.read_bytes() == original
+    lock = json.loads((out/'input_lock.json').read_text())
+    assert lock['parameters']['mode'] == 'neighbors'
+    assert all(sha256(out/name) == h for name, h in lock['outputs_sha256'].items())
+    with pytest.raises(ValueError, match='output exists'):
+        main()

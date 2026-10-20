@@ -1,4 +1,4 @@
-"""Create hash-checked contact sheets for a bounded P09 REAL review batch."""
+"""Create hash-checked contact sheets for a bounded P09 review batch."""
 import argparse
 from pathlib import Path
 
@@ -13,6 +13,8 @@ def main():
     parser.add_argument('--run', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--image-root', type=Path, required=True)
+    parser.add_argument('--label', choices=('0', '1'), default='1')
+    parser.add_argument('--unique-images', action='store_true', help='render each endpoint once')
     parser.add_argument('--start', type=int, default=0)
     parser.add_argument('--count', type=int, default=48)
     args = parser.parse_args()
@@ -28,8 +30,8 @@ def main():
     images = {r['image_id']: r for r in map(json.loads, (audit_root/'image_audit.jsonl').read_text().splitlines())}
     seeds = {tuple(sorted((r['a'], r['b']))) for r in read_csv(args.run/'seed_review.csv')}
     eligible = [r for r in read_csv(args.run/'priority_candidates.csv')
-                if all(meta[r[k]]['label'] == '1' for k in ('a', 'b'))
-                and meta[r['a']]['look_group'] != meta[r['b']]['look_group']
+                if all(meta[r[k]]['label'] == args.label for k in ('a', 'b'))
+                and (args.label == '0' or meta[r['a']]['look_group'] != meta[r['b']]['look_group'])
                 and (r['a'], r['b']) not in seeds]
     pairs = eligible[args.start:args.start+args.count]
     if not pairs:
@@ -37,6 +39,23 @@ def main():
     args.out.mkdir(parents=True)
     write_csv(args.out/'pairs.csv', pairs, list(pairs[0]))
     font = ImageFont.load_default(size=16)
+    if args.unique_images:
+        ids = sorted({r[k] for r in pairs for k in ('a', 'b')})
+        for start in range(0, len(ids), 24):
+            canvas = Image.new('RGB', (1500, 1500), '#ddd')
+            draw = ImageDraw.Draw(canvas)
+            for n, image_id in enumerate(ids[start:start+24]):
+                x, y = (n % 6)*250, (n // 6)*375
+                draw.text((x+5, y+2), image_id, font=font, fill='black')
+                path = args.image_root/Path(meta[image_id]['path']).relative_to('images')
+                if sha256(path) != images[image_id]['sha256']:
+                    raise ValueError(f'original image hash mismatch: {image_id}')
+                with Image.open(path) as image:
+                    thumb = ImageOps.contain(image.convert('RGB'), (240, 345))
+                    canvas.paste(thumb, (x+(250-thumb.width)//2, y+26))
+            canvas.save(args.out/f'{start:03}.jpg', quality=95)
+        print(f'{len(pairs)} pairs, {len(ids)} unique endpoints: {args.out}')
+        return
     for start in range(0, len(pairs), 8):
         canvas = Image.new('RGB', (1200, 1240), '#ddd')
         draw = ImageDraw.Draw(canvas)
@@ -53,7 +72,7 @@ def main():
                     thumb = ImageOps.contain(image.convert('RGB'), (285, 278))
                     canvas.paste(thumb, (x+side*300+(300-thumb.width)//2, y+28))
         canvas.save(args.out/f'{start:03}.jpg', quality=95)
-    print(f'{len(pairs)} pairs from {len(eligible)} eligible REAL candidates: {args.out}')
+    print(f'{len(pairs)} pairs from {len(eligible)} eligible candidates: {args.out}')
 
 
 if __name__ == '__main__':

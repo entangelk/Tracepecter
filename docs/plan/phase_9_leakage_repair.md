@@ -1,6 +1,6 @@
 # P09 — 동일 룩 누출 수리와 재학습
 
-**상태:** In Progress (P09-01). [후보 생성·검토 기록](../../experiments/p09_leakage_repair/r1/grouping/README.md). 재분할·학습은 미착수다. 소유자는 [DB-07](../decision_briefs/DB-07_P09_review-coverage.md)에서 우선순위 검토와 미검토 범위 명시를 선택했다.
+**상태:** In Progress (P09-01 Complete, 다음 P09-02). [후보 생성·검토 기록](../../experiments/p09_leakage_repair/r1/grouping/README.md). 재분할·학습은 미착수다. 소유자는 [DB-07](../decision_briefs/DB-07_P09_review-coverage.md)에서 우선순위 검토와 미검토 범위 명시를 선택했다.
 
 ## 목표와 근거
 
@@ -22,7 +22,7 @@ metadata의 12열 schema 소유자는 `docs/project.md` §12다. 새 열을 추�
 | 값 | 정본·변경 권한 | 파생·소비 경로 |
 | --- | --- | --- |
 | 원본 ID·경로·label 등 | 보존된 기존 metadata·이미지 | 새 metadata에 원래 값 유지; loader는 기존 schema 소비 |
-| REAL 동일 룩 관계 | 새 검토 기록의 이미지 쌍·판정·근거, 검토자가 확정 | 기존 그룹 관계와 확정 관계의 연결 성분 → 그룹 매핑 → `look_group` |
+| REAL 동일 룩 관계 | 새 검토 기록의 이미지 쌍·판정·근거, 검토자가 확정 | 확정 관계 + 옛 그룹/미확정의 공동 배정 제약 → 배정 매핑 → `look_group` |
 | GEN 렌더 계보 | 원본 PNG graph의 full positive prompt·noise seed·generator | 보존된 `generation_provenance.json`을 원본 hash 확인 후 참조; 계보 교차 보고 |
 | 새 split | 고정한 그룹 매핑·분할 규칙 | 새 metadata의 `split`이 학습·평가·calibration의 유일한 배정 정본 |
 | 얼굴 상자 | P08 `face_boxes.csv`의 이미지·검출기 hash 결합 | 원본 불변 시 재사용; split을 상자 캐시에 복제하지 않음 |
@@ -32,7 +32,7 @@ metadata의 12열 schema 소유자는 `docs/project.md` §12다. 새 열을 추�
 
 ## 버전별 경로
 
-아래는 **예정 경로**다. 기존 출력 기본값으로 실행하지 않는다. r1 입력 lock 이후 규칙·검토·입력이 바뀌면 r2로 올려 덮어쓰지 않는다.
+아래 버전 경로를 사용하며 기존 출력 기본값으로 실행하지 않는다. r1의 최종 입력 고정 지점은 `grouping/final/group_lock.json`이다. 검토 중 배치별 `input_lock.json`은 해당 배치만 고정하고 후속 검토는 새 배치로 추가한다. 고정된 배치는 덮어쓰지 않으며 최종 그룹 lock 이후 규칙·검토·입력이 바뀌면 r2로 올린다.
 
 | 산출물 | r1 경로 | 내용 |
 | --- | --- | --- |
@@ -51,8 +51,8 @@ checkpoint 경로는 Compose의 기존 checkpoint mount 안이다. 실제 실행
 
 | ID | 작업 | 선행 조건 | 완료 증거 | 상태 |
 | --- | --- | --- | --- | --- |
-| P09-01 | 후보 확장·관계 검토·그룹 확정 | 감사 lock 검증 | 검토 범위·미해결 후보·연결 성분·계보 교차 보고, 그룹 입력 lock | In Progress |
-| P09-02 | 결정적 그룹 재분할 | P09-01 검토 범위 종결 | 새 metadata·재현 hash·양방향 가드·새 split 교차 재감사 | Planned |
+| P09-01 | 후보 확장·관계 검토·그룹 확정 | 감사 lock 검증 | [한정 검토·연결 성분·계보 보고](../../experiments/p09_leakage_repair/r1/grouping/README.md), [최종 그룹 lock](../../experiments/p09_leakage_repair/r1/grouping/final/group_lock.json); 전체 후보 독립성 통과 아님 | Complete |
+| P09-02 | 결정적 그룹 재분할 | P09-01 final/group_lock.json과 group_mapping.csv | 새 metadata·재현 hash·양방향 가드·새 split 교차 재감사 | Planned |
 | P09-03 | 익명화 SigLIP 재학습 | P09-02 통과, 진단 규칙 사전 커밋, GPU 여유 | train/val 실제 ID·best/last·학습 보고; 기존 artifact 불변 | Planned |
 | P09-04 | val-only 재보정·고정 평가·채택 검토 | P09-03 새 checkpoint | 새 calibration 결합 검증·Test A/B·단서 진단·채택 여부와 한계 보고 | Planned |
 
@@ -62,7 +62,7 @@ checkpoint 경로는 Compose의 기존 checkpoint mount 안이다. 실제 실행
 2. `embedding_nearest_train.json` 2,220행은 평가→train 최근접 **1개**다. 이를 전체 관계 그래프로 간주하지 않는다. `cross_split_phash.json` 145쌍도 현재 split 교차에 제한된 후보다. 둘 다 검토 시작점으로 쓴다.
 3. 원래 metadata 행 순서와 identity를 확인한 6,000 embedding cache로 REAL 3,000장의 split 무관 all-pairs 유사도를 계산한다. GPU 재추출은 cache 부재·불일치 시에만 한다. 초기 후보는 이미지별 top-10 이웃의 합집합, 전 REAL pHash≤26, 원본 파일명 촬영 시퀀스 후보와 기존 그룹 연결로 만든다. 이 수치는 **검토 탐색 범위**이며 동일 룩 확정 기준이 아니다. top-10 밖·거리26 밖의 누락 가능성을 기록한다.
 4. 같은 옷·인물·배경/소품·촬영 세트를 원본으로 비교한다. 단순 배경·카테고리 유사성만으로 확정하지 않는다. 쌍별 ID·후보 생성 이유·거리·판정·근거를 저장한다. 확인된 관계가 생기면 양 끝의 기존 그룹과 이웃을 확장하며 신규 확정 연결이 없어질 때까지 반복한다.
-5. 확정 관계와 기존 REAL 그룹의 연결 성분을 만든다. 성분은 안정적으로 정렬한 멤버 ID에서 식별자를 유도한다. A–B와 B–C면 A–C 직접 점수가 낮아도 한 그룹이다. 비정상적으로 큰 성분·상충 판정은 원본 근거를 재검토한다.
+5. 확정 관계와 기존 REAL 그룹의 연결 성분을 배정 단위로 만든다. 옛 pHash 그룹·미확정 공동 배정은 시각적 동일성의 증명이 아니므로 확정 관계 그래프와 구별한다. 성분은 안정적으로 정렬한 멤버 ID에서 식별자를 유도한다. A–B와 B–C면 A–C 직접 점수가 낮아도 한 그룹이다. 비정상적으로 큰 성분·상충 판정은 원본 근거를 재검토한다.
 6. 검토 범위 안의 미확정 관계는 재검토한다. 끝내 분리할 근거가 부족하면 양쪽 성분을 보수적으로 함께 배정하고 그 이유를 남긴다. 범위 밖 미검토 후보는 자동 결합하지 않는다. 후보 검토 범위와 잔여 불확실성을 명시하며 전체 실제 룩을 완벽하게 찾았다고 주장하지 않는다.
 7. GEN은 실제 prompt+seed 동일 family와 positive prompt 공유를 별도로 집계한다. pHash/embedding 근사 이미지 후보는 시각 검토한다. 숫자 seed 또는 prompt가 같다는 사실만으로 같은 이미지/룩으로 합치지 않는다. 확정된 GEN 근사중복은 standard split 안에서 같은 그룹으로 배정한다(별도 그룹 매핑 소비, REAL용 `look_group` 의미 유지).
 8. sd35는 전량 `test_unseen`을 유지한다. 다른 생성기와 계보가 겹치는 것은 현 generator holdout 계약 위반이 아니며 교차 수·새 prompt/seed 부분집합을 보고한다. sd35와 train용 생성기 사이에 **실제 근사중복 관계**가 확정돼 두 요구를 함께 만족할 수 없다면 재분할 전에 소유자에게 범위 결정을 제기한다. 단순 prompt 공유만으로 이 충돌을 선언하지 않는다.
@@ -89,4 +89,4 @@ checkpoint 경로는 Compose의 기존 checkpoint mount 안이다. 실제 실행
 - 최종 보고에 검토 탐색 범위·미확인 누락 위험, 단일 REAL 출처·해상도/압축 교란, GEN 계보 중복, 이미 개발에 사용한 표본이라는 한계를 남긴다. 기존 높은 AUC 전체를 누출 하나로 설명하지 않는다.
 - 출처·해상도·압축을 맞춘 신규 미접촉 REAL/GEN holdout과 얼굴 노출 실사는 별도 수집 설계 후 진행한다. 기존 ‘P08-07 외부 holdout은 P07 관문이 아님’ 결정을 바꾸지 않는다.
 - P07 상세 계획·데모는 별도 작업이다. 이 계획은 P07에 새 holdout 또는 P09 완료 관문을 추가하지 않는다. 현재 artifact로 데모 구현이 가능한 상태와 모델 일반화 근거를 구분한다.
-- [DB-07](../decision_briefs/DB-07_P09_review-coverage.md) Resolved: 947,696쌍 전수 검토 대신 우선순위 범위를 고정하고 잔여 미검토를 보고한다. 초기 REAL 500·GEN 100쌍 및 확정 그룹 이웃의 반복 검토를 실행 범위로 삼고, 범위 밖 누락 가능성을 보존한다. 현재 소유자 결정을 요구하는 미해결 사양 충돌은 없다. 실제 그룹 검토에서 계약 충돌·표본 삭제/추가 필요가 드러날 경우에만 구체적인 선택지와 근거를 갖춰 결정 브리프를 작성한다.
+- [DB-07](../decision_briefs/DB-07_P09_review-coverage.md) Resolved: 947,696쌍 전수 검토 대신 우선순위 범위를 고정하고 잔여 미검토를 보고한다. 초기 REAL 500·GEN 100쌍 및 확정 배정 성분 각 멤버의 자신의 같은 class directed top-10 반복 검토를 실행 범위로 삼고, 범위 밖 누락 가능성을 보존한다. 현재 소유자 결정을 요구하는 미해결 사양 충돌은 없다. 실제 그룹 검토에서 계약 충돌·표본 삭제/추가 필요가 드러날 경우에만 구체적인 선택지와 근거를 갖춰 결정 브리프를 작성한다.
