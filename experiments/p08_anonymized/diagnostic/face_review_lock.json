@@ -1,0 +1,38 @@
+{
+  "owner_input_semantics": "visible_facial_features_not_face_count",
+  "normalization": "이번 대상 인물의 보이는 요소 0~1개는 얼굴 0개, 2~4개는 얼굴 1개로 변환. 요소 2개 표본을 예측 전에 시각 확인. 소유자 값을 에이전트보다 우선한다.",
+  "owner_rows": 301,
+  "two_feature_visual_checks": [
+    "gen_000511",
+    "gen_000521",
+    "gen_000805",
+    "gen_000817",
+    "gen_000942",
+    "gen_001171",
+    "gen_001314",
+    "gen_001424",
+    "gen_001436",
+    "gen_001445",
+    "gen_001531",
+    "gen_002577",
+    "gen_002715",
+    "gen_002745",
+    "gen_002831",
+    "gen_002846",
+    "gen_002949",
+    "gen_002669",
+    "gen_002813",
+    "gen_002935"
+  ],
+  "multi_face_agent_cases_checked": [
+    "gen_001311",
+    "gen_002236"
+  ],
+  "sha256": {
+    "face_review_owner_features.csv": "c1d2478b81c16a8dbb7831bb46d830b0618a1f37329e43c67ca7cccfdfac3cab",
+    "face_review_owner.csv": "ecefedd39ec56e03f93c26eb8d194c1f5adc0a6dd88584170fa8bf3999da2063",
+    "face_review.csv": "fd34caa5d961c5d60907bd4909dd657066487385e9b58928df718bef6f72d0f5",
+    "face_review_agent.csv": "e399dca1c96543c24f57426ed2b4aa72f9b638b95608a339a9d62c558369a2c6",
+    "face_review_owner_check.csv": "42640559353fbfbb1034883b98b69e82ceaf92f2dd8a68101a75ffc088936ab7"
+  }
+}
