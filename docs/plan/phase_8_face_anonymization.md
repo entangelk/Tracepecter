@@ -1,6 +1,6 @@
 # P08 — 공통 얼굴 익명화 재학습
 
-**상태:** In Progress (2026-10-11 착수. 계획 독립검증 4라운드 합격, [기록](../verifications/2026-10-11/p08_plan_db06.md))
+**상태:** Complete (2026-10-20, P08-01~06). [P08-06 독립검증 합격](../verifications/2026-10-20/p08_06_diagnostic.md), 고정 진단 관문 통과·익명화 primary 채택. P08-07 holdout 설계는 별도 후속이며 P07 관문이 아니다.
 
 `docs/project.md` §27의 Phase 0~6 밖에서 [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(C, 2026-10-11)으로 생긴 페이즈다. 상위 사양은 `project.md` v1.4 §15(학습·평가 전처리), §22(추론 전처리), §23(데모 표시)이다. P07(API)은 이 페이즈가 정한 전처리 계약과 채택된 artifact를 쓴다.
 
@@ -72,14 +72,14 @@
      - 새 모델이 §20 기준(Standard Test ROC-AUC ≥ 0.90, Unseen ≥ 0.80)을 익명화 입력에서 만족하고, "단서 해소" 판정을 받으면 `configs/primary.yaml`을 교체한다.
      - 아니면 primary를 교체하지 않고(baseline artifact 그대로) 소유자에게 보고한다. 이 경우 **P07은 대기하고 P08을 다시 시도**한다(검출 보강·원 규격 조정). 재시도도 미채택이면 그때 소유자에게 다시 묻는다(소유자 결정 2026-10-11, Q5). §22(모든 추론에 익명화)는 바꾸지 않는다.
 4. **P08-04 재학습**
-   - 현재 상태: **Complete (2026-10-13)** — 10 epoch·best epoch10, [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_04_anonymized_training.md)·H1까지 보강([학습 기록](../../experiments/p08_anonymized/training/README.md)). 다음은 P08-05다.
+   - 현재 상태: **Complete (2026-10-13)** — 10 epoch·best epoch10, [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_04_anonymized_training.md)·H1까지 보강([학습 기록](../../experiments/p08_anonymized/training/README.md)).
    - `configs/anonymized.yaml`은 `configs/primary.yaml`과 같은 설정(SigLIP frozen + MLP, 10 epoch, seed 42)에 익명화 규격만 더한 것이다.
    - checkpoint는 `checkpoints/anonymized/`에 저장한다.
    - baseline 비교값은 기존 checkpoint를 다시 평가해 얻는다(재학습하지 않음). 학습 결정성은 입증되지 않았다(테스트 stub 비결정성 V1).
 5. **P08-05 재calibration** — P05 절차를 `configs/calibration_anonymized.yaml`로 실행하고, 결과는 `experiments/p08_anonymized/calibration/`에 둔다. `configs/calibration.yaml`(P05 artifact 경로)은 쓰지 않는다. 검증: P05와 같은 회귀 가드.
    - 현재 상태: **Complete (2026-10-19)** — [독립검증 라운드 2 합격](../verifications/2026-10-19/p08_05_anonymized_calibration.md) — temperature 0.968747, 확률 threshold 0.383150([calibration 기록](../../experiments/p08_anonymized/calibration/README.md)).
 6. **P08-06 진단 실행·채택 판정** — P08-03 config를 그대로 실행하고 사전 규칙으로 판정한다. 채택되면 `configs/primary.yaml`과 HANDOFF·README를 갱신한다.
-   - 현재 상태: **In Progress (2026-10-20, 독립검증 대기)** — 최종 얼굴 상태 고정 후 2×2·개입·얼굴 상태 집중을 실행했다. 사전 관문 전부 통과(Test A AUC 0.999867 / Test B 0.999647), 익명화 primary를 반영했다([진단·채택 기록](../../experiments/p08_anonymized/diagnostic/README.md)). CLI 재개 exit 0·결과 byte 동일. 소유자가 별도 에이전트 검증을 승인했으며 아직 독립검증 합격은 아니다.
+   - 현재 상태: **Complete (2026-10-20)** — 최종 얼굴 상태 고정 후 2×2·개입·얼굴 상태 집중을 실행했다. 사전 관문 전부 통과(Test A AUC 0.999867 / Test B 0.999647), 익명화 primary를 반영했다([진단·채택 기록](../../experiments/p08_anonymized/diagnostic/README.md)). CLI 재개 exit 0·결과 byte 동일. [독립검증 및 B1 보강 추적검증 합격](../verifications/2026-10-20/p08_06_diagnostic.md).
 7. **P08-07 얼굴이 보이는 실사 평가 holdout 설계** — K-Fashion 밖 출처·라이선스·규모를 정한다. 출처 선택은 결정 브리프로 올린다. **P07의 관문이 아니다**(소유자 결정 2026-10-11: 측정 결과는 준비되는 대로 사후 보고).
 
 ## 계약·소유권

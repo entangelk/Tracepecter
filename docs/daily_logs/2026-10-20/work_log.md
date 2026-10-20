@@ -44,4 +44,31 @@
 
 ## 다음 작업
 
-- 결과·채택 설정을 커밋한 뒤 독립검증·지적 보강·추적검증. P08은 그 전까지 In Progress, P07은 대기한다.
+- P07(API + Demo) 상세 계획을 작성하고 채택 artifact·공통 전처리 계약으로 구현한다.
+- P08-07 실사 holdout 설계·GEN 근사중복 점검·사람 평가는 별도 후속으로 남긴다.
+
+## 독립검증 최종 결과
+
+- 1차 대상 `c2ba42d`, B1 보강 `eba8784`. 구현하지 않은 별도 에이전트가 정본/구현/테스트/fixture 경계, 9651개 예측·2369개 원본 이미지·checkpoint/YuNet/cache/hash·전 기하·수치·baseline 불변을 독립 확인했다.
+- B1 보강 후 추적 M7~M12 전부 정확한 회귀 셀에서 재실패했고 HEAD 원복·원본 byte동일·clean을 매번 확인했다. 집중 26 passed / 1 skipped(4.64초), 전체 209 passed / 1 skipped(45.53초), 기존 Pillow warnings 12개. 추가 차단·비차단 지적 없음, 최종 **합격**.
+- 독립검증이 runtime 오류를 발견한 것은 아니다. 실제 예측·판정은 최초 결과와 동일하며, 보강은 테스트 경계를 대상으로 했다. 원자료 전체 재계산 근거는 [검증 기록](../../verifications/2026-10-20/p08_06_diagnostic.md)에 보존했다.
+- P08-01~06을 Complete로 갱신하고 HANDOFF의 다음 작업을 P07 상세 계획·API·Demo로 전환했다. P08-07 holdout 설계는 P07 비관문 후속으로 명시했다.
+
+### 변이와 guarding cell
+
+각 변이 전 clean pre-flight와 원복 후 byte동일/clean을 실행 확인한 독립검증이다. 경로·치환 전체 및 재현 코드는 검증 기록에 있다.
+
+| 변이·실제 변경 | 위치 | guarding cell | 관측 |
+| --- | --- | --- | --- |
+| M1 절댓값 제거 | `src/diagnostic.py:42` | `test_intervention_bootstrap_is_paired_absolute_with_replacement` | 재실패 |
+| M2 score 구간 상한 <=→< | `src/diagnostic.py:52` | 위 셀 | 재실패 |
+| M3 채택 all→any | `src/diagnostic.py:100` | `test_adoption_requires_both_aucs_and_every_cue_gate` | 재실패 |
+| M4 REAL overlay normal→original | `scripts/p08_diagnostic.py:174` | `test_variants_preserve_other_masks_all_discs_and_no_second_anonymization` | 재실패 |
+| M5 calibration SHA→상수 | `scripts/p08_diagnostic.py:118` | `test_stub_end_to_end_fixed_calibration_and_resume` | 재실패 |
+| M6 Newcombe 닫힌 경계→열린 경계 | `src/diagnostic.py:89` | `test_concentration_minimum_interval_boundaries_and_bad_predictions` | 재실패 |
+| M7 평가 확률 T→1 | `scripts/p08_diagnostic.py:241` | `test_stub_end_to_end_fixed_calibration_and_resume` | 1차 생존 → B1 보강 후 accuracy assertion 재실패 |
+| M8 cue 확률 T→1 | `scripts/p08_diagnostic.py:291` | `test_cue_boundary_uses_candidate_temperature_threshold_and_all_predictions` | 1차 생존 → 확률 mapping assertion 재실패 |
+| M9 평가 threshold→.5 | `scripts/p08_diagnostic.py:242` | `test_stub_end_to_end_fixed_calibration_and_resume` | 1차 생존 → accuracy assertion 재실패 |
+| M10 calibration 지표 T→1 | `scripts/p08_diagnostic.py:243` | 위 셀 | NLL assertion 재실패 |
+| M11 cue threshold→.5 | `scripts/p08_diagnostic.py:295` | `test_cue_boundary_uses_candidate_temperature_threshold_and_all_predictions` | .53 assertion 재실패 |
+| M12 ECE bins→1 | `scripts/p08_diagnostic.py:243` | `test_stub_end_to_end_fixed_calibration_and_resume` | ECE assertion 재실패 |

@@ -86,7 +86,7 @@ docker compose --profile training run --rm -T train \
 
 ## P08-06 진단 결과 (2026-10-20)
 
-사전 규칙 판정은 **채택**이다. Test A/B AUC 기준과 다섯 단서 관문을 모두 통과하여 `configs/primary.yaml`을 익명화 모델로 전환했다. **독립검증은 아직 대기 중**이므로 P08을 Complete로 표시하지 않는다. 기존 baseline checkpoint·calibration은 비교용으로 보존한다.
+사전 규칙 판정은 **채택**이다. Test A/B AUC 기준과 다섯 단서 관문을 모두 통과하여 `configs/primary.yaml`을 익명화 모델로 전환했다. [독립검증 및 B1 보강 추적검증도 합격](../../../docs/verifications/2026-10-20/p08_06_diagnostic.md)하여 P08-01~06을 Complete로 표시한다. 기존 baseline checkpoint·calibration은 비교용으로 보존한다.
 
 ### 2×2 비교
 
@@ -127,3 +127,5 @@ docker compose --profile training run --rm -T train \
 - 처음 `setsid --wait` 래퍼가 결과 저장 후 `wait: Success`·exit 1을 남겼다. Docker daemon이 직접 관리하는 detached 컨테이너로 재개하여 Python CLI exit 0(`cli_exit_code.txt`)을 확인했다. 예측을 다시 하지 않고 저장된 CSV를 읽었으며 재생성한 `result.json`은 최초 결과와 byte 동일했다.
 - 저장된 8개 CSV의 SHA-256·고유 ID·cohort 완전성을 확인하고, 원자료에서 bootstrap과 Wilson 상한을 별도 수식으로 재계산했다. 상태별 FP도 다시 집계했다. P08-05의 candidate 익명화 Test A/B AUC·accuracy와 일치하며 NLL 차이는 최대 4.3e-12다.
 - 단위/통합/채택 연결 테스트와 전체 CPU suite를 실행했다. 상세 명령·결과는 [작업 기록](../../../docs/daily_logs/2026-10-20/work_log.md). 구현자의 자가 검증이며 독립검증 합격을 뜻하지 않는다.
+
+- 독립검증: 원자료·2369개 이미지·기하·모든 구간을 재계산해 일치했다. B1(calibration 실제 계산 회귀 경계 누락)을 보강했고, M7~M12가 guarding cell에서 모두 재실패했다. 최종 전체 CPU는 209 passed / 1 skipped(실제 YuNet 학습 opt-in), [검증 기록](../../../docs/verifications/2026-10-20/p08_06_diagnostic.md) 참고.

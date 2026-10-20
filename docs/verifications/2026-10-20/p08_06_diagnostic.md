@@ -5,7 +5,7 @@
 - 날짜: 2026-10-20(KST).
 - 요청자: 소유자. 이번 턴에서 서브에이전트 한 명의 독립검증까지 명시적으로 승인했다.
 - 검증자: `/root/p08_independent_review`(구현하지 않은 별도 Codex 에이전트).
-- 대상: HEAD `c2ba42d`, 구현 `1102343`, 최종 주석 `0c4eb6e`.
+- 최초 대상: HEAD `c2ba42d`, 구현 `1102343`, 최종 주석 `0c4eb6e`. 추적 대상: B1 보강 `eba8784`. 아래 최초 경계표의 테스트 줄번호는 `c2ba42d` 기준이며, 추적 보강 줄번호는 별도 절에 적었다.
 - 정본 범위: `docs/sot.md:32`의 우선순위; `docs/plan/phase_8_face_anonymization.md:63`의 P08-03 고정 계약, P08-06·계약·완료조건; `configs/anonymized_diagnostic.yaml` 전체; `experiments/p08_anonymized/diagnostic/README.md:7`~`:66` 사전 계약 및 실행 결과; `docs/project.md` §20.
 - 연동 계약: `src/anonymize.py` checkpoint binding·공통 커널·cache identity, `src/calibration.py` 확률/지표, `src/evaluate.py` REAL 재사용·ROC/PR, `src/score.py` artifact 검증·필수 익명화.
 - 방법 정본: `docs/guides/verification.md`를 독립검증 전에 직접 읽었다. 구현·테스트는 수정하지 않았고 커밋하지 않았다.
@@ -38,8 +38,8 @@ git diff --check
 | 예측 전 사전등록 raw hash·주석 952개 unique/confirmed·HEAD 동일 바이트 고정 | `scripts/p08_diagnostic.py:49`~`:85` | `test_preflight_rejects_tampering_before_predictions`, `test_committed_annotation_check_rejects_dirty_bytes_and_accepts_head`; 임시 실제 CSV/lock 및 Git subprocess fixture | 정상 허용·오염 거부; 최종 lock 전체 SHA 일치 |
 | 각 checkpoint·metadata·snapshot·YuNet·이미지/cache identity 검증, 원본 bypass에서도 생략 금지 | `scripts/p08_diagnostic.py:86`~`:128`, `src/anonymize.py:120` | 위 tampering 셀 및 기존 `tests/test_anonymize.py` binding/cache 셀 | 2,369개 이미지 SHA, 두 checkpoint SHA, YuNet SHA, 6,000 cache parameter identity 독립 일치 |
 | 모델 2개×입력 2개×val/Test A/Test B; Test B는 Standard REAL만 재사용 | `scripts/p08_diagnostic.py:233`~`:254` | `test_stub_end_to_end_fixed_calibration_and_resume`, 기존 `evaluation_indices` 회귀; REAL/GEN 각 1개 cohort fixture | 실제 val 820/Test A 800/Test B 1,048, REAL 448 공유 확인 |
-| artifact별 고정 temperature·threshold를 실제 계산에 동일 적용 | `scripts/p08_diagnostic.py:241`~`:243`, `:291`~`:295` | 위 end-to-end 셀은 메타데이터·키 존재만 확인; 실제 수치 oracle 부재 | **B1: M7/M8/M9 생존**. 구현·실제 산출물은 맞지만 필수 회귀 경계 미충족 |
-| ROC/PR·분류·NLL/Brier/ECE10 및 generator/category/source 분해 | `scripts/p08_diagnostic.py:238`~`:252`, `src/evaluate.py:18`, `src/calibration.py:65` | end-to-end 키 존재·기존 evaluate/calibration 수식 회귀; 실제 raw 별도 전수 검산 | 전체 cohort/세부군 모든 수치 일치; 실행기→수치 연결은 B1 보강 대상 |
+| artifact별 고정 temperature·threshold를 실제 계산에 동일 적용 | `scripts/p08_diagnostic.py:241`~`:243`, `:291`~`:295` | 위 end-to-end 셀은 메타데이터·키 존재만 확인; 실제 수치 oracle 부재 | 최초 B1: M7/M8/M9 생존. `eba8784` 추적검증에서 모두 재실패하여 **해결** |
+| ROC/PR·분류·NLL/Brier/ECE10 및 generator/category/source 분해 | `scripts/p08_diagnostic.py:238`~`:252`, `src/evaluate.py:18`, `src/calibration.py:65` | end-to-end 키 존재·기존 evaluate/calibration 수식 회귀; 실제 raw 별도 전수 검산 | 전체 cohort/세부군 모든 수치 일치; 실행기→수치 연결은 `eba8784`의 B1 보강·추적검증으로 해결 |
 | REAL 정상 익명화 위 모든 원 공동 overlay, GEN gray/restore 원본 기반·재익명화 금지 | `scripts/p08_diagnostic.py:154`~`:178` | `test_variants_preserve_other_masks_all_discs_and_no_second_anonymization`; 두 얼굴·두 원·다른 위치 mask fixture | 정상/gray/restore 픽셀 확인, M4 실패 |
 | shape major/2+guard, size max(shape,target), 무축소·clipping·개별 확장비 | `scripts/p08_diagnostic.py:131`~`:151` | 같은 variant 셀의 거대 원·음수 중심 fixture | 300개 기하 행 독립 재계산·clipping 일치, size 무확장 이미지 8 |
 | 절댓값 paired bootstrap·PCG64·복원추출·20,000·linear percentile·5점 닫힌 상한 | `src/diagnostic.py:26`~`:60` | `test_intervention_bootstrap_is_paired_absolute_with_replacement`; 상쇄·분산·정확한 경계 fixture | M1/M2 실패; 실제 네 조건 CI 일치 |
@@ -87,7 +87,7 @@ git diff --check
 
 ## 이슈와 위험
 
-### 차단 B1 — 실제 calibration 적용 회귀 경계 누락
+### 최초 차단 B1 — 실제 calibration 적용 회귀 경계 누락(추적검증으로 해결)
 
 정본 `experiments/p08_anonymized/diagnostic/README.md:21`, `:23`, `:47`은 모델별 temperature/threshold가 실제 평가·단서 계산에 적용될 것을 요구한다. 구현 위치는 `scripts/p08_diagnostic.py:241`~`:243`, `:291`~`:295`이며 현재 구현은 올바르다. 그러나 `tests/test_p08_diagnostic_runner.py:78`~`:86`은 threshold 보고값·count·키 존재만 검사하고 `:91`~`:96`은 raw logit 관계만 검사한다. M7/M8/M9 생존으로 실제 계산 연결의 guard가 빠졌음을 확인했다. 이것은 사양 필수 경계의 빈 칸으로, `docs/guides/verification.md`의 판정 규칙상 차단이다.
 
@@ -95,18 +95,20 @@ git diff --check
 
 ### 비차단 보강 권고
 
-별도로 추가할 권고 없음. B1은 비차단으로 재분류할 수 없다. 얼굴이 보이는 외부 REAL holdout 미평가, REAL train 개입, z_image_turbo 2장 및 얼굴 상태/generator 교란은 `experiments/p08_anonymized/diagnostic/README.md:64`의 기존 한계이며 새 결함으로 취급하지 않았다.
+별도로 추가할 권고 없음. 최초 B1은 차단으로 판정한 뒤 `eba8784`의 보강과 변이 추적검증으로 해결했다. 현재 남은 차단은 없다. 얼굴이 보이는 외부 REAL holdout 미평가, REAL train 개입, z_image_turbo 2장 및 얼굴 상태/generator 교란은 `experiments/p08_anonymized/diagnostic/README.md:64`의 기존 한계이며 새 결함으로 취급하지 않았다.
 
 ## 판정
 
-**조건부 합격** — B1의 모델별 고정 calibration 실제 계산 경계에 수치 회귀 assertion을 추가하고 M7/M8/M9 재실패를 확인해야 한다.
+**합격**
 
-현재 구현·입력·예측·통계·채택 연결은 독립 재계산과 일치한다. 구현 결과의 오류는 발견하지 못했지만, 사양이 요구하는 계산 경계의 회귀 보호가 누락되어 독립검증 완료로 표시할 수 없다.
+최초 판정은 B1의 실제 calibration 적용 회귀 경계 누락에 따른 조건부 합격이었다. `eba8784`를 추적 독립검증하여 M7/M8/M9와 인접 M10/M11/M12의 정확한 셀 재실패 및 정상 suite 통과를 확인했고 B1을 닫았다.
+
+현재 구현·입력·예측·통계·채택 연결은 독립 재계산과 일치한다. 정상 경계를 유지하면서 잘못된 보정값 적용을 거부하는 회귀 보호까지 확인했다. 남은 차단 또는 새 비차단 지적은 없다.
 
 ## 남은 작업과 최종 상태
 
 - 모든 변이를 복원했다. 검증자는 구현/테스트를 수정하지 않았다.
-- B1 보강과 추적 독립검증은 root가 진행한다. 새 GPU 예측은 현재 발견으로 요구되지 않는다.
+- B1 보강과 추적 독립검증을 완료했다. root가 독립검증 합격과 P08 상태를 반영하면 된다. runtime·실제 예측은 바뀌지 않았으므로 새 GPU 예측은 필요하지 않았다.
 - 이 검증 기록은 root에게 전달하는 미커밋 파일이며 검증자가 커밋하지 않는다.
 
 ## 재현 부록
@@ -236,4 +238,66 @@ Path('/tmp/p08_mutation_results.json').write_text(__import__('json').dumps(log,i
 assert all(c['exit']==1 for c in log)
 ```
 
-M7~M9는 위 표의 각 치환을 하나씩 적용하고 `docker compose run --rm -T dev python -m pytest -q tests/test_p08_diagnostic.py tests/test_p08_diagnostic_runner.py tests/test_p08_adoption.py`를 실행했다. 각 변이 전 clean 확인, `try/finally` HEAD 복원, 사전 백업 byte 비교, clean 확인 순서를 동일하게 적용했다. 세 변이는 모두 exit0으로 생존했다. B1 보강 후에는 동일 변이가 exit1로 바뀌어야 한다.
+M7~M9는 위 표의 각 치환을 하나씩 적용하고 `docker compose run --rm -T dev python -m pytest -q tests/test_p08_diagnostic.py tests/test_p08_diagnostic_runner.py tests/test_p08_adoption.py`를 실행했다. 각 변이 전 clean 확인, `try/finally` HEAD 복원, 사전 백업 byte 비교, clean 확인 순서를 동일하게 적용했다. 세 변이는 모두 exit0으로 생존했다. `eba8784` 추적검증에서 동일 변이의 exact guarding cell이 모두 exit1로 바뀐 것을 확인했다.
+
+## B1 추적 독립검증 — `eba8784`
+
+### 변경 경계와 검토
+
+`git diff c2ba42d eba8784 -- scripts src configs experiments` 출력은 비어 있다. runtime 코드·사전등록·주석·checkpoint identity·실제 8개 CSV와 result는 최초 검증 대상과 동일하므로 GPU 진단을 반복하지 않았다.
+
+`tests/test_p08_diagnostic_runner.py:41`은 fixture threshold를 baseline .42 / candidate .53으로 정했다. `:75`~`:94`의 oracle은 실제 calibration/evaluate 함수를 호출하지 않고 sigmoid, 혼동행렬, NLL, Brier와 10구간 ECE를 직접 계산한다. stub의 제한된 logit에 대한 `math.exp`이므로 대규모 logit의 수치 안정성 문제를 새로운 runtime 계약으로 도입하지 않는다. `:106`~`:122`는 모델 2개×입력 2개×세 cohort 전체 지표를 비교한다. `:123`~`:129`는 fixture 자체에서 T=1 및 threshold=.5의 분류가 실제 정답과 다른지 확인하여 무효 fixture를 허용하지 않는다.
+
+`tests/test_p08_diagnostic_runner.py:151`~`:177`은 candidate의 전체 저장 logit에서 별도 sigmoid/T를 계산하고 모든 reference/variant 확률 키·값과 .53 threshold를 확인한 뒤 원래 `concentration`/`intervention`으로 위임한다. 정상 계산은 실제 도메인 함수를 그대로 통과하며 assertion에 맞춘 가짜 결과를 돌려주지 않는다. T=1과 정상 T의 확률 차이가 .01을 넘는 표본이 존재하는지도 잠근다.
+
+### 추적 변이
+
+추적 최초 및 각 변이 직전 `git status --short` 출력이 비어 있는 것을 실행 확인했다. M7~M12 각각 커밋된 코드 위에서 변이했고, 종료 때마다 `finally`에서 HEAD 복원·원본 바이트 일치·clean을 확인했다. 원복 후 집중 suite를 실행하고 전체 CPU suite를 한 번 실행했다.
+
+| 변이 | 치환 | 정확한 guarding cell | 관측 |
+| --- | --- | --- | --- |
+| M7 | 평가 분류 확률의 T→1.0 | `test_stub_end_to_end_fixed_calibration_and_resume` | exit1; `:122` baseline/original/val accuracy 정상 .5 대신 1.0 |
+| M8 | cue 확률의 T→1.0 | `test_cue_boundary_uses_candidate_temperature_threshold_and_all_predictions` | exit1; `:159` 전체 확률 mapping 불일치 |
+| M9 | 평가 분류 threshold→.5 | `test_stub_end_to_end_fixed_calibration_and_resume` | exit1; `:122` baseline/original/val accuracy 정상 .5 대신 1.0 |
+| M10 | NLL/Brier/ECE 계산 T→1.0 | `test_stub_end_to_end_fixed_calibration_and_resume` | exit1; `:122` NLL 0.5428176108676845 대 정상 0.613923591685446 |
+| M11 | cue threshold→.5 | `test_cue_boundary_uses_candidate_temperature_threshold_and_all_predictions` | exit1; `:163` .5 대 정상 .53 |
+| M12 | ECE bin 수→1 | `test_stub_end_to_end_fixed_calibration_and_resume` | exit1; `:122` ECE 0.017842082292368222 대 정상 0.45848282786052524 |
+
+정상 집중 실행은 **26 passed, 1 skipped (4.64s)**다. opt-in 실제 YuNet CPU 학습 smoke의 skip 범위는 최초와 같다. 최종 전체 suite 결과는 아래에 덧붙였다. 현재 B1은 해결됐으며 추가 이슈는 없다.
+
+추적 변이의 재현 코드(`/tmp/p08_followup_mutations.py`):
+
+```python
+from pathlib import Path
+import subprocess,json
+p=Path('scripts/p08_diagnostic.py')
+e2e='tests/test_p08_diagnostic_runner.py::test_stub_end_to_end_fixed_calibration_and_resume'
+cue='tests/test_p08_diagnostic_runner.py::test_cue_boundary_uses_candidate_temperature_threshold_and_all_predictions'
+cases=[
+ ('M7',"p = apply_temperature(values, artifact['temperature'])",'p = apply_temperature(values, 1.0)',e2e),
+ ('M8',"apply_temperature(list(v.values()),artifact['temperature'])","apply_temperature(list(v.values()),1.0)",cue),
+ ('M9',"binary_metrics(labels,p,artifact['threshold_probability'])","binary_metrics(labels,p,0.5)",e2e),
+ ('M10',"calibration_metrics(values,labels,artifact['temperature'],settings['evaluation']['ece_bins'])","calibration_metrics(values,labels,1.0,settings['evaluation']['ece_bins'])",e2e),
+ ('M11',"threshold = artifact['threshold_probability']",'threshold = 0.5',cue),
+ ('M12',"calibration_metrics(values,labels,artifact['temperature'],settings['evaluation']['ece_bins'])","calibration_metrics(values,labels,artifact['temperature'],1)",e2e),
+]
+log=[]
+assert not subprocess.check_output(['git','status','--short']).strip()
+for name,old,new,cell in cases:
+ assert not subprocess.check_output(['git','status','--short']).strip();original=p.read_bytes();text=original.decode();assert text.count(old)==1
+ try:
+  p.write_text(text.replace(old,new));r=subprocess.run(['docker','compose','run','--rm','-T','dev','python','-m','pytest','-q',cell],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT);log.append(dict(mutation=name,old=old,new=new,cell=cell,exit=r.returncode,output=r.stdout));print(name,'exit',r.returncode,flush=True)
+ finally:
+  subprocess.run(['git','checkout','--',str(p)],check=True);assert p.read_bytes()==original;assert not subprocess.check_output(['git','status','--short']).strip()
+Path('/tmp/p08_followup_mutation_results.json').write_text(json.dumps(log,indent=2))
+assert all(r['exit']==1 for r in log)
+```
+
+```bash
+python3 /tmp/p08_followup_mutations.py
+docker compose run --rm -T dev python -m pytest -q tests/test_p08_diagnostic.py tests/test_p08_diagnostic_runner.py tests/test_p08_adoption.py tests/test_p08_training_config.py
+docker compose run --rm -T dev python -m pytest -q
+git diff --check
+```
+
+추적 최종 전체 CPU 결과: **209 passed, 1 skipped, 12 warnings (45.53s)**. 12개 warning은 최초와 같은 기존 Pillow mode deprecation이다. `git diff --check` 통과. 최종 working tree 변경은 이 검증 기록 한 파일뿐이며, source/test/config/예측/결과는 보강 커밋 `eba8784`와 byte 동일하다. 검증자는 커밋하지 않았다.
