@@ -1,6 +1,6 @@
 # 페이즈 인덱스
 
-> Tracepecter MVP 실행 상태. 페이즈 번호는 `docs/project.md` §27–§28의 Phase 정의와 1:1로 매핑한다(P07은 §28 데모 구축). P08은 §27 밖에서 결정 브리프(DB-06)로 생긴 페이즈다.
+> Tracepecter MVP 실행 상태. 페이즈 번호는 `docs/project.md` §27–§28의 Phase 정의와 1:1로 매핑한다(P07은 §28 데모 구축). P08은 §27 밖에서 결정 브리프(DB-06)로 생긴 페이즈다. P09는 후속 누출 감사에 따른 기존 데이터 독립성 요구 수리다.
 
 | ID | 페이즈 | 상태 | 선행 조건 | 완료 근거 | 결정 브리프 |
 | --- | --- | --- | --- | --- | --- |
@@ -13,10 +13,11 @@
 | P06 | Failure analysis | Complete | P05: calibration artifact + 고정 Test A/B | `reports/errors/` 자동 저장 + 편향 통제 진단 + 103건 수동 검토(실제 오류 15) + [오류 패턴 문서](../../experiments/p06_failure_analysis/patterns/README.md) — 슬라이스별 독립검증 합격([계획](phase_6_failure_analysis.md)) | [DB-05](../decision_briefs/DB-05_P06_review-set.md)(Resolved) · [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
 | P07 | API + Demo | Planned | P08: 익명화 전처리 계약 + **채택된** 익명화 checkpoint·calibration artifact(미채택이면 P08 재시도, Q5) | `POST /score` API 응답(`faces_anonymized`·`model_version` 포함, `project.md` §22 출력 예시와 README 갱신) + web demo에서 원본 미리보기·익명화 표시·score 출력 확인 | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
 | P08 | 공통 얼굴 익명화 재학습(§27 밖, DB-06 파생) | Complete | P06 Complete + DB-06 Resolved | **P08-01 Complete** — 소유자 확인·보조 크기 반영, [전체 검증 합격](../verifications/2026-10-13/p08_01_full_slice.md)([측정 기록](../../experiments/p08_anonymized/measure/README.md)); **P08-02 Complete** — [독립검증 합격](../verifications/2026-10-13/p08_02_anonymize_module.md)·H1/H2 보강([전처리 기록](../../experiments/p08_anonymized/README.md)) → **P08-03 Complete** — [독립검증 라운드 2 합격](../verifications/2026-10-13/p08_03_diagnostic_preregistration.md)·전 지적 해소([진단 계약](../../experiments/p08_anonymized/diagnostic/README.md)) → **P08-04 Complete** — H: 10 epoch·[독립검증 라운드 2 합격](../verifications/2026-10-13/p08_04_anonymized_training.md)([학습 기록](../../experiments/p08_anonymized/training/README.md)) → **P08-05 Complete** — [독립검증 라운드 2 합격](../verifications/2026-10-19/p08_05_anonymized_calibration.md)([calibration 기록](../../experiments/p08_anonymized/calibration/README.md)) → **P08-06 Complete** — 2×2·다섯 관문 통과, 익명화 primary 채택·[독립검증 및 B1 추적검증 합격](../verifications/2026-10-20/p08_06_diagnostic.md). P08-07 holdout 설계는 별도 후속·P07 비관문. **후속 [누출 감사](../../experiments/p08_anonymized/leakage_audit/README.md)에서 같은 룩 교차 확인·데이터 독립성 불합격, 수리 미착수**([계획](phase_8_face_anonymization.md)) | [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(Resolved) |
+| P09 | 동일 룩 누출 수리·재분할·재학습·재보정 | Planned | [감사 lock·검토 근거](../../experiments/p08_anonymized/leakage_audit/README.md), 그룹 보강부터 순차 진행 | [상세 계획](phase_9_leakage_repair.md); 실행 미착수. 새 버전 artifact·교차 재감사·개발 평가 보고가 완료 증거 | — |
 
 ## 비고
 
-- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_8_face_anonymization.md`](phase_8_face_anonymization.md) · [`phase_6_failure_analysis.md`](phase_6_failure_analysis.md) · [`phase_5_calibration.md`](phase_5_calibration.md) · [`phase_3_baseline_comparison.md`](phase_3_baseline_comparison.md) · [`phase_2_baseline.md`](phase_2_baseline.md) · [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
+- 상세 슬라이스 계획은 해당 페이즈 착수 직전에 작성한다. 현재 상세 문서: [`phase_9_leakage_repair.md`](phase_9_leakage_repair.md) · [`phase_8_face_anonymization.md`](phase_8_face_anonymization.md) · [`phase_6_failure_analysis.md`](phase_6_failure_analysis.md) · [`phase_5_calibration.md`](phase_5_calibration.md) · [`phase_3_baseline_comparison.md`](phase_3_baseline_comparison.md) · [`phase_2_baseline.md`](phase_2_baseline.md) · [`phase_0_initialization.md`](phase_0_initialization.md) · [`phase_1_data_pipeline.md`](phase_1_data_pipeline.md)(2026-10-07 승인).
 - `docs/project.md` §35의 thin-slice 원칙에 따라, P02는 P01 전체 완료 전에도 씨드 데이터(1,000장 규모)로 착수할 수 있다. P01은 병렬로 규모 확장을 계속한다.
 - 페이즈 상태·선행 조건·완료 근거가 바뀌면 본 인덱스와 해당 페이즈 문서를 같은 변경에서 함께 갱신한다. 규칙: `docs/guides/phase-and-decision-briefs.md`.
 - 의존성은 P02 CUDA 환경 기준으로 `requirements.txt`에 exact pin한다. CPU dev도 동일 버전의 torch/torchvision CPU wheel을 사용한다.

@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-20 · 46줄
+> 마지막 자가 검수: 2026-10-20 · 45줄
 
 ## 현재 상태
 
@@ -17,11 +17,10 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **누출 수리 범위·계획 작성부터 시작** — [감사 보고서](experiments/p08_anonymized/leakage_audit/README.md), [검증 기록](docs/verifications/2026-10-20/test_leakage_adversarial.md), [검토한 14쌍](experiments/p08_anonymized/leakage_audit/visual_review.csv)을 읽는다. 재분할·재학습은 미착수이며 오늘은 문서 정리까지로 종료한다.
-   - 확인된 8쌍은 하한이다. 감사 디렉터리의 `embedding_nearest_train.json`·`cross_split_phash.json`에서 REAL 촬영 시퀀스·같은 룩 후보를 확장하고 연결된 그룹 전체를 같은 split에 두는 방안을 설계한다. 알려진 반례의 pHash 거리는 12~26이므로 거리 10 또는 cosine ≥.99만으로 거르면 놓친다.
-   - 출처·해상도·용량과 class가 강하게 교란돼 있고 sd35 420/600은 train과 positive prompt·seed를 공유한다. GEN 렌더 계보도 검토하되 생성기 holdout 계약 위반이나 동일 이미지 누출로 단정하지 않는다. 몇 장만 제외해도 AUC는 높으므로 누출 하나로 전체 고성능이 설명된다는 주장도 하지 않는다.
-   - [계획 작성 지침](docs/guides/phase-and-decision-briefs.md)에 따라 그룹 보강→재분할→재학습→재calibration 범위와 새 metadata·checkpoint·calibration의 버전별 경로를 먼저 정한다. 기존 `data/metadata.csv`·모델·calibration·감사 원자료와 `audit_lock.json`을 보존한다. 알려진 test 4장 제외만으로 수리됐다고 판정하지 않는다.
-   - 재현 명령은 감사 보고서에 있다. embedding cache는 비추적 `reports/errors/review/p08_leakage_probe/`에 있다. 현재 Test A/B는 개발 평가이며 높은 AUC를 누출 없는 독립 시험 결과로 해석할 수 없다.
+1. **[P09 누출 수리](docs/plan/phase_9_leakage_repair.md)의 P09-01부터 진행** — 상태 Planned, 후보 확장·재분할·학습 실행은 미착수다. 계획에 그룹 검토·버전별 경로·재분할→재학습→재보정 관문을 정의했다.
+   - 먼저 감사 `audit_lock.json`의 입력·원자료 hash를 검증하고 `visual_review.csv` 확정 8쌍·미확정 6쌍을 구별한다. embedding 자료는 평가→train 최근접 1개뿐이므로 전체 REAL 관계 후보를 split 무관하게 확장해야 한다. pHash≤10 또는 cosine≥.99만으로 거르지 않는다.
+   - 새 출력은 `data/versions/p09_r1/metadata.csv`·`checkpoints/leakage_repair/r1/`·`experiments/p09_leakage_repair/r1/`로 분리한다. 기존 metadata·primary·checkpoint·calibration·감사 원자료·소유자 주석은 보존한다.
+   - 재현 명령은 [감사 보고서](experiments/p08_anonymized/leakage_audit/README.md), embedding cache는 비추적 `reports/errors/review/p08_leakage_probe/`에 있다. GEN prompt·seed 공유는 실제 중복과 구별하고 generator holdout 계약을 유지한다. 새 split도 개발 평가이며 신규 미접촉 holdout이 아니다.
 2. **P07(API + Demo) 상세 계획·구현** — 누출 수리 범위 검토를 먼저 이어간다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
    - artifact는 `checkpoints/anonymized/best.pt` + `experiments/p08_anonymized/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.

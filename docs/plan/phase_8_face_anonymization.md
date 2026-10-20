@@ -2,7 +2,7 @@
 
 **상태:** Complete (2026-10-20, P08-01~06). [P08-06 독립검증 합격](../verifications/2026-10-20/p08_06_diagnostic.md), 고정 진단 관문 통과·익명화 primary 채택. P08-07 holdout 설계는 별도 후속이며 P07 관문이 아니다.
 
-**후속 감사(2026-10-20):** [평가 데이터 독립성 불합격](../../experiments/p08_anonymized/leakage_audit/README.md). 같은 룩의 split 교차를 최소8쌍 확인했다. 위 Complete는 기존 실행·명시 관문 상태이며 누출 수리 완료를 뜻하지 않는다. 모델·split은 보존했고 데이터 수리는 미착수다.
+**후속 감사(2026-10-20):** [평가 데이터 독립성 불합격](../../experiments/p08_anonymized/leakage_audit/README.md). 같은 룩의 split 교차를 최소8쌍 확인했다. 위 Complete는 기존 실행·명시 관문 상태이며 누출 수리 완료를 뜻하지 않는다. 모델·split은 보존했고 데이터 수리는 미착수다. 수리 범위·버전 경로·단계별 관문은 별도 [P09 계획](phase_9_leakage_repair.md)을 따른다.
 
 `docs/project.md` §27의 Phase 0~6 밖에서 [DB-06](../decision_briefs/DB-06_P06_face-exposure.md)(C, 2026-10-11)으로 생긴 페이즈다. 상위 사양은 `project.md` v1.4 §15(학습·평가 전처리), §22(추론 전처리), §23(데모 표시)이다. P07(API)은 이 페이즈가 정한 전처리 계약과 채택된 artifact를 쓴다.
 
