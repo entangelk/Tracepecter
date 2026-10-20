@@ -107,6 +107,18 @@ def validate_boxes(boxes):
     return boxes
 
 
+def paint_circles(image, circles, fill, edge_sigma):
+    """입력 순서의 (cx, cy, radius)를 공통 rasterization·Gaussian 커널로 덧칠한다."""
+    rgb = np.asarray(image).copy()
+    for cx, cy, radius in circles:
+        mask = np.zeros(rgb.shape[:2], dtype=np.float32)
+        cv2.ellipse(mask, (round(cx), round(cy)), (round(radius), round(radius)), 0, 0, 360, 1.0, -1)
+        if edge_sigma > 0:
+            mask = cv2.GaussianBlur(mask, (0, 0), edge_sigma)
+        rgb = (rgb * (1 - mask[..., None]) + np.asarray(fill, dtype=np.float32) * mask[..., None]).round().astype(np.uint8)
+    return Image.fromarray(rgb)
+
+
 class Anonymizer:
     def __init__(self, binding, cache_path=None):
         if not isinstance(binding, dict) or set(binding) != {'spec', 'sha256'}:
@@ -166,16 +178,8 @@ class Anonymizer:
         boxes = self.boxes(image, image_id, image_path)
         if not boxes:
             return image, 0
-        rgb = np.asarray(image).copy()
-        # P08-01과 같은 round·OpenCV 원·Gaussian alpha·uint8 반올림.
-        for x, y, w, h in sorted(boxes):
-            radius = round(self.spec['diameter_per_face'] * max(w, h) / 2)
-            mask = np.zeros(rgb.shape[:2], dtype=np.float32)
-            cv2.ellipse(mask, (round(x + w / 2), round(y + h / 2)), (radius, radius), 0, 0, 360, 1.0, -1)
-            if self.spec['edge_sigma'] > 0:
-                mask = cv2.GaussianBlur(mask, (0, 0), self.spec['edge_sigma'])
-            rgb = (rgb * (1 - mask[..., None]) + np.asarray(self.spec['fill'], dtype=np.float32) * mask[..., None]).round().astype(np.uint8)
-        return Image.fromarray(rgb), len(boxes)
+        circles = [(x+w/2, y+h/2, self.spec['diameter_per_face']*max(w, h)/2) for x, y, w, h in sorted(boxes)]
+        return paint_circles(image, circles, self.spec['fill'], self.spec['edge_sigma']), len(boxes)
 
 
 def write_face_cache(images, binding, output):

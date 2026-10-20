@@ -70,3 +70,16 @@ REAL 개입은 학습 표본으로 일반화 증명이 아니고 기존 모양�
 소유자 다운로드 301행은 얼굴 수가 아니라 눈·코·입의 개수로 표시한 값이었다(소유자 확인). 받은 바이트는 `face_review_owner_features.csv`로 그대로 보존했다. 얼굴 기준은 바꾸지 않고, 보이는 요소 0~1개는 얼굴 0개, 2~4개는 얼굴 1개로 변환한 `face_review_owner.csv`를 기존 merge 입력으로 사용했다. 요소 2개인 20장과 에이전트가 여러 얼굴로 표시했던 소유자 확인 대상 2장은 원본·익명화 쌍으로 시각 확인했다. 여러 얼굴의 요소를 합산하는 일반 변환 규칙은 아니며, 이번 소유자 표시의 대상 인물에만 적용한 변환이다.
 
 소유자 변환값으로 에이전트 45행이 바뀌었고, 최종 952행은 익명화 607 / 얼굴 없음 237 / 남은 얼굴 있음 108이다. 소유자가 직접 본 범위는 301장이며 나머지는 기존 에이전트 주석이다. 원본·변환본·최종본 및 선행 주석/확인 목록의 해시는 `face_review_lock.json`으로 고정한다. 이 파일들과 최종 주석을 커밋하기 전에는 candidate 진단 예측을 실행하지 않는다.
+
+## P08-06 실행기
+
+`src/diagnostic.py`는 고정 확률·주석에서 Wilson/Newcombe 구간, paired bootstrap, 채택 여부를 계산한다. `scripts/p08_diagnostic.py`는 입력·checkpoint·snapshot·주석/HEAD 바이트를 검증하고 원본/익명화 2×2와 네 개입을 실행한다. 모델별 fitting 값은 원래 calibration artifact에서 읽으며 다시 최적화하지 않는다. 기존 익명화 커널은 `src/anonymize.py`의 `paint_circles`를 공유한다. 일반 score 경로의 규격 검증은 그대로다.
+
+```bash
+docker compose --profile training run --rm -T train \
+  python -u -m scripts.p08_diagnostic --device cuda
+```
+
+예측은 모델·조건별 `baseline_*.csv`/`candidate_*.csv`의 이미지 ID·logit으로 저장하고 배치마다 flush/fsync한다. 마지막 불완전 행만 복구하여 재개하며 중복·다른 cohort·비유한 logit은 거부한다. `execution.json`은 사전등록·주석 고정 커밋·calibration·checkpoint·실행 코드·라이브러리·device를 결합하므로 다른 실행의 예측을 섞지 않는다. `result.json`은 2×2 전체/분해 지표, 다섯 관문, 채택 판정, REAL 원별 목표 크기·실제 확장·경계 clipping과 크기 개입에서 확장 없는 이미지 수를 보존한다. 원본·회색·복원 입력 모두 이미지/cache hash를 검증한다.
+
+주석과 설정은 입력 정본이고, logit은 모델 예측 원자료다. 확률·score·FP·지표·판정은 이 정본에서 유도하는 보고용 projection이다. checkpoint/calibration, split, §20 기준, 진단 허용폭을 바꾸지 않는다. Bootstrap은 사전 고정된 20,000×n 복원추출로 O(20,000n) 시간·공간이며 n은 REAL 149 / GEN 162로 제한된다.
