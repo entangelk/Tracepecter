@@ -1,5 +1,7 @@
 # P09-02 재분할 독립검증
 
+현재 판정은 문서 끝의 **보강 재검증 / 최종 판정**을 따른다. 초회 조건부 판정과 발견은 당시 이력으로 보존한다.
+
 ## 대상 정보
 
 - 날짜: 2026-10-23 (Asia/Seoul).
@@ -167,7 +169,7 @@ P09-02의 확정 그룹 소비·보존·sd35·Test B 규칙은 `docs/plan/phase_
 
 - 현재 범위 밖인 946,311쌍, 단일 REAL 출처, GEN prompt/seed 공유, 개발 표본 노출 한계를 후속 학습 보고에도 유지한다(`docs/plan/phase_9_leakage_repair.md:85`~`:92`). 이번 검증에서 새로운 수집이나 전수 검토를 요구하지 않는다.
 
-## 판정
+## 초회 판정 (이력)
 
 **조건부 합격** — B1 GEN 그룹 회귀의 변이 생존, B2 고정 검토 scope 및 B3 보고·평가 가능성/실행 경계의 명명 회귀 공백을 닫아야 한다.
 
@@ -180,3 +182,93 @@ P09-02의 확정 그룹 소비·보존·sd35·Test B 규칙은 `docs/plan/phase_
 ## 재현
 
 위 실행 명령 → 실물 대조 Python → 표의 변이 5개(각각 clean gate·백업·복원) → 복원 후 집중 및 전체 CPU suite 순으로 수행하면 동일 경계를 재검증할 수 있다. Docker socket 제한이 있으면 Docker 호출을 `require_escalated`로 실행한다. 검증 기록 파일 이외의 변경이 없는지 `git status --short`와 `git diff --check`로 확인한다.
+
+
+## 보강 재검증 — 2026-10-23
+
+### 대상·범위·방법
+
+- 요청: 소유자의 “재검증 진행해줘”. 검증자는 초회와 동일한 독립 서브에이전트다.
+- 보강 소스: `eaa009f`(테스트·fixture), 기록 `701d6d2`(재검증 시작 HEAD). 적용 정본과 절차는 초회와 같다. `AGENTS.md`, `docs/guides/verification.md`를 다시 읽었고 P09-02 70~76행의 계약과 초회 B1~B3를 고정 범위로 삼았다.
+- 재검증 시작과 첫 변이 직전 `git status --short`의 빈 출력을 확인했다. 구현자가 기록한 9개 변이 결과를 증거로 대체하지 않고 아래 12개를 독립 실행했다.
+- 생산 코드 2개·새 metadata 및 r1 CSV/JSON, 총 42개 파일을 `42a8481`의 Git blob과 바이트 비교했다. 전부 일치한다. split lock의 `source_sha256`와 `verified_inputs_sha256`도 실제 파일 SHA-256과 일치했다. 따라서 초회의 6,000장 실물 재현·원본 이미지 해시·그룹 투영·directed closure 결과를 이번 변경 범위에서 재사용한다. 이미지 전체를 다시 읽었다는 주장은 하지 않는다.
+- 테스트 수정만 존재하므로 생산 알고리즘의 복잡도·구조 판단은 초회와 동일하다. 새 scope fixture는 35 REAL·16 GEN의 유한 조합을 사용하고 CLI fixture는 52개 작은 파일만 쓴다.
+
+### B1~B3 경계 대조와 관찰
+
+| 초회 차단 | 보강 위치·명명 테스트 | 정상 허용과 거부의 대조 | 재검증 결과 |
+| --- | --- | --- | --- |
+| B1 GEN fixture의 우연한 같은 split | `tests/test_p09_split.py:23`, `:36`; `test_groups_determinism_and_no_prompt_merging`, `test_mapping_cli_and_new_test_b_real` | g0/g4를 공동 배정하며 GEN prompt 공유가 전체 병합을 만들지 않는 조건은 유지. 개별 GEN 배정으로 돌아가면 두 ID가 갈라짐 | GEN 무시 변이에서 명명 그룹 셀의 `train == test` assertion 실패. B1 해소 |
+| B2 scope 정상·hash·REAL/GEN 최소 수량·검토 포함·closure | `tests/test_p09_resplit.py:19`, `:48`, `:57`; `test_priority_scope_complete_with_exclusions`, `test_priority_scope_rejects_incomplete_evidence` | 정상 600쌍, seed·옛 그룹·혼합 class·범위 밖 제외, endpoint 역순을 허용. hash/real_count/gen_count/missing_review/pending는 각각 구별된 오류 메시지로 거부 | 모든 분기 명명 셀 존재. 5종 방어 제거와 정상 scope 과잉 거부가 실패. B2 해소 |
+| B3 보고 집계·불변성·그룹 교차·빈 셀/class | `tests/test_p09_resplit.py:82`, `:103`, `:123`; `test_split_report_counts_targets_and_groups`, `test_split_report_rejects_contract_violations` | 정상 REAL 그룹 수정·GEN 공동 배정·unseen 집계 허용. 전체 행/그룹/분할/셀 목표/실제비율/독립그룹/최대그룹 값을 구체 비교. immutable/gen_look_group/allocation_crossing/old_crossing/empty_cell/empty_class를 개별 거부 | 빈 class 방어 제거는 DID NOT RAISE. 빈 셀 방어 제거는 후속 `max()`의 일반 ValueError가 계약 오류 메시지에 일치하지 않아 실패. 단순 “예외가 발생했다”만 검사하지 않음 |
+| B3 실제 CLI·이미지/ledger/lock/overwrite/계보 | `tests/test_p09_resplit.py:153`, `:222`, `:255`; `test_resplit_cli_report_lineage_and_locks`, `test_resplit_cli_rejects_bad_evidence_without_output` | 생산 `main()`을 호출하고 실제 CSV/JSON·이미지 바이트 hash를 읽고 씀. 정상 lock·scope·GEN 신규 prompt/seed 부분집합과 review split 투영을 확인. image/ledger_ids/out_exists/report_exists/group_evidence/support/queue를 거부하고 출력 미생성 또는 기존 바이트 보존 확인 | ledger fixture는 재잠금해 hash gate에 가려지지 않고 ID 방어를 시험함. 정상 경로는 입력/소스/출력 hash 및 full_candidate_independence_passed=False까지 검증. 이미지·ledger·overwrite 방어 제거와 잘못된 계보 키 변이가 각각 실패. B3 해소 |
+
+B2 fixture는 production scope 판정 함수를 모방해 같은 잘못을 검증하는 단순 복제에 그치지 않는다. 옛 그룹과 seed를 앞에 두고 혼합 class 후보·범위 밖 미검토 후보를 남기며, 선택된 600개 목록 자체와 검토 endpoint 역순 허용을 비교한다(`tests/test_p09_resplit.py:24`~`:54`). B3의 변조 fixture도 오류별 `match`와 출력 상태를 같이 검사한다(`tests/test_p09_resplit.py:283`~`:299`).
+
+### 독립 변이 → 명명 셀 매핑
+
+각 변이는 별도로 적용했다. 초회에 기록한 Python `try/finally` 백업·복원 절차를 다시 사용했으며, `/tmp/p09_reverify_<변이명>.backup`과 복원 파일의 바이트 일치 및 매번 clean 상태를 확인했다. 아래 모든 exit code는 1이며, assertion 실패 또는 요구 오류 메시지 불일치가 확인됐다. 수집 오류·Docker 권한 오류를 실패 증거로 세지 않았다.
+
+| 변이명 | 대상·정확한 단일 교체 | 실패 명명 셀 | 결과 |
+| --- | --- | --- | --- |
+| `gen_group` | `scripts/split_dataset.py:67`: `key = allocation_groups[row['image_id']] if allocation_groups is not None else group_key(row)` → `key = allocation_groups[row['image_id']] if allocation_groups is not None and row['source_type'] == 'real' else group_key(row)` | `tests/test_p09_split.py::test_groups_determinism_and_no_prompt_merging` | 1 failed in 0.40s |
+| `missing_review` | `scripts/p09_resplit.py:98`: `if any(tuple(sorted((r['a'], r['b']))) not in reviewed for r in selected):` → `if False:` | `tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[missing_review]` | 1 failed in 0.42s |
+| `empty_class` | `scripts/p09_resplit.py:73`: `if {r['label'] for r in rows if r['split'] == split} != {'0', '1'}:` → `if False:` | `tests/test_p09_resplit.py::test_split_report_rejects_contract_violations[empty_class]` | 1 failed in 0.39s |
+| `scope_hash` | `scripts/p09_resplit.py:85`: `if sha256(root/'candidate_run_01'/name) != expected:` → `if False:` | `tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[hash]` | 1 failed in 0.42s |
+| `scope_count` | `scripts/p09_resplit.py:96`: `if len(eligible) < count:` → `if False:` | `tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[real_count]`<br>`tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[gen_count]` | 2 failed in 0.45s |
+| `scope_pending` | `scripts/p09_resplit.py:101`: `if closure['pending_pairs'] != 0:` → `if False:` | `tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[pending]` | 1 failed in 0.40s |
+| `scope_over` | `scripts/p09_resplit.py:101`: `if closure['pending_pairs'] != 0:` → `if True:` | `tests/test_p09_resplit.py::test_priority_scope_complete_with_exclusions` | 1 failed in 0.46s |
+| `empty_cell` | `scripts/p09_resplit.py:64`: `if not subset:` → `if False:` | `tests/test_p09_resplit.py::test_split_report_rejects_contract_violations[empty_cell]` | 1 failed in 0.42s |
+| `image_hash` | `scripts/p09_resplit.py:161`: `if sha256(path) != image['sha256']:` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[image]` | 1 failed in 0.44s |
+| `ledger_ids` | `scripts/p09_resplit.py:156`: `if {r['image_id'] for r in images} != set(by_id):` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[ledger_ids]` | 1 failed in 0.46s |
+| `overwrite` | `scripts/p09_resplit.py:114`: `if args.out.exists() or args.report.exists():` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[out_exists]`<br>`tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[report_exists]` | 2 failed in 0.56s |
+| `lineage` | `scripts/p09_resplit.py:146`: `for keys in [('prompt',), ('prompt', 'noise_seed')]:` → `for keys in [('prompt',), ('prompt',)]:` | `tests/test_p09_resplit.py::test_resplit_cli_report_lineage_and_locks` | 1 failed in 0.47s |
+
+### 정확한 실행·재현 명령
+
+생산/metadata/고정 artifact 불변 증거는 다음 명령으로 재현한다.
+
+```bash
+python3 - <<'PYCODE'
+from pathlib import Path
+import subprocess, hashlib, json
+files = ['scripts/split_dataset.py', 'scripts/p09_resplit.py', 'data/versions/p09_r1/metadata.csv']
+files += [str(p) for p in Path('experiments/p09_leakage_repair/r1').rglob('*')
+          if p.is_file() and p.suffix in ['.json', '.csv']]
+for name in files:
+    assert Path(name).read_bytes() == subprocess.check_output(['git', 'show', '42a8481:'+name]), name
+lock = json.loads(Path('experiments/p09_leakage_repair/r1/split/split_lock.json').read_text())
+for section in ['source_sha256', 'verified_inputs_sha256']:
+    for name, expected in lock[section].items():
+        assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
+print(len(files), '개 파일 불변 및 lock 입력/소스 hash 일치')
+PYCODE
+```
+
+정상 기준과 최종 회귀는 다음과 같다. 변이는 위 표의 대상·교체·셀을 초회 재현 Python의 `source`, `before`, `after`, `cells`에 넣어 실행한다. 첫 변이 전 clean gate와 매번 바이트 복원을 생략하지 않는다.
+
+```bash
+git status --short
+docker compose run --rm -T dev python -m pytest   tests/test_p09_split.py::test_groups_determinism_and_no_prompt_merging   'tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[missing_review]'   'tests/test_p09_resplit.py::test_split_report_rejects_contract_violations[empty_class]' -q
+# 결과: 3 passed in 0.40s
+# 위 표의 변이 12개를 각각 적용 → 명명 셀 실행 → 바이트 복원
+docker compose run --rm -T dev python -m pytest   tests/test_p09_split.py tests/test_p09_resplit.py   tests/test_p09_group_candidates.py tests/test_split_dataset.py -q
+# 결과: 53 passed in 3.25s
+docker compose run --rm -T dev python -m pytest -q
+# 결과: 263 passed, 1 skipped, 12 warnings in 49.68s
+git diff --check
+```
+
+Docker 호출은 socket 접근을 위해 `require_escalated`로 실행했다. 최종 원본 대조는 `scripts/p09_resplit.py`·`scripts/split_dataset.py` 각각을 `git show 701d6d2:<path>` 바이트와 비교했으며 일치했다. 구현·테스트·metadata·lock 파일은 수정하지 않았다.
+
+### 현재 문제·위험과 운영 상태
+
+- **차단 사항:** 없음. B1~B3에 요구된 명명 테스트 연결과 under-strict/over-strict 경계를 직접 확인했고 이전 생존 변이가 모두 검출된다.
+- **비차단 한계:** 초회에 기록한 미검토 946,311쌍·단일 REAL 출처·GEN 계보 공유·개발 표본 노출 한계는 변함없다. 이번 합격은 한정 검토 범위의 재분할 계약에 대한 판정이며 전체 누출 제거나 일반화 성능의 승인이 아니다.
+- **운영 상태:** 모든 변이 원본 복원과 clean gate를 마친 뒤 이 검증 기록만 커밋한다. 재학습·primary 전환·push는 수행하지 않았다.
+
+### 최종 판정
+
+**합격**
+
+초회 B1~B3 차단 조건은 해소됐다. 독립 변이 12개가 각각 지정된 회귀 셀에서 실패하고, 원본 복원 후 집중 53개가 통과했다. 전체 CPU는 **263 passed / 1 skipped**(49.68초), 기존 Pillow 경고 12개였다. skip은 `tests/test_p08_training_config.py:47`의 실제 YuNet opt-in smoke다. `git diff --check`도 통과했다.
