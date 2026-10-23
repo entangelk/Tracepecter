@@ -8,3 +8,5 @@ experiments/p08_anonymized/diagnostic/*.csv text eol=lf
 experiments/p09_leakage_repair/r1/calibration/*.csv -text whitespace=cr-at-eol
 # Raw third-party log tables include intentional padding.
 experiments/p09_leakage_repair/r1/calibration/calibration.log -text -whitespace
+# Preserve the manual review bytes frozen by the owner-review lock.
+experiments/p09_leakage_repair/r1/diagnostic/visual_review_new.csv -text whitespace=cr-at-eol

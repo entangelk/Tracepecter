@@ -108,3 +108,18 @@
 - CUDA 보정은 사전 설정 커밋 `8e01af3`에서 종료 코드0으로 완료했다. 새 val820장만 fitting해 temperature0.7770388872932664·확률 threshold0.23513432654393307을 얻었다. Test A800장 AUC0.9996131798·accuracy0.9925, Test B1,048장 AUC0.9994940476·accuracy0.9837786260이다.
 - `calibration/verify.py`로 val ID·logit·label을 결합해 parameter와 val 지표를 재계산하고 정확히 재현했다. 평가 ID 명단으로 두 테스트의 공유 REAL448장과 train/val REAL 제외를 확인했고 기존11개 artifact hash가 불변이다. 테스트 logit은 저장하지 않았으므로 테스트 지표 독립 재계산으로 표현하지 않는다.
 - 세 cohort의 Brier와 Test A NLL/ECE가 악화됐으며 Test B accuracy도 raw 대비 낮아졌다. 결과를 보존하고 test로 보정값을 재선택하지 않았다. 보고서·실행 근거·입출력 hash는 `experiments/p09_leakage_repair/r1/calibration/`에 있다. 원본/baseline 비교·단서 관문과 채택은 소유자 확인 이후다.
+
+### 얼굴 검토·진단 실행기 준비와 검증
+
+- 신규302장을 원본/익명화 전체·상단 확대로 점수 비공개 시각 검토했다. 이전 최종650장과 합쳐 agent952장을 만들었다. 입만 보이는 경계9장은 추가 owner 확인 대상으로 표시했고, 그 중 기존 최소 목록 밖5장만 추가했다. 모델 점수나 후보 진단 예측은 사용하지 않았다.
+- 사전 규칙의 불일치119장 + 나머지833장 중 seed 고정20%인167장 + 경계 추가5장 = owner291장이다. 기존 owner111장을 재사용했고 새180장은 대기다. 원본952장의 hash·학습 준비 입력·과거 owner 원본을 검증하고 agent/목록/재사용/대기 CSV와 렌더 페이지를 `owner_review_lock.json`에 고정했다. 시트38개·쌍302개 hash는 별도 근거에 보존했다.
+- `scripts/p09_face_review.py`가 대기 ID의 정확한 집합·중복 부재·유효 정수 얼굴 수·고정 근거를 확인한 뒤에만 병합한다. 새 owner 원본을 보존하고 이전111장과 합친 owner291장 값을 우선한다. 아직 최종 confirmed 주석이나 주석 lock은 만들지 않았다. 소유자는 페이지에서 얼굴 수(요소 수 아님)를 입력하고 CSV를 저장해야 한다.
+- `scripts/p09_diagnostic.py`는 기존 baseline의 옛 fit metadata를 보존하면서 새 cohort에서 평가한다. 후보 metadata·익명화 규격·고정 학습 checkpoint hash를 확인하고 baseline/current의 ID·열·불변 값이 다른 경우 거부한다. 공통 P08 실행기에는 artifact 로더/preflight 주입 지점만 추출했고 기존 동일metadata 방어를 유지했다. 진단 실행 identity에는 원래 fit metadata와 새 평가 metadata·학습 결과·P09 소스 hash를 함께 기록한다.
+- 테스트를 먼저 추가해 미구현 모듈 import 실패를 확인한 뒤 구현했다. 집중30개 통과, 전체 **287 passed, 1 skipped**(기존 opt-in YuNet smoke)·Pillow 기존 경고12개다. 정상 교차 cohort·기존 P08 거부·모델별 고정 T/threshold·재개, 계보 혼용9종, owner 재사용/우선순위와 불완전/중복/외부 ID/비정수/불변 근거 변경 시 최종 파일 부재를 검증했다. 자가 검증이며 독립검증으로 표현하지 않는다.
+- 원본 보정 CSV의 CRLF와 외부 로그 패딩을 변경하지 않고 Git에서도 보존하도록 파일별 attribute를 명시했다. 수동 검토 CSV의 CRLF도 고정 hash와 동일하게 보존하고 파생 주석 CSV는 LF를 사용한다. 문서 링크와 변경 diff를 확인했다. push는 하지 않는다.
+
+### 이슈·결정·다음 작업
+
+- P08의 동일metadata 방어를 삭제하거나 baseline hash를 새 값으로 덮어쓰면 원래 fit 계보를 위조한다. 별도 P09 경계에서 새 평가 cohort를 명시하는 방식으로 해결했다. 고정된 사전등록 규칙·허용폭은 수정하지 않았다.
+- 소유자 검토가 필요한 근거는 `configs/p09_r1_diagnostic.yaml`의 `annotations.review` 및 진단 README의 candidate 예측 전 최종 주석/커밋 조건이다. 180장 페이지와 병합 코드를 준비했으며 새 사용자 확인을 대신 생성하지 않는다.
+- owner CSV 수신 → 병합 → 최종 주석/lock 커밋 → GPU 점유 확인 → P09 진단·다섯 관문 → 채택 여부/한계 보고 순서다. P09-04는 In Progress, 현 primary와 Q5는 유지한다.

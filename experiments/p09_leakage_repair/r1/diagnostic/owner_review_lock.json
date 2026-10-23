@@ -1,0 +1,25 @@
+{
+  "cohort": 952,
+  "new_manual": 302,
+  "owner_required": 291,
+  "reused": 111,
+  "pending": 180,
+  "score_blind": true,
+  "owner_input_semantics": "face_count",
+  "inputs_sha256": {
+    "configs/p09_r1_diagnostic.yaml": "a73d5b42bb128da364e6a934c7d53429d730864220db71de469e0e01c55d4f3e",
+    "experiments/p09_leakage_repair/r1/training/input_lock.json": "e422e55de19d2374ee4ecd2ac69799fb22a8df570240c1dba7fc0b583b1300ea",
+    "experiments/p08_anonymized/diagnostic/face_review_owner.csv": "ecefedd39ec56e03f93c26eb8d194c1f5adc0a6dd88584170fa8bf3999da2063",
+    "experiments/p09_leakage_repair/r1/diagnostic/visual_review_new.csv": "e816c66ec087e8de86951e0f54cbd5710303e4279529e7b9357cdd31879e87c5",
+    "experiments/p09_leakage_repair/r1/diagnostic/prior_face_review.csv": "1cdcc191903a9b95c62ab2831a7f42a3261a3788815a9ffc4f40dd5839f16661",
+    "experiments/p09_leakage_repair/r1/diagnostic/face_review_template.csv": "b6b22b4e80b2eb7cd76030709322f0932898c6f4b591134a9ee793aae13ebfd7",
+    "experiments/p09_leakage_repair/r1/diagnostic/preregistration.json": "2c33634f5726922c43dd8aa08568d162036289ddbc23b70729727cf317722cc7",
+    "/app/scripts/p09_face_review.py": "0f63783ca3190ebc9c60037b19cf3649fe34f63e955d6292131446f87f2e85cd",
+    "/app/scripts/p08_face_review.html": "d21fa74609b0b91043d78682756c7ca9e4c8cc6df96a34002765e08600721e5f",
+    "reports/errors/review/p09_leakage_repair/r1/face_review/owner/index.html": "8360c52beff96cde97489880666f11dd30d41771bd1eb879e27bf461c2901a00",
+    "experiments/p09_leakage_repair/r1/diagnostic/face_review_agent.csv": "a8a7295b52e37d7370947826abc19d9dfa4c82278db6a67ee803192774c73796",
+    "experiments/p09_leakage_repair/r1/diagnostic/face_review_owner_check.csv": "5d45d879761f9bef28075a9fef04be117f9b06570ecc1f46f2fb11166e5dcc81",
+    "experiments/p09_leakage_repair/r1/diagnostic/face_review_owner_reused.csv": "45bb623c9a2e388f0fe635675a9b8c709a3414c1ff734b9882dedc60fe445f6a",
+    "experiments/p09_leakage_repair/r1/diagnostic/face_review_owner_pending.csv": "b05545d5630cf15fe1d4886f1c508e419d7b744540a130fb4a482f30372a29bb"
+  }
+}

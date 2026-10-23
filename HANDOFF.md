@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-23 · 45줄
+> 마지막 자가 검수: 2026-10-23
 
 ## 현재 상태
 
@@ -17,15 +17,15 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **[P09-04 val-only 재보정·진단·채택 검토](docs/plan/phase_9_leakage_repair.md)부터 진행** — 새 metadata는 `data/versions/p09_r1/metadata.csv`, 후보 checkpoint는 `checkpoints/leakage_repair/r1/best.pt`다. [학습 결과/검증](experiments/p09_leakage_repair/r1/training/README.md)과 `input_lock.json`·`result.json`의 hash를 확인한다.
-   - 새 val820장만으로 temperature·threshold를 fitting하고 `configs/p09_r1_calibration.yaml`·전용 calibration 경로를 사용한다. 기존 P08 parameter를 복사하거나 현 primary를 먼저 바꾸지 않는다.
-   - [새 cohort 사전등록](experiments/p09_leakage_repair/r1/diagnostic/README.md)은 REAL107장·GEN개입161장·얼굴 상태952장이다. 과거 최종 주석650장/소유자207장 근거를 보존하고 신규302장은 미확인이다. 새 owner 확인 목록과 최종 주석을 candidate 진단 예측 전 완성·커밋한다.
-   - 기존 P08 진단 실행기는 baseline/candidate 동일metadata hash를 요구하므로 P09 config를 그대로 실행하지 않는다. P09-04는 각 artifact의 원래 학습/보정 계보와 새 평가 cohort를 분리하고 혼용 방어를 유지한다. 미검토946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5는 유지한다.
+1. **P09-04는 소유자 얼굴 확인180장 대기** — [확인 방법·고정 범위](experiments/p09_leakage_repair/r1/diagnostic/owner_review.md), [이 머신의 검토 페이지](reports/errors/review/p09_leakage_repair/r1/face_review/owner/index.html). 신규302장 agent 검토와 전체952장 투영을 마쳤다. 사전 규칙의 확인286장+시각 경계 추가5장=291장 중 이전111장을 재사용했고180장은 미완료다. 소유자가 페이지에서 저장한 CSV를 받아야 최종 주석을 만들 수 있다.
+   - `python -m scripts.p09_face_review merge --owner-file <repository-relative-owner-csv>`로 새180장과 정확한 ID 집합·유효 얼굴 수·고정 근거 hash를 확인한다. 소유자 값을 우선하고 원본을 보존한다. **최종 face_review.csv·face_review_lock.json을 먼저 커밋**한 뒤 `python -m scripts.p09_diagnostic --config configs/p09_r1_diagnostic.yaml --device cuda`를 실행한다. GPU 점유를 먼저 확인하고 장시간 작업은 디스크 기반 재개 가능 상태로 실행한다.
+   - [val-only 보정·고정 평가 결과](experiments/p09_leakage_repair/r1/calibration/README.md)는 완료됐다. 새 val820장으로 T0.7770388873·threshold0.2351343265를 fitting했고 Test A/B AUC는0.9996131798/0.9994940476이다. 일부 calibration 지표 악화를 보존했다. 기존 parameter를 복사하거나 현 primary를 먼저 바꾸지 않는다.
+   - 새 metadata `data/versions/p09_r1/metadata.csv`, 후보 `checkpoints/leakage_repair/r1/best.pt`, 학습/보정 hash 근거는 각 보고서에 있다. P09 실행기는 baseline의 옛 학습/보정 계보와 새 평가 cohort를 분리하며 P08 기본 hash 방어는 유지한다. [사전등록](experiments/p09_leakage_repair/r1/diagnostic/README.md)의 REAL107장·GEN개입161장·얼굴 상태952장과 다섯 관문을 그대로 적용한다. 미검토946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5를 유지한다.
 2. **P07(API + Demo) 상세 계획·구현** — 현재 우선순위는 P09 재보정·진단이다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
    - artifact는 `checkpoints/anonymized/best.pt` + `experiments/p08_anonymized/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).
-   - 소유자 301장 확인의 원본·변환본·최종 주석을 보존한다. 현재 추가 소유자 검토 요청은 없으며 cohort 변경 시 주석 ID·사전등록 적용 범위부터 재확인한다. P08-07 실사 holdout은 기존 결정대로 P07 관문이 아니다.
+   - 소유자 301장 확인의 원본·변환본·최종 주석을 보존한다. P09 새 cohort의 소유자 확인은 위1번을 따른다. P08-07 실사 holdout은 기존 결정대로 P07 관문이 아니다.
 3. 감사의 pHash/embedding 후보 추가 검토·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 4. score CLI는 채택된 P08 calibration artifact로 실행한다([README](README.md#calibrated-image-score)). 익명화 키가 없는 P05 baseline은 score에서 거부하고, offline 평가·calibration에서만 원본 입력으로 허용한다.
 

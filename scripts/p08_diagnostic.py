@@ -50,7 +50,25 @@ def committed_annotations(output):
     return subprocess.check_output(prefix+['log', '-1', '--format=%H', '--', str(output/'face_review.csv')]).decode().strip()
 
 
-def preflight(config_path):
+def load_artifacts(settings, registration, spec):
+    """P08 requires both fitted artifacts to belong to the evaluation metadata."""
+    artifacts, configs = {}, {}
+    for name, path in [('baseline', settings['inputs']['baseline_calibration']),
+                       ('candidate', settings['candidate_calibration'])]:
+        artifact = load_calibration(path)
+        if artifact['metadata_sha256'] != registration['inputs_sha256']['metadata']:
+            raise ValueError('calibration metadata hash mismatch')
+        saved = torch.load(artifact['checkpoint'], map_location='cpu', weights_only=True)
+        config = saved['config']
+        checkpoint_anonymizer(config, required=name == 'candidate')
+        if (file_hash(config['data']['metadata_csv']) != artifact['metadata_sha256']
+                or (name == 'candidate' and config['anonymization'] != bind_spec(spec))):
+            raise ValueError('checkpoint metadata/anonymization mismatch')
+        artifacts[name], configs[name] = artifact, config
+    return artifacts, configs
+
+
+def preflight(config_path, *, artifact_loader=None):
     settings = yaml.safe_load(Path(config_path).read_text())
     output = Path(settings['output_dir'])
     registration = json.loads((output/'preregistration.json').read_text())
@@ -79,20 +97,7 @@ def preflight(config_path):
         raise ValueError('face annotation IDs mismatch')
     spec = yaml.safe_load(Path(settings['inputs']['anonymization']).read_text())
     worker = Anonymizer(bind_spec(spec), settings['inputs']['face_cache'])
-    artifacts, configs = {}, {}
-    for name, path in [('baseline', settings['inputs']['baseline_calibration']),
-                       ('candidate', settings['candidate_calibration'])]:
-        artifact = load_calibration(path)
-        if artifact['metadata_sha256'] != registration['inputs_sha256']['metadata']:
-            raise ValueError('calibration metadata hash mismatch')
-        saved = torch.load(artifact['checkpoint'], map_location='cpu', weights_only=True)
-        config = saved['config']
-        checkpoint_anonymizer(config, required=name == 'candidate')
-        if (file_hash(config['data']['metadata_csv']) != artifact['metadata_sha256']
-                or (name == 'candidate' and config['anonymization'] != bind_spec(spec))):
-            raise ValueError('checkpoint metadata/anonymization mismatch')
-        artifacts[name], configs[name] = artifact, config
-        del saved
+    artifacts, configs = (artifact_loader or load_artifacts)(settings, registration, spec)
     dataset = MetadataDataset(settings['inputs']['metadata'], 224, False, False,
                               image_root=configs['candidate']['data'].get('image_root'))
     rows = {r.image_id:r for r in dataset.rows}
@@ -254,8 +259,8 @@ def evaluation_report(state, logits, artifact):
     return dict(temperature=artifact['temperature'], threshold_probability=artifact['threshold_probability'], cohorts=cohorts)
 
 
-def run(config_path, device):
-    state = preflight(config_path)
+def run(config_path, device, *, preflight_fn=None):
+    state = (preflight_fn or preflight)(config_path)
     state['identity'].update(device=device, torch_version=str(torch.__version__), numpy_version=np.__version__)
     output = state['output']
     identity_path = output/'execution.json'
