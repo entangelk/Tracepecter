@@ -19,7 +19,8 @@ def fixture_rows():
     mapping = {r['image_id']: 'group_'+r['image_id'] for r in rows}
     for i in range(3):
         mapping[f'r{i}'] = 'transitive'
-    mapping['g1'] = mapping['g0']
+    # The legacy per-image allocation separates g0 (train) and g4 (test).
+    mapping['g4'] = mapping['g0']
     return rows, [dict(image_id=i, group_id=g) for i, g in mapping.items()]
 
 
@@ -32,7 +33,7 @@ def test_groups_determinism_and_no_prompt_merging():
     by_id = {r['image_id']: r for r in result}
     assert len({by_id[f'r{i}']['split'] for i in range(3)}) == 1
     assert len({by_id[f'r{i}']['look_group'] for i in range(3)}) == 1
-    assert by_id['g0']['split'] == by_id['g1']['split']
+    assert by_id['g0']['split'] == by_id['g4']['split']
     assert by_id['u']['split'] == 'test_unseen'
     assert {r['split'] for r in result if r['source_type'] == 'generated' and r['image_id'] != 'u'} == {'train', 'val', 'test'}
     for row in rows:
@@ -129,5 +130,5 @@ def test_mapping_cli_and_new_test_b_real(tmp_path, monkeypatch):
     assert {dataset.rows[i].image_id for i in test_b if dataset.rows[i].label == 1} == expected_real
     assert {dataset.rows[i].image_id for i in test_b if dataset.rows[i].label == 0} == {'u'}
     actual = {r.image_id: r.split for r in dataset.rows}
-    assert actual['g0'] == actual['g1']
+    assert actual['g0'] == actual['g4']
     assert set(actual) == {r['image_id'] for r in rows}

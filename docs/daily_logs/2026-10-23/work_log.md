@@ -30,3 +30,21 @@
 ## 다음 작업
 
 - P09-03 진입 전 새 cohort의 단서 진단 적용 범위·주석 ID·bootstrap 단위를 사전등록하고 커밋한다. 그 뒤 GPU 여유를 확인해 기존 frozen SigLIP encoder의 head를 새로 초기화하여 학습한다.
+
+## P09-02 독립검증 B1~B3 회귀 가드 보강
+
+### 목표·결정
+
+- 소유자는 독립검증의 조건부 합격 사유 B1~B3 보강을 요청했다. 생산 코드와 고정 데이터·lock을 변경하지 않고 빠진 회귀 증거를 추가한다. 기존 독립검증 기록의 판정은 당시 결과로 보존하며 이번 보강을 독립 재검증으로 표현하지 않는다.
+
+### 완료한 작업
+
+- B1: `tests/test_p09_split.py`의 GEN 공동 배정 표본을 g0/g1에서 g0/g4로 변경했다. 개별 이미지 배정이면 train/test로 갈라지므로 그룹 소비를 무시하는 변이를 검출할 수 있다. 정상 매핑에서는 함께 배정하고 공유 prompt의 다른 GEN은 세 split에 존재한다.
+- B2: `tests/test_p09_resplit.py`에서 REAL500·GEN100의 작은 결정적 후보 fixture로 정상 선택·seed/옛 그룹/cross-class 제외·범위 밖 후보 허용·후보 hash/최소 수/검토 포함/closure 누락 거부를 직접 검증한다.
+- B3: 보고서의 실제 수·목표·비율·성분 수·최대 성분과 unseen 셀을 명시 값으로 검증한다. 불변 필드/GEN look_group 변경·새 그룹/옛 그룹 교차·빈 평가 셀·빈 class를 각각 거부한다.
+- 고정 lock과 이미지52장짜리 자체 완결 fixture로 실제 CLI를 실행한다. 새 metadata·검토 경계 CSV·source/input/output lock·full prompt/seed 공유 집계·이미지 hash 대조를 확인하며 이미지 변경·ledger ID 누락·기존 출력·그룹 근거/보충 입력/queue 변조는 출력 전에 거부한다. 실데이터·GPU·대량 이미지 I/O는 필요 없다.
+
+### 검증·후속
+
+- 보강 직후 Docker 집중33 passed(2.88초). 변이 전 checkpoint를 커밋하고 clean gate를 실행한다. 변이별 명명 셀과 복원/최종 회귀 결과는 아래에 추가한다.
+- 이후 프로젝트 다음 작업은 기존과 같이 P09-03 진단 사전등록과 재학습이다.
