@@ -102,3 +102,9 @@
 ### 준비
 
 - `configs/p09_r1_calibration.yaml`은 P08 설정에서 checkpoint·output만 새 경로로 바꿨다. 수치 fit·metric·익명화 cache는 동일하다. 설정 회귀로 출력 혼용과 절차 drift를 막는다.
+
+### 보정·고정 평가 완료
+
+- CUDA 보정은 사전 설정 커밋 `8e01af3`에서 종료 코드0으로 완료했다. 새 val820장만 fitting해 temperature0.7770388872932664·확률 threshold0.23513432654393307을 얻었다. Test A800장 AUC0.9996131798·accuracy0.9925, Test B1,048장 AUC0.9994940476·accuracy0.9837786260이다.
+- `calibration/verify.py`로 val ID·logit·label을 결합해 parameter와 val 지표를 재계산하고 정확히 재현했다. 평가 ID 명단으로 두 테스트의 공유 REAL448장과 train/val REAL 제외를 확인했고 기존11개 artifact hash가 불변이다. 테스트 logit은 저장하지 않았으므로 테스트 지표 독립 재계산으로 표현하지 않는다.
+- 세 cohort의 Brier와 Test A NLL/ECE가 악화됐으며 Test B accuracy도 raw 대비 낮아졌다. 결과를 보존하고 test로 보정값을 재선택하지 않았다. 보고서·실행 근거·입출력 hash는 `experiments/p09_leakage_repair/r1/calibration/`에 있다. 원본/baseline 비교·단서 관문과 채택은 소유자 확인 이후다.

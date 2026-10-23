@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "method": "temperature_scaling",
+  "checkpoint": "checkpoints/leakage_repair/r1/best.pt",
+  "checkpoint_sha256": "8fcd4859cd13fe2c2636565f4cc40bcfeff6447923dbc04d2c99450fefca0731",
+  "metadata_sha256": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161",
+  "temperature": 0.7770388872932664,
+  "threshold_probability": 0.23513432654393307,
+  "fit_split": "val",
+  "validation_count": 820,
+  "config": {
+    "checkpoint": "checkpoints/leakage_repair/r1/best.pt",
+    "face_cache": "experiments/p08_anonymized/face_boxes.csv",
+    "output_dir": "experiments/p09_leakage_repair/r1/calibration",
+    "device": "cuda",
+    "fit": {
+      "temperature_min": 0.05,
+      "temperature_max": 20.0,
+      "iterations": 100
+    },
+    "metrics": {
+      "ece_bins": 10
+    }
+  },
+  "git_commit": "8e01af3764ca6d86cde2fb0a3002a35c9bbe6a3f"
+}

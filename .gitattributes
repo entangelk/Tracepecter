@@ -4,3 +4,7 @@ data/metadata.csv text eol=crlf
 experiments/p08_anonymized/measure/*.csv text eol=lf
 experiments/p08_anonymized/face_boxes.csv text eol=lf
 experiments/p08_anonymized/diagnostic/*.csv text eol=lf
+# Preserve the raw prediction bytes bound to P09 calibration verification.
+experiments/p09_leakage_repair/r1/calibration/*.csv -text whitespace=cr-at-eol
+# Raw third-party log tables include intentional padding.
+experiments/p09_leakage_repair/r1/calibration/calibration.log -text -whitespace

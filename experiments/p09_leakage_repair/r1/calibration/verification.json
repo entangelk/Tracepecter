@@ -1,0 +1,31 @@
+{
+  "val_only_recomputed": true,
+  "validation_count": 820,
+  "standard_count": 800,
+  "unseen_count": 1048,
+  "shared_test_real": 448,
+  "preserved_artifacts": 11,
+  "test_metrics_recomputed": false,
+  "test_metrics_evidence": "src.calibrate execution; test logits not persisted",
+  "inputs_sha256": {
+    "configs/p09_r1_calibration.yaml": "83f574c99d8aa03099ba985f9da84a6e3b85aa6cbe3799af08a929f8465509a3",
+    "data/versions/p09_r1/metadata.csv": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161",
+    "experiments/p09_leakage_repair/r1/training/result.json": "305b0741dc754dc5ba365d8489d00a08a15d43166a4a8d965d96d73deb63ea5f",
+    "experiments/p09_leakage_repair/r1/training/preserved_artifacts.json": "d34183777e08a9dfe21bbac0786b89391750c2cb86c0892b34a030b62af1eb60",
+    "src/calibrate.py": "cf0535bd1a4d6979569ddedb1123f93ec143083779ad4f551558c60721a9742e",
+    "src/calibration.py": "3a37f85e2770719ab6b6df0c99aeb54b1fd375ed71f97261ffd53dbc3837d5d9",
+    "src/evaluate.py": "9e18769a14cc22a25d5262487a61bae405bc726a64f10cf7d293a6ea8bce75f5",
+    "src/dataset.py": "1f941caa078ab6ddd426100a3d4fa81449958d553b6a9027bf33f45400542c41",
+    "src/anonymize.py": "c3ccbde108c3a520cbafec755137ccf38e970fb42589117f31ec26b1f2e17bb2",
+    "/app/experiments/p09_leakage_repair/r1/calibration/verify.py": "7b6de96da67d24c3575c4d7dcb0eb4fc81d8b864e31fa6a850445d771389ec33",
+    "checkpoints/leakage_repair/r1/best.pt": "8fcd4859cd13fe2c2636565f4cc40bcfeff6447923dbc04d2c99450fefca0731"
+  },
+  "outputs_sha256": {
+    "experiments/p09_leakage_repair/r1/calibration/calibration.json": "ce212d0b70d5c0105459e9ab2f49c09e369d97335d14d90335ebb4e01ff852c0",
+    "experiments/p09_leakage_repair/r1/calibration/metrics.json": "88683765130ac83c61ebf1f3d6ab68ca3d637aee5003309de9ee0b12c2ce1c8c",
+    "experiments/p09_leakage_repair/r1/calibration/validation_predictions.csv": "7376c94624ca25c5c702681fcc169a67fbc52f7ed0d6f1f04a1ef7671f7c31a4",
+    "experiments/p09_leakage_repair/r1/calibration/evaluation_ids.csv": "a9c1cb5258ed34c7d16fd978dd8dac76388b9b2d308a555de96691cb96874803",
+    "experiments/p09_leakage_repair/r1/calibration/execution.json": "85b3901af4014b0e757d015192ee1884b0b55fda8ffaa813a46900e56293801c",
+    "experiments/p09_leakage_repair/r1/calibration/calibration.log": "36c05b346a1e99f1a2c0f5700569dacaf168e29a627de29a641e4de1ea3726c7"
+  }
+}

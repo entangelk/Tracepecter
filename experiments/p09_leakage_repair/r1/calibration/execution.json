@@ -1,0 +1,8 @@
+{
+  "observed_machine_date": "2026-10-23",
+  "started_at": "2026-10-23T02:20:04.007421501Z",
+  "finished_at": "2026-10-23T02:21:11.512412231Z",
+  "exit_code": 0,
+  "git_commit": "8e01af3764ca6d86cde2fb0a3002a35c9bbe6a3f",
+  "config": "configs/p09_r1_calibration.yaml"
+}
