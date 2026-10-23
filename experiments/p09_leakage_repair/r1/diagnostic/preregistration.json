@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "config_sha256": "a73d5b42bb128da364e6a934c7d53429d730864220db71de469e0e01c55d4f3e",
+  "inputs_sha256": {
+    "metadata": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161",
+    "anonymization": "6bb59051930a63d5736126d86260ae98fbece2b979ccdb2d6fdf3975bdc88438",
+    "face_cache": "319d5376f71e3c65155857b33fa2e4dc653d2094a7b8f8cbef90812393d15af8",
+    "real_candidates": "c29c0656a8910bf5b13842c529d86913682ff46a3932f3756a21691745beef43",
+    "real_review": "1ec0d1330bcc2174c94de87c9c23afdc3a016642cc0d11357e96a866aa6c1ebd",
+    "measurement": "9237f05565313445aedb85963f7cc0a8edf10fe7b9df9bc7a42a3c5a204f5efe",
+    "baseline_calibration": "eb9e63967b4fa9cdbc21fa4c173900f1141d0244f22e0f4bc6431e9bd99d3161"
+  },
+  "size_target_diameter_over_width": 0.1631602984208327,
+  "real_discs": 107,
+  "real_images": 107,
+  "face_review_images": 952,
+  "gen_interventions_by_generator": {
+    "playground_25": {
+      "eligible": 84,
+      "selected": 40
+    },
+    "qwen_image_21": {
+      "eligible": 62,
+      "selected": 40
+    },
+    "sd35_medium": {
+      "eligible": 382,
+      "selected": 40
+    },
+    "sdxl": {
+      "eligible": 74,
+      "selected": 40
+    },
+    "z_image_turbo": {
+      "eligible": 1,
+      "selected": 1
+    }
+  },
+  "manifests_sha256": {
+    "real_interventions.csv": "20544d19f8f06650a0c45453a71ac6c37a710fcd75c9008cd1237e194f8f2649",
+    "gen_interventions.csv": "1685ca350d8d67f401cf62f13953b4803533d0b08d757953699bfff42544c9f3",
+    "face_review_template.csv": "b6b22b4e80b2eb7cd76030709322f0932898c6f4b591134a9ee793aae13ebfd7"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "inputs_sha256": {
+    "configs/p09_r1_train.yaml": "71f76a7defbc5c22ab97aeb51318d9d520313ff0a9fbc0819e83935a2cf2722b",
+    "configs/p09_r1_diagnostic.yaml": "a73d5b42bb128da364e6a934c7d53429d730864220db71de469e0e01c55d4f3e",
+    "experiments/p09_leakage_repair/r1/training/prepare.py": "65eee5478550bbce7cdcd7a4bdb4eee13662aa3cca0907ba3395a56944be605f",
+    "experiments/p09_leakage_repair/r1/diagnostic/preregistration.json": "2c33634f5726922c43dd8aa08568d162036289ddbc23b70729727cf317722cc7",
+    "experiments/p09_leakage_repair/r1/diagnostic/prior_face_review.csv": "1cdcc191903a9b95c62ab2831a7f42a3261a3788815a9ffc4f40dd5839f16661",
+    "experiments/p09_leakage_repair/r1/diagnostic/annotation_lineage.csv": "3bc516fa6491d315c22a0cf52e40e9afea89bb6341d173431cb4f739ee05651a",
+    "experiments/p09_leakage_repair/r1/training/sample_ids.csv": "c4b059f48c32611e8646d7a5ff41439b12a4cf6aed06c0dc4a670c473df0133f",
+    "experiments/p08_anonymized/diagnostic/face_review_lock.json": "4e24fd1009a08340ce3ff839e7097eb5ccd4ee19206fe38b0d492c67e5c54f23",
+    "experiments/p08_anonymized/diagnostic/face_review.csv": "fd34caa5d961c5d60907bd4909dd657066487385e9b58928df718bef6f72d0f5",
+    "experiments/p08_anonymized/diagnostic/face_review_owner.csv": "ecefedd39ec56e03f93c26eb8d194c1f5adc0a6dd88584170fa8bf3999da2063",
+    "experiments/p09_leakage_repair/r1/split/split_lock.json": "d93bd08b24243d5686245305bf16e7607488f55651e288d375e260cec99569b0",
+    "data/versions/p09_r1/metadata.csv": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161",
+    "src/train.py": "c88ef9a4ba7004f4cdc0d9f41bb38292649ecbad3be9e3cf571a487eb25d94de",
+    "src/dataset.py": "1f941caa078ab6ddd426100a3d4fa81449958d553b6a9027bf33f45400542c41",
+    "src/model.py": "65337bbee247ba05f07e5d0a9e8ba810267e9f6e081f8db2062dd70ddab2be98",
+    "src/anonymize.py": "c3ccbde108c3a520cbafec755137ccf38e970fb42589117f31ec26b1f2e17bb2",
+    "experiments/p08_anonymized/face_boxes.csv": "319d5376f71e3c65155857b33fa2e4dc653d2094a7b8f8cbef90812393d15af8",
+    "configs/anonymize.yaml": "6bb59051930a63d5736126d86260ae98fbece2b979ccdb2d6fdf3975bdc88438"
+  },
+  "real_images": 107,
+  "real_discs": 107,
+  "face_review_images": 952,
+  "prior_annotations": 650,
+  "prior_owner_annotations": 207,
+  "pending_new_annotations": 302,
+  "bootstrap_unit": "image",
+  "start_from_previous_head": false,
+  "train_images": 3780,
+  "validation_images": 820
+}

@@ -1,0 +1,163 @@
+# P09 사전등록: P08 규칙·seed·허용폭 유지, 새 cohort와 후보 artifact만 분리.
+version: 1
+seed: 20261013
+output_dir: experiments/p09_leakage_repair/r1/diagnostic
+inputs:
+  metadata: data/versions/p09_r1/metadata.csv
+  anonymization: configs/anonymize.yaml
+  face_cache: experiments/p08_anonymized/face_boxes.csv
+  real_candidates: experiments/p08_anonymized/measure/real_disc_candidates.csv
+  real_review: experiments/p09_leakage_repair/r1/diagnostic/real_disc_review_train.csv
+  measurement: experiments/p08_anonymized/measure/report.json
+  baseline_calibration: experiments/p05_calibration/calibration.json
+cue_model: candidate
+candidate_calibration: experiments/p09_leakage_repair/r1/calibration/calibration.json
+evaluation:
+  models:
+  - baseline
+  - candidate
+  inputs:
+  - original
+  - anonymized
+  cohorts:
+  - val
+  - standard
+  - unseen
+  standard_split: test
+  unseen_real: standard_test_real_reuse
+  unseen_generated_split: test_unseen
+  calibration_per_model: fixed_for_both_inputs
+  metrics:
+  - roc_auc
+  - pr_auc
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - nll
+  - brier
+  - ece
+  ece_bins: 10
+  grouping:
+  - generator
+  - category
+  - source_domain
+sampling:
+  real: all_confirmed_measurement_discs
+  real_split: train
+  gen_splits:
+  - test
+  - test_unseen
+  gen_detected_per_generator: 40
+  face_review: all_gen_in_gen_splits
+  undersized_generator: take_all_report_count
+annotations:
+  output: face_review.csv
+  timing: before_candidate_diagnostic_predictions
+  score_blind: true
+  visible_definition: at_least_two_of_eyes_nose_mouth_including_partial_profile
+  fields:
+  - image_id
+  - visible_faces
+  - uncovered_visible_faces
+  - confirmed
+  review: agent_all_owner_all_disagreements_and_seeded_20_percent
+  owner_random_fraction: 0.2
+  final_owner_overrides_agent: true
+  incomplete: indeterminate
+interventions:
+  real_shape:
+    cohort: real
+    reference: anonymized
+    construction_base: normal_anonymized
+    edit: white_circle_covering_existing_ellipse
+    radius: measured_major_half_plus_edge_guard
+  real_size:
+    cohort: real
+    reference: anonymized
+    construction_base: normal_anonymized
+    edit: enlarge_existing_white_circle_only
+    target: measurement_synthetic_selected_size_median_diameter_over_width
+    radius: max_shape_radius_and_target_radius
+  gen_gray:
+    cohort: detected_gen
+    reference: anonymized
+    construction_base: original
+    edit: paint_all_cached_face_discs_gray_from_original
+    fill:
+    - 128
+    - 128
+    - 128
+  gen_restore:
+    cohort: detected_gen
+    reference: anonymized
+    construction_base: original
+    edit: original_image_without_synthetic_face_discs
+  edge_guard_sigma_multiplier: 3.0
+  edge_guard_extra_px: 1.0
+  geometry_and_edge: checkpoint_anonymization
+  resize_normalization: checkpoint_model
+  augmentation: false
+face_concentration:
+  cohort: all_gen_in_gen_splits
+  states:
+  - anonymized
+  - no_visible_face
+  - missed_visible_face
+  state_priority: missed_then_no_visible_then_anonymized
+  comparisons:
+  - - anonymized
+    - no_visible_face
+  - - anonymized
+    - missed_visible_face
+  - - no_visible_face
+    - missed_visible_face
+  outcome: false_positive_rate
+  interval: newcombe_wilson_independent_difference_two_sided
+  confidence: 0.95
+  max_absolute_rate_difference: 0.1
+  min_images_per_state: 20
+  missing_state: indeterminate
+  per_generator: report_only_no_causal_claim
+intervention_rules:
+  unit: image
+  min_images: 80
+  score:
+    statistic: mean_absolute_paired_score_shift
+    scale:
+    - 0
+    - 100
+    bootstrap: image_cluster_percentile_two_sided
+    rng: numpy_generator_pcg64
+    index_draw: integers_zero_to_n_exclusive_shape_resamples_by_n_with_replacement
+    percentile_method: linear
+    resamples: 20000
+    confidence: 0.95
+    max_upper: 5.0
+    repeated_discs: jointly_edit_then_one_prediction_per_image
+  error:
+    statistic: previously_correct_becomes_incorrect
+    denominator: all_selected_images
+    interval: wilson_two_sided
+    confidence: 0.95
+    max_upper: 0.05
+  threshold: calibrated_probability_threshold_of_same_model
+  signed_shift_and_reverse_flips: report_only
+  generator_breakdown: report_only
+  missing_nonfinite_or_insufficient: indeterminate
+adoption:
+  standard_anonymized_roc_auc_min: 0.9
+  unseen_anonymized_roc_auc_min: 0.8
+  required_cue_gates:
+  - face_concentration
+  - real_shape
+  - real_size
+  - gen_gray
+  - gen_restore
+  all_required: true
+  indeterminate: do_not_adopt
+  failed: do_not_adopt
+  pass: replace_primary_and_report_owner
+  non_adoption: keep_baseline_artifacts_wait_p07_retry_p08
+  retry_failed: ask_owner
+  face_visible_real_holdout: limitation_not_p07_gate

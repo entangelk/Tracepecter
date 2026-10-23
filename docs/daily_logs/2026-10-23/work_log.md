@@ -63,3 +63,22 @@
 | output_overwrite | `scripts/p09_resplit.py:114`: `if args.out.exists() or args.report.exists():` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[out_exists]` | 1 failed, exit1 |
 | lineage_report | `scripts/p09_resplit.py:151`: `report['generation_train_overlap'] = overlap` → `report['generation_train_overlap'] = {}` | `tests/test_p09_resplit.py::test_resplit_cli_report_lineage_and_locks` | 1 failed, exit1 |
 | ledger_identity | `scripts/p09_resplit.py:156`: `if {r['image_id'] for r in images} != set(by_id):` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[ledger_ids]` | 1 failed, exit1 |
+
+## P09-03 사전등록·재학습 착수
+
+### 목표·결정
+
+- 소유자는 재검증 합격 후 재학습까지 진행하도록 요청했다. P09-03 범위에서 사전등록·새 head10epoch 학습·완료 증거를 준비하고 P09-04의 calibration/진단 채택은 뒤에 둔다.
+- 기존 P08 학습/진단 규칙을 유지한다. 새 train에 속한 확인 REAL107개 원·107장(102성분)과 새 test/test_unseen GEN 개입161장·얼굴 상태952장을 모델 결과 전에 고정했다.
+
+### 준비한 작업
+
+- `configs/p09_r1_train.yaml`은 metadata·checkpoint 경로만 변경했다. `configs/p09_r1_diagnostic.yaml`은 새 cohort·REAL review 투영·candidate calibration·output만 변경했다.
+- 기존 소유자301장 근거를 보존하고 새 대상과 겹치는207장만 계보에 표시했다. 과거 최종 주석650장은 그대로 투영하고 신규302장은 미확인으로 둔다. 새 cohort의 owner 확인과 최종 주석은 candidate 진단 예측 전에 완료·커밋해야 한다.
+- 이미지 bootstrap 및 P08 다섯 관문/허용폭은 그대로다. 새 REAL 표본은train이며 외부 일반화 근거가 아니다. 기존 P08 진단 실행기는 baseline/candidate 동일metadata를 요구하므로 P09-04에서 각 artifact의 원계보와 새 평가 cohort를 분리해 구현해야 한다. baseline hash를 덮어쓰거나 혼용 방어를 제거하지 않는다.
+- split lock과 사전등록·주석·sample ID·학습 소스를 검증/고정하는 작은 실험 준비 도구와 설정/계보 회귀를 추가했다. 준비 집중37 passed / 1 skipped(3.56초), 전체 CPU267 passed / 1 skipped(51.20초). 기존 Pillow 경고12개 외 실패 없음.
+
+### 실행 전 관측
+
+- 이 머신의 GPU: RTX3060 12GB, 사전 관측648MiB·7%, 별도 compute app 없음. H: 가용1.1TB, F:121GB. 실제 시작 직전 다시 확인한다.
+- 장시간 작업은 Docker daemon detached Python PID1과 디스크 로그·epoch checkpoint로 운영한다. P08의 오류가 있었던 setsid --wait wrapper는 재사용하지 않는다.

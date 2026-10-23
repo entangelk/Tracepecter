@@ -17,9 +17,9 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **[P09-03 익명화 SigLIP 재학습](docs/plan/phase_9_leakage_repair.md) 준비부터 진행** — 새 metadata는 `data/versions/p09_r1/metadata.csv`, 분할 근거와 한계는 [split 보고서](experiments/p09_leakage_repair/r1/split/README.md)다. 학습은 미착수다.
-   - 학습 전 새 cohort의 진단 적용 범위·표본·주석 ID·bootstrap 단위를 사전등록하고 커밋한다. 기존 소유자 301장 주석은 해당 ID의 근거이며 새 표본 전체 확인이 아니다.
-   - `configs/p09_r1_train.yaml`을 만들어 기존 익명화 SigLIP 설정을 유지하고 새 metadata·`image_root: /images`·`checkpoints/leakage_repair/r1/`·전용 학습 보고 경로를 명시한다. 기존 head를 이어 쓰지 않고 새로 초기화한다.
+1. **[P09-03 익명화 SigLIP 재학습](docs/plan/phase_9_leakage_repair.md) 진행** — 새 metadata는 `data/versions/p09_r1/metadata.csv`, 분할 근거와 한계는 [split 보고서](experiments/p09_leakage_repair/r1/split/README.md)다. 학습 전 [고정 입력](experiments/p09_leakage_repair/r1/training/input_lock.json)을 확인한다.
+   - [새 cohort 사전등록](experiments/p09_leakage_repair/r1/diagnostic/README.md)은 REAL107장·GEN개입161장·얼굴 상태952장이다. 과거 최종 주석650장/소유자207장 근거만 재사용하고 신규302장은 미확인이다. 새 최종 주석은 candidate 진단 예측 전 완성·커밋한다.
+   - `configs/p09_r1_train.yaml`로 head를 새로 초기화해10epoch 학습한다. [실행/재개 절차](experiments/p09_leakage_repair/r1/training/README.md)를 따르며 기존 head를 이어 쓰지 않는다. 시작 전 GPU 여유·새 경로를 확인한다.
    - 최종 그룹 lock·split lock·새 metadata hash를 확인한다. 미검토 후보946,311쌍과 GEN prompt+seed 교차는 남으며 평가는 개발 평가다. 기존 metadata·primary·checkpoint·calibration·감사 원자료·소유자 주석은 보존한다.
 2. **P07(API + Demo) 상세 계획·구현** — 현재 우선순위는 P09 재학습·재보정이다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.

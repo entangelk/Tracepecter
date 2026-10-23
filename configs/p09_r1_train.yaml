@@ -1,0 +1,26 @@
+# P09-03: 새 split에서 기존 frozen SigLIP head를 새로 초기화해 10 epoch 학습.
+model:
+  encoder: siglip
+  model_id: google/siglip-base-patch16-224
+  revision: 7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed
+  image_size: 224
+  freeze_encoder: true
+training:
+  epochs: 10
+  batch_size: 32
+  num_workers: 2
+  learning_rate: 0.0001
+  device: cuda
+  seed: 42
+data:
+  metadata_csv: data/versions/p09_r1/metadata.csv
+  image_root: /images
+  face_cache: experiments/p08_anonymized/face_boxes.csv
+augmentation:
+  horizontal_flip: true
+  jpeg_aug: true
+  minor_crop: true
+  color_jitter: true
+output:
+  checkpoint_dir: checkpoints/leakage_repair/r1
+anonymization: configs/anonymize.yaml

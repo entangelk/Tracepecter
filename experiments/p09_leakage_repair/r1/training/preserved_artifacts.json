@@ -1,0 +1,13 @@
+{
+  "data/metadata.csv": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+  "configs/primary.yaml": "0abe13833f968c350702c21c61b8c9fe133809ad22cb1df1d92aa5ab38d6bc11",
+  "experiments/p05_calibration/calibration.json": "eb9e63967b4fa9cdbc21fa4c173900f1141d0244f22e0f4bc6431e9bd99d3161",
+  "experiments/p08_anonymized/calibration/calibration.json": "6f1fd7a36e045bb34ebe09b7dc59db774fe38a7e59abb61bdcf13b689d5836aa",
+  "experiments/p08_anonymized/diagnostic/face_review_lock.json": "4e24fd1009a08340ce3ff839e7097eb5ccd4ee19206fe38b0d492c67e5c54f23",
+  "checkpoints/baseline/best.pt": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe",
+  "checkpoints/baseline/last.pt": "d02d789b5fb88bcc1a69fafee082a46ec3e68a8cec3df0d33eec94db12361d41",
+  "checkpoints/dino/best.pt": "456c9950e8297e0564a686f2f3869829a2cb54ffa423338d2aa54f46d9f58ced",
+  "checkpoints/dino/last.pt": "d88a5ff6dce68ba2112cf14e1a5ac8b30b42758856a5ddd10536238af8ca76b8",
+  "checkpoints/anonymized/best.pt": "091ac45424099c41bf50bb0adf7932d4b0b1ace3ceba9b9a27e25af99732c54b",
+  "checkpoints/anonymized/last.pt": "0cab54c38c08ee7574a46cec09894905d809892f4de695d1ef8d8c2ce5c63f98"
+}
