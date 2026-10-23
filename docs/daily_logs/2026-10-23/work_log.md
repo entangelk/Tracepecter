@@ -91,3 +91,14 @@
 - checkpoint는 `checkpoints/leakage_repair/r1/{best,last}.pt`, 보고는 `experiments/p09_leakage_repair/r1/training/{execution,result}.json`이다. best SHA-256은 `8fcd4859cd13fe2c2636565f4cc40bcfeff6447923dbc04d2c99450fefca0731`이다. GPU 바이너리는 비추적이며 근거 텍스트만 커밋한다.
 - 새 validation은 기존과 ID가 달라 직접적인 대응 성능 개선으로 해석하지 않는다. Test A/B·재보정·최종 주석·단서 진단·채택은 아직 없다. 현 primary와 기존 보정은 유지한다.
 - 다음은 P09-04다. 새 val-only calibration과 사전등록 cohort의 주석 완성을 진행한 뒤 고정 평가·다섯 관문·채택 여부를 보고한다. 이번 완료 검증은 자가 검증이며 독립검증으로 표현하지 않는다.
+
+## P09-04 재보정·진단 진행
+
+### 목표와 범위
+
+- 소유자는 재학습 후 재보정·진단·채택 검토 진행을 요청했다. 새 val820장으로만 temperature/threshold를 fitting하고 고정 Test A/B를 평가한다. 기존 parameter를 복사하지 않으며 현 primary는 채택 관문 전 유지한다.
+- 진단 예측은 새 cohort의 최종 주석·소유자 확인·주석 lock 커밋 후에만 허용한다. 그 전에는 calibration의 기존 고정 평가와 score-blind 이미지 검토·실행기 검증을 진행한다.
+
+### 준비
+
+- `configs/p09_r1_calibration.yaml`은 P08 설정에서 checkpoint·output만 새 경로로 바꿨다. 수치 fit·metric·익명화 cache는 동일하다. 설정 회귀로 출력 혼용과 절차 drift를 막는다.

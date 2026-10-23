@@ -1,0 +1,11 @@
+# P09-04: 새 val만 fitting, P08와 동일한 수치 절차와 checkpoint 익명화 규격.
+checkpoint: checkpoints/leakage_repair/r1/best.pt
+face_cache: experiments/p08_anonymized/face_boxes.csv
+output_dir: experiments/p09_leakage_repair/r1/calibration
+device: cuda
+fit:
+  temperature_min: 0.05
+  temperature_max: 20.0
+  iterations: 100
+metrics:
+  ece_bins: 10
