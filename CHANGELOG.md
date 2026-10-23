@@ -51,3 +51,4 @@
 | 2026-10-20 | P09-01 후보 생성·원본 파일명 복원·hash 검증 검토 도구 및 첫48쌍 근거. DB-07 소유자 선택에 따라 우선순위 검토·미검토 범위 명시, 최종 그룹/재분할 미착수 | [검토 기록](experiments/p09_leakage_repair/r1/grouping/README.md) · [work log](docs/daily_logs/2026-10-20/work_log.md) |
 | 2026-10-20 | P09-01 한정 우선순위 검토 종결: 시각 판정/보수적 배정 분리·최종 그룹 lock·directed 이웃 종결. 미검토946,311쌍과 잔여 위험 보존, metadata/모델은 수리 전 | [검토/최종 그룹](experiments/p09_leakage_repair/r1/grouping/README.md) · [work log](docs/daily_logs/2026-10-20/work_log.md) |
 | 2026-10-23 | P09-02: 고정 배정 그룹을 보존한 결정적 재분할·새 버전 metadata, 모든 새 경계의 한정 검토 범위 대조. 기존 artifact 보존·미검토 및 GEN 계보 교차 한계 유지 | [split 보고서](experiments/p09_leakage_repair/r1/split/README.md) · [work log](docs/daily_logs/2026-10-23/work_log.md) |
+| 2026-10-23 | P09-03: 새 cohort의 진단 표본·주석 계보 사전등록 후 frozen SigLIP head10epoch 재학습. 새 checkpoint/ID·hash 근거 분리, 기존 primary·artifact 보존 | [학습 결과](experiments/p09_leakage_repair/r1/training/README.md) · [work log](docs/daily_logs/2026-10-23/work_log.md) |

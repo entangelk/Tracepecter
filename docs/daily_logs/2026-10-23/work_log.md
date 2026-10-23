@@ -82,3 +82,12 @@
 
 - 이 머신의 GPU: RTX3060 12GB, 사전 관측648MiB·7%, 별도 compute app 없음. H: 가용1.1TB, F:121GB. 실제 시작 직전 다시 확인한다.
 - 장시간 작업은 Docker daemon detached Python PID1과 디스크 로그·epoch checkpoint로 운영한다. P08의 오류가 있었던 setsid --wait wrapper는 재사용하지 않는다.
+
+### 재학습 결과·완료 검증
+
+- 사전등록 commit `cd9bafc7e2161d634a6dc39d0ff17c368bd9ef5b` 이후 빈 새 경로에서 head를 초기화했다. 이 머신에서10:50:57~11:06:51 KST,953.67초, detached Python의 실제 종료 코드0이다. GPU 점유를 주기적으로 확인했고 다른 compute app과의 충돌은 없었다.
+- train3,780/val820·10epoch 완료. best는 validation loss 최소인 epoch10: loss0.0111455508, AUC0.9999158330, accuracy0.9963414634. epoch8의 loss 증가도 history에 그대로 보존했고 AUC로 best를 바꾸지 않았다.
+- CPU 검증으로 best/last/config·metadata·sample ID·10epoch history·optimizer/RNG 재개 상태·tensor 유한성·frozen encoder의 P08 동일성과 head 변화·기존11개 artifact hash 불변을 확인했다. 준비 입력과 진단 CSV도 학습 전 commit 바이트와 같다.
+- checkpoint는 `checkpoints/leakage_repair/r1/{best,last}.pt`, 보고는 `experiments/p09_leakage_repair/r1/training/{execution,result}.json`이다. best SHA-256은 `8fcd4859cd13fe2c2636565f4cc40bcfeff6447923dbc04d2c99450fefca0731`이다. GPU 바이너리는 비추적이며 근거 텍스트만 커밋한다.
+- 새 validation은 기존과 ID가 달라 직접적인 대응 성능 개선으로 해석하지 않는다. Test A/B·재보정·최종 주석·단서 진단·채택은 아직 없다. 현 primary와 기존 보정은 유지한다.
+- 다음은 P09-04다. 새 val-only calibration과 사전등록 cohort의 주석 완성을 진행한 뒤 고정 평가·다섯 관문·채택 여부를 보고한다. 이번 완료 검증은 자가 검증이며 독립검증으로 표현하지 않는다.

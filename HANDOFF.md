@@ -17,11 +17,11 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **[P09-03 익명화 SigLIP 재학습](docs/plan/phase_9_leakage_repair.md) 진행** — 새 metadata는 `data/versions/p09_r1/metadata.csv`, 분할 근거와 한계는 [split 보고서](experiments/p09_leakage_repair/r1/split/README.md)다. 학습 전 [고정 입력](experiments/p09_leakage_repair/r1/training/input_lock.json)을 확인한다.
-   - [새 cohort 사전등록](experiments/p09_leakage_repair/r1/diagnostic/README.md)은 REAL107장·GEN개입161장·얼굴 상태952장이다. 과거 최종 주석650장/소유자207장 근거만 재사용하고 신규302장은 미확인이다. 새 최종 주석은 candidate 진단 예측 전 완성·커밋한다.
-   - `configs/p09_r1_train.yaml`로 head를 새로 초기화해10epoch 학습한다. [실행/재개 절차](experiments/p09_leakage_repair/r1/training/README.md)를 따르며 기존 head를 이어 쓰지 않는다. 시작 전 GPU 여유·새 경로를 확인한다.
-   - 최종 그룹 lock·split lock·새 metadata hash를 확인한다. 미검토 후보946,311쌍과 GEN prompt+seed 교차는 남으며 평가는 개발 평가다. 기존 metadata·primary·checkpoint·calibration·감사 원자료·소유자 주석은 보존한다.
-2. **P07(API + Demo) 상세 계획·구현** — 현재 우선순위는 P09 재학습·재보정이다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
+1. **[P09-04 val-only 재보정·진단·채택 검토](docs/plan/phase_9_leakage_repair.md)부터 진행** — 새 metadata는 `data/versions/p09_r1/metadata.csv`, 후보 checkpoint는 `checkpoints/leakage_repair/r1/best.pt`다. [학습 결과/검증](experiments/p09_leakage_repair/r1/training/README.md)과 `input_lock.json`·`result.json`의 hash를 확인한다.
+   - 새 val820장만으로 temperature·threshold를 fitting하고 `configs/p09_r1_calibration.yaml`·전용 calibration 경로를 사용한다. 기존 P08 parameter를 복사하거나 현 primary를 먼저 바꾸지 않는다.
+   - [새 cohort 사전등록](experiments/p09_leakage_repair/r1/diagnostic/README.md)은 REAL107장·GEN개입161장·얼굴 상태952장이다. 과거 최종 주석650장/소유자207장 근거를 보존하고 신규302장은 미확인이다. 새 owner 확인 목록과 최종 주석을 candidate 진단 예측 전 완성·커밋한다.
+   - 기존 P08 진단 실행기는 baseline/candidate 동일metadata hash를 요구하므로 P09 config를 그대로 실행하지 않는다. P09-04는 각 artifact의 원래 학습/보정 계보와 새 평가 cohort를 분리하고 혼용 방어를 유지한다. 미검토946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5는 유지한다.
+2. **P07(API + Demo) 상세 계획·구현** — 현재 우선순위는 P09 재보정·진단이다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
    - artifact는 `checkpoints/anonymized/best.pt` + `experiments/p08_anonymized/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).

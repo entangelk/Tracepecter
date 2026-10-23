@@ -1,0 +1,43 @@
+{
+  "observed_machine_date": "2026-10-23",
+  "started_at": "2026-10-23T01:50:57.658516773Z",
+  "finished_at": "2026-10-23T02:06:51.327592835Z",
+  "elapsed_seconds": 953.669076,
+  "training_exit_code": 0,
+  "oom_killed": false,
+  "training_git_commit": "cd9bafc7e2161d634a6dc39d0ff17c368bd9ef5b",
+  "container_image": "sha256:54185be2cc8022facd7302d922525d4c9a383f189c538e48d99e6ace03b7f267",
+  "command": [
+    "bash",
+    "-c",
+    "exec python -u -m src.train --config configs/p09_r1_train.yaml > experiments/p09_leakage_repair/r1/training/training.log 2>&1"
+  ],
+  "checkpoint_mount": {
+    "Type": "bind",
+    "Source": "/mnt/h/tracepector/checkpoints",
+    "Destination": "/app/checkpoints",
+    "Mode": "rw",
+    "RW": true,
+    "Propagation": "rprivate"
+  },
+  "image_mount": {
+    "Type": "bind",
+    "Source": "/mnt/h/tracepector/images",
+    "Destination": "/images",
+    "Mode": "ro",
+    "RW": false,
+    "Propagation": "rprivate"
+  },
+  "gpu_preflight": {
+    "name": "NVIDIA GeForce RTX 3060",
+    "memory_mib": 12288,
+    "used_mib": 657,
+    "utilization_percent": 29,
+    "other_compute_apps": 0
+  },
+  "training_environment": {
+    "torch": "2.9.0+cu128",
+    "cuda": "12.8",
+    "hf_home": "/app/checkpoints/hf_cache"
+  }
+}
