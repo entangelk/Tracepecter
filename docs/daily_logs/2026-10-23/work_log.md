@@ -46,5 +46,20 @@
 
 ### 검증·후속
 
-- 보강 직후 Docker 집중33 passed(2.88초). 변이 전 checkpoint를 커밋하고 clean gate를 실행한다. 변이별 명명 셀과 복원/최종 회귀 결과는 아래에 추가한다.
+- 보강 직후 Docker 집중33 passed(2.88초). 변이 전 checkpoint `eaa009f`를 커밋하고 `git status --short` 빈 출력을 실제 확인했다. 각 변이 직전에도 같은 gate를 실행했고, 각 실행 후 백업 바이트로 복원·바이트 일치·clean 상태를 확인했다. 아래9개 변이는 모두 해당 단일 명명 셀에서 `1 failed`, exit1이었다.
+- 복원 후 집중53 passed(3.36초), 전체 CPU263 passed / 1 skipped(49.61초). skip은 기존 실제 YuNet opt-in smoke이고 Pillow 기존 경고12개 외 실패가 없다. 생산 소스2개가 checkpoint 및 기존 split lock hash와 같고, metadata hash도 기존 값과 같음을 재확인했다.
 - 이후 프로젝트 다음 작업은 기존과 같이 P09-03 진단 사전등록과 재학습이다.
+
+### 변이와 명명 회귀의 대응
+
+| 변이 | 위치·교체 | 재실패한 셀 | 결과 |
+| --- | --- | --- | --- |
+| B1_gen_group | `scripts/split_dataset.py:67`: `key = allocation_groups[row['image_id']] if allocation_groups is not None else group_key(row)` → `key = allocation_groups[row['image_id']] if allocation_groups is not None and row['source_type'] == 'real' else group_key(row)` | `tests/test_p09_split.py::test_groups_determinism_and_no_prompt_merging` | 1 failed, exit1 |
+| B2_missing_review | `scripts/p09_resplit.py:98`: `if any(tuple(sorted((r['a'], r['b']))) not in reviewed for r in selected):` → `if False:` | `tests/test_p09_resplit.py::test_priority_scope_rejects_incomplete_evidence[missing_review]` | 1 failed, exit1 |
+| B3_empty_class | `scripts/p09_resplit.py:73`: `if {r['label'] for r in rows if r['split'] == split} != {'0', '1'}:` → `if False:` | `tests/test_p09_resplit.py::test_split_report_rejects_contract_violations[empty_class]` | 1 failed, exit1 |
+| over_different_look | `scripts/p09_resplit.py:37`: `if review['verdict'] != 'different_look':` → `if True:` | `tests/test_p09_split.py::test_review_crossings_both_directions` | 1 failed, exit1 |
+| old_group_defence | `scripts/split_dataset.py:124`: `if any(len(values) != 1 for values in old_groups.values()):` → `if False:` | `tests/test_p09_split.py::test_invalid_mapping_rejected[old_group]` | 1 failed, exit1 |
+| image_hash | `scripts/p09_resplit.py:161`: `if sha256(path) != image['sha256']:` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[image]` | 1 failed, exit1 |
+| output_overwrite | `scripts/p09_resplit.py:114`: `if args.out.exists() or args.report.exists():` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[out_exists]` | 1 failed, exit1 |
+| lineage_report | `scripts/p09_resplit.py:151`: `report['generation_train_overlap'] = overlap` → `report['generation_train_overlap'] = {}` | `tests/test_p09_resplit.py::test_resplit_cli_report_lineage_and_locks` | 1 failed, exit1 |
+| ledger_identity | `scripts/p09_resplit.py:156`: `if {r['image_id'] for r in images} != set(by_id):` → `if False:` | `tests/test_p09_resplit.py::test_resplit_cli_rejects_bad_evidence_without_output[ledger_ids]` | 1 failed, exit1 |

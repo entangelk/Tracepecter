@@ -66,7 +66,7 @@ python3 -m scripts.p09_resplit \
   --image-root /mnt/h/tracepector/images
 
 docker compose run --rm -T dev python -m pytest \
-  tests/test_p09_split.py tests/test_split_dataset.py \
+  tests/test_p09_split.py tests/test_p09_resplit.py tests/test_split_dataset.py \
   tests/test_p09_group_candidates.py tests/test_baseline.py -q
 ```
 
@@ -78,4 +78,14 @@ docker compose run --rm -T dev python -m pytest \
 
 - 구현 전 새 테스트의 미구현 함수 import 실패를 확인했다. 구현 후 Docker 집중39 passed(38.38초), 전체 CPU242 passed / 1 skipped(50.47초), 최종 queue hash 검사 추가 후 P09 집중12 passed(2.76초). skip은 기존 실제 YuNet opt-in smoke이고 Pillow 경고12개는 기존 항목이다.
 - under-strict 가드는 추이/다중 셀/GEN 그룹 분산·잘못된 매핑·검토 미해결 교차·unseen 혼입·옛 Test B REAL 재사용을 막는다. over-strict 가드는 정상 공동 배정·다른 룩의 split 교차·같은 prompt를 공유하는 서로 다른 GEN의 분할·정상 경로 계산을 허용한다.
-- 원본6,000장 파일 hash 대조, 실제 metadata 생성, 새 출력 경로에서 재현 hash 대조와 전체 CPU 회귀를 수행했다. 별도 작업자의 독립검증이나 생산 코드 변이는 수행하지 않았다.
+- 원본6,000장 파일 hash 대조, 실제 metadata 생성, 새 출력 경로에서 재현 hash 대조와 전체 CPU 회귀를 수행했다. 최초 구현의 자가 검증에는 별도 작업자의 독립검증이나 생산 코드 변이가 포함되지 않았다.
+
+## 독립검증 지적의 회귀 보강
+
+[독립검증](../../../../docs/verifications/2026-10-23/p09_02_resplit.md)은 실물 재현을 확인했으나 B1 GEN 그룹·B2 검토 scope·B3 보고/실행 경계의 회귀 공백 때문에 조건부 합격이었다. 후속 보강에서는 생산 코드·metadata·고정 lock을 바꾸지 않고 테스트만 추가했다.
+
+- GEN 공동 배정 fixture는 개별 배정 시 서로 갈라지는 g0/g4를 사용한다. 정상 그룹 보존과 공유 prompt 자동 병합 금지를 함께 확인한다.
+- `tests/test_p09_resplit.py`는 scope의 정상/누락, 보고서의 셀·class·그룹·불변 필드, 실제 CLI의 lock·이미지 hash·덮어쓰기·계보 보고를 직접 실행한다. 임시52장 fixture를 사용하며 실데이터 출력은 쓰지 않는다.
+- 독립검증에서 살아남은3개 변이를 포함한9개 변이가 모두 해당 명명 셀에서 재실패했다. checkpoint 커밋 후 각 변이의 clean gate·백업·바이트 복원·clean 상태를 확인했다. 정확한 변이와 셀은 [작업 기록](../../../../docs/daily_logs/2026-10-23/work_log.md)에 보존한다. 이는 구현자의 보강 검증이며 기존 독립검증 판정을 소급 변경하지 않는다.
+
+보강 후 복원 상태에서 집중53 passed(3.36초), 전체 CPU263 passed / 1 skipped(49.61초). 기존 실제 YuNet opt-in smoke와 Pillow 경고12개 외 실패가 없다.
