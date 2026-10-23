@@ -1,0 +1,32 @@
+# 2026-10-23 작업 기록
+
+## 목표
+
+- 소유자가 핸드오프의 다음 작업인 P09-02 진행을 승인했다. 고정 배정 그룹을 소비해 새 metadata를 생성하고 새 split 경계를 검증한다. 재학습은 P09-03의 별도 범위다.
+
+## 완료한 작업
+
+- `scripts/split_dataset.py`에 선택적 배정 매핑 소비를 추가했다. 기존 실행 경로를 유지하며 REAL의 `look_group`과 전체 `split`만 변경한다. GEN의 공동 배정도 별도 매핑으로 유지하고 prompt/seed는 자동 결합에 사용하지 않는다.
+- `scripts/p09_resplit.py`로 입력·코드·그룹 출력 lock 검증, 새 버전 출력, 원본 이미지 hash 대조, 셀별 수/그룹/목표 비율, 고정 시각 판정의 경계별 재투영과 GEN 계보 교차를 기록한다. 기존 출력이 있으면 거부한다.
+- 회귀 테스트를 먼저 추가해 미구현 함수 import 실패를 확인한 뒤 구현했다. 누락/중복/빈 ID 매핑, 옛 그룹 분해, class 혼합, unseen 충돌 거부와 정상 다중 셀·추이·GEN 그룹, 행 순서 결정성, 불변 필드, CLI, 새 Test B REAL 선택을 검증한다.
+- 새 metadata는 원본 6,000개 ID와 12열을 유지한다. train 3,780 / val 820 / test 800 / test_unseen 600. 셀별 실제 비율은 목표에서 1%p 미만 차이이며 빈 셀/class는 없다. 기존 metadata·primary·checkpoint·calibration은 보존한다.
+
+## 발견한 문제
+
+- metadata의 `path`는 CSV 위치 기준으로 해석되지만 새 버전의 경로 문자열은 기존 값 그대로다. 소비자들은 이미 `image_root`를 지원하므로 loader를 바꾸지 않고 이후 학습·평가 설정에서 `/images`를 명시한다. CLI 소비 테스트로 경로 계산을 확인했다.
+- 새 split에서 train과 실제 prompt+seed를 공유하는 GEN은 val 360 / test 344 / test_unseen 596장이다. 이는 실제 근사중복 판정이 아니며 현재 계약상 자동 결합하지 않는다. 기존 평가와 같은 독립성/표본 구조로 해석하지 않는다.
+
+## 결정과 한계
+
+- 기존 결정적 크기 내림차순·키 동점 규칙과 셀별 결손 합 알고리즘을 재사용한다. 새로운 최적화기나 모델 변경은 도입하지 않는다.
+- 기존 시각 판정 1,386행을 모든 새 경계에서 재조회했다. 확정·미확정 교차는 없고, 다른 룩 판정의 교차는 train/test 166·train/val 141·val/test 4쌍이다. 이는 새 원본 시각 검토 1,386회를 수행했다는 뜻이 아니다.
+- 초기 REAL500·GEN100 우선순위 포함 여부를 재검증했다. 고정 source/입력으로 directed top-10을 재계산해 미처리 이웃0을 재확인했다. 범위 밖 미검토946,311쌍과 개발 평가의 한계는 그대로다.
+
+## 검증
+
+- Docker 집중39 passed(38.38초), 전체 CPU242 passed / 1 skipped(50.47초). skip은 기존 실제 YuNet opt-in smoke이며 기존 Pillow 경고12개 외 실패가 없다. 생산 코드 변이·GPU 실행은 하지 않았다.
+- 원본6,000장 SHA-256 일치와 별도 출력 경로에서 metadata·경계 CSV·보고서의 바이트 단위 재현 일치를 확인했다. metadata SHA-256은 `5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161`이다. 최종 queue hash 검사 후 P09 집중12 passed(2.76초). 최종 산출물 근거는 `experiments/p09_leakage_repair/r1/split/README.md`다.
+
+## 다음 작업
+
+- P09-03 진입 전 새 cohort의 단서 진단 적용 범위·주석 ID·bootstrap 단위를 사전등록하고 커밋한다. 그 뒤 GPU 여유를 확인해 기존 frozen SigLIP encoder의 head를 새로 초기화하여 학습한다.

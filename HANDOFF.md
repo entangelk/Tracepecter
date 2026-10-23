@@ -1,11 +1,11 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-20 · 45줄
+> 마지막 자가 검수: 2026-10-23 · 45줄
 
 ## 현재 상태
 
 - P00(프로젝트 초기화) **Complete** — 독립검증 초회+재검증 합격. 기록: `docs/verifications/2026-10-07/p00_initialization.md`.
-- 현재 `data/metadata.csv`는 **6,000행**(REAL 3,000 K-Fashion + GEN 3,000): train 3,780 / val 820 / test 800 / test_unseen 600(sd35_medium 전량). **선언된 ID·look_group 교차는0이지만 실제 같은 룩의 split 교차가 있어 데이터 독립성 감사는 불합격이다. P09 배정 그룹만 고정했으며 현재 metadata는 수리 전이다.** P08 사전등록 통계 관문 통과와 구분한다.
+- 현재 `data/metadata.csv`는 **6,000행**(REAL 3,000 K-Fashion + GEN 3,000): train 3,780 / val 820 / test 800 / test_unseen 600(sd35_medium 전량). **선언된 ID·look_group 교차는0이지만 실제 같은 룩의 split 교차가 있어 데이터 독립성 감사는 불합격이다. 기존 metadata는 보존본이며 P09 새 metadata와 구분한다.** P08 사전등록 통계 관문 통과와 구분한다.
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/anonymized/best.pt`(P08-06 채택). DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
@@ -17,11 +17,11 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **[P09-02 그룹 재분할](docs/plan/phase_9_leakage_repair.md)부터 진행** — [최종 그룹](experiments/p09_leakage_repair/r1/grouping/final/group_lock.json)과 [검토 범위/한계](experiments/p09_leakage_repair/r1/grouping/README.md)를 먼저 읽는다. 새 metadata·학습은 미착수다.
-   - `final/group_mapping.csv`가6,000 ID의 배정 정본이며 `group_lock.json`의 입력/source/output hash를 검증한다. 시각 판정과 미확정 공동 배정은 별도 CSV다. 최대89장 성분은 여러 착장을 포함하는 공동 배정 단위이며 분할하지 않는다.
-   - DB-07은 우선순위 검토·미검토 범위 명시로 Resolved다. 미검토 초기 후보946,311쌍이 남으므로 전체 독립성 통과를 선언하지 않는다. 기존 pHash 그룹도 시각적 동일성 증거로 쓰지 않는다.
-   - 새 출력은 `data/versions/p09_r1/metadata.csv`·`checkpoints/leakage_repair/r1/`·`experiments/p09_leakage_repair/r1/`로 분리한다. 기존 metadata·primary·checkpoint·calibration·감사 원자료·소유자 주석은 보존한다. 새 split의 모든 경계에서 고정된 검토 범위를 대조한다.
-2. **P07(API + Demo) 상세 계획·구현** — 누출 수리 범위 검토를 먼저 이어간다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
+1. **[P09-03 익명화 SigLIP 재학습](docs/plan/phase_9_leakage_repair.md) 준비부터 진행** — 새 metadata는 `data/versions/p09_r1/metadata.csv`, 분할 근거와 한계는 [split 보고서](experiments/p09_leakage_repair/r1/split/README.md)다. 학습은 미착수다.
+   - 학습 전 새 cohort의 진단 적용 범위·표본·주석 ID·bootstrap 단위를 사전등록하고 커밋한다. 기존 소유자 301장 주석은 해당 ID의 근거이며 새 표본 전체 확인이 아니다.
+   - `configs/p09_r1_train.yaml`을 만들어 기존 익명화 SigLIP 설정을 유지하고 새 metadata·`image_root: /images`·`checkpoints/leakage_repair/r1/`·전용 학습 보고 경로를 명시한다. 기존 head를 이어 쓰지 않고 새로 초기화한다.
+   - 최종 그룹 lock·split lock·새 metadata hash를 확인한다. 미검토 후보946,311쌍과 GEN prompt+seed 교차는 남으며 평가는 개발 평가다. 기존 metadata·primary·checkpoint·calibration·감사 원자료·소유자 주석은 보존한다.
+2. **P07(API + Demo) 상세 계획·구현** — 현재 우선순위는 P09 재학습·재보정이다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
    - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
    - artifact는 `checkpoints/anonymized/best.pt` + `experiments/p08_anonymized/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).

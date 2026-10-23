@@ -109,9 +109,9 @@ python3 -m scripts.p09_finalize_groups --out /tmp/p09_groups_check
 
 ## 남은 작업
 
-P09-01은 DB-07의 한정 범위에서 종결했다. 다음은 P09-02: 최종 group lock을 검증하고 새 metadata를 생성한 뒤 새 경계에서 동일한 우선순위 검토 범위를 대조한다. 기존 `data/metadata.csv`·primary·checkpoint·calibration은 보존했으며 재분할·학습은 미착수다.
+P09-01은 DB-07의 한정 범위에서 종결했다. 현재 새 metadata와 경계 대조는 [P09-02 보고서](../split/README.md)를 참조한다. 다음은 P09-03의 새 cohort 진단 사전등록과 재학습이다. 기존 `data/metadata.csv`·primary·checkpoint·calibration은 보존본이며 학습은 미착수다.
 
-범위 밖 누락·촬영 출처/압축 교란·개발에 노출된 평가 표본 문제는 남는다. 그룹 고정은 실제 split 교차를 아직 수리하지 않았으며, 재분할 후에도 평가는 개발 평가다. 누출 완전 제거·미접촉 일반화 성능을 주장하지 않는다.
+범위 밖 누락·촬영 출처/압축 교란·개발에 노출된 평가 표본 문제는 남는다. 그룹 고정 자체는 split 변경이 아니며, P09-02 재분할 이후에도 평가는 개발 평가다. 누출 완전 제거·미접촉 일반화 성능을 주장하지 않는다.
 
 ## 검증
 

@@ -1,6 +1,6 @@
 # P09 — 동일 룩 누출 수리와 재학습
 
-**상태:** In Progress (P09-01 Complete, 다음 P09-02). [후보 생성·검토 기록](../../experiments/p09_leakage_repair/r1/grouping/README.md). 재분할·학습은 미착수다. 소유자는 [DB-07](../decision_briefs/DB-07_P09_review-coverage.md)에서 우선순위 검토와 미검토 범위 명시를 선택했다.
+**상태:** In Progress (P09-01·02 Complete, 다음 P09-03). [후보 생성·검토 기록](../../experiments/p09_leakage_repair/r1/grouping/README.md). 새 metadata는 `data/versions/p09_r1/metadata.csv`이며 학습은 미착수다. 소유자는 [DB-07](../decision_briefs/DB-07_P09_review-coverage.md)에서 우선순위 검토와 미검토 범위 명시를 선택했다.
 
 ## 목표와 근거
 
@@ -52,7 +52,7 @@ checkpoint 경로는 Compose의 기존 checkpoint mount 안이다. 실제 실행
 | ID | 작업 | 선행 조건 | 완료 증거 | 상태 |
 | --- | --- | --- | --- | --- |
 | P09-01 | 후보 확장·관계 검토·그룹 확정 | 감사 lock 검증 | [한정 검토·연결 성분·계보 보고](../../experiments/p09_leakage_repair/r1/grouping/README.md), [최종 그룹 lock](../../experiments/p09_leakage_repair/r1/grouping/final/group_lock.json); 전체 후보 독립성 통과 아님 | Complete |
-| P09-02 | 결정적 그룹 재분할 | P09-01 final/group_lock.json과 group_mapping.csv | 새 metadata·재현 hash·양방향 가드·새 split 교차 재감사 | Planned |
+| P09-02 | 결정적 그룹 재분할 | P09-01 final/group_lock.json과 group_mapping.csv | [새 metadata·lock·경계 재감사·검증 기록](../../experiments/p09_leakage_repair/r1/split/README.md), 기존 artifact 보존 | Complete |
 | P09-03 | 익명화 SigLIP 재학습 | P09-02 통과, 진단 규칙 사전 커밋, GPU 여유 | train/val 실제 ID·best/last·학습 보고; 기존 artifact 불변 | Planned |
 | P09-04 | val-only 재보정·고정 평가·채택 검토 | P09-03 새 checkpoint | 새 calibration 결합 검증·Test A/B·단서 진단·채택 여부와 한계 보고 | Planned |
 

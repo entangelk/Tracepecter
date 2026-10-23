@@ -50,7 +50,7 @@ def group_key(row: dict) -> str:
 
 
 def stratified_group_split(
-    rows: list[dict], seed: int = 42
+    rows: list[dict], seed: int = 42, allocation_groups: dict[str, str] | None = None
 ) -> tuple[list[dict], dict]:
     """source_type × category × generator 셀별로 그룹 단위 70/15/15 배정(결정적).
 
@@ -64,7 +64,8 @@ def stratified_group_split(
 
     groups: dict[str, list[int]] = defaultdict(list)
     for idx, row in enumerate(rows):
-        groups[group_key(row)].append(idx)
+        key = allocation_groups[row['image_id']] if allocation_groups is not None else group_key(row)
+        groups[key].append(idx)
     ordered_groups = sorted(
         groups.items(), key=lambda kv: (-len(kv[1]), kv[0])
     )
@@ -106,6 +107,45 @@ def stratified_group_split(
     return out_rows, stats
 
 
+def reviewed_group_split(rows: list[dict], mapping_rows: list[dict]) -> list[dict]:
+    """Consume a complete reviewed allocation mapping; preserve legacy split behavior."""
+    by_id = {r['image_id']: r for r in rows}
+    mapping = {r['image_id']: r['group_id'] for r in mapping_rows}
+    if len(by_id) != len(rows) or len(mapping) != len(mapping_rows):
+        raise ValueError('duplicate image ID or mapping ID')
+    if set(mapping) != set(by_id) or any(not g.strip() for g in mapping.values()):
+        raise ValueError('missing, extra or empty allocation mapping')
+    old_groups = defaultdict(set)
+    members = defaultdict(list)
+    for row in rows:
+        group = mapping[row['image_id']]
+        old_groups[group_key(row)].add(group)
+        members[group].append(row)
+    if any(len(values) != 1 for values in old_groups.values()):
+        raise ValueError('existing group decomposed')
+    for group_rows in members.values():
+        if len({(r['source_type'], r['label']) for r in group_rows}) != 1:
+            raise ValueError('cross-class allocation group')
+        if len({r['generator'] in UNSEEN_GENERATORS for r in group_rows}) != 1:
+            raise ValueError('unseen allocation conflicts with standard generators')
+    standard, unseen = [], []
+    for original in rows:
+        row = dict(original)
+        if row['source_type'] == 'real':
+            row['look_group'] = mapping[row['image_id']]
+        if row['generator'] in UNSEEN_GENERATORS:
+            row['split'] = 'test_unseen'
+            unseen.append(row)
+        else:
+            standard.append(row)
+    split_rows, _ = stratified_group_split(standard, allocation_groups=mapping)
+    result = sorted(split_rows + unseen, key=lambda r: r['image_id'])
+    problems = check_leakage(result)
+    if problems:
+        raise ValueError(str(problems))
+    return result
+
+
 def check_leakage(rows: list[dict]) -> list[str]:
     """그룹 누출·unseen 혼입 검사 — 위반 목록 반환(빈 리스트 = 통과).
 
@@ -134,6 +174,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inputs", nargs="+", required=True, help="metadata CSV 목록")
     parser.add_argument("--out", required=True, help="병합+split 배정 출력 CSV")
+    parser.add_argument("--group-mapping", help="고정 검토 그룹 CSV(image_id,group_id)")
     args = parser.parse_args()
 
     rows = []
@@ -146,8 +187,17 @@ def main() -> int:
     for row in unseen_rows:
         row["split"] = "test_unseen"
 
-    split_rows, stats = stratified_group_split(standard_rows)
-    all_rows = split_rows + unseen_rows
+    if args.group_mapping:
+        mapping_rows = read_rows(args.group_mapping)
+        all_rows = reviewed_group_split(rows, mapping_rows)
+        standard_ids = {r['image_id'] for r in standard_rows}
+        stats = {
+            'by_split': {s: sum(r['split'] == s for r in all_rows) for s in SPLITS},
+            'groups': len({r['group_id'] for r in mapping_rows if r['image_id'] in standard_ids}),
+        }
+    else:
+        split_rows, stats = stratified_group_split(standard_rows)
+        all_rows = split_rows + unseen_rows
 
     problems = check_leakage(all_rows)
     if problems:

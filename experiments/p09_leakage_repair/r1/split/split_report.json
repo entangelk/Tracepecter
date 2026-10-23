@@ -1,0 +1,751 @@
+{
+  "rows": 6000,
+  "allocation_groups": 5692,
+  "allocation_crossings": 0,
+  "original_group_crossings": 0,
+  "immutable_fields_preserved": true,
+  "by_split": {
+    "train": 3780,
+    "test": 800,
+    "val": 820,
+    "test_unseen": 600
+  },
+  "cells": [
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "playground_25",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "playground_25",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "playground_25",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "qwen_image_21",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "qwen_image_21",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "qwen_image_21",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "sd35_medium",
+      "split": "test_unseen",
+      "count": 150,
+      "target": 150,
+      "actual_ratio": 1.0,
+      "independent_allocation_groups": 150,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "sdxl",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "sdxl",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "sdxl",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "z_image_turbo",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "z_image_turbo",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "상의",
+      "generator": "z_image_turbo",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "playground_25",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 80,
+      "largest_group": 9
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "playground_25",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "playground_25",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "qwen_image_21",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "qwen_image_21",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "qwen_image_21",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "sd35_medium",
+      "split": "test_unseen",
+      "count": 150,
+      "target": 150,
+      "actual_ratio": 1.0,
+      "independent_allocation_groups": 150,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "sdxl",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "sdxl",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "sdxl",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "z_image_turbo",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 81,
+      "largest_group": 19
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "z_image_turbo",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "아우터",
+      "generator": "z_image_turbo",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "playground_25",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "playground_25",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "playground_25",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "qwen_image_21",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "qwen_image_21",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "qwen_image_21",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "sd35_medium",
+      "split": "test_unseen",
+      "count": 150,
+      "target": 150,
+      "actual_ratio": 1.0,
+      "independent_allocation_groups": 150,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "sdxl",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "sdxl",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "sdxl",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "z_image_turbo",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 102,
+      "largest_group": 3
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "z_image_turbo",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "원피스",
+      "generator": "z_image_turbo",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "playground_25",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 104,
+      "largest_group": 2
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "playground_25",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "playground_25",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "qwen_image_21",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "qwen_image_21",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "qwen_image_21",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "sd35_medium",
+      "split": "test_unseen",
+      "count": 150,
+      "target": 150,
+      "actual_ratio": 1.0,
+      "independent_allocation_groups": 150,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "sdxl",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "sdxl",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "sdxl",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "z_image_turbo",
+      "split": "train",
+      "count": 105,
+      "target": 105.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 105,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "z_image_turbo",
+      "split": "val",
+      "count": 23,
+      "target": 22.5,
+      "actual_ratio": 0.15333333333333332,
+      "independent_allocation_groups": 23,
+      "largest_group": 1
+    },
+    {
+      "source_type": "generated",
+      "category": "하의",
+      "generator": "z_image_turbo",
+      "split": "test",
+      "count": 22,
+      "target": 22.5,
+      "actual_ratio": 0.14666666666666667,
+      "independent_allocation_groups": 22,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "상의",
+      "generator": "",
+      "split": "train",
+      "count": 525,
+      "target": 525.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 507,
+      "largest_group": 13
+    },
+    {
+      "source_type": "real",
+      "category": "상의",
+      "generator": "",
+      "split": "val",
+      "count": 113,
+      "target": 112.5,
+      "actual_ratio": 0.15066666666666667,
+      "independent_allocation_groups": 113,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "상의",
+      "generator": "",
+      "split": "test",
+      "count": 112,
+      "target": 112.5,
+      "actual_ratio": 0.14933333333333335,
+      "independent_allocation_groups": 112,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "아우터",
+      "generator": "",
+      "split": "train",
+      "count": 525,
+      "target": 525.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 485,
+      "largest_group": 12
+    },
+    {
+      "source_type": "real",
+      "category": "아우터",
+      "generator": "",
+      "split": "val",
+      "count": 113,
+      "target": 112.5,
+      "actual_ratio": 0.15066666666666667,
+      "independent_allocation_groups": 113,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "아우터",
+      "generator": "",
+      "split": "test",
+      "count": 112,
+      "target": 112.5,
+      "actual_ratio": 0.14933333333333335,
+      "independent_allocation_groups": 112,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "원피스",
+      "generator": "",
+      "split": "train",
+      "count": 525,
+      "target": 525.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 495,
+      "largest_group": 9
+    },
+    {
+      "source_type": "real",
+      "category": "원피스",
+      "generator": "",
+      "split": "val",
+      "count": 113,
+      "target": 112.5,
+      "actual_ratio": 0.15066666666666667,
+      "independent_allocation_groups": 113,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "원피스",
+      "generator": "",
+      "split": "test",
+      "count": 112,
+      "target": 112.5,
+      "actual_ratio": 0.14933333333333335,
+      "independent_allocation_groups": 112,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "하의",
+      "generator": "",
+      "split": "train",
+      "count": 525,
+      "target": 525.0,
+      "actual_ratio": 0.7,
+      "independent_allocation_groups": 387,
+      "largest_group": 67
+    },
+    {
+      "source_type": "real",
+      "category": "하의",
+      "generator": "",
+      "split": "val",
+      "count": 113,
+      "target": 112.5,
+      "actual_ratio": 0.15066666666666667,
+      "independent_allocation_groups": 113,
+      "largest_group": 1
+    },
+    {
+      "source_type": "real",
+      "category": "하의",
+      "generator": "",
+      "split": "test",
+      "count": 112,
+      "target": 112.5,
+      "actual_ratio": 0.14933333333333335,
+      "independent_allocation_groups": 112,
+      "largest_group": 1
+    }
+  ],
+  "reviewed_boundary_verdicts": {
+    "test_unseen|train": {},
+    "test_unseen|val": {},
+    "test|test_unseen": {},
+    "test|train": {
+      "different_look": 166
+    },
+    "test|val": {
+      "different_look": 4
+    },
+    "train|val": {
+      "different_look": 141
+    }
+  },
+  "initial_priority_pairs_checked": 600,
+  "directed_neighbor_pending_pairs": 0,
+  "full_candidate_independence_passed": false,
+  "unreviewed_initial_candidates": 946311,
+  "generation_train_overlap": {
+    "prompt": {
+      "val": 362,
+      "test": 346,
+      "test_unseen": 597
+    },
+    "prompt+noise_seed": {
+      "val": 360,
+      "test": 344,
+      "test_unseen": 596
+    }
+  },
+  "image_files_verified": 6000,
+  "image_hash_ledger_sha256": "8dfe72057e2eeadaf286425e01b5ba6bfdc489fbba987849fb9136657de71de8"
+}
