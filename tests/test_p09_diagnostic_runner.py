@@ -22,9 +22,19 @@ def changed_cohort(fixture, monkeypatch):
     checkpoint = Path(artifact['checkpoint'])
     saved = torch.load(checkpoint, weights_only=True)
     current = Path(settings['inputs']['metadata'])
-    rows = shared.read_csv(current)
+    rows = [dict(row, look_group=f"look_{row['image_id']}") for row in shared.read_csv(current)]
+    with current.open('w', newline='') as handle:
+        writer = csv.DictWriter(handle, list(rows[0]))
+        writer.writeheader(); writer.writerows(rows)
+    calibration = Path(settings['candidate_calibration'])
+    candidate = json.loads(calibration.read_text())
+    candidate['metadata_sha256'] = file_hash(current)
+    calibration.write_text(json.dumps(candidate))
     old = path.parent/'old_metadata.csv'
     for row in rows:
+        # The repair regrouped every REAL look; GEN groups stayed fixed.
+        if row['source_type'] == 'real':
+            row['look_group'] = f"old_{row['image_id']}"
         if row['image_id'] == 'train_0.png':
             row['split'] = 'test'
         elif row['image_id'] == 'test_0.png':
@@ -72,7 +82,7 @@ def test_cross_split_evaluation_keeps_original_bindings(changed_cohort):
     assert len(calls) == count
 
 
-@pytest.mark.parametrize('damage', ['baseline_metadata', 'baseline_identity', 'baseline_duplicate', 'baseline_columns', 'baseline_immutable', 'evaluation_duplicate', 'candidate_metadata', 'candidate_checkpoint', 'candidate_binding'])
+@pytest.mark.parametrize('damage', ['baseline_metadata', 'baseline_identity', 'baseline_duplicate', 'baseline_columns', 'baseline_immutable', 'baseline_gen_look_group', 'evaluation_duplicate', 'candidate_metadata', 'candidate_fit_metadata', 'candidate_checkpoint', 'candidate_binding'])
 def test_artifact_loader_rejects_mixed_lineage(changed_cohort, damage):
     """Under: mixed artifact/data accepted; over: unchanged cross-split pair allowed above."""
     path, output, _, settings, old = changed_cohort
@@ -87,6 +97,8 @@ def test_artifact_loader_rejects_mixed_lineage(changed_cohort, damage):
             rows[0]['image_id'] = 'foreign.png'
         elif damage == 'baseline_duplicate':
             rows.append(rows[0].copy())
+        elif damage == 'baseline_gen_look_group':
+            next(r for r in rows if r['source_type'] == 'generated')['look_group'] = 'regrouped'
         elif damage == 'baseline_columns':
             fields.remove('category')
             for row in rows:
@@ -105,13 +117,17 @@ def test_artifact_loader_rejects_mixed_lineage(changed_cohort, damage):
     else:
         p = Path(settings['candidate_calibration'])
         artifact = json.loads(p.read_text())
-        if damage == 'candidate_metadata':
+        if damage in ('candidate_metadata', 'candidate_fit_metadata'):
             checkpoint = Path(artifact['checkpoint'])
             saved = torch.load(checkpoint, weights_only=True)
             saved['config']['data']['metadata_csv'] = str(old)
             torch.save(saved, checkpoint)
             artifact['metadata_sha256'] = file_hash(old)
             artifact['checkpoint_sha256'] = file_hash(checkpoint)
+            if damage == 'candidate_fit_metadata':
+                # Keep the training-result binding valid so only the fit-metadata check can reject.
+                result = output.parent/'training/result.json'
+                result.write_text(json.dumps(dict(artifact_sha256={artifact['checkpoint']: artifact['checkpoint_sha256']})))
         elif damage == 'candidate_checkpoint':
             result = output.parent/'training/result.json'
             result.write_text(json.dumps(dict(artifact_sha256={artifact['checkpoint']: 'wrong'})))
@@ -125,5 +141,6 @@ def test_artifact_loader_rejects_mixed_lineage(changed_cohort, damage):
             result = output.parent/'training/result.json'
             result.write_text(json.dumps(dict(artifact_sha256={artifact['checkpoint']: artifact['checkpoint_sha256']})))
         p.write_text(json.dumps(artifact))
-    with pytest.raises(ValueError):
+    match = {'baseline_gen_look_group': 'immutable metadata changed', 'candidate_fit_metadata': 'candidate calibration metadata hash mismatch'}
+    with pytest.raises(ValueError, match=match.get(damage)):
         runner.load_artifacts(settings, registration, spec)

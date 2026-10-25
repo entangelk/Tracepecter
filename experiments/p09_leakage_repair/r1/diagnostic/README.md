@@ -20,7 +20,7 @@ P08의 운영상 등가성 관문을 변경하지 않는다. 이미지 단위로
 
 `preregistration.json`은 새 metadata·config·기존 cache·기하·측정·baseline artifact와 세 manifest의 raw-byte hash를 고정한다. 학습 준비 lock은 추가로 과거 주석 원본·주석 투영·학습 sample ID·학습 소스를 고정한다. [준비 도구](../training/prepare.py)는 split lock 검증 후 같은 바이트의 재생성만 허용하며 모델 예측을 하지 않는다.
 
-P09-04에서 새 val ID만으로 후보를 재보정한다. P08의 fitting parameter를 복사하지 않는다. config의 baseline은 기존 P05 artifact를 보존하는 비교 정본이며 그 학습·보정 metadata는 옛 버전이다. 기존 `scripts.p08_diagnostic`는 두 모델의 metadata hash가 같아야 하므로 P09 config를 그대로 실행하면 거부한다. 후속 실행기는 각 artifact의 원래 학습/보정 계보를 보존하고 **새 평가 cohort를 명시적으로 분리**해야 한다. 기존 hash 혼용 방어를 제거하거나 baseline artifact의 metadata hash를 새 값으로 덮어쓰지 않는다. baseline 비교는 이미 개발에 노출된 표본의 기술적 비교이며 대응표본 일반화 개선의 증거로 쓰지 않는다.
+P09-04에서 새 val ID만으로 후보를 재보정한다. P08의 fitting parameter를 복사하지 않는다. config의 baseline은 기존 P05 artifact를 보존하는 비교 정본이며 그 학습·보정 metadata는 옛 버전이다. 기존 `scripts.p08_diagnostic`는 두 모델의 metadata hash가 같아야 하므로 P09 config를 그대로 실행하면 거부한다. 후속 실행기는 각 artifact의 원래 학습/보정 계보를 보존하고 **새 평가 cohort를 명시적으로 분리**해야 한다. 기존 hash 혼용 방어를 제거하거나 baseline artifact의 metadata hash를 새 값으로 덮어쓰지 않는다. baseline 원래 metadata와 새 평가 metadata는 같은 ID 집합·같은 열이어야 하며, 값이 달라도 되는 열은 `split`(전 행)과 REAL 행의 `look_group`(P09-01 재그룹)뿐이다. 그 밖의 열, GEN 행의 `look_group` 변경은 거부한다(`scripts/p09_diagnostic.py` `load_artifacts`). baseline 비교는 이미 개발에 노출된 표본의 기술적 비교이며 대응표본 일반화 개선의 증거로 쓰지 않는다.
 
 ```bash
 docker compose run --rm -T dev \
@@ -28,3 +28,11 @@ docker compose run --rm -T dev \
 ```
 
 이 파일·config·manifest를 사전 커밋한 뒤에만 P09-03 학습을 시작한다. 후보 진단 예측·최종 채택은 이번 준비 범위가 아니다.
+
+## 진단 결과 (2026-10-25)
+
+최종 주석 커밋 `beb2be2` 이후 GPU 실행 결과는 `result.json`·`execution.json`과 조건별 예측 CSV 8개다. 판정은 `adopt: true`이며 익명화 Test A/B AUC 0.9996131798/0.9994940476, 다섯 관문 전부 통과다. [독립검증 기록](../../../../docs/verifications/2026-10-25/p09_04_diagnostic.md)이 저장 예측에서 전 수치를 독립 재계산했다.
+
+- 얼굴 상태 FP는 익명화 8/601, 얼굴 없음 3/224, 남은 얼굴 6/127이다. 익명화-남은 얼굴 차이 구간 [-8.63, -0.55]%p는 허용폭 ±10%p 안이지만 0을 포함하지 않는다. 남은 얼굴 상태의 FP가 더 높게 관측됐으며 "차이 없음"으로 보고하지 않는다. 다중 얼굴 이미지는 소유자 표시대로 주 인물 기준으로 집계했다.
+- 소유자 신규 180행은 페이지 안내(얼굴 수)와 달리 선택지 0~4에 맞춰 눈·코·입 요소 수로 입력됐다. 변환(요소 0~1→0, 2~4→1)은 `scripts.p09_face_review merge` 코드 밖에서 수행해 merge 입력으로 넣었다. 따라서 merge가 쓴 `owner_input_semantics='face_count'`는 merge 입력(변환본) 기준이다. `face_review_lock.json`의 요소 의미 표기·변환 규칙·확인 ID·요소 원본 hash는 merge 직후 진단 예측 전에 추가했다. `owner_review_lock.json`의 `face_count`는 페이지 설계 당시의 의도이며, 고정 근거라 수정하지 않는다.
+- 이후 소유자 검토 페이지는 입력 단위를 요소 수로 받거나 안내문·선택지 단위를 일치시키고, 변환을 merge 코드에 포함해야 한다. 이번 페이지·렌더 코드는 `owner_review_lock.json`에 hash로 고정된 근거라 사후에 수정하지 않았다.
