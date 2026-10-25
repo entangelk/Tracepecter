@@ -25,10 +25,13 @@
 - primary 전환: `tests/test_p09_adoption.py`를 먼저 추가해 전환 전 실패를 확인했다(P08 설정과 불일치). `configs/primary.yaml`을 `configs/p09_r1_train.yaml`과 같은 설정으로 바꾼 뒤 통과했다. P08 채택 테스트는 이동하는 primary 대신 P08 설정 정본(`configs/anonymized.yaml`)으로 연결을 확인하도록 바꿨다. README·SoT의 현재 checkpoint/calibration 경로를 갱신했고 P08·P05 artifact는 보존했다.
 - score CLI 실이미지 확인(`src.score --image /images/real/스포티/998959.jpg --calibration experiments/p09_leakage_repair/r1/calibration/calibration.json --device cuda`): exit 0, score 85.5395821500·photographic_like.
 
+- 소유자 요청으로 인포그래픽 현황 보고서 `reports/infographic/tracepecter_report.html`을 추가했다(저장소 정본 독립 HTML, 결과 변화 시 갱신). 처음 claude.ai에 발행한 사본은 소유자 지시로 삭제했다.
+- P07 상세 계획 [phase_7_api_demo.md](../../plan/phase_7_api_demo.md)를 작성했다. 슬라이스는 P07-01 공유 추론 코어 → P07-02 `POST /score` → P07-03 데모다. `project.md` §22 예시(`confidence`, config의 3단계 threshold 40/70)가 P05~P09 보정 계약(artifact 소유 2단계 threshold, 현재 23.5점)과 충돌해 [DB-08](../../decision_briefs/DB-08_P07_response-contract.md)로 올렸다. 데모 형태도 함께 묻는다.
+
 ## 발견한 문제
 
 - 검토 페이지 본문은 얼굴 수 입력을 요구했지만 선택지가 0~4여서 소유자는 P08과 같은 요소 단위로 입력했다. merge의 형식 검증은 이 의미 차이를 잡지 못한다. 이후 소유자 검토 페이지는 입력 단위와 선택지를 일치시켜야 한다.
 
 ## 다음 작업
 
-- P09 Complete. 다음은 P07(API + Demo) 상세 계획. 미검토 946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5는 유지한다.
+- DB-08 소유자 결정 후 P07-01 구현. 미검토 946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5는 유지한다.

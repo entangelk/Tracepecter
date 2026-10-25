@@ -12,7 +12,8 @@
 | [DB-05](DB-05_P06_review-set.md) | P06 | P06-03 | 100개 검토군 구성·검토 주체 | Resolved | 결정 1 A: 오류 전수+보충 ≥100(유형 구분) · 결정 2 R1: 에이전트 1차+소유자 확인 | 2026-10-09 |
 | [DB-06](DB-06_P06_face-exposure.md) | P06 | P06-04 → P08·P07 | 얼굴 노출 비대칭 대응(DB-03 재상정) | Resolved | 옵션 C: 공통 흰 원 익명화(학습·평가·추론) + 얼굴 노출 실사 평가 holdout | 2026-10-11 |
 | [DB-07](DB-07_P09_review-coverage.md) | P09 | P09-01~02 | 후보 검토 범위 | Resolved | A 방향: 우선순위 검토·미검토 범위 명시 | 2026-10-20 |
+| [DB-08](DB-08_P07_response-contract.md) | P07 | P07-01~03 | API 응답 분류 체계·confidence·데모 형태 | Open | — | 2026-10-25 |
 
 ## 대기 중인 사항
 
-- 없음 — DB-07은 우선순위 검토 방향으로 확정(2026-10-20). 적용은 P09에서 한다.
+- **DB-08**(P07): §22 예시(3단계·config threshold·confidence)와 보정 artifact의 2단계 threshold 충돌, 데모 형태. 결정 전 P07 구현 보류.

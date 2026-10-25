@@ -17,8 +17,8 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P07(API + Demo) 상세 계획·구현** — P09 Complete(2026-10-25)로 최우선이다. 현재 artifact와 공통 전처리 계약은 [P09 진단](experiments/p09_leakage_repair/r1/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
-   - 먼저 `docs/project.md` §22·§23과 [페이즈 인덱스](docs/plan/00_index.md)를 바탕으로 P07 상세 계획을 작성한다. API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다.
+1. **P07(API + Demo) — [상세 계획](docs/plan/phase_7_api_demo.md) 작성 완료, [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) 소유자 결정 대기(2026-10-25)** — 결정 1 분류 체계·threshold 소유(권장 A: artifact 2단계 유지), 결정 2 `confidence`(권장 A: 제거), 결정 3 데모 형태(권장 A: API가 정적 페이지 제공). 결정 후 P07-01 공유 추론 코어부터 구현한다. 현재 artifact와 공통 전처리 계약은 [P09 진단](experiments/p09_leakage_repair/r1/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
+   - API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다. 결정 반영 시 `project.md` §22 예시·README·인포그래픽 보고서를 함께 고친다.
    - artifact는 `checkpoints/leakage_repair/r1/best.pt` + `experiments/p09_leakage_repair/r1/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).
    - 소유자 확인(P08 301장·P09 180장)의 원본·변환본·최종 주석을 보존한다. 소유자 얼굴 확인은 눈·코·입 요소 수로 입력되므로 새 검토 페이지는 단위를 맞추고 변환을 merge 코드에 둔다([P09 진단 README](experiments/p09_leakage_repair/r1/diagnostic/README.md)). P08-07 실사 holdout은 기존 결정대로 P07 관문이 아니다.
