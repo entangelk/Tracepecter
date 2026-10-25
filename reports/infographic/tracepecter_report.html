@@ -1,0 +1,465 @@
+<title>Tracepecter 현황판</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 열 스크롤 보고서. 위에서 결론 → 근거 → 위험 → 다음 단계 순. 사진(REAL)=청록, 생성(GEN)=산호 두 색이 전 차트를 관통한다. */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#15202e; --muted:#5a6676; --line:#d5dbe3;
+  --real:#11807a; --gen:#d4583a; --accent:#1f4e8c;
+  --good:#2f8a4c; --warn:#b7791f; --bad:#c03b3b;
+  --real-soft:#d7eeec; --gen-soft:#f8e0d8; --accent-soft:#dde7f5;
+  --f-display:"Gothic A1","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f151d; --panel:#17202b; --ink:#e6ebf1; --muted:#9aa6b5; --line:#2b3644;
+  --real:#3cbcb3; --gen:#f08466; --accent:#7aa7e8;
+  --good:#5cc27a; --warn:#e2a64a; --bad:#ef6f6f;
+  --real-soft:#173a3a; --gen-soft:#43261f; --accent-soft:#1c2c45; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151d; --panel:#17202b; --ink:#e6ebf1; --muted:#9aa6b5; --line:#2b3644;
+  --real:#3cbcb3; --gen:#f08466; --accent:#7aa7e8;
+  --good:#5cc27a; --warn:#e2a64a; --bad:#ef6f6f;
+  --real-soft:#173a3a; --gen-soft:#43261f; --accent-soft:#1c2c45; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:980px;margin:0 auto;display:grid;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:800}
+h3{font-size:16px;font-weight:700}
+p{margin:0;max-width:68ch}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;display:grid;gap:18px;min-width:0}
+.sechead{display:grid;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.chip.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.chip.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.chip.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.chip.info{background:var(--accent-soft);color:var(--accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+
+/* hero */
+.hero{display:grid;gap:14px;padding-block:8px}
+.hero .lede{font-size:17px;color:var(--muted)}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px}
+.verdict{background:var(--ink);color:var(--bg);border-radius:14px;padding:22px 24px;display:grid;gap:10px}
+.verdict strong{font-family:var(--f-display);font-size:20px;font-weight:800}
+.verdict p{color:color-mix(in srgb,var(--bg) 82%,transparent)}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.tile .big{font-family:var(--f-mono);font-size:28px;font-weight:500;line-height:1.1}
+.tile .lab{font-size:13px;color:var(--muted)}
+
+/* waffle */
+.waffles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.waffle-card{display:grid;gap:10px;min-width:0}
+.waffle{display:grid;grid-template-columns:repeat(40,1fr);gap:2px}
+.waffle i{aspect-ratio:1;border-radius:2px;background:var(--line)}
+.waffle i.r{background:color-mix(in srgb,var(--real) 45%,var(--panel))}
+.waffle i.g{background:color-mix(in srgb,var(--gen) 40%,var(--panel))}
+.waffle i.e{background:var(--bad);outline:1.5px solid var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:2px;display:inline-block}
+
+/* score scale */
+.scale{position:relative;height:56px;margin-top:22px}
+.scale .bar{position:absolute;inset:18px 0 18px 0;border-radius:6px;background:linear-gradient(90deg,var(--gen) 0%,var(--gen) 23.5%,var(--real) 23.5%,var(--real) 100%);opacity:.85}
+.scale .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
+.scale .mark b{position:absolute;top:-20px;transform:translateX(-50%);font-family:var(--f-mono);font-size:12px;font-weight:500;white-space:nowrap}
+.scale .ticks{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.scale-labels{display:flex;justify-content:space-between;font-size:13px;margin-top:10px}
+
+/* timeline */
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;counter-reset:none}
+.step{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:6px;align-content:start;position:relative}
+.step .id{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.step.done{border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+.step.next{border:2px solid var(--accent);background:var(--accent-soft)}
+.step.skip{opacity:.7;border-style:dashed}
+.step p{font-size:13px;color:var(--muted)}
+
+/* story */
+.story{display:grid;gap:0}
+.story-row{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.story-row:first-child{border-top:0}
+.story-row .when{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);padding-top:2px}
+.story-row .what{display:grid;gap:4px;min-width:0}
+
+/* bars */
+.bars{display:grid;gap:10px}
+.brow{display:grid;grid-template-columns:minmax(120px,190px) 1fr 54px;gap:12px;align-items:center}
+.brow .lbl{font-size:13.5px}
+.brow .lbl small{display:block;color:var(--muted);font-size:12px}
+.track{position:relative;height:22px;background:color-mix(in srgb,var(--line) 55%,transparent);border-radius:5px;overflow:visible}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.limit{position:absolute;top:-5px;bottom:-5px;width:0;border-left:2px dashed var(--bad)}
+.limit em{position:absolute;top:-19px;left:4px;font-style:normal;font-family:var(--f-mono);font-size:11px;color:var(--bad);white-space:nowrap}
+.brow .val{font-family:var(--f-mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.axis{display:grid;grid-template-columns:minmax(120px,190px) 1fr 54px;gap:12px}
+.axis div:nth-child(2){display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.two>*{min-width:0;display:grid;gap:12px;align-content:start}
+
+/* ci plot */
+.ci{display:grid;gap:12px}
+.cirow{display:grid;grid-template-columns:minmax(120px,190px) 1fr 92px;gap:12px;align-items:center}
+.ciplot{position:relative;height:22px}
+.ciplot .base{position:absolute;left:0;right:0;top:10px;height:2px;background:var(--line)}
+.ciplot .w{position:absolute;top:5px;height:12px;border-left:2px solid currentColor;border-right:2px solid currentColor}
+.ciplot .w::after{content:"";position:absolute;left:0;right:0;top:5px;height:2px;background:currentColor}
+.ciplot .p{position:absolute;top:4px;width:14px;height:14px;border-radius:50%;background:currentColor;transform:translateX(-50%);border:2px solid var(--panel)}
+
+/* risks */
+.risks{display:grid;gap:10px}
+.risk{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:14px;border:1px solid var(--line);border-radius:10px;border-left-width:5px}
+.risk.bad{border-left-color:var(--bad)}.risk.warn{border-left-color:var(--warn)}.risk.info{border-left-color:var(--accent)}
+.risk .body{display:grid;gap:4px;min-width:0}
+.risk .lvl{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding-top:3px;min-width:44px}
+.risk.bad .lvl{color:var(--bad)}.risk.warn .lvl{color:var(--warn)}.risk.info .lvl{color:var(--accent)}
+
+/* data split */
+.split{display:grid;gap:8px}
+.srow{display:grid;grid-template-columns:96px 1fr 60px;gap:12px;align-items:center;font-size:13.5px}
+.stack{display:flex;height:22px;border-radius:5px;overflow:hidden;background:var(--line)}
+.stack span{display:block;height:100%}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+.tablewrap{overflow-x:auto}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:600}
+td.n{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+.next-list{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.next-list div{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:6px;align-content:start}
+footer{font-size:12.5px;color:var(--muted);display:grid;gap:6px}
+footer code{font-family:var(--f-mono);font-size:12px;word-break:break-all}
+@media (max-width:560px){
+  .story-row{grid-template-columns:1fr;gap:4px}
+  .brow,.axis,.cirow{grid-template-columns:1fr 50px}
+  .brow .lbl,.cirow .lbl{grid-column:1/-1}
+  .axis div:first-child,.axis div:last-child{display:none}
+  .axis{grid-template-columns:1fr 50px}
+  .cirow{grid-template-columns:1fr 84px}
+  section{padding:18px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .fill{animation:grow .9s ease-out both}
+  @keyframes grow{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Tracepecter · 패션 사진 실사/생성 판별 점수 · 마지막 갱신 2026-10-25</div>
+  <h1>지금 모델은 잘 맞히고 있고,<br>남은 숙제는 “처음 보는 사진”이다</h1>
+  <p class="lede">패션 착장 사진 한 장을 넣으면 0~100점의 “실사다움” 점수를 돌려주는 모델이다. 점수가 23.5 이상이면 실제 사진, 미만이면 생성 이미지로 분류한다.</p>
+  <div class="meta">
+    <span class="chip good"><span class="dot"></span>P09 Complete</span>
+    <span class="chip info"><span class="dot"></span>현재 모델: P09 재학습 SigLIP</span>
+    <span class="chip warn"><span class="dot"></span>평가는 개발용 데이터 기준</span>
+    <span class="chip info"><span class="dot"></span>다음: P07 API + 데모</span>
+  </div>
+</header>
+
+<div class="verdict">
+  <strong>한 줄 결론</strong>
+  <p>같은 룩이 학습과 시험에 섞여 있던 문제를 고친 뒤 다시 학습한 모델이, 사전에 정해 둔 다섯 가지 함정 검사와 성능 기준을 모두 통과해 현재 모델로 채택됐다. 다만 이 시험 사진들은 개발 중에 이미 여러 번 본 데이터라서, 완전히 새로운 사진에서도 같은 성능이 나온다는 증거는 아직 없다.</p>
+</div>
+
+<section aria-labelledby="s-now">
+  <div class="sechead">
+    <div class="eyebrow">결과 한눈에</div>
+    <h2 id="s-now">현재 모델 성적표</h2>
+    <p class="muted">얼굴을 흰 원으로 가린 입력 기준(실제 서비스와 같은 조건). Test A는 학습에 쓴 생성기 4종, Test B는 학습에 없던 생성기 sd35_medium으로 만든 이미지다.</p>
+  </div>
+  <div class="tiles">
+    <div class="tile"><span class="big num">0.9996</span><span class="lab">Test A AUC (800장)</span></div>
+    <div class="tile"><span class="big num">0.9995</span><span class="lab">Test B AUC (1,048장)</span></div>
+    <div class="tile"><span class="big num" style="color:var(--good)">6</span><span class="lab">Test A 오답 / 800장</span></div>
+    <div class="tile"><span class="big num" style="color:var(--warn)">17</span><span class="lab">Test B 오답 / 1,048장</span></div>
+    <div class="tile"><span class="big num" style="color:var(--good)">5 / 5</span><span class="lab">함정 검사 통과</span></div>
+  </div>
+
+  <div class="waffles">
+    <div class="waffle-card">
+      <h3>Test A · 오답 6장</h3>
+      <div class="waffle" id="wA" role="img" aria-label="Test A 800장 중 실제 사진 448장, 생성 352장, 오답 6장"></div>
+      <p class="note">실제 사진을 생성으로 본 3장, 생성을 실제로 본 3장.</p>
+    </div>
+    <div class="waffle-card">
+      <h3>Test B · 오답 17장</h3>
+      <div class="waffle" id="wB" role="img" aria-label="Test B 1048장 중 실제 사진 448장, 생성 600장, 오답 17장"></div>
+      <p class="note">생성을 실제로 본 14장은 전부 처음 보는 생성기(sd35_medium)였다. 실제 사진 오답 3장은 Test A와 같은 사진이다.</p>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i class="sw" style="background:color-mix(in srgb,var(--real) 45%,var(--panel))"></i>실제 사진(REAL) 정답</span>
+    <span><i class="sw" style="background:color-mix(in srgb,var(--gen) 40%,var(--panel))"></i>생성 이미지(GEN) 정답</span>
+    <span><i class="sw" style="background:var(--bad)"></i>오답</span>
+  </div>
+</section>
+
+<section aria-labelledby="s-score">
+  <div class="sechead">
+    <div class="eyebrow">점수 읽는 법</div>
+    <h2 id="s-score">0~100점과 23.5점 기준선</h2>
+    <p class="muted">모델 출력(logit)을 온도 T=0.777로 나눈 뒤 sigmoid를 거쳐 100을 곱한다. 온도와 기준선은 검증용 820장에서만 정했고, 시험 결과를 보고 다시 고치지 않았다.</p>
+  </div>
+  <div class="scale" role="img" aria-label="0에서 100 사이 점수 막대, 23.5에 기준선">
+    <div class="bar"></div>
+    <div class="mark" style="left:23.5%"><b>기준선 23.5</b></div>
+    <div class="mark" style="left:85.5%"><b>예시 실사 85.5</b></div>
+    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+  </div>
+  <div class="scale-labels"><span style="color:var(--gen);font-weight:600">← synthetic_like (생성)</span><span style="color:var(--real);font-weight:600">photographic_like (실사) →</span></div>
+  <p class="note">점수는 “사진일 확률”을 보정한 값이지 품질 점수가 아니다. 사람이 느끼는 실사다움과 점수가 맞는지는 아직 평가하지 않았다.</p>
+</section>
+
+<section aria-labelledby="s-base">
+  <div class="sechead">
+    <div class="eyebrow">베이스라인과 비교</div>
+    <h2 id="s-base">처음 모델은 얼굴로 답을 맞히고 있었다</h2>
+    <p class="muted">처음 베이스라인(P05)은 얼굴이 보이느냐로 상당 부분 판단했다. 학습 데이터에서 실제 사진은 얼굴이 거의 안 보이고(0.4%), 생성 이미지는 64.5%가 얼굴을 드러냈기 때문이다. 얼굴을 가리자 베이스라인의 Test B 오답이 9장에서 62장으로 늘었다. 지금 모델은 얼굴을 가려도 오답 수가 거의 변하지 않는다.</p>
+  </div>
+  <div class="two">
+    <div>
+      <h3>Test B 오답 수 (1,048장 중)</h3>
+      <div class="bars" id="baseB"></div>
+      <div class="axis"><div></div><div><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span></div><div></div></div>
+    </div>
+    <div>
+      <h3>Test A 오답 수 (800장 중)</h3>
+      <div class="bars" id="baseA"></div>
+      <div class="axis"><div></div><div><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span></div><div></div></div>
+    </div>
+  </div>
+  <p class="note">비교 시 주의: 베이스라인은 수리 전 데이터 분할로 학습했다. 그래서 새 시험 세트에 베이스라인이 학습 때 본 사진이 섞여 있고, 베이스라인의 “원본 입력” 숫자는 실제보다 좋게 나온다. 두 모델의 공정한 우열 비교가 아니라 얼굴 의존 정도를 보여주는 기술적 비교다.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>모델</th><th>입력</th><th style="text-align:right">Test A AUC</th><th style="text-align:right">Test A 정확도</th><th style="text-align:right">Test B AUC</th><th style="text-align:right">Test B 정확도</th></tr></thead>
+      <tbody>
+        <tr><td>P05 베이스라인</td><td>원본</td><td class="n">0.99997</td><td class="n">99.62%</td><td class="n">0.99974</td><td class="n">99.14%</td></tr>
+        <tr><td>P05 베이스라인</td><td>얼굴 가림</td><td class="n">0.99883</td><td class="n">98.50%</td><td class="n">0.99550</td><td class="n" style="color:var(--bad)">94.08%</td></tr>
+        <tr><td>P09 현재 모델</td><td>원본</td><td class="n">0.99963</td><td class="n">99.38%</td><td class="n">0.99956</td><td class="n">98.47%</td></tr>
+        <tr><td><strong>P09 현재 모델</strong></td><td><strong>얼굴 가림</strong></td><td class="n"><strong>0.99961</strong></td><td class="n"><strong>99.25%</strong></td><td class="n"><strong>0.99949</strong></td><td class="n"><strong>98.38%</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="s-story">
+  <div class="sechead">
+    <div class="eyebrow">어떻게 여기까지 왔나</div>
+    <h2 id="s-story">문제를 찾고 고친 과정</h2>
+  </div>
+  <div class="story">
+    <div class="story-row"><div class="when">10-07 ~ 10-09<br>P00–P01</div><div class="what"><h3>데이터 6,000장 구축</h3><p class="muted">AIHub K-Fashion 실제 사진 3,000장과 로컬 생성기 5종으로 만든 이미지 3,000장. 생성기 하나(sd35_medium)는 학습에서 빼고 시험(Test B)에만 쓴다.</p></div></div>
+    <div class="story-row"><div class="when">10-09<br>P02–P03</div><div class="what"><h3>베이스라인: SigLIP vs DINOv2</h3><p class="muted">두 인코더는 고정하고 위에 작은 분류기만 학습했다. 검증 AUC 차이가 0.0001로 작아서, 사전 규칙대로 더 빠른 SigLIP(9.6ms vs 12.4ms)을 골랐다. 성능이 충분해 LoRA 미세조정(P04)은 들어가지 않았다.</p></div></div>
+    <div class="story-row"><div class="when">10-09<br>P05</div><div class="what"><h3>0~100점 보정</h3><p class="muted">검증 데이터로 온도와 기준선을 정해 점수 CLI를 만들었다.</p></div></div>
+    <div class="story-row"><div class="when">10-11<br>P06</div><div class="what"><h3>오답 분석에서 지름길 발견</h3><p class="muted">얼굴이 안 보이는 생성 이미지를 실제 사진으로 착각했다. 얼굴을 지우거나 되돌리는 실험으로 모델이 얼굴 노출을 단서로 쓴다는 것을 확인했다.</p></div></div>
+    <div class="story-row"><div class="when">10-13 ~ 10-20<br>P08</div><div class="what"><h3>모든 사진의 얼굴을 흰 원으로 가리고 재학습</h3><p class="muted">학습, 평가, 서비스 모두 같은 규칙으로 얼굴을 가린다. 소유자가 301장의 얼굴 상태를 직접 확인했고, 다섯 가지 함정 검사를 통과했다.</p></div></div>
+    <div class="story-row"><div class="when">10-20<br>누출 감사</div><div class="what"><h3>같은 룩이 학습과 시험에 섞여 있었다</h3><p class="muted">AUC가 지나치게 높아 일부러 반박하는 쪽으로 다시 점검했다. 같은 착장 사진이 학습과 시험 양쪽에 들어간 사례를 8쌍 찾았다(최소치).</p></div></div>
+    <div class="story-row"><div class="when">10-21 ~ 10-25<br>P09</div><div class="what"><h3>룩 단위로 묶어 다시 나누고, 다시 학습</h3><p class="muted">비슷한 사진 후보를 검토해 같은 룩을 한 묶음(5,692개 배정 단위)으로 만들고 묶음째로 학습·검증·시험에 배정했다. 확인된 같은 룩의 교차는 0이 됐다. 재학습, 재보정, 소유자 얼굴 확인 180장, 함정 검사, 독립검증까지 마치고 현재 모델로 채택했다.</p></div></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-gates">
+  <div class="sechead">
+    <div class="eyebrow">함정 검사</div>
+    <h2 id="s-gates">얼굴 말고 다른 지름길은 없나</h2>
+    <p class="muted">이미지를 조금씩 바꿔서 점수가 흔들리는지 봤다. 가린 원의 모양·크기를 바꾸고(실제 사진 107장), 생성 이미지의 가린 부분을 회색으로 칠하거나 얼굴을 되살렸다(161장). 기준은 결과를 보기 전에 정했다. 평균 점수 변화의 95% 상한이 5점 이하, 정답이 오답으로 바뀔 위험의 상한이 5% 이하여야 한다.</p>
+  </div>
+  <div class="two">
+    <div>
+      <h3>평균 점수 변화 (95% 상한, 점)</h3>
+      <div class="bars" id="gateShift"></div>
+      <div class="axis"><div></div><div><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span></div><div></div></div>
+    </div>
+    <div>
+      <h3>정답→오답 위험 (95% 상한, %)</h3>
+      <div class="bars" id="gateErr"></div>
+      <div class="axis"><div></div><div><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span></div><div></div></div>
+    </div>
+  </div>
+  <p class="note">네 실험 모두 정답이 오답으로 바뀐 사례는 0건이었다. 얼굴을 되살렸을 때는 오답 1장이 오히려 정답으로 바뀌었다.</p>
+
+  <div class="sechead" style="margin-top:6px">
+    <h3>얼굴 상태별 오탐률 (생성 이미지를 실사로 본 비율)</h3>
+    <p class="note">시험 세트의 생성 이미지 952장을 얼굴 상태로 나눴다. 세 상태 간 차이가 ±10%p 안이면 통과다.</p>
+  </div>
+  <div class="ci" id="faceCI"></div>
+  <div class="axis" style="grid-template-columns:minmax(120px,190px) 1fr 92px"><div></div><div><span>0%</span><span>4%</span><span>8%</span><span>12%</span></div><div></div></div>
+</section>
+
+<section aria-labelledby="s-data">
+  <div class="sechead">
+    <div class="eyebrow">데이터</div>
+    <h2 id="s-data">무엇으로 학습하고 시험했나</h2>
+    <p class="muted">P09 재분할 후에도 분할별 장수는 그대로다. 바뀐 것은 어떤 사진이 어느 쪽에 들어갔는지다.</p>
+  </div>
+  <div class="split" id="splits"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--real)"></i>실제 사진 (K-Fashion)</span>
+    <span><i class="sw" style="background:var(--gen)"></i>생성 이미지</span>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>생성기</th><th>용도</th><th style="text-align:right">장수</th></tr></thead>
+      <tbody>
+        <tr><td>qwen_image_21 · z_image_turbo · sdxl · playground_25</td><td>학습·검증·Test A</td><td class="n">각 600</td></tr>
+        <tr><td>sd35_medium</td><td>Test B 전용 (처음 보는 생성기)</td><td class="n">600</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="s-risk">
+  <div class="sechead">
+    <div class="eyebrow">주의할 점</div>
+    <h2 id="s-risk">어떤 문제가 있을 수 있나</h2>
+    <p class="muted">통과는 “정해 둔 기준 안”이라는 뜻이다. 아래 항목은 아직 증명하지 못했거나 숫자로 드러난 약점이다.</p>
+  </div>
+  <div class="risks">
+    <div class="risk bad"><span class="lvl">높음</span><div class="body"><h3>시험 사진이 완전히 새 사진이 아니다</h3><p class="muted">재분할한 6,000장은 개발 중에 여러 번 쓰였다. 출처·해상도·압축을 맞춘 미접촉 사진에서 같은 성능이 나오는지는 별도 수집이 필요하다.</p></div></div>
+    <div class="risk bad"><span class="lvl">높음</span><div class="body"><h3>실제 사진 출처가 하나뿐이다</h3><p class="muted">실제 사진은 전부 K-Fashion이다. 모델이 “사진이냐”가 아니라 “K-Fashion 촬영 스타일·해상도·압축이냐”를 배웠을 가능성이 남아 있다.</p></div></div>
+    <div class="risk warn"><span class="lvl">중간</span><div class="body"><h3>처음 보는 생성기에서 오탐이 몰린다</h3><p class="muted">Test A·B를 합쳐 생성 이미지를 실사로 본 17장 중 14장이 sd35_medium이다. 새 생성기가 나올수록 이 비율이 커질 수 있다.</p></div></div>
+    <div class="risk warn"><span class="lvl">중간</span><div class="body"><h3>가려지지 않은 얼굴이 남은 이미지의 오탐이 더 높다</h3><p class="muted">옆모습처럼 검출기가 놓친 얼굴이 남은 생성 이미지는 오탐률 4.7%(6/127)로, 얼굴을 다 가린 경우 1.3%(8/601)보다 높게 나왔다. 기준 안이지만 차이가 없다고 말할 수는 없다.</p></div></div>
+    <div class="risk warn"><span class="lvl">중간</span><div class="body"><h3>같은 룩 후보를 전부 보지는 못했다</h3><p class="muted">우선순위 범위만 사람이 검토했고 946,311쌍은 검토하지 않았다. 생성 이미지끼리 프롬프트·시드 계보를 공유하는 문제도 남아 있다.</p></div></div>
+    <div class="risk info"><span class="lvl">낮음</span><div class="body"><h3>점수 보정이 모든 지표를 개선하지는 않았다</h3><p class="muted">보정 후 검증 NLL은 좋아졌지만 Brier 점수와 Test A의 NLL·ECE는 조금 나빠졌다. 시험 결과를 보고 다시 맞추지 않았다.</p></div></div>
+    <div class="risk info"><span class="lvl">낮음</span><div class="body"><h3>사람 평가와 얼굴이 보이는 실사 평가가 없다</h3><p class="muted">점수가 사람의 체감과 맞는지, 얼굴이 드러난 실제 사진에서 어떻게 동작하는지는 아직 측정하지 않았다.</p></div></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-road">
+  <div class="sechead">
+    <div class="eyebrow">진행 상황</div>
+    <h2 id="s-road">페이즈 지도</h2>
+  </div>
+  <div class="timeline">
+    <div class="step done"><span class="id">P00</span><h3>초기화</h3><span class="chip good">완료</span></div>
+    <div class="step done"><span class="id">P01</span><h3>데이터 파이프라인</h3><span class="chip good">완료</span></div>
+    <div class="step done"><span class="id">P02</span><h3>베이스라인 모델</h3><span class="chip good">완료</span></div>
+    <div class="step done"><span class="id">P03</span><h3>SigLIP vs DINO</h3><span class="chip good">완료</span></div>
+    <div class="step skip"><span class="id">P04</span><h3>LoRA (조건부)</h3><span class="chip info">진입 조건 미충족</span></div>
+    <div class="step done"><span class="id">P05</span><h3>점수 보정</h3><span class="chip good">완료</span></div>
+    <div class="step done"><span class="id">P06</span><h3>오답 분석</h3><span class="chip good">완료</span></div>
+    <div class="step done"><span class="id">P08</span><h3>얼굴 가림 재학습</h3><span class="chip good">완료</span></div>
+    <div class="step done"><span class="id">P09</span><h3>누출 수리·재학습</h3><span class="chip good">완료</span></div>
+    <div class="step next"><span class="id">P07</span><h3>API + 데모</h3><span class="chip info">다음 작업</span></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-next">
+  <div class="sechead">
+    <div class="eyebrow">다음 단계</div>
+    <h2 id="s-next">앞으로 할 일</h2>
+  </div>
+  <div class="next-list">
+    <div><h3>P07 API + 데모</h3><p class="muted">POST /score와 데모 화면. 가린 얼굴 수와 모델 버전을 함께 돌려주고, 원본 미리보기와 가림 표시를 보여준다.</p></div>
+    <div><h3>새 시험 데이터 수집</h3><p class="muted">출처가 다른 실제 사진과 얼굴이 보이는 실사를 포함한 미접촉 시험 세트. 지금 성능을 일반화 근거로 쓰려면 필요하다.</p></div>
+    <div><h3>사람 평가</h3><p class="muted">점수가 사람이 느끼는 실사다움과 맞는지 확인한다.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-log">
+  <div class="sechead">
+    <div class="eyebrow">갱신 기록</div>
+    <h2 id="s-log">이 보고서의 변경 이력</h2>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>날짜</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">2026-10-25</td><td>첫 발행. P09 완료와 현재 모델 채택 반영.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span>근거 파일 (저장소 기준)</span>
+  <code>experiments/p09_leakage_repair/r1/diagnostic/result.json · candidate_anonymized.csv</code>
+  <code>experiments/p09_leakage_repair/r1/calibration/README.md · experiments/p03_comparison/README.md</code>
+  <code>docs/verifications/2026-10-25/p09_04_diagnostic.md · HANDOFF.md</code>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  function waffle(id, real, gen, errReal, errGen){
+    var el=document.getElementById(id), html='';
+    for(var i=0;i<real;i++) html+='<i class="'+(i<errReal?'e':'r')+'"></i>';
+    for(var j=0;j<gen;j++) html+='<i class="'+(j<errGen?'e':'g')+'"></i>';
+    el.innerHTML=html;
+  }
+  waffle('wA',448,352,3,3);
+  waffle('wB',448,600,3,14);
+
+  function bars(id, rows, max, limit, unit){
+    var el=document.getElementById(id), h='';
+    rows.forEach(function(r){
+      var w=Math.min(100,r.v/max*100);
+      h+='<div class="brow"><div class="lbl">'+r.l+(r.s?'<small>'+r.s+'</small>':'')+'</div>'+
+         '<div class="track"><div class="fill" style="width:'+w+'%;background:'+r.c+'"></div>'+
+         (limit!=null?'<div class="limit" style="left:'+(limit/max*100)+'%"><em>기준 '+limit+unit+'</em></div>':'')+
+         '</div><div class="val">'+r.t+'</div></div>';
+    });
+    el.innerHTML=h;
+  }
+  var muted='color-mix(in srgb,var(--muted) 55%,transparent)';
+  bars('baseB',[
+    {l:'P05 베이스라인',s:'원본 입력',v:9,t:'9',c:muted},
+    {l:'P05 베이스라인',s:'얼굴 가림',v:62,t:'62',c:'var(--bad)'},
+    {l:'P09 현재 모델',s:'원본 입력',v:16,t:'16',c:'color-mix(in srgb,var(--accent) 55%,transparent)'},
+    {l:'P09 현재 모델',s:'얼굴 가림',v:17,t:'17',c:'var(--accent)'}],80,null,'');
+  bars('baseA',[
+    {l:'P05 베이스라인',s:'원본 입력',v:3,t:'3',c:muted},
+    {l:'P05 베이스라인',s:'얼굴 가림',v:12,t:'12',c:'var(--bad)'},
+    {l:'P09 현재 모델',s:'원본 입력',v:5,t:'5',c:'color-mix(in srgb,var(--accent) 55%,transparent)'},
+    {l:'P09 현재 모델',s:'얼굴 가림',v:6,t:'6',c:'var(--accent)'}],80,null,'');
+  bars('gateShift',[
+    {l:'원 모양 변경',s:'실제 사진 107장',v:0.210,t:'0.21',c:'var(--real)'},
+    {l:'원 크기 변경',s:'실제 사진 107장',v:3.323,t:'3.32',c:'var(--real)'},
+    {l:'회색으로 가림',s:'생성 161장',v:0.244,t:'0.24',c:'var(--gen)'},
+    {l:'얼굴 되살림',s:'생성 161장',v:1.016,t:'1.02',c:'var(--gen)'}],8,5,'점');
+  bars('gateErr',[
+    {l:'원 모양 변경',s:'실제 사진 107장',v:3.47,t:'3.47',c:'var(--real)'},
+    {l:'원 크기 변경',s:'실제 사진 107장',v:3.47,t:'3.47',c:'var(--real)'},
+    {l:'회색으로 가림',s:'생성 161장',v:2.33,t:'2.33',c:'var(--gen)'},
+    {l:'얼굴 되살림',s:'생성 161장',v:2.33,t:'2.33',c:'var(--gen)'}],8,5,'%');
+
+  var ci=[
+    {l:'얼굴을 모두 가림',s:'601장 중 8장',p:1.33,lo:0.68,hi:2.60,c:'var(--good)'},
+    {l:'보이는 얼굴 없음',s:'224장 중 3장',p:1.34,lo:0.46,hi:3.86,c:'var(--good)'},
+    {l:'가려지지 않은 얼굴 남음',s:'127장 중 6장',p:4.72,lo:2.18,hi:9.92,c:'var(--warn)'}], max=12, h='';
+  ci.forEach(function(r){
+    h+='<div class="cirow"><div class="lbl" style="font-size:13.5px">'+r.l+'<small style="display:block;color:var(--muted);font-size:12px">'+r.s+'</small></div>'+
+       '<div class="ciplot" style="color:'+r.c+'"><div class="base"></div><div class="w" style="left:'+(r.lo/max*100)+'%;width:'+((r.hi-r.lo)/max*100)+'%"></div><div class="p" style="left:'+(r.p/max*100)+'%"></div></div>'+
+       '<div class="mono" style="font-size:12.5px;text-align:right">'+r.p.toFixed(1)+'%<br><span class="muted">['+r.lo.toFixed(1)+'–'+r.hi.toFixed(1)+']</span></div></div>';
+  });
+  document.getElementById('faceCI').innerHTML=h;
+
+  var sp=[['train',2100,1680],['val',452,368],['test (A)',448,352],['test_unseen',0,600]], tot=3780, sh='';
+  sp.forEach(function(r){
+    var n=r[1]+r[2];
+    sh+='<div class="srow"><span class="mono">'+r[0]+'</span><div class="stack" style="width:'+(n/tot*100)+'%">'+
+        (r[1]?'<span style="width:'+(r[1]/n*100)+'%;background:var(--real)"></span>':'')+
+        '<span style="width:'+(r[2]/n*100)+'%;background:var(--gen)"></span></div><span class="mono" style="text-align:right">'+n.toLocaleString()+'</span></div>';
+  });
+  document.getElementById('splits').innerHTML=sh;
+})();
+</script>

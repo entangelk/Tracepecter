@@ -28,6 +28,8 @@
 
 ## 주의
 
+- **소유자용 인포그래픽 현황 보고서(2026-10-25~)**: 원본 `reports/infographic/tracepecter_report.html`, 발행 URL https://claude.ai/artifact/Jk4tpfsjxmsfeZC9T9TYYQ (비공개). 슬라이스·페이즈 완료나 결과·채택·위험이 바뀌면 이 파일을 갱신하고 같은 URL로 재발행한다(다른 세션은 Artifact publish에 `url` 지정). 하단 '갱신 기록' 표에 날짜와 내용을 한 줄 추가한다.
+
 - `docs/guides/`, `CLAUDE.md`, `AGENTS.md`는 `.gitignore`로 Git 비추적(로컬 작업 지침).
 - **GPU(이 머신)**: RTX 3060 12GB. 소유자의 다른 AI 작업이 GPU를 크게 점유하면 GPU 작업은 중단한다(큐잉 금지 — 소유자 지시). ai_writte_system 컨테이너가 떠 있어도 점유가 낮으면 실행해도 된다(소유자 2026-10-11). 생성 컨테이너는 현재 정지(필요 시 compose gpu profile).
 - **이 머신은 예기치 않은 전원 단절이 반복됨**(09-21·09-24·10-08, Kernel-Power 41). 장시간 백그라운드 작업은 setsid + 디스크 기반 재개 가능 상태로 둘 것. HF 대량 다운로드는 `scripts/chunk_dl.py`(v4.1) — `curl --retry` 금지(재스트리밍 오염), `-C -`+`-r` 금지.
