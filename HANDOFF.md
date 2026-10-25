@@ -28,7 +28,7 @@
 
 ## 주의
 
-- **소유자용 인포그래픽 현황 보고서(2026-10-25~)**: 원본 `reports/infographic/tracepecter_report.html`, 발행 URL https://claude.ai/artifact/Jk4tpfsjxmsfeZC9T9TYYQ (비공개). 슬라이스·페이즈 완료나 결과·채택·위험이 바뀌면 이 파일을 갱신하고 같은 URL로 재발행한다(다른 세션은 Artifact publish에 `url` 지정). 하단 '갱신 기록' 표에 날짜와 내용을 한 줄 추가한다.
+- **소유자용 인포그래픽 현황 보고서(2026-10-25~)**: 저장소 파일 `reports/infographic/tracepecter_report.html`이 정본이다(독립 HTML, 브라우저로 직접 연다: `F:\devel\Tracepecter\reports\infographic\tracepecter_report.html`). 슬라이스·페이즈 완료나 결과·채택·위험이 바뀌면 같은 작업에서 이 파일을 갱신·커밋하고 하단 '갱신 기록' 표에 한 줄 추가한다. 외부 발행본은 정본이 아니다.
 
 - `docs/guides/`, `CLAUDE.md`, `AGENTS.md`는 `.gitignore`로 Git 비추적(로컬 작업 지침).
 - **GPU(이 머신)**: RTX 3060 12GB. 소유자의 다른 AI 작업이 GPU를 크게 점유하면 GPU 작업은 중단한다(큐잉 금지 — 소유자 지시). ai_writte_system 컨테이너가 떠 있어도 점유가 낮으면 실행해도 된다(소유자 2026-10-11). 생성 컨테이너는 현재 정지(필요 시 compose gpu profile).
