@@ -128,3 +128,43 @@ sed -i "s/if key == 'split' or (key == 'look_group' and source\['source_type'\] 
 docker compose --profile training run --rm -T -e CUDA_VISIBLE_DEVICES= train python -m pytest tests/test_p09_diagnostic_runner.py -q; echo exit=$?
 git checkout -- scripts/p09_diagnostic.py && git status --short
 ```
+
+## 추적검증 (2026-10-25, 보강 커밋 `3589dc7`)
+
+### 대상과 방법
+
+- 보강 커밋 `3589dc7`의 변경은 `tests/test_p09_diagnostic_runner.py`와 `experiments/p09_leakage_repair/r1/diagnostic/README.md` 두 파일뿐이다(`git show 3589dc7 --stat`). 생산 코드와 고정 근거는 이전 hash와 같다. `scripts/p09_diagnostic.py` `e0d9e016…`, `scripts/p09_face_review.py` `0f63783c…`, `scripts/p08_face_review.html` `d21fa746…`, `face_review_lock.json` `8da064d8…`, `owner_review_lock.json` `5475769b…`, `result.json` `a989b433…`, `execution.json` `61337307…`이다. 따라서 1차 검증의 수치 재계산 결과는 그대로 유효하다.
+- 구현자 보고를 근거로 쓰지 않았다. diff를 직접 읽었고, clean tree(`git status --short` 비어 있음)에서 변이를 다시 적용해 각 guarding cell을 실행했다.
+
+### 지적별 추적 결과
+
+- **B1 해소.** fixture(`tests/test_p09_diagnostic_runner.py:25-37`)는 새 metadata에 행마다 다른 `look_group`을 두고, 옛 baseline metadata에서는 REAL 행의 look_group만 다르게 바꾼다. 이에 맞춰 candidate calibration의 metadata hash도 다시 맞춘다. 실제 P09 차이(REAL look_group + split)를 재현하는 정상 경로다.
+  - 새 damage `baseline_gen_look_group`(:100-101)은 GEN 한 행의 look_group을 바꾸며, `immutable metadata changed` 메시지까지 match한다(:144-145).
+  - 변이 재실행 결과:
+    - M9(`:45`를 `if key == 'split':`로): `test_cross_split_evaluation_keeps_original_bindings`가 1 failed(exit 1)로 과잉 엄격 방향을 잡는다.
+    - M9b(REAL 조건 제거, `key in ('split','look_group')`): `[baseline_gen_look_group]`이 1 failed(exit 1)로 과소 엄격 방향을 잡는다.
+    - 추가 M9c(source_type을 `generated`로 뒤집음): 파일 전체에서 2 failed / 10 passed(exit 1).
+  - README:23에 허용 열(전 행 `split`, REAL 행 `look_group`)과 거부 대상이 적혔다. 코드 `scripts/p09_diagnostic.py:45-48`과 일치한다.
+- **H1 해소.** 새 damage `candidate_fit_metadata`(:120-130)는 training result를 새 checkpoint hash로 다시 써서 `:33`이 통과하게 만든다. 남는 검사는 `:29-30`뿐이며 메시지 match가 걸려 있다. M1(`:29-30`을 `pass`로)에서 1 failed(exit 1)다.
+- **H2·H3·H4 처리는 적절하다.** README '진단 결과' 절이 다음 다섯 가지를 사실대로 적었고, 내용은 1차 검증의 원자료 대조 결과와 일치한다.
+  - 요소 단위 입력과 merge 밖 변환
+  - merge가 쓴 `face_count`가 변환본 기준이라는 점
+  - lock 보강 시점(예측 전, `beb2be2`)
+  - 익명화-남은 얼굴 구간이 0을 포함하지 않는다는 점
+  - 다중 얼굴 집계 정책
+  
+  렌더 코드와 페이지는 `owner_review_lock.json`에 hash로 고정된 확인 근거다. 사후에 수정하면 소유자가 본 자료와 기록이 어긋나므로, 수정하지 않은 것이 맞다. 페이지 단위 일치와 변환의 코드화는 다음 소유자 검토 때의 권고로 README에 남아 있다. 현재 슬라이스의 계약 의무는 아니다.
+
+### 실행 명령과 exit code
+
+- `docker compose --profile training run --rm -T -e CUDA_VISIBLE_DEVICES= train python -m pytest tests/test_p09_diagnostic_runner.py -v -p no:cacheprovider`: 12 passed, exit 0
+- M9 / M9b / M1 / M9c: 각각 exit 1. 매 변이 뒤 `git checkout -- scripts/p09_diagnostic.py`로 되돌렸고 `git status --short`가 빈 것을 확인했다.
+- `docker compose --profile training run --rm -T -e CUDA_VISIBLE_DEVICES= train python -m pytest -q -p no:cacheprovider`: 289 passed, 1 skipped, exit 0
+
+### 최종 판정
+
+**합격** — B1의 과잉/과소 엄격 경계가 모두 회귀 cell로 고정됐고, 허용 열이 계약에 명시됐다. H1도 단독 cell로 고정됐다. 진단 수치와 adopt=true는 1차 독립 재계산 그대로 유효하다.
+
+- 남은 차단 지적은 없다.
+- 비차단 권고 한 건이 남는다. 다음 소유자 검토부터 페이지의 입력 단위를 맞추고, 요소→얼굴 변환과 lock 기록을 merge 코드·테스트로 고정한다(README 기재).
+- primary 교체는 사전 규칙과 소유자 확인에 따라 구현자가 진행한다.
