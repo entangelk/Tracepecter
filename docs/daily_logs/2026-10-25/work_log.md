@@ -13,6 +13,7 @@
 - merge 결과: 952행·소유자 291행(재사용 111 + 신규 180)·에이전트 대비 14행 변경, 전부 confirmed. 보임 0 224 / 전부 가림 601 / 남은 얼굴 있음 127.
 - `face_review_lock.json`에 입력 의미·변환 규칙·시각 확인 ID와 요소 원본 hash를 추가했고 모든 lock hash를 재대조했다.
 - 검증: `docker compose run --rm -T dev python -m pytest tests/test_p09_face_review.py -q` → 9 passed. `git diff --check` 통과. 단서 진단 예측은 아직 실행하지 않았다.
+- GPU 단계 전 CPU 전용 preflight(`CUDA_VISIBLE_DEVICES=` 지정, `scripts.p09_diagnostic.preflight`)를 실행했다. 사전등록·manifest·주석 lock hash, 주석 커밋 `beb2be2`, baseline/candidate 계보, 입력 이미지 2,327장 hash를 모두 통과했다(exit 0, 1분33초). 출력 디렉터리에 이전 예측 CSV는 없다. 소유자 GPU 작업(사용률 100%, 8.9GiB)이 끝날 때까지 예측은 보류한다.
 
 ## 발견한 문제
 
