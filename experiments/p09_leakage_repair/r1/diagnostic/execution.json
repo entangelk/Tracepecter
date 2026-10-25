@@ -1,0 +1,31 @@
+{
+  "config_sha256": "a73d5b42bb128da364e6a934c7d53429d730864220db71de469e0e01c55d4f3e",
+  "registration_sha256": "2c33634f5726922c43dd8aa08568d162036289ddbc23b70729727cf317722cc7",
+  "annotation_lock_sha256": "8da064d82eaca7f2ea32fdeb6559b60a6e2e3a94c29831475f7e44b56b5630fa",
+  "annotation_commit": "beb2be23a0fc4ee8f66e8d5a4d691b9ab2ebc618",
+  "candidate_calibration_sha256": "ce212d0b70d5c0105459e9ab2f49c09e369d97335d14d90335ebb4e01ff852c0",
+  "source_sha256": {
+    "/app/scripts/p08_diagnostic.py": "0deba0b582139d3e958b51c947ae7bc51b174e0a6cd76ff744d63e4038a3ab18",
+    "src/diagnostic.py": "8007a9d4cebf60d51dc1898cb075e65f0a68d0bcfebd58bb8d6861dd0302240e",
+    "src/anonymize.py": "c3ccbde108c3a520cbafec755137ccf38e970fb42589117f31ec26b1f2e17bb2",
+    "src/calibration.py": "3a37f85e2770719ab6b6df0c99aeb54b1fd375ed71f97261ffd53dbc3837d5d9",
+    "src/dataset.py": "1f941caa078ab6ddd426100a3d4fa81449958d553b6a9027bf33f45400542c41",
+    "src/evaluate.py": "9e18769a14cc22a25d5262487a61bae405bc726a64f10cf7d293a6ea8bce75f5",
+    "src/score.py": "ceb92294e98688fa23321f7938788bb660182682a4bc23f9a00aa9952b3a0b52",
+    "src/model.py": "65337bbee247ba05f07e5d0a9e8ba810267e9f6e081f8db2062dd70ddab2be98",
+    "/app/scripts/p09_diagnostic.py": "e0d9e0162ed97de04ef6b18d2c2453ee31854c2388cec32b102717d2d7e3af14"
+  },
+  "checkpoints": {
+    "baseline": "151244676027e88bc170d88daaa334a0b2eac4a4c205a85447fda9af99a995fe",
+    "candidate": "8fcd4859cd13fe2c2636565f4cc40bcfeff6447923dbc04d2c99450fefca0731"
+  },
+  "evaluation_metadata_sha256": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161",
+  "fitting_metadata_sha256": {
+    "baseline": "039cbdd11407e5571b75681d64ae832b04c2f9439e94e94abf46d16f6e2d5781",
+    "candidate": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161"
+  },
+  "training_result_sha256": "305b0741dc754dc5ba365d8489d00a08a15d43166a4a8d965d96d73deb63ea5f",
+  "device": "cuda",
+  "torch_version": "2.9.0+cu128",
+  "numpy_version": "2.3.3"
+}

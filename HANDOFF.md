@@ -17,8 +17,8 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P09-04 단서 진단 실행 대기** — 소유자 확인180장을 수령해 최종 얼굴 주석을 고정했다(2026-10-25). 소유자 입력은 P08과 같은 눈·코·입 개수였고 요소0~1→얼굴0, 2~4→얼굴1로 변환했다. 원본은 `face_review_owner_new_features.csv`, 근거는 [작업 기록](docs/daily_logs/2026-10-25/work_log.md)과 `face_review_lock.json`. 최종 952행: 보임0 224 / 전부 가림601 / 남은 얼굴127.
-   - 다음: GPU 점유를 먼저 확인하고 `python -m scripts.p09_diagnostic --config configs/p09_r1_diagnostic.yaml --device cuda`를 디스크 기반 재개 가능 상태로 실행한다.
+1. **P09-04 단서 진단 완료, 채택 판정 통과(2026-10-25)** — 최종 얼굴 주석(`beb2be2`, 소유자 요소 단위 입력을 P08 방식으로 변환) 기준 GPU 진단 결과 `adopt: true`: 익명화 Test A/B AUC 0.9996/0.9995, 다섯 관문 전부 통과. 결과 파일은 `experiments/p09_leakage_repair/r1/diagnostic/result.json`, 수치는 [작업 기록](docs/daily_logs/2026-10-25/work_log.md).
+   - 다음: 독립검증 → 사전 규칙의 primary 교체(`configs/primary.yaml`을 P09 후보로 전환, 소유자 확인 후) → P09 Complete 처리. 아직 primary는 P08 artifact다.
    - [val-only 보정·고정 평가 결과](experiments/p09_leakage_repair/r1/calibration/README.md)는 완료됐다. 새 val820장으로 T0.7770388873·threshold0.2351343265를 fitting했고 Test A/B AUC는0.9996131798/0.9994940476이다. 일부 calibration 지표 악화를 보존했다. 기존 parameter를 복사하거나 현 primary를 먼저 바꾸지 않는다.
    - 새 metadata `data/versions/p09_r1/metadata.csv`, 후보 `checkpoints/leakage_repair/r1/best.pt`, 학습/보정 hash 근거는 각 보고서에 있다. P09 실행기는 baseline의 옛 학습/보정 계보와 새 평가 cohort를 분리하며 P08 기본 hash 방어는 유지한다. [사전등록](experiments/p09_leakage_repair/r1/diagnostic/README.md)의 REAL107장·GEN개입161장·얼굴 상태952장과 다섯 관문을 그대로 적용한다. 미검토946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5를 유지한다.
 2. **P07(API + Demo) 상세 계획·구현** — 현재 우선순위는 P09 재보정·진단이다. 현재 artifact와 공통 전처리 계약은 [P08 진단](experiments/p08_anonymized/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.

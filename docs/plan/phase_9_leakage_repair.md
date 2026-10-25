@@ -54,7 +54,7 @@ checkpoint 경로는 Compose의 기존 checkpoint mount 안이다. 실제 실행
 | P09-01 | 후보 확장·관계 검토·그룹 확정 | 감사 lock 검증 | [한정 검토·연결 성분·계보 보고](../../experiments/p09_leakage_repair/r1/grouping/README.md), [최종 그룹 lock](../../experiments/p09_leakage_repair/r1/grouping/final/group_lock.json); 전체 후보 독립성 통과 아님 | Complete |
 | P09-02 | 결정적 그룹 재분할 | P09-01 final/group_lock.json과 group_mapping.csv | [새 metadata·lock·경계 재감사·검증 기록](../../experiments/p09_leakage_repair/r1/split/README.md), 기존 artifact 보존 | Complete |
 | P09-03 | 익명화 SigLIP 재학습 | P09-02 통과, 진단 규칙 사전 커밋, GPU 여유 | [사전등록](../../experiments/p09_leakage_repair/r1/diagnostic/README.md)·[10epoch 결과/검증](../../experiments/p09_leakage_repair/r1/training/README.md), best/last·ID/metadata 결합·기존 artifact 불변 | Complete |
-| P09-04 | val-only 재보정·고정 평가·채택 검토 | P09-03 새 checkpoint | [보정·Test A/B](../../experiments/p09_leakage_repair/r1/calibration/README.md) 완료, [owner180장](../../experiments/p09_leakage_repair/r1/diagnostic/owner_review.md)·최종 주석 고정 완료, 진단·채택 대기 | In Progress |
+| P09-04 | val-only 재보정·고정 평가·채택 검토 | P09-03 새 checkpoint | [보정·Test A/B](../../experiments/p09_leakage_repair/r1/calibration/README.md) 완료, [owner180장](../../experiments/p09_leakage_repair/r1/diagnostic/owner_review.md)·최종 주석 고정, 진단 adopt 통과, 독립검증·primary 교체 대기 | In Progress |
 
 ### P09-01 — 거리 기준 대신 검토 가능한 관계를 구축
 
