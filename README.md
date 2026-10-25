@@ -22,7 +22,7 @@ Tracepecter는 이 판단의 부담을 이미지 쪽으로 되돌리는 도구�
 - **REAL**: AIHub K-Fashion 이미지 데이터셋(dataSetSn=51, 약 120만 장, 부위별 rect/polygon 라벨 포함) — 소유자 결정 2026-10-07, [DB-01](docs/decision_briefs/DB-01_P01_real-data-domain.md)
 - **Generated**: 로컬 오픈소스 생성기 5종으로 착용 패션 컷 생성(§9, [DB-02](docs/decision_briefs/DB-02_P01_ai-generators.md)) — train 4종(qwen_image_21·z_image_turbo·sdxl·playground_25) + unseen 1종(sd35_medium, Test B 전용). ComfyUI GPU 컨테이너(`Dockerfile.comfyui`) 경유 생성.
 - 카테고리: K-Fashion 부위 라벨 기반 4종 — 상의·하의·아우터·원피스(P01 확정, 대표 부위 우선순위 원피스 > 아우터 > 상의 > 하의)
-- 얼굴 영역: 현재 primary는 검출된 얼굴을 양 클래스 모두 흰 원으로 익명화한다(DB-06, 학습·평가·추론 공통). P08-06 사전등록 진단을 통과해 채택했으며, 무처리 baseline은 비교용으로 보존한다.
+- 얼굴 영역: 현재 primary는 검출된 얼굴을 양 클래스 모두 흰 원으로 익명화한다(DB-06, 학습·평가·추론 공통). P08-06에서 채택했고, P09-04에서 동일 룩 누출을 수리한 split으로 재학습한 모델이 같은 진단을 통과해 현재 primary다. 무처리 baseline과 P08 모델은 비교용으로 보존한다.
 - 규모(§7 최소 목표): REAL ≥3,000 + Generated ≥3,000. P01 파이프라인(선별·생성·dedup·group split)으로 구축하며, 이미지 실물은 저장소 밖(ext4)에 적재하고 `data/metadata.csv`(§12 v1.2)가 행 단위로 추적한다. 현재 진행 상태는 `HANDOFF.md`.
 
 ## Training 방법
@@ -91,7 +91,7 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 
 ## Primary encoder
 
-P03 비교에서 SigLIP을 primary로 선정했다. 실행 설정은 `configs/primary.yaml`, 현재 checkpoint는 `checkpoints/anonymized/best.pt`다. P08-06에서 공통 얼굴 익명화 모델이 사전 채택 규칙을 통과했다([진단 보고서](experiments/p08_anonymized/diagnostic/README.md)). 동일 split의 DINO baseline은 `configs/dino.yaml`로 학습하며 checkpoint를 `checkpoints/dino/`에 분리한다. [비교 report](experiments/p03_comparison/README.md)에 validation/Test A/B·category 성능·GPU latency·모델 크기와 선정 규칙을 보관한다.
+P03 비교에서 SigLIP을 primary로 선정했다. 실행 설정은 `configs/primary.yaml`, 현재 checkpoint는 `checkpoints/leakage_repair/r1/best.pt`다(P09 수리 metadata `data/versions/p09_r1/metadata.csv`로 학습). P08-06 익명화 모델(`configs/anonymized.yaml`, `checkpoints/anonymized/best.pt`)에 이어 P09-04 재학습 모델이 같은 사전 채택 규칙을 통과했다([P09 진단 보고서](experiments/p09_leakage_repair/r1/diagnostic/README.md)). 동일 split의 DINO baseline은 `configs/dino.yaml`로 학습하며 checkpoint를 `checkpoints/dino/`에 분리한다. [비교 report](experiments/p03_comparison/README.md)에 validation/Test A/B·category 성능·GPU latency·모델 크기와 선정 규칙을 보관한다.
 
 ```bash
 docker compose --profile training run --rm train python -m scripts.compare_baselines \
@@ -101,12 +101,12 @@ docker compose --profile training run --rm train python -m scripts.compare_basel
 
 ## Calibrated image score
 
-P08-02부터 score CLI는 익명화 규격이 결합된 checkpoint만 허용한다. 현재 P05 baseline artifact는 평가·calibration에서 원본 입력으로 쓸 수 있으나 score CLI에서는 거부된다. 현재 채택 artifact는 `experiments/p08_anonymized/calibration/calibration.json`이다. 실행 명령은 다음과 같다.
+P08-02부터 score CLI는 익명화 규격이 결합된 checkpoint만 허용한다. 현재 P05 baseline artifact는 평가·calibration에서 원본 입력으로 쓸 수 있으나 score CLI에서는 거부된다. 현재 채택 artifact는 `experiments/p09_leakage_repair/r1/calibration/calibration.json`이다(P08 artifact는 보존). 실행 명령은 다음과 같다.
 
 ```bash
 docker compose --profile training run --rm train python -m src.score \
   --image /images/<image-path> \
-  --calibration experiments/p08_anonymized/calibration/calibration.json --device cuda
+  --calibration experiments/p09_leakage_repair/r1/calibration/calibration.json --device cuda
 ```
 
-`realism_score`(0~100)와 `classification`(`photographic_like`/`synthetic_like`)을 출력한다. temperature와 threshold는 validation에서만 선택했으며 artifact의 checkpoint hash와 checkpoint 내부 익명화 규격·YuNet hash를 검증한다. 전처리 설정과 좌표 캐시 사용법은 [P08 전처리 기록](experiments/p08_anonymized/README.md)에 있다. 현재 모델의 보정 지표는 [P08 calibration 보고서](experiments/p08_anonymized/calibration/README.md), 2×2 비교와 채택 근거는 [진단 보고서](experiments/p08_anonymized/diagnostic/README.md)에 있다. 얼굴이 보이는 실사 holdout 평가는 남아 있다. 사람 체감 score 일치는 아직 별도 평가하지 않았다.
+`realism_score`(0~100)와 `classification`(`photographic_like`/`synthetic_like`)을 출력한다. temperature와 threshold는 validation에서만 선택했으며 artifact의 checkpoint hash와 checkpoint 내부 익명화 규격·YuNet hash를 검증한다. 전처리 설정과 좌표 캐시 사용법은 [P08 전처리 기록](experiments/p08_anonymized/README.md)에 있다. 현재 모델의 보정 지표는 [P09 calibration 보고서](experiments/p09_leakage_repair/r1/calibration/README.md), 2×2 비교와 채택 근거는 [P09 진단 보고서](experiments/p09_leakage_repair/r1/diagnostic/README.md)에 있다. Test A/B는 재분할한 기존 6,000장의 개발 평가다. 얼굴이 보이는 실사 holdout 평가는 남아 있다. 사람 체감 score 일치는 아직 별도 평가하지 않았다.

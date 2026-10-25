@@ -4,6 +4,7 @@
 
 | 날짜 | 변경 | 세부 |
 | --- | --- | --- |
+| 2026-10-25 | **P09 Complete** — 소유자 얼굴 확인180장(요소 단위 입력→얼굴 수 변환) 수령·최종 주석 고정, 단서 진단 다섯 관문·AUC 통과, 독립검증 추적 합격(B1 REAL look_group 허용 guard 보강), `configs/primary.yaml`을 P09 재학습 모델로 전환. P08·P05 artifact 보존 | [진단 결과](experiments/p09_leakage_repair/r1/diagnostic/README.md) · [검증 기록](docs/verifications/2026-10-25/p09_04_diagnostic.md) · [work log](docs/daily_logs/2026-10-25/work_log.md) |
 | 2026-10-23 | P09-04 val-only 재보정·새 고정 Test A/B 평가, 원래 fit 계보와 새 평가 cohort를 분리하는 진단 실행기, 얼굴952장 agent 주석·owner180장 확인 자료 준비. 최종 주석·단서 관문·채택은 대기 | [보정 결과](experiments/p09_leakage_repair/r1/calibration/README.md) · [소유자 확인](experiments/p09_leakage_repair/r1/diagnostic/owner_review.md) · [work log](docs/daily_logs/2026-10-23/work_log.md) |
 | 2026-10-07 | 프로젝트 부트스트랩 — SoT 문서, 페이즈 인덱스, P00 계획서, 결정 브리프 체계 생성 | [2026-10-07 work log](docs/daily_logs/2026-10-07/work_log.md) |
 | 2026-10-07 | [DB-01] Fashion Photo Realism Scorer로 재정의 — REAL 데이터 AIHub K-Fashion 확정, 카테고리 패션 중심 축소 방향 확정 (project.md v1.1) | [2026-10-07 work log](docs/daily_logs/2026-10-07/work_log.md) |

@@ -1,11 +1,11 @@
-# P08-06 채택 primary: 공통 얼굴 익명화 SigLIP. 근거: experiments/p08_anonymized/diagnostic/README.md.
+# P09-04 채택 primary: 동일 룩 누출 수리 split(p09_r1)에서 재학습한 익명화 SigLIP. 근거: experiments/p09_leakage_repair/r1/diagnostic/README.md.
+# 이전 P08 채택 설정은 configs/anonymized.yaml에 보존한다.
 model:
   encoder: siglip
   model_id: google/siglip-base-patch16-224
   revision: 7fd15f0689c79d79e38b1c2e2e2370a7bf2761ed
   image_size: 224
   freeze_encoder: true
-
 training:
   epochs: 10
   batch_size: 32
@@ -13,20 +13,15 @@ training:
   learning_rate: 0.0001
   device: cuda
   seed: 42
-
 data:
-  metadata_csv: data/metadata.csv
+  metadata_csv: data/versions/p09_r1/metadata.csv
   image_root: /images
   face_cache: experiments/p08_anonymized/face_boxes.csv
-
 augmentation:
   horizontal_flip: true
   jpeg_aug: true
   minor_crop: true
   color_jitter: true
-
 output:
-  checkpoint_dir: checkpoints/anonymized
-
-# P08-03 사전등록 커밋 이후 실행. checkpoint에 규격 전체·해시를 저장한다.
+  checkpoint_dir: checkpoints/leakage_repair/r1
 anonymization: configs/anonymize.yaml

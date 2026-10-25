@@ -21,10 +21,14 @@
 - 개입 평균 절대 변화의 95% 상한: real_shape 0.210 / real_size 3.323 / gen_gray 0.244 / gen_restore 1.016점(모두 5점 이하). 맞음→틀림 0건, 오답 위험 Wilson 상한 REAL 3.47% / GEN 2.33%(모두 5% 이하). gen_restore에서 틀림→맞음 1건이 있었다.
 - primary 교체는 아직 하지 않았다. 독립검증과 소유자 보고를 먼저 진행한다.
 
+- 독립검증 1차 조건부 합격(B1: REAL look_group 허용의 과잉 엄격 guard 누락·계약 미기재, H1~H4 비차단). 보강 `3589dc7`: fixture가 REAL look_group을 실제처럼 바꾸고 GEN look_group 변경 거부·후보 fit metadata 단독 거부 셀을 추가, README에 허용 열·요소 단위 입력·lock 보강 시점·FP 구간 해석을 명시했다. M9·M9b·M1 재실패, 전체 289 passed / 1 skipped. 추적검증 최종 **합격**(`33063f9`).
+- primary 전환: `tests/test_p09_adoption.py`를 먼저 추가해 전환 전 실패를 확인했다(P08 설정과 불일치). `configs/primary.yaml`을 `configs/p09_r1_train.yaml`과 같은 설정으로 바꾼 뒤 통과했다. P08 채택 테스트는 이동하는 primary 대신 P08 설정 정본(`configs/anonymized.yaml`)으로 연결을 확인하도록 바꿨다. README·SoT의 현재 checkpoint/calibration 경로를 갱신했고 P08·P05 artifact는 보존했다.
+- score CLI 실이미지 확인(`src.score --image /images/real/스포티/998959.jpg --calibration experiments/p09_leakage_repair/r1/calibration/calibration.json --device cuda`): exit 0, score 85.5395821500·photographic_like.
+
 ## 발견한 문제
 
 - 검토 페이지 본문은 얼굴 수 입력을 요구했지만 선택지가 0~4여서 소유자는 P08과 같은 요소 단위로 입력했다. merge의 형식 검증은 이 의미 차이를 잡지 못한다. 이후 소유자 검토 페이지는 입력 단위와 선택지를 일치시켜야 한다.
 
 ## 다음 작업
 
-- 진단 결과 독립검증, 그 뒤 사전 규칙에 따른 primary 교체(소유자 확인 후). 미검토 946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5는 유지한다.
+- P09 Complete. 다음은 P07(API + Demo) 상세 계획. 미검토 946,311쌍·GEN 계보 공유·개발 평가 한계와 Q5는 유지한다.
