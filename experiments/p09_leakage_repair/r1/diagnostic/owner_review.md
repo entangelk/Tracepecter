@@ -41,3 +41,7 @@ docker compose run --rm -T dev python -m scripts.p09_face_review merge \
 병합기는 부족180장과 정확히 같은 ID 집합·중복 부재·정수·0≤남은 얼굴≤보이는 얼굴을 검증하고, 새 owner 원본을 별도 보존한다. 이전111장과 합친 owner291장의 값을 agent보다 우선하며 나머지는 agent 값을 사용한다. 불완전 입력이나 고정 근거 변경 시 최종 파일을 만들지 않는다.
 
 **최종 주석과 lock을 먼저 커밋**한 다음에만 `python -m scripts.p09_diagnostic --config configs/p09_r1_diagnostic.yaml --device cuda`를 실행한다. 이 실행기는 기존 baseline 학습/보정 metadata 계보를 보존하고 새 평가 cohort를 분리한다. 후보는 새 metadata·익명화 규격·고정 학습 결과 checkpoint hash와 일치해야 한다. P08 기본 실행기의 동일metadata 방어는 그대로 유지한다. 현재 진단 결과·다섯 관문·채택 여부는 미확정이며 primary는 유지한다.
+
+## 수령·최종 고정 (2026-10-25)
+
+소유자 180행은 얼굴 수가 아니라 P08과 같은 눈·코·입 개수였다(소유자 확인, 선택지 0~4). 원본 바이트는 `face_review_owner_new_features.csv`로 보존하고, 요소 0~1개는 얼굴 0개·2~4개는 얼굴 1개로 변환한 값을 merge에 넣었다(`face_review_owner_new.csv`). 요소 2개·에이전트 불일치 19장과 에이전트 다중 얼굴 2장은 예측 전에 원본/익명화 쌍으로 시각 확인했다. 결과는 952행·에이전트 대비 14행 변경이며, 의미·변환·확인 ID·전 hash는 `face_review_lock.json`에 고정했다.

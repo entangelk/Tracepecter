@@ -1,0 +1,43 @@
+{
+  "owner_input_semantics": "visible_facial_features_not_face_count",
+  "normalization": "P08과 같은 기준: 새 소유자 180행의 보이는 요소 0~1개는 얼굴 0개, 2~4개는 얼굴 1개로 변환해 merge 입력(face_review_owner_new.csv)으로 사용. 원본은 face_review_owner_new_features.csv로 보존. 재사용 111행은 P08에서 이미 변환된 얼굴 수. 소유자 값을 에이전트보다 우선한다.",
+  "two_feature_or_disagreement_visual_checks": [
+    "gen_000173",
+    "gen_000179",
+    "gen_000210",
+    "gen_000737",
+    "gen_000852",
+    "gen_000878",
+    "gen_000912",
+    "gen_001035",
+    "gen_001118",
+    "gen_001120",
+    "gen_001166",
+    "gen_001494",
+    "gen_001532",
+    "gen_001548",
+    "gen_002541",
+    "gen_002602",
+    "gen_002625",
+    "gen_002627",
+    "gen_002870"
+  ],
+  "multi_face_agent_cases_checked": [
+    "gen_000006",
+    "gen_000064"
+  ],
+  "owner_rows": 291,
+  "reused_owner_rows": 111,
+  "new_owner_rows": 180,
+  "sha256": {
+    "face_review_agent.csv": "a8a7295b52e37d7370947826abc19d9dfa4c82278db6a67ee803192774c73796",
+    "face_review_owner_check.csv": "5d45d879761f9bef28075a9fef04be117f9b06570ecc1f46f2fb11166e5dcc81",
+    "face_review_owner_reused.csv": "45bb623c9a2e388f0fe635675a9b8c709a3414c1ff734b9882dedc60fe445f6a",
+    "face_review_owner_pending.csv": "b05545d5630cf15fe1d4886f1c508e419d7b744540a130fb4a482f30372a29bb",
+    "face_review_owner_new.csv": "cb0a127e25294c740543f4d25cb4b469994171a2993932681c186ba1cdc85149",
+    "face_review_owner.csv": "7819a06144877a0f3097a6eefca6662b49db39ba5bda409eb9598ba33b720a87",
+    "owner_review_lock.json": "5475769b1f0ee5ffdd756334d57c49fb6af859151a8ab70ae7d2b8ecc612c8df",
+    "face_review.csv": "c759c25b174ddf21087a39f44b74147d87880fd766da7e0ba67685137c35692e",
+    "face_review_owner_new_features.csv": "91a371dae0326107287f4f0260df65dca0bfc23be3160c0f6ca19e6101b86724"
+  }
+}
