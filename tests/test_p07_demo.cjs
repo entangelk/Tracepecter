@@ -141,3 +141,31 @@ test('preview that cannot be decoded is replaced by a placeholder message', () =
   assert.equal(el('placeholder').hidden, false);
   assert.equal(el('placeholder').textContent, '미리보기를 표시할 수 없습니다');
 });
+
+test('a late HTTP rejection from an earlier upload does not cover the latest result', async () => {
+  const pending = [];
+  const {context, el} = load(() => new Promise(resolve => pending.push(resolve)));
+  const first = context.submit({name: 'bad.txt'});
+  const second = context.submit({name: 'real.jpg'});
+  pending[1]({ok: true, json: async () => REAL});
+  await second;
+  pending[0]({ok: false, status: 415});
+  await first;
+  assert.equal(el('result').hidden, false);
+  assert.equal(el('score').textContent, '86');
+  assert.equal(el('error').hidden, true);
+});
+
+test('choosing a new file hides the previous error before the response', async () => {
+  let respond = async () => ({ok: false, status: 400});
+  const {context, el} = load((...args) => respond(...args));
+  await context.submit({name: 'bad.txt'});
+  assert.equal(el('error').hidden, false);
+  let release;
+  respond = () => new Promise(resolve => {release = resolve;});
+  const next = context.submit({name: 'real.jpg'});
+  assert.equal(el('error').hidden, true);  // 응답 전에 이미 숨김
+  release({ok: true, json: async () => REAL});
+  await next;
+  assert.equal(el('error').hidden, true);
+});

@@ -332,5 +332,15 @@ def test_demo_file_read_once_at_startup(settings, tmp_path, monkeypatch):
 
 def test_demo_is_shipped_in_image():
     """API가 시작 시 읽는 demo/는 Docker 빌드 컨텍스트에서 제외하지 않는다."""
-    ignored = Path('.dockerignore').read_text().split()
+    ignored = (Path(__file__).resolve().parent.parent / '.dockerignore').read_text().split()
     assert not {'demo', 'demo/', 'api', 'api/', 'src', 'src/', 'configs', 'configs/'} & set(ignored)
+
+
+def test_demo_file_input_stays_focusable():
+    """파일 입력을 display:none·visibility:hidden으로 숨기면 키보드 초점을 잃는다. 시각적 숨김만 허용한다."""
+    import re
+    text = demo_html()
+    rule = re.search(r'label\.pick input \{([^}]*)\}', text).group(1)
+    assert 'display: none' not in rule and 'visibility: hidden' not in rule
+    assert re.search(r'<input id="file"[^>]*>', text) and 'hidden' not in re.search(r'<input id="file"[^>]*>', text).group(0)
+    assert 'label.pick:focus-within' in text
