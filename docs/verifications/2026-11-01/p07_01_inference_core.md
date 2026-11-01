@@ -270,3 +270,87 @@ sed -i "s/hashlib.sha256(raw).hexdigest(),/file_sha256(calibration),/" src/infer
 docker compose run --rm -T dev python -m pytest tests/test_inference.py -q; echo $?   # 0이면 생존
 git checkout -- src/inference.py && git status --short
 ```
+
+---
+
+## 추적검증 2 (2026-11-01, 보강 커밋 `4b0116c`·작업 기록 `e5f45dc`)
+
+### 대상 메타데이터
+
+- 요청자: 소유자(entangelk), 메인 세션 경유
+- 검증자: Claude Opus 5.5 (1차·추적검증 1과 같은 독립 검증 서브에이전트, 구현에 관여하지 않음)
+- 대상: `4b0116c`(`src/inference.py:18,42`, `tests/test_inference.py:178-200`). 비교 기준 `dfcb82e`.
+- 작업 원천: `main` HEAD `e5f45dc`, 시작 시 작업 트리 clean.
+
+### 범위
+
+1. B5: `test_model_version_hashes_validated_bytes`가 `docs/plan/phase_7_api_demo.md:48`의 "calibration hash는 검증에 쓴 것과 같은 바이트에서 계산한다"를 잠그는지.
+2. H5: 두 로더가 같은 입력 규칙(UTF-8 디코드)을 쓰는지, 정상 artifact가 여전히 읽히는지.
+3. 회귀: 전체 suite, 실제 artifact smoke.
+
+### 방법
+
+- `git show 4b0116c`의 코드·테스트 diff를 읽었다.
+- 집중: `docker compose run --rm -T dev python -m pytest tests/test_inference.py tests/test_anonymize.py tests/test_calibration.py -q` → 55 passed, exit 0.
+- mutation: `git status --short` 빈 출력 확인 → scratchpad의 `mutate3.py`로 변이 7개를 하나씩 적용, 집중 3파일 실행, `git checkout -- src/inference.py`. 마지막 `git status --short` 빈 문자열 확인.
+- 전체: `docker compose run --rm -T dev python -m pytest -q` → 321 passed, 1 skipped, exit 0(51.4s).
+- smoke: 1차와 같은 CPU 명령 → exit 0, `{"realism_score": 85.53991233735206, "classification": "photographic_like", "faces_anonymized": 0, "model_version": "f5bf7f4d004f"}`(이전 라운드와 동일).
+- 재노출 경로: `from src.score import load_calibration`으로 실제 artifact를 읽어 temperature `0.7770388872932664`를 확인했다. artifact 첫 바이트는 `7b 0a`로 BOM이 없다.
+
+### mutation 결과
+
+| 변이 | 위치(`src/inference.py`) | 결과 | 무는 셀(`tests/test_inference.py`) |
+| --- | --- | --- | --- |
+| M25 hash를 파일 재읽기로(`file_sha256(calibration)`) | `:50` | 실패 | `test_model_version_hashes_validated_bytes`(:178) |
+| M31 `load_model` 뒤 파일을 다시 읽어 hash | `:50` 앞 | 실패 | `test_model_version_hashes_validated_bytes` |
+| M26 `Scorer`가 `json.loads(raw)`(bytes 직접) | `:42` | 실패 | `test_bom_rejected_by_both_loaders`(:194) |
+| M27 `Scorer`가 `utf-8-sig` | `:42` | 실패 | `test_bom_rejected_by_both_loaders` |
+| M28 `load_calibration`이 `utf-8-sig` | `:18` | 실패 | `test_bom_rejected_by_both_loaders` |
+| M29 `load_calibration`을 `read_text()`로 되돌림 | `:18` | 생존 — 컨테이너 locale이 UTF-8이라 이 환경에서는 등가 | — |
+| M30 `Scorer`가 검증은 `load_calibration(calibration)`(두 번째 읽기)로, hash는 첫 `raw`로 | `:42` | 생존 | — |
+
+### 발견 사항
+
+- **B5 해소.** 새 셀(:178)은 `src.inference.load_model`을 감싸 생성 도중 calibration 파일의 temperature를 2.0으로 바꾼다. 그 뒤 `model_version`이 **원래 바이트**의 sha256으로 독립 계산한 값과 같은지, `scorer.temperature`가 원래 값 1.5인지를 둘 다 단언한다. 그래서 "검증 뒤 다시 읽어 hash"(M25, M31)와 "hash한 바이트와 다른 내용으로 동작"을 함께 잡는다. 기대값은 `hashlib`로 따로 계산하므로 자기참조가 아니다.
+- **M30 생존(비차단으로 판단, 근거 명시).** `Scorer`가 `raw`를 읽은 직후 `load_calibration`으로 파일을 한 번 더 읽어 검증하면, 조항을 글자로는 어긴다. 그런데 두 읽기 사이에 다른 작업이 없어 이 셀의 개입 지점(`load_model`)이 그 사이에 오지 않는다. 조항이 겨냥한 위험인 "모델 로드 같은 긴 구간 뒤 다시 읽기"는 M25·M31로 잠겨 있다. M30까지 잡으려면 `Path.read_bytes`를 감싸 첫 읽기 직후 파일을 바꾸는 셀이 필요하다. 조항의 잠금 셀이 있고 정본 위반 형태를 무는 것은 확인했으므로, 이 변형은 보강 H6으로 남긴다. 소유자가 차단으로 보면 셀 하나로 닫힌다.
+- **H5 해소.** 두 로더 모두 `bytes.decode('utf-8')` 뒤 `json.loads`를 쓴다(`src/inference.py:18`, `:42`). BOM 파일은 양쪽에서 거부되고(:194, M26~M28 실패), UTF-16 파일은 `UnicodeDecodeError`(ValueError 하위)로 거부된다. 정상 artifact는 실제 smoke와 재노출 경로에서 읽혔다. `read_text()`(locale 의존)에서 명시적 UTF-8로 바뀌었으므로 입력 허용 범위는 넓어지지 않았고, UTF-8이 아닌 locale에서는 오히려 결정적으로 고정된다. `pytest.raises(ValueError)`에 `match`가 없지만, BOM을 받아들이는 변형이면 유효한 artifact가 되어 예외 없이 통과하므로 단언이 무력하지 않다(M26~M28로 확인).
+- **M29 등가.** 테스트 환경 locale이 UTF-8이라 `read_text()`와 구분할 수 없다. 명시적 디코드가 계약(두 로더 같은 규칙)을 locale과 무관하게 만든다. 셀을 추가할 실익이 작다.
+- 회귀 없음: 전체 321 passed / 1 skipped(직전 319 + 새 셀 2), `model_version`·점수가 이전 라운드와 같다. 작업 기록(`e5f45dc`)의 수치를 재현했다.
+
+### 이슈 / 위험
+
+#### 차단(계약 의무)
+
+- 없음.
+
+#### 보강 권고(비차단)
+
+- **H6** — M30 변형 잠금: `Path.read_bytes`를 감싸 첫 읽기 직후 calibration 파일을 바꾸고, `Scorer`의 temperature·`model_version`이 첫 바이트를 따르는지 확인하는 셀(`tests/test_inference.py:178` 옆). 현재 코드(`src/inference.py:41-42`)는 이미 한 번만 읽으므로 동작 변경은 필요 없다.
+
+### 판정(추적검증 2)
+
+**합격**
+
+- B5: 계약 조항(`phase_7_api_demo.md:48`)을 독립 기대값으로 잠그는 셀이 생겼고, 정본 위반 형태 M25·M31이 그 셀에서 실패한다.
+- H5: 두 로더의 입력 규칙이 UTF-8로 같아졌고, BOM 변형 세 가지가 모두 잡힌다. 정상 artifact는 smoke·재노출 경로에서 읽힌다.
+- 1차 B1~B4와 추적검증 1의 결론은 그대로 유효하다(전체 suite 통과, `model_version` `f5bf7f4d004f` 불변).
+- 남은 사항은 비차단 H6 하나다.
+
+### 미결 사항
+
+- P07-01은 독립검증 합격 상태다. `phase_7_api_demo.md:40` 상태 갱신과 P07-02 착수는 구현자·소유자 몫이다.
+- 작업 트리: 이 기록 외 변경 없음.
+
+### 재현
+
+```bash
+cd /mnt/f/devel/Tracepecter
+git status --short                       # 빈 출력
+docker compose run --rm -T dev python -m pytest tests/test_inference.py tests/test_anonymize.py tests/test_calibration.py -q; echo $?   # 55 passed
+docker compose run --rm -T dev python -m pytest -q; echo $?          # 321 passed, 1 skipped
+sed -i "s/hashlib.sha256(raw).hexdigest(),/file_sha256(calibration),/" src/inference.py      # M25
+docker compose run --rm -T dev python -m pytest tests/test_inference.py -q; echo $?          # 1 failed 기대
+git checkout -- src/inference.py && git status --short
+docker compose --profile training run --rm -T train python -m src.score --image "/images/real/스포티/998959.jpg" \
+  --calibration experiments/p09_leakage_repair/r1/calibration/calibration.json --device cpu
+```
