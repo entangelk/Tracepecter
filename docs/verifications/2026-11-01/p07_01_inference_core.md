@@ -160,3 +160,113 @@ docker compose --profile training run --rm -T train python -m src.score --image 
 git show 92f8e7f:src/score.py | docker compose --profile training run --rm -T train python - \
   --image "/images/real/스포티/998959.jpg" --calibration experiments/p09_leakage_repair/r1/calibration/calibration.json --device cpu
 ```
+
+---
+
+## 추적검증 1 (2026-11-01, 보강 커밋 `e9f5793`·작업 기록 `a6abf0f`)
+
+### 대상 메타데이터
+
+- 요청자: 소유자(entangelk), 메인 세션 경유
+- 검증자: Claude Opus 5.5 (1차와 같은 독립 검증 서브에이전트, 구현에 관여하지 않음)
+- 대상: `e9f5793`(`src/inference.py`, `tests/test_inference.py`, `docs/plan/phase_7_api_demo.md`, `docs/project.md`, `README.md`). 비교 기준 `a4cd187`(1차 기록).
+- 작업 원천: `main` HEAD `a6abf0f`, 시작 시 작업 트리 clean.
+
+### 범위
+
+1. B1~B4 해소 여부(1차 변이 재실행 + 새 변이).
+2. 새 테스트 단언이 계약을 잠그는지(과잉 엄격 가드 포함).
+3. 계획의 `model_version` 문구와 코드의 글자 일치.
+4. H2 변경(`validate_calibration` 분리, `Scorer`의 바이트 1회 읽기)이 검증을 약화하거나 `from src.score import load_calibration` 호출자를 깨지 않았는지.
+5. H1 처리 적정성, H3·H4 반영.
+6. 전체 suite, 실제 artifact smoke.
+
+### 방법
+
+- `git show e9f5793`의 전체 diff를 읽었다. 작업 기록의 설명은 대조용으로만 썼다.
+- 고정값 독립 계산: `python3 -c "import hashlib;H=('a'*64,'b'*64,'c'*64);print(hashlib.sha256(':'.join(H).encode()).hexdigest()[:12])"` → `30b19c9cb857`(테스트 고정값과 일치).
+- 집중: `docker compose run --rm -T dev python -m pytest tests/test_inference.py tests/test_anonymize.py tests/test_calibration.py -q` → 53 passed, exit 0.
+- mutation: `git status --short` 빈 출력 확인 뒤 scratchpad의 `mutate2.py`로 `src/inference.py` 변이 22개를 하나씩 적용 → 집중 3파일 실행 → `git checkout -- src/inference.py`. 마지막 `git status --short` 빈 문자열 확인(두 번 실행 모두).
+- 전체: `docker compose run --rm -T dev python -m pytest -q` → 319 passed, 1 skipped, exit 0(52.2s).
+- smoke: 1차와 같은 CPU 명령 → exit 0, `{"realism_score": 85.53991233735206, "classification": "photographic_like", "faces_anonymized": 0, "model_version": "f5bf7f4d004f"}`(1차 독립 재계산값과 동일).
+- 재노출 경로: `docker compose run --rm -T dev python -c "from src.score import load_calibration; ..."`로 실제 artifact를 읽어 threshold `0.23513432654393307` 확인.
+- 인코딩 차이 확인: `json.loads`에 UTF-8 BOM 바이트와 BOM 문자열을 각각 넣어 비교.
+
+### mutation 결과
+
+| 변이 | 위치(`src/inference.py`) | 결과 | 무는 셀(`tests/test_inference.py`) |
+| --- | --- | --- | --- |
+| M1 sha1 | `:36` | 실패 | `test_model_version_formula_is_literal`(:57), `test_scorer_response_contract_and_cli_agree`(:76) |
+| M2 뒤 12자리 | `:36` | 실패 | 같음 |
+| M3 순서 cal,ck,anon | `:35` | 실패 | 같음 |
+| M4 구분자 제거 | `:35` | 실패 | 같음 |
+| M5 익명화 성분 제거 | `:35` | 실패 | 위 둘 + `test_model_version_changes_when_any_component_changes[2]`(:63) |
+| M8 `>=`→`>` | `:62` | 실패 | `test_classification_uses_artifact_threshold[0.0-photographic_like]`(:126) |
+| M10 `require_anonymization=False` | `:43` | 실패 | `test_anonymize.py::test_score_rejects_before_encoder_loading[missing/None]` |
+| M13 버전·방법 검사 제거 | `:22-23` | 실패 | `test_invalid_calibration_rejected_at_startup[version…, method…]`(:147) |
+| M13b 방법 검사만 제거 | `:22` | 실패 | `[method-platt]` |
+| M14 threshold 검사 제거 | `:28-29` | 실패 | `[threshold -1e-9, 1+1e-9, nan]` |
+| M14b threshold `isfinite`만 제거 | `:28` | 생존 — **등가 변이**: NaN·inf는 `0 <= x <= 1` 비교에서 이미 거짓이라 관측 가능한 차이가 없다 | — |
+| M15 온도 `isfinite` 제거 | `:26` | 실패 | `[temperature nan, inf]` |
+| M16 checkpoint hash 검사 제거 | `:24-25` | 실패 | `[checkpoint_sha256 …]`, `test_calibration.py::test_calibration_cli_…` |
+| M17 threshold 0.5 고정 | `:49` | 실패 | `test_classification_uses_artifact_threshold[1e-09]`, `test_fixture_threshold_separates_from_default`(:135), `test_threshold_range_endpoints_accepted[0.0/1.0]`(:157) |
+| M18 temperature 1.0 고정 | `:48` | 실패 | `test_score_uses_artifact_temperature`(:117), `test_classification_uses_artifact_threshold[1e-09]` |
+| M19 ×100 제거 | `:61` | 실패 | `test_score_uses_artifact_temperature`, `test_fixture_threshold_separates_from_default` |
+| M20 `Scorer`가 검증 생략 | `:42` | 실패 | `test_invalid_calibration_rejected_at_startup` 10셀 전부 |
+| M21 `load_calibration`이 검증 생략 | `:18` | 실패 | 같은 10셀 + `test_calibration.py` 1셀 |
+| M22 threshold 0·1 거부(과잉 엄격) | `:28` | 실패 | `test_threshold_range_endpoints_accepted[0.0/1.0]` |
+| M23 calibration hash를 파싱 JSON hash로 | `:50` | 실패 | `test_scorer_response_contract_and_cli_agree` |
+| M24 온도 `<= 0`→`< 0` | `:26` | 실패 | `[temperature-0.0]` |
+| **M25 calibration hash를 파일 재읽기(`file_sha256(calibration)`)로** | `:50` | **생존** | 없음 |
+
+### 발견 사항
+
+- **B1 해소.** `test_model_version_formula_is_literal`(:57)이 같은 함수를 쓰지 않는 `hashlib` 계산과 고정 문자열 `30b19c9cb857`을 둘 다 비교하고, 계약 셀(:76)도 기대값을 독립 계산으로 바꿨다. M1~M5 모두 실패.
+- **B2 해소.** `docs/plan/phase_7_api_demo.md:48`이 "checkpoint sha256, calibration 파일 바이트의 sha256, 익명화 규격 binding sha256(각각 소문자 hex 64자)을 이 순서로 `:`로 이은 문자열(`<checkpoint>:<calibration>:<anonymization>`)의 sha256 hex 앞 12자리"로 고쳐졌다. 코드 `src/inference.py:35-36`(`':'.join([checkpoint_sha256, calibration_sha256, anonymization_sha256])`, `hashlib.sha256(...).hexdigest()[:12]`)와 순서·구분자·해시·자릿수가 글자로 일치한다. 성분 출처도 일치한다: `:50`의 `artifact['checkpoint_sha256']`(`:24`에서 파일 hash와 대조), `hashlib.sha256(raw)`(calibration 파일 바이트), `config['anonymization']['sha256']`(`src/anonymize.py:127`에서 `spec_hash(spec)`와 대조된 binding hash). `docs/project.md:781`은 유도 규칙을 계획으로 위임해 값이 한 곳에만 있다.
+- **B3 해소.** fixture threshold가 0.37(`tests/test_inference.py:37`)이고, 경계 셀(:126)은 threshold를 calibration **파일**로 바꿔 `Scorer`를 새로 만든다(인스턴스 덮어쓰기 제거). 고정 logit 0.625는 float32에서 정확하다. `test_score_uses_artifact_temperature`(:117)가 `100/(1+exp(-0.625/1.5))`를 `abs=1e-9`로 독립 계산해 비교하고, T 무시 값과 다름도 단언한다. M17·M18·M19 모두 전용 셀이 잡는다. 경계 등호(offset 0)에서 M8이 실패하므로 numpy와 Python sigmoid 사이의 1ulp 차이가 등호 셀을 무력화하지 않음도 확인했다.
+- **B4 해소.** `test_invalid_calibration_rejected_at_startup`(:147)이 버전, 방법, 온도 0·음수·NaN·inf, threshold −1e-9·1+1e-9·NaN, checkpoint hash 10개 분기를 `load_calibration`과 `Scorer` 생성 양쪽에서 확인한다. 과잉 엄격 쪽은 `test_threshold_range_endpoints_accepted`(:157)가 0과 1 허용을 잡고(M22 실패), 온도 0 경계는 M24로 확인했다. 온도의 과잉 엄격 쪽(양의 유한 값 허용)은 모든 정상 셀이 T=1.5로 통과하므로 잠겨 있다.
+- **H2 / 검증 약화 없음.** `validate_calibration`(`src/inference.py:21-30`)의 본문은 1차의 `load_calibration` 검사 네 줄과 같고, `load_calibration`(:18)과 `Scorer`(:42) 둘 다 이를 거친다(M20·M21이 각각 잡힘). `src/score.py:9` 재노출은 그대로이며 전체 suite와 실제 artifact 읽기로 호출자 동작을 확인했다.
+  - 파싱 단계 차이: `Scorer`는 `json.loads(bytes)`, `load_calibration`은 `json.loads(read_text())`다. 확인 결과 bytes 경로는 UTF-8 BOM·UTF-16 파일을 받아들이고, 문자열 경로는 BOM을 `JSONDecodeError`로 거부한다. 내용 검증은 같고 현재 artifact는 BOM 없는 UTF-8이라 정합성 위험은 낮다(보강 H5).
+- **새 계약 조항이 잠기지 않음.** 보강으로 `phase_7_api_demo.md:48`에 "calibration hash는 검증에 쓴 것과 같은 바이트에서 계산한다"가 계약으로 들어갔다. 코드(`src/inference.py:41-42,50`)는 이를 지키지만, hash를 파일 재읽기로 되돌린 M25가 집중 셀을 모두 통과했다. 이 조항은 읽기와 hash 사이에 파일이 바뀔 때만 관측되는데, 그 상황을 만드는 셀이 없다. 예를 들어 `src.inference.load_model`을 감싸 생성 도중 calibration 파일을 다시 쓰고, `model_version`이 원래 바이트 hash와 같은지 단언하는 셀이 필요하다. 계약에 들어간 분기라 검증 지침상 차단이다(B5).
+- **H1 처리 적정.** `Anonymizer`는 여전히 생성 시 두 번 만들어진다(`src/evaluate.py:101` 검증용, `src/inference.py:45`). docstring(`src/inference.py:1`)만 "생성 시 준비하고 요청마다 다시 읽지 않는다"로 고쳤다. 두 번 모두 기동 시 한 번씩이고 요청 경로에는 없다(`test_scorer_loads_once_and_repeats_identically` :91). P07-02 계약도 "요청마다 다시 읽지 않는다"를 기준으로 쓴다. `load_model`의 검증 호출은 평가·calibration 도구와 공유하는 fail-closed 계약이라, 구조를 두는 판단은 surgical change 원칙에 맞다. 슬라이스 표 `phase_7_api_demo.md:40`의 "1회 로드"는 같은 뜻(요청마다 다시 로드하지 않음)으로 읽힌다. 상향 보고할 사안이 아니다.
+- **H3 반영.** `README.md:74`, `docs/project.md:782`에 "형식 예시, 반올림하지 않은 실수"를 적었다. 실제 출력과 일치한다.
+- **H4 반영.** `test_detector_mismatch_rejected_by_scorer`(:163)가 `Scorer` 생성에서 YuNet hash 불일치 거부를 정확한 메시지로 확인한다.
+- 작업 기록 수치(전체 319 passed / 1 skipped, 고정값 `30b19c9cb857`)를 재현했다.
+
+### 이슈 / 위험
+
+#### 차단(계약 의무)
+
+- **B5 — "검증한 바이트에서 calibration hash를 계산한다" 조항 잠금 없음.** 조항은 `docs/plan/phase_7_api_demo.md:48`, 구현은 `src/inference.py:41-42,50`이다. M25 생존. 닫는 방법은 둘 중 하나다. (a) 생성 도중 파일을 바꾸는 회귀 셀을 추가한다. (b) 이 문장을 계약에서 빼고 구현 메모로 내린다. 어느 쪽이든 계약과 셀이 맞아야 한다.
+
+#### 보강 권고(비차단)
+
+- **H5** — 파싱 인코딩 차이: `src/inference.py:42`(`json.loads(raw)`, BOM·UTF-16 허용)와 `:18`(`read_text()`, BOM 거부). `raw.decode('utf-8')`로 맞추면 두 경로의 입력 허용 범위가 같아진다.
+- 1차 H1~H4는 위와 같이 처리됐다. 남은 항목 없음.
+
+### 판정(추적검증 1)
+
+**조건부 합격** — B5(계획 `phase_7_api_demo.md:48`의 "검증에 쓴 것과 같은 바이트에서 calibration hash 계산" 조항을 회귀 셀로 잠그거나 계약에서 내릴 것)를 닫아야 한다.
+
+- B1~B4는 모두 닫혔다. 1차에서 살아남은 M1·M2·M3·M13·M14·M15·M17·M18이 전부 전용 셀에서 실패한다. 새 변이 M20~M24(검증 우회 두 경로, threshold 0·1 과잉 엄격, 온도 0 경계, calibration hash 성분)도 모두 잡힌다.
+- 계획의 `model_version` 문구와 코드가 글자로 일치한다. 실제 artifact 값 `f5bf7f4d004f`가 독립 계산값과 같다.
+- 검증 약화 없음, 재노출 경로 정상, 전체 319 passed / 1 skipped.
+- 남은 차단은 보강이 새로 넣은 계약 문장 하나의 잠금 부재다.
+
+### 미결 사항
+
+- B5를 닫으면 같은 방식으로 추적검증 2를 한다. P07-02 착수는 B5와 독립이므로 소유자 판단에 따른다.
+- 작업 트리: 이 기록 외 변경 없음.
+
+### 재현
+
+```bash
+cd /mnt/f/devel/Tracepecter
+git status --short                       # 빈 출력
+docker compose run --rm -T dev python -m pytest tests/test_inference.py tests/test_anonymize.py tests/test_calibration.py -q; echo $?
+docker compose run --rm -T dev python -m pytest -q; echo $?          # 319 passed, 1 skipped
+# M25: 같은 바이트 조항이 잠겼는지
+sed -i "s/hashlib.sha256(raw).hexdigest(),/file_sha256(calibration),/" src/inference.py
+docker compose run --rm -T dev python -m pytest tests/test_inference.py -q; echo $?   # 0이면 생존
+git checkout -- src/inference.py && git status --short
+```
