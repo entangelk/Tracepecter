@@ -71,6 +71,15 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 }
 ```
 
+API 서버(CPU, 모델은 시작 시 1회 로드):
+
+```bash
+docker compose --profile api up api
+curl -F "image=@photo.jpg" http://localhost:8000/score
+```
+
+JPEG·PNG·WebP를 받는다. 이미지가 아니거나 잘린 파일은 400, 그 밖의 형식은 415, 10 MiB 초과는 413이다(설정 `configs/inference.yaml`). 업로드한 이미지는 저장하지 않는다.
+
 위 값은 형식 예시이며 `realism_score`는 반올림하지 않은 실수로 반환한다. `realism_score`가 보정된 확률(×100)이므로 별도 `confidence`는 없다. threshold는 calibration artifact가 소유한다([DB-08](docs/decision_briefs/DB-08_P07_response-contract.md)).
 
 ## Metric

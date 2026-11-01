@@ -20,12 +20,16 @@
 - 추적검증 1 **조건부 합격**(`dfcb82e`): B1~B4 해소 확인, 신규 B5 — 계획의 "검증에 쓴 것과 같은 바이트에서 hash" 조항에 테스트 없음(파일 재읽기 변이 M25 생존). 비차단 H5 — Scorer(`json.loads(bytes)`)는 BOM·UTF-16을 받고 load_calibration(`read_text`)은 거부해 입력 규칙이 달랐다.
 - 보강(`4b0116c`): Scorer 생성 중 `load_model` 단계에서 파일을 바꿔도 `model_version`이 원래 바이트 hash이고 temperature도 원래 값임을 확인하는 테스트 추가. 두 로더 모두 `bytes.decode('utf-8')`로 읽고 BOM 파일을 양쪽에서 거부하는 테스트 추가. M25·BOM 변이 재실패, 전체 321 passed / 1 skipped.
 - 추적검증 2 **합격**(`4dfd07f`). 남은 비차단 H6(검증을 두 번째 읽기로 하는 연속 재읽기 변형 M30 생존)도 반영: Scorer 생성 중 calibration 파일 읽기가 1회임을 고정하는 테스트(`f438858`) 추가, M30 재실패 확인. P07-01 Complete.
+- P07-02 구현: `requirements.txt`에 fastapi 0.162.0·uvicorn 0.54.0·python-multipart 0.0.33·httpx 0.28.1(TestClient용) 고정, dev 이미지 재빌드. `configs/inference.yaml`(calibration 경로·device cpu·10 MiB·JPEG/PNG/WEBP). `api/main.py`의 `create_app`이 `Scorer`를 1회 만들고 `POST /score`가 크기 413·식별 실패 400·형식 415·디코딩 실패 400·픽셀 폭탄 413으로 거부한다. 응답은 pydantic `ScoreResponse`(네 필드, 분류 Literal 두 개). compose `api` 서비스(profile api, 8000 포트). `tests/test_api.py` 22개 추가, 전체 344 passed / 1 skipped.
+- 실제 서버 호출(`docker compose --profile api up -d api`, CPU): REAL `998959.jpg` → 200 `85.53991233735206`·photographic_like·얼굴 0, GEN `gen_000006.png` → 200 `0.00044999178855562543`·synthetic_like·얼굴 1, 둘 다 `f5bf7f4d004f`. CLI 값과 같다. 텍스트 파일 → 400. 확인 후 서버를 내렸다.
 
 ## 결정
 
 - `load_calibration`은 코어로 옮기되 기존 import 경로를 재노출로 남겼다. 실험 스크립트 다수가 `src.score`에서 가져오므로 기록된 실험 코드를 건드리지 않기 위해서다.
 - CLI 출력은 코어 응답을 그대로 쓴다. 출력 형식을 두 개로 나누지 않는다.
+- API 형식 판정은 바이트 기준이다. 파일 이름·Content-Type은 클라이언트가 임의로 정하므로 쓰지 않는다. EXIF 회전은 학습과 같게 적용하지 않는다.
+- 얼굴 검출기 공유 상태 때문에 요청을 lock으로 직렬화했다. MVP 데모 처리량에서는 충분하고, 병렬화는 범위 밖이다.
 
 ## 다음 작업
 
-- P07-02 `POST /score`(FastAPI·multipart 의존성 추가, compose `api` 서비스).
+- P07-02 독립검증 → 합격 후 P07-03 정적 데모 페이지.

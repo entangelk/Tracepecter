@@ -22,6 +22,22 @@ services:
       - ${CHECKPOINT_DIR:-/mnt/h/tracepector/checkpoints}:/app/checkpoints
     command: ["python", "--version"]
 
+  # P07 inference API. CPU 기본(device는 configs/inference.yaml). 원본 이미지는 저장하지 않는다.
+  #   docker compose --profile api up api   → http://localhost:8000/score
+  api:
+    build: .
+    image: tracepecter/dev
+    profiles: ["api"]
+    working_dir: /app
+    environment:
+      HF_HOME: /app/checkpoints/hf_cache
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ${CHECKPOINT_DIR:-/mnt/h/tracepector/checkpoints}:/app/checkpoints
+    command: ["uvicorn", "api.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+
   train:
     build:
       context: .
