@@ -19,6 +19,7 @@
 - 자체 변이 6종(sha1·순서·threshold 0.5·temperature 1.0·version 검사 제거·temperature<=0 제거) 모두 재실패, 복원 후 트리 깨끗. 전체 319 passed / 1 skipped.
 - 추적검증 1 **조건부 합격**(`dfcb82e`): B1~B4 해소 확인, 신규 B5 — 계획의 "검증에 쓴 것과 같은 바이트에서 hash" 조항에 테스트 없음(파일 재읽기 변이 M25 생존). 비차단 H5 — Scorer(`json.loads(bytes)`)는 BOM·UTF-16을 받고 load_calibration(`read_text`)은 거부해 입력 규칙이 달랐다.
 - 보강(`4b0116c`): Scorer 생성 중 `load_model` 단계에서 파일을 바꿔도 `model_version`이 원래 바이트 hash이고 temperature도 원래 값임을 확인하는 테스트 추가. 두 로더 모두 `bytes.decode('utf-8')`로 읽고 BOM 파일을 양쪽에서 거부하는 테스트 추가. M25·BOM 변이 재실패, 전체 321 passed / 1 skipped.
+- 추적검증 2 **합격**(`4dfd07f`). 남은 비차단 H6(검증을 두 번째 읽기로 하는 연속 재읽기 변형 M30 생존)도 반영: Scorer 생성 중 calibration 파일 읽기가 1회임을 고정하는 테스트(`f438858`) 추가, M30 재실패 확인. P07-01 Complete.
 
 ## 결정
 
@@ -27,4 +28,4 @@
 
 ## 다음 작업
 
-- P07-01 독립검증 → 보강 → 합격 후 P07-02 `POST /score`(FastAPI 의존성 추가 필요).
+- P07-02 `POST /score`(FastAPI·multipart 의존성 추가, compose `api` 서비스).

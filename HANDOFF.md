@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-10-25
+> 마지막 자가 검수: 2026-11-01
 
 ## 현재 상태
 
@@ -17,10 +17,10 @@
 
 ## 다음 작업 (우선순위 순)
 
-> **다음 세션 시작 시 먼저:** 소유자가 [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md)을 직접 검토한 뒤 결정을 알려 주기로 했다(2026-10-25). 결정 전에는 P07 구현을 시작하지 말고, 세션 첫머리에 소유자에게 DB-08 검토와 결정을 요청한다.
-
-1. **P07(API + Demo) — [상세 계획](docs/plan/phase_7_api_demo.md) 작성 완료, [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) 소유자 결정 대기(2026-10-25)** — 결정 1 분류 체계·threshold 소유(권장 A: artifact 2단계 유지), 결정 2 `confidence`(권장 A: 제거), 결정 3 데모 형태(권장 A: API가 정적 페이지 제공). 결정 후 P07-01 공유 추론 코어부터 구현한다. 현재 artifact와 공통 전처리 계약은 [P09 진단](experiments/p09_leakage_repair/r1/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
-   - API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다. 결정 반영 시 `project.md` §22 예시·README·인포그래픽 보고서를 함께 고친다.
+1. **P07(API + Demo) — [상세 계획](docs/plan/phase_7_api_demo.md), [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) Resolved(2026-11-01, 결정 1·2·3 모두 A)**. 응답은 `realism_score`·`classification`(2단계, threshold는 calibration artifact 소유)·`faces_anonymized`·`model_version` 네 필드이고 `confidence`는 없다. 데모는 API가 제공하는 정적 `demo/index.html`. 현재 artifact와 공통 전처리 계약은 [P09 진단](experiments/p09_leakage_repair/r1/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
+   - **P07-01 Complete**(2026-11-01, [독립검증 추적 2 합격](docs/verifications/2026-11-01/p07_01_inference_core.md)): `src/inference.py`의 `Scorer`(생성 시 1회 로드, PIL 이미지 → 응답 dict)와 `model_version`(`<checkpoint>:<calibration 바이트>:<익명화 binding>` sha256 앞 12자리). score CLI가 같은 코어를 호출하며 실제 artifact의 값은 `f5bf7f4d004f`. `load_calibration`은 `src.score` import 경로로도 계속 쓸 수 있다.
+   - **다음: P07-02 `POST /score`** — FastAPI·multipart 의존성을 `requirements.txt`에 exact pin, `api/main.py`에서 시작 시 `Scorer` 1회 생성(실패 시 기동 거부), 400/413/415 거부, compose `api` 서비스(CPU 기본). 원본 이미지는 저장하지 않는다. 그다음 P07-03 데모.
+   - API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다. `project.md` §22 예시·README는 DB-08 결과로 갱신됐다. API 응답이 바뀌면 함께 고친다.
    - artifact는 `checkpoints/leakage_repair/r1/best.pt` + `experiments/p09_leakage_repair/r1/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).
    - 소유자 확인(P08 301장·P09 180장)의 원본·변환본·최종 주석을 보존한다. 소유자 얼굴 확인은 눈·코·입 요소 수로 입력되므로 새 검토 페이지는 단위를 맞추고 변환을 merge 코드에 둔다([P09 진단 README](experiments/p09_leakage_repair/r1/diagnostic/README.md)). P08-07 실사 holdout은 기존 결정대로 P07 관문이 아니다.
