@@ -340,7 +340,8 @@ def test_demo_file_input_stays_focusable():
     """파일 입력을 display:none·visibility:hidden으로 숨기면 키보드 초점을 잃는다. 시각적 숨김만 허용한다."""
     import re
     text = demo_html()
-    rule = re.search(r'label\.pick input \{([^}]*)\}', text).group(1)
-    assert 'display: none' not in rule and 'visibility: hidden' not in rule
-    assert re.search(r'<input id="file"[^>]*>', text) and 'hidden' not in re.search(r'<input id="file"[^>]*>', text).group(0)
+    rule = re.sub(r'\s+', '', re.search(r'label\.pick input \{([^}]*)\}', text).group(1))
+    assert 'display:none' not in rule and 'visibility:hidden' not in rule
+    tag = re.search(r'<input id="file"[^>]*>', text).group(0)
+    assert 'hidden' not in tag and 'tabindex' not in tag and 'disabled' not in tag
     assert 'label.pick:focus-within' in text
