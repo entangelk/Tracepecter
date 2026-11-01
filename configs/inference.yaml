@@ -1,5 +1,6 @@
 # P07 inference API 서버 설정. temperature·threshold는 calibration artifact가 소유하고 여기서는 경로만 가리킨다(DB-08).
 calibration: experiments/p09_leakage_repair/r1/calibration/calibration.json
-device: cpu
+device: cpu                  # GPU는 cuda로 바꾸고 CUDA 이미지(train)에서 실행한다
 max_upload_bytes: 10485760   # 10 MiB, 초과 시 413
-formats: [JPEG, PNG, WEBP]   # PIL format 이름, 그 밖의 디코딩 가능한 형식은 415
+# PIL format 이름, 그 밖의 디코딩 가능한 형식은 415. MPO는 다중 프레임 JPEG(휴대폰 Ultra HDR 등)이며 첫 프레임을 쓴다.
+formats: [JPEG, MPO, PNG, WEBP]

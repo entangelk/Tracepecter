@@ -1,5 +1,8 @@
 """P07-02: POST /score의 응답 schema·거부 경로·기동 거부를 stub artifact로 잡는다."""
 import io
+import threading
+import time
+from pathlib import Path
 
 import pytest
 import yaml
@@ -21,7 +24,7 @@ def encode(fmt, size=(40, 32), mode='RGB'):
 def settings(artifact, tmp_path):
     def write(**overrides):
         values = dict(calibration=str(artifact['calibration']), device='cpu',
-                      max_upload_bytes=4096, formats=['JPEG', 'PNG', 'WEBP'])
+                      max_upload_bytes=4096, formats=['JPEG', 'MPO', 'PNG', 'WEBP'])
         values.update(overrides)
         path = tmp_path / 'inference.yaml'
         path.write_text(yaml.safe_dump(values))
@@ -34,19 +37,34 @@ def client(settings):
     return TestClient(create_app(settings()))
 
 
-def post(client, data, name='image.png', field='image'):
-    return client.post('/score', files={field: (name, data, 'application/octet-stream')})
+def post(client, data, name='image.png', field='image', content_type='application/octet-stream'):
+    return client.post('/score', files={field: (name, data, content_type)})
 
 
-@pytest.mark.parametrize('fmt', ['JPEG', 'PNG', 'WEBP'])
+def truncated(fmt):
+    """헤더는 온전해 format 식별은 되지만 픽셀 데이터가 잘린 파일."""
+    data = encode(fmt, size=(32, 32))
+    return data[:len(data) // 2]
+
+
+def mpo():
+    buffer = io.BytesIO()
+    first, second = Image.new('RGB', (40, 32), 90), Image.new('RGB', (40, 32), 200)
+    first.save(buffer, format='MPO', save_all=True, append_images=[second])
+    return buffer.getvalue()
+
+
+@pytest.mark.parametrize('fmt', ['JPEG', 'PNG', 'WEBP', 'MPO'])
 def test_accepted_formats_return_contract(client, artifact, fmt):
     """세 형식 모두 DB-08 네 필드만 돌려주고 값은 CLI와 같은 코어 결과와 같다."""
-    response = post(client, encode(fmt))
+    data = mpo() if fmt == 'MPO' else encode(fmt)
+    response = post(client, data)
     assert response.status_code == 200
     body = response.json()
     assert set(body) == {'realism_score', 'classification', 'faces_anonymized', 'model_version'}
-    with Image.open(io.BytesIO(encode(fmt))) as handle:
-        expected = Scorer(artifact['calibration'])(handle)
+    with Image.open(io.BytesIO(data)) as handle:
+        assert handle.format == fmt
+        expected = Scorer(artifact['calibration'])(handle)  # MPO는 첫 프레임, CLI와 같다
     assert body == pytest.approx(expected) and body['faces_anonymized'] == 2
 
 
@@ -139,3 +157,80 @@ def test_openapi_schema_matches_contract(client):
     assert set(schema['properties']) == {'realism_score', 'classification', 'faces_anonymized', 'model_version'}
     assert set(schema['properties']['classification']['enum']) == {'photographic_like', 'synthetic_like'}
     assert set(schema['required']) == set(schema['properties'])
+    types = {name: field.get('type') for name, field in schema['properties'].items()}
+    assert types == dict(realism_score='number', classification='string', faces_anonymized='integer',
+                         model_version='string')
+
+
+def test_size_checked_before_decoding(settings):
+    """이미지가 아닌 대용량 바이트도 400이 아니라 413이다(크기 판정이 디코딩보다 먼저)."""
+    client = TestClient(create_app(settings(max_upload_bytes=100)))
+    assert post(client, b'x' * 101).status_code == 413
+
+
+@pytest.mark.parametrize('fmt', ['GIF', 'BMP'])
+def test_format_checked_before_full_decoding(client, fmt):
+    """허용 목록 밖 형식은 잘린 파일이어도 400이 아니라 415다(format 판정이 디코딩보다 먼저)."""
+    assert post(client, truncated(fmt)).status_code == 415
+
+
+@pytest.mark.parametrize('fmt', ['PNG', 'JPEG'])
+def test_truncated_allowed_format_is_400(client, fmt):
+    """허용 형식의 잘린 파일은 format 판정을 통과한 뒤 디코딩에서 400이다."""
+    assert post(client, truncated(fmt)).status_code == 400
+
+
+def test_formats_come_from_config(settings):
+    """허용 형식을 코드에 고정하는 변형을 잡는다. 설정에서 PNG만 허용하면 JPEG는 415다."""
+    client = TestClient(create_app(settings(formats=['PNG'])))
+    assert post(client, encode('PNG')).status_code == 200
+    assert post(client, encode('JPEG')).status_code == 415
+
+
+def test_device_comes_from_config(settings, monkeypatch):
+    """설정의 device를 Scorer에 그대로 넘긴다."""
+    import api.main as main
+    seen = []
+    monkeypatch.setattr(main, 'Scorer', lambda calibration, device: seen.append(device) or Scorer(calibration))
+    create_app(settings(device='cuda:1'))
+    assert seen == ['cuda:1']
+
+
+def test_shipped_config_values():
+    """배포 설정의 계약 값: 채택 artifact 경로·CPU·10 MiB·JPEG/MPO/PNG/WEBP. threshold·temperature는 두지 않는다."""
+    settings = yaml.safe_load(Path('configs/inference.yaml').read_text())
+    assert settings == dict(calibration='experiments/p09_leakage_repair/r1/calibration/calibration.json',
+                            device='cpu', max_upload_bytes=10 * 1024 * 1024, formats=['JPEG', 'MPO', 'PNG', 'WEBP'])
+
+
+def test_content_type_is_ignored(client):
+    """Content-Type 헤더도 형식 판정에 쓰지 않는다."""
+    assert post(client, encode('PNG'), content_type='image/gif').status_code == 200
+    assert post(client, encode('GIF'), content_type='image/png').status_code == 415
+
+
+def test_duplicate_image_field_uses_last(client):
+    """`image` 필드가 두 개면 마지막 것을 쓴다(FastAPI 단일 UploadFile 규칙)."""
+    response = client.post('/score', files=[('image', ('a.gif', encode('GIF'), 'image/gif')),
+                                            ('image', ('b.png', encode('PNG'), 'image/png'))])
+    assert response.status_code == 200
+
+
+def test_requests_are_serialized(settings, artifact):
+    """동시 요청이 점수 계산 구간에 겹쳐 들어가지 않는다."""
+    real = Scorer(artifact['calibration'])
+    state = dict(active=0, peak=0)
+    def scorer(image):
+        state['active'] += 1
+        state['peak'] = max(state['peak'], state['active'])
+        time.sleep(0.05)
+        state['active'] -= 1
+        return real(image)
+    client = TestClient(create_app(settings(), scorer=scorer))
+    data = encode('PNG')
+    threads = [threading.Thread(target=post, args=(client, data)) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert state['peak'] == 1

@@ -29,7 +29,7 @@ def create_app(config='configs/inference.yaml', scorer=None) -> FastAPI:
     limit, formats = settings['max_upload_bytes'], set(settings['formats'])
     # artifact 검증 실패는 여기서 예외로 올라가 서버 기동을 막는다.
     scorer = scorer or Scorer(settings['calibration'], settings['device'])
-    lock = threading.Lock()  # 얼굴 검출기는 입력 크기 상태를 가지므로 요청을 직렬화한다
+    lock = threading.Lock()  # 모델 1개를 공유하므로 동시 요청이 CPU·메모리를 겹쳐 쓰지 않게 직렬화한다
     app = FastAPI(title='Tracepecter')
 
     @app.post('/score', response_model=ScoreResponse)

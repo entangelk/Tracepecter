@@ -78,7 +78,20 @@ docker compose --profile api up api
 curl -F "image=@photo.jpg" http://localhost:8000/score
 ```
 
-JPEG·PNG·WebP를 받는다. 이미지가 아니거나 잘린 파일은 400, 그 밖의 형식은 415, 10 MiB 초과는 413이다(설정 `configs/inference.yaml`). 업로드한 이미지는 저장하지 않는다.
+JPEG(다중 프레임 MPO 포함)·PNG·WebP를 받으며 형식은 파일 내용으로 판정한다. 거부 응답은 다음과 같다(설정 `configs/inference.yaml`).
+
+- 413: 10 MiB 초과, 또는 PIL 픽셀 수 한도 초과
+- 400: 이미지로 식별되지 않는 바이트, 허용 형식의 잘린 파일
+- 415: 허용 목록 밖 형식(잘린 파일이어도 형식이 먼저 판정된다)
+- 422: `image` 필드 없음
+
+업로드한 이미지는 저장하지 않는다. GPU로 돌리려면 `configs/inference.yaml`의 `device`를 `cuda`로 바꾸고 CUDA 이미지에서 실행한다(GPU 점유 정책 준수):
+
+```bash
+docker compose --profile training build train
+docker compose --profile training run --rm -p 8000:8000 train \
+  uvicorn api.main:create_app --factory --host 0.0.0.0 --port 8000
+```
 
 위 값은 형식 예시이며 `realism_score`는 반올림하지 않은 실수로 반환한다. `realism_score`가 보정된 확률(×100)이므로 별도 `confidence`는 없다. threshold는 calibration artifact가 소유한다([DB-08](docs/decision_briefs/DB-08_P07_response-contract.md)).
 
