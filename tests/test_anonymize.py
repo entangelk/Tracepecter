@@ -192,7 +192,8 @@ def test_anonymized_training_evaluation_calibration_and_score(spec, tmp_path, mo
     args = ['--image', str(tmp_path / 'val_1.png'), '--calibration', str(tmp_path / 'calibration/calibration.json')]
     first = score(args)
     assert first == score(args) and len(calls) == 2
-    assert set(first) == {'realism_score', 'classification'} and 0 <= first['realism_score'] <= 100
+    assert set(first) == {'realism_score', 'classification', 'faces_anonymized', 'model_version'}
+    assert 0 <= first['realism_score'] <= 100 and first['faces_anonymized'] == 2
     # 즉시 검출 평가도 같은 지표. 캐시 누락을 원본 입력으로 숨기지 않는다.
     cached = evaluate(['--checkpoint', str(checkpoint), '--face-cache', str(cache)])
     direct = evaluate(['--checkpoint', str(checkpoint)])

@@ -37,7 +37,7 @@
 
 | ID | 작업 | 선행 조건 | 완료 증거 | 상태 |
 | --- | --- | --- | --- | --- |
-| P07-01 | 공유 추론 코어 | DB-08 결정 1·2 | `src/inference.py`: artifact·모델·익명화기를 1회 로드하고 이미지 1장 → 응답 dict. `src/score.py`는 이 코어를 호출. `model_version` 유도·거부 경로 회귀 테스트 | Planned |
+| P07-01 | 공유 추론 코어 | DB-08 결정 1·2 | `src/inference.py`: artifact·모델·익명화기를 1회 로드하고 이미지 1장 → 응답 dict. `src/score.py`는 이 코어를 호출. `model_version` 유도·거부 경로 회귀 테스트 | Implemented(2026-11-01, 독립검증 대기) |
 | P07-02 | `POST /score` API | P07-01 | `api/main.py`(FastAPI): 정상 응답 schema, 잘못된 이미지·형식·크기 거부, 시작 시 artifact 검증 실패면 기동 거부. TestClient 테스트와 실제 이미지 1장 호출 기록 | Planned |
 | P07-03 | Web Demo·실행 경로 | P07-02, DB-08 결정 3 | 업로드 → 원본 미리보기 → 점수·분류·가린 얼굴 수·고정 안내 문구 표시. compose 서비스, README Inference 절 갱신, 실제 이미지로 화면 확인 | Planned |
 
