@@ -191,6 +191,25 @@ def test_model_version_hashes_validated_bytes(artifact, monkeypatch):
     assert scorer.model_version == hashlib.sha256(expected.encode()).hexdigest()[:12]
 
 
+def test_scorer_reads_calibration_once(artifact, monkeypatch):
+    """검증과 hash를 서로 다른 읽기로 얻는 변형(연속 재읽기 포함)을 잡는다. calibration 파일 읽기는 한 번이다."""
+    reads = []
+    original = Path.read_bytes
+    def counting(self):
+        if self == artifact['calibration']:
+            reads.append(1)
+        return original(self)
+    original_text = Path.read_text
+    def counting_text(self, *args, **kwargs):
+        if self == artifact['calibration']:
+            reads.append(1)
+        return original_text(self, *args, **kwargs)
+    monkeypatch.setattr(Path, 'read_bytes', counting)
+    monkeypatch.setattr(Path, 'read_text', counting_text)
+    Scorer(artifact['calibration'])
+    assert len(reads) == 1
+
+
 def test_bom_rejected_by_both_loaders(artifact):
     """load_calibration과 Scorer가 같은 입력 규칙(BOM 없는 UTF-8)을 쓴다."""
     artifact['calibration'].write_bytes(b'\xef\xbb\xbf' + artifact['calibration'].read_bytes())
