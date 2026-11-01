@@ -1,6 +1,6 @@
 # Tracepecter — Source of Truth (SoT)
 
-> 최종 갱신: 2026-10-20
+> 최종 갱신: 2026-11-01
 
 ## 1. 프로젝트 정의
 
@@ -59,3 +59,4 @@
 | project.md | v1.4 | 2026-10-11 | §15·§22에 공통 얼굴 익명화(학습·평가·추론 같은 전처리) 추가, §23 데모에 원본 미리보기·익명화 여부·"얼굴 영역은 점수 미반영" 문구 추가. DB-03(무처리)을 대체 | [DB-06](decision_briefs/DB-06_P06_face-exposure.md), 소유자 결정 2026-10-11 |
 | sot.md | v1.3 | 2026-10-20 | P08-06 사전 채택 관문 통과로 primary calibration 소유 경로를 익명화 artifact로 전환. 기존 P05 경로는 baseline 비교 정본으로 유지 | [P08-06 진단](../experiments/p08_anonymized/diagnostic/README.md) |
 | sot.md | v1.4 | 2026-10-20 | DB-07 한정 검토 범위와 P09-01 배정 그룹 정본 등록. 시각적 동일성/공동 배정 구별, 현재 metadata·primary 불변 | [P09](plan/phase_9_leakage_repair.md) · [DB-07](decision_briefs/DB-07_P09_review-coverage.md) |
+| project.md | v1.5 | 2026-11-01 | §22 API 응답을 `realism_score`·`classification`(2단계)·`faces_anonymized`·`model_version`으로 확정하고 `confidence`와 config 3단계 threshold 예시(40/70)를 제거. threshold는 calibration artifact 소유. §24 데모 파일을 `demo/index.html`(API가 제공하는 정적 페이지)로 변경 | [DB-08](decision_briefs/DB-08_P07_response-contract.md), 소유자 결정 |

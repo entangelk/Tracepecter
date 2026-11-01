@@ -17,10 +17,12 @@
 
 ## 다음 작업 (우선순위 순)
 
-1. **P07(API + Demo) — [상세 계획](docs/plan/phase_7_api_demo.md), [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) Resolved(2026-11-01, 결정 1·2·3 모두 A)**. 응답은 `realism_score`·`classification`(2단계, threshold는 calibration artifact 소유)·`faces_anonymized`·`model_version` 네 필드이고 `confidence`는 없다. 데모는 API가 제공하는 정적 `demo/index.html`. 현재 artifact와 공통 전처리 계약은 [P09 진단](experiments/p09_leakage_repair/r1/diagnostic/README.md)을 참고하며 데모 구현 가능 상태와 모델 일반화 근거를 구분한다.
-   - **P07-01 Complete**(2026-11-01, [독립검증 추적 2 합격](docs/verifications/2026-11-01/p07_01_inference_core.md)): `src/inference.py`의 `Scorer`(생성 시 1회 로드, PIL 이미지 → 응답 dict)와 `model_version`(`<checkpoint>:<calibration 바이트>:<익명화 binding>` sha256 앞 12자리). score CLI가 같은 코어를 호출하며 실제 artifact의 값은 `f5bf7f4d004f`. `load_calibration`은 `src.score` import 경로로도 계속 쓸 수 있다.
-   - **P07-02 Complete**(2026-11-01, [독립검증 추적 합격](docs/verifications/2026-11-01/p07_02_score_api.md)): `api/main.py` `create_app`(uvicorn `--factory`, 설정 `configs/inference.yaml` 또는 `TRACEPECTER_INFERENCE_CONFIG`). JPEG·MPO·PNG·WebP, 거부 413(크기·압축 폭탄)→400(식별 실패)→415(형식)→400(잘린 파일), 422(필드 없음). compose `docker compose --profile api up api`(CPU, 8000). GPU는 README 절차(train 이미지 + cuda 설정 파일). 실제 서버 응답이 CLI와 같다(CPU 85.5399, CUDA 85.5396).
-   - **다음: P07-03 데모** — API가 `demo/index.html` 1개를 제공한다. 업로드, 원본 미리보기, 점수 막대와 `NN / 100`, 분류 문구, 가린 얼굴 수, 고정 안내 문구 두 개(계획 P07-03). 데모는 API 응답만 표시하고 경계·문구를 따로 계산하지 않는다. 실제 REAL·GEN 각 1장 이상 화면 확인을 기록한다.
+> **다음 세션 시작 시:** P07까지 MVP 구현 페이즈는 끝났다. 아래 2번(감사 후보 추가 검토·최종 독립 holdout 수집·사람 평가) 중 무엇을 먼저 할지 소유자와 정한다. 신규 수집·split 변경은 소유자 결정 없이 시작하지 않는다.
+
+1. **P07(API + Demo) Complete(2026-11-01)** — [계획](docs/plan/phase_7_api_demo.md), [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) A/A/A. 슬라이스별 독립검증 합격([01](docs/verifications/2026-11-01/p07_01_inference_core.md)·[02](docs/verifications/2026-11-01/p07_02_score_api.md)·[03](docs/verifications/2026-11-01/p07_03_web_demo.md)).
+   - 실행: `docker compose --profile api up api` → 데모 http://localhost:8000/, API `POST /score`(CPU). GPU는 README 절차(`TRACEPECTER_INFERENCE_CONFIG`로 cuda 설정 + train 이미지). 응답 네 필드(`realism_score`·`classification`·`faces_anonymized`·`model_version`), 현재 `model_version` `f5bf7f4d004f`.
+   - 공유 코어 `src/inference.py`(`Scorer`), API `api/main.py`(`create_app` factory), 설정 `configs/inference.yaml`(CPU 배포값을 테스트가 고정), 데모 `demo/index.html`(응답만 표시, 마지막 선택만 반영, EXIF 회전 비적용). 화면 로직 테스트는 `node --test tests/*.cjs`(호스트 node).
+   - 알려진 한계: 요청은 lock으로 직렬화(MVP 처리량), 크기 판정은 본문 수신 후(외부 배포 시 앞단 한도 필요), 화면 점수는 반올림 정수라 threshold 근처에서 같은 정수라도 분류가 다를 수 있다. 데모 확인은 기능 확인이며 일반화 근거가 아니다.
    - API·persistence schema 경계는 `docs/guides/api-and-persistence-schemas.md`를 따른다. `project.md` §22 예시·README는 DB-08 결과로 갱신됐다. API 응답이 바뀌면 함께 고친다.
    - artifact는 `checkpoints/leakage_repair/r1/best.pt` + `experiments/p09_leakage_repair/r1/calibration/calibration.json`, 실행 설정은 `configs/primary.yaml`. checkpoint에 결합된 익명화 규격과 같은 전처리를 적용한다.
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).

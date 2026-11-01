@@ -1,6 +1,6 @@
 # P07 — Inference API와 Web Demo
 
-**상태:** In Progress — [DB-08](../decision_briefs/DB-08_P07_response-contract.md) Resolved(2026-11-01, 결정 1·2·3 모두 A). 계획 작성 2026-10-25.
+**상태:** Complete(2026-11-01) — [DB-08](../decision_briefs/DB-08_P07_response-contract.md) Resolved(2026-11-01, 결정 1·2·3 모두 A). 계획 작성 2026-10-25.
 
 ## 목표
 
@@ -39,7 +39,7 @@
 | --- | --- | --- | --- | --- |
 | P07-01 | 공유 추론 코어 | DB-08 결정 1·2 | `src/inference.py`: artifact·모델·익명화기를 1회 로드하고 이미지 1장 → 응답 dict. `src/score.py`는 이 코어를 호출. `model_version` 유도·거부 경로 회귀 테스트 | **Complete**(2026-11-01) — [독립검증 추적 2 합격](../verifications/2026-11-01/p07_01_inference_core.md) |
 | P07-02 | `POST /score` API | P07-01 | `api/main.py`(FastAPI): 정상 응답 schema, 잘못된 이미지·형식·크기 거부, 시작 시 artifact 검증 실패면 기동 거부. TestClient 테스트와 실제 이미지 1장 호출 기록 | **Complete**(2026-11-01) — [독립검증 추적 합격](../verifications/2026-11-01/p07_02_score_api.md) |
-| P07-03 | Web Demo·실행 경로 | P07-02, DB-08 결정 3 | 업로드 → 원본 미리보기 → 점수·분류·가린 얼굴 수·고정 안내 문구 표시. compose 서비스, README Inference 절 갱신, 실제 이미지로 화면 확인 | Implemented(2026-11-01, 독립검증 1차 불합격 → 보강) |
+| P07-03 | Web Demo·실행 경로 | P07-02, DB-08 결정 3 | 업로드 → 원본 미리보기 → 점수·분류·가린 얼굴 수·고정 안내 문구 표시. compose 서비스, README Inference 절 갱신, 실제 이미지로 화면 확인 | **Complete**(2026-11-01) — [독립검증 추적 2 합격](../verifications/2026-11-01/p07_03_web_demo.md) |
 
 ### P07-01 — 공유 추론 코어
 
