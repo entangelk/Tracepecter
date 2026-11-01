@@ -1,6 +1,6 @@
 # DB-08 — API 응답 분류 체계·confidence·데모 형태
 
-**Status:** Open
+**Status:** Resolved
 **Related phase:** P07 ([계획](../plan/phase_7_api_demo.md))
 
 ## 결정이 필요한 이유
@@ -56,4 +56,8 @@
 
 ## Resolution
 
-(소유자 결정 대기)
+소유자 결정(2026-11-01): 세 결정 모두 권장안 **A**로 확정한다.
+
+- 결정 1 A: 2단계 분류(`photographic_like`/`synthetic_like`)를 유지한다. threshold는 calibration artifact가 소유하고 config는 artifact 경로만 가리킨다. `project.md` §22의 `thresholds` 예시는 실제 계약으로 고친다.
+- 결정 2 A: 응답에서 `confidence`를 뺀다. 응답 필드는 `realism_score`, `classification`, `faces_anonymized`, `model_version`이다.
+- 결정 3 A: API 서버가 정적 HTML 데모 페이지 1개를 함께 제공하고, 페이지는 같은 서버의 `POST /score`를 호출한다. 새 데모 의존성은 추가하지 않는다.

@@ -66,10 +66,12 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 {
   "realism_score": 82.4,
   "classification": "photographic_like",
-  "confidence": 0.87,
-  "model_version": "v0.1"
+  "faces_anonymized": 1,
+  "model_version": "3f9a1c0b7d2e"
 }
 ```
+
+`realism_score`가 보정된 확률(×100)이므로 별도 `confidence`는 없다. threshold는 calibration artifact가 소유한다([DB-08](docs/decision_briefs/DB-08_P07_response-contract.md)).
 
 ## Metric
 

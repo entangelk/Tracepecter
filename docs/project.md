@@ -770,22 +770,19 @@ Output:
 {
   "realism_score": 82.4,
   "classification": "photographic_like",
-  "confidence": 0.87,
-  "model_version": "v0.1"
+  "faces_anonymized": 1,
+  "model_version": "3f9a1c0b7d2e"
 }
 ```
 
-Threshold는 config에서 관리한다.
+- `realism_score`: 보정된 확률 × 100(`100*sigmoid(logit/T)`). 별도 `confidence` 필드는 두지 않는다(DB-08 결정 2).
+- `classification`: `photographic_like` 또는 `synthetic_like` 2단계(DB-08 결정 1).
+- `faces_anonymized`: 점수 계산 전에 흰 원으로 가린 얼굴 수.
+- `model_version`: checkpoint·calibration artifact·익명화 규격 sha256 조합의 식별자(12자리).
+
+Temperature와 확률 threshold는 calibration artifact가 소유한다. config는 artifact 경로만 가리키고 값을 복제하지 않는다(DB-08, 소유자 결정 2026-11-01).
 
 입력 전처리(DB-06, 소유자 결정 2026-10-11): 점수를 계산하기 전에 이미지의 얼굴을 검출하고, K-Fashion 익명화와 같은 형태의 흰 원으로 가린다. 학습·평가와 똑같은 전처리(§15)를 쓰며, 검출기와 원 규격은 config가 소유한다. 상세 계약은 P08에서 정하고 P07에서 구현한다.
-
-예:
-
-```yaml
-thresholds:
-  synthetic_like: 40
-  uncertain: 70
-```
 
 ---
 
@@ -882,7 +879,7 @@ tracepecter/
 │   └── main.py
 │
 ├── demo/
-│   └── app.py
+│   └── index.html   # API가 제공하는 정적 데모 페이지(DB-08 결정 3)
 │
 ├── checkpoints/
 │

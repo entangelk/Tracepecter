@@ -1,6 +1,6 @@
 # P07 — Inference API와 Web Demo
 
-**상태:** Waiting for Decision ([DB-08](../decision_briefs/DB-08_P07_response-contract.md)). 계획 작성 2026-10-25.
+**상태:** In Progress — [DB-08](../decision_briefs/DB-08_P07_response-contract.md) Resolved(2026-11-01, 결정 1·2·3 모두 A). 계획 작성 2026-10-25.
 
 ## 목표
 
@@ -15,7 +15,7 @@
   - 응답에 `faces_anonymized`를 넣는다.
   - `model_version`은 checkpoint·calibration artifact·익명화 규격 sha256의 조합을 식별한다.
 - 기존 `src/score.py` CLI가 같은 경로를 실제 이미지로 실행한다(2026-10-25 확인, exit 0).
-- **DB-08 결정**: 응답 분류 체계·threshold 소유, `confidence` 필드, 데모 형태. 결정 전에는 구현하지 않는다.
+- **DB-08 결정(2026-11-01)**: 2단계 분류·artifact가 threshold 소유(A), `confidence` 제거(A), API가 정적 데모 페이지 제공(A).
 
 ## 계약의 소유권과 데이터 흐름
 
@@ -44,7 +44,7 @@
 ### P07-01 — 공유 추론 코어
 
 - `load_calibration` 검증(버전·방법·checkpoint hash·유한 온도·threshold 범위)과 `require_anonymization=True` 모델 로드를 그대로 쓴다. 검증을 약화하지 않는다.
-- 응답 필드는 DB-08 결정 결과로 확정한다. 결정 전 초안은 `realism_score`, `classification`, `faces_anonymized`, `model_version`이다.
+- 응답 필드는 `realism_score`, `classification`, `faces_anonymized`, `model_version` 네 개로 확정한다(DB-08 결정 1·2 A).
 - `model_version`: checkpoint sha256, calibration 파일 sha256, 익명화 규격 sha256을 정해진 순서로 이어 붙인 문자열의 sha256 앞 12자리. 셋 중 하나만 바뀌어도 값이 달라져야 하고(과소 엄격 가드), 같은 입력이면 같아야 한다(과잉 엄격 가드).
 - 같은 이미지는 CLI와 코어에서 같은 점수를 낸다. 기존 score CLI 출력 형식은 유지하거나, 바꾸면 README를 같은 커밋에서 고친다.
 
@@ -61,7 +61,7 @@
 - §23 화면: 업로드, 원본 미리보기, 점수 막대와 `NN / 100`, 분류 문구, 가린 얼굴 수, 고정 안내 문구 두 개.
   - "이 점수는 이미지가 실제 촬영처럼 보이는 정도를 평가하며, 실제 촬영 여부를 증명하지 않습니다."
   - "얼굴 영역은 점수에 반영되지 않습니다."
-- 형태는 DB-08 결정 3에 따른다.
+- 형태: API 서버가 `demo/index.html` 정적 페이지 1개를 제공하고, 페이지는 같은 서버의 `POST /score`를 호출한다(DB-08 결정 3 A).
 - 확인: 실제 REAL·GEN 이미지 각 1장 이상을 데모로 올려 화면과 API 응답이 일치하는지 기록한다. 화면 확인은 기능 확인이며 일반화 근거가 아니다.
 
 ## 완료 조건
@@ -79,5 +79,5 @@
 
 ## 관련 결정 브리프
 
-- [DB-08](../decision_briefs/DB-08_P07_response-contract.md) — 응답 분류 체계·`confidence`·데모 형태 (Open)
+- [DB-08](../decision_briefs/DB-08_P07_response-contract.md) — 응답 분류 체계·`confidence`·데모 형태 (Resolved, 모두 A)
 - [DB-06](../decision_briefs/DB-06_P06_face-exposure.md) — 추론 전 얼굴 익명화 (Resolved)
