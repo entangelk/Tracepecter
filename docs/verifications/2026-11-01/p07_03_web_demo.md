@@ -170,3 +170,106 @@ node /tmp/p0703/run.cjs "/mnt/h/tracepector/images/real/스포티/998959.jpg" \
 node /tmp/p0703/race.cjs   # 마지막 줄 race: err와 result:true가 함께 나오면 B1 재현
 docker compose --profile api down
 ```
+
+---
+
+## 추적검증 1 (2026-11-01)
+
+### 대상 메타데이터
+
+- 요청자: 소유자(entangelk), 메인 세션 경유. 검증자: Claude Opus 5.5(독립 검증 서브에이전트, 구현·보강에 관여하지 않음).
+- 대상: 보강 커밋 `04de038`(`demo/index.html`, `tests/test_p07_demo.cjs`, `tests/test_api.py`, `.dockerignore`), 기록 커밋 `e905608`(작업 기록, 계획 P07-03 구현 세부 :81-83 추가). 요청 메시지가 처음 `3fbd6f1`로 적었으나 저장소에 없는 해시였고, 요청자가 `04de038`로 정정했다.
+- 정본 규격: 1차와 같음 + 계획 :81-83(마지막 선택 응답만 반영·이전 점수/오류 먼저 숨김, `accept="image/*"` 힌트, 413 문구·미리보기 실패 문구).
+- 검증 시작 시 작업 트리 clean, HEAD `e905608`.
+
+### 방법
+
+- `node --test tests/*.cjs` → 16 pass(데모 13), exit 0.
+- `docker compose run --rm -T dev python -m pytest -q` → 366 passed, 1 skipped, exit 0(52.6s).
+- mutation: 사전 `git status --short` 빈 출력 → `/tmp/p0703/mut.py <M>`(정확히 1회 일치하는 문자열 치환) → `node --test tests/test_p07_demo.cjs`와 `pytest tests/test_api.py -q -k demo` → `git checkout -- <파일>` → 종료 후 `git status --short` 빈 출력 재확인.
+- 실제 화면: `docker compose --profile api up -d api` → `GET /` 200 → `/tmp/p0703/race2.cjs`(playwright-core, 실제 Chrome, `--no-sandbox`) → `docker compose --profile api down`. GPU 미사용. 스크린샷은 `/tmp/p0703`에만 두었다.
+
+### 1차 차단 항목 재확인
+
+| 항목 | 보강 | 확인 |
+| --- | --- | --- |
+| B1 늦은 응답 | `demo/index.html:107,110,122,131` 요청 번호 비교 | 실제 Chrome 아래 표에서 모든 순서가 마지막 선택만 반영. 해소 |
+| B2 성공 후 거부 숨김 잠금 | node stub 초기 hidden을 마크업에서 읽음(`tests/test_p07_demo.cjs` load), 셀 :96 | M2 재실패(셀 10). 해소 |
+| B3 `Math.round` 잠금 | 셀 :81(85.54→86, 23.5→24, 99.6→100 등) | M1 재실패(셀 8). 해소 |
+| B4 `image-orientation: none` 잠금 | `tests/test_api.py:297` | M3 재실패. 해소 |
+| B5 형식 목록 중복 | `demo/index.html:56` `accept="image/*"`, `tests/test_api.py:304`, 계획 :82 | 아래 판단. 해소 |
+
+B5 판단: `image/*`는 `configs/inference.yaml`의 `formats` 값을 하나도 담지 않는 일반 MIME 와일드카드라 설정 소유 값의 복제가 아니다. 설정에서 형식이 바뀌어도 어긋날 값이 없고, 허용 여부는 서버가 415로 판정한다(실측: GIF 415, 1차 기록). 계획 :82가 이를 명시해 1차의 "spec-silent" 상태도 닫혔다. 소유자 판정이 따로 필요하지 않다고 본다. 다만 계획 :79의 "허용 형식 숫자"라는 모호한 표현은 남아 있다(비차단 H10).
+
+### 실제 Chrome 재현(같은 실행에서 응답 도착 순서와 화면 비교)
+
+| 선택 순서 | 응답 도착 순서 | 최종 화면 |
+| --- | --- | --- |
+| REAL → `bad.txt` | 400 먼저, REAL 200 나중 | 오류 "이미지 파일을 읽을 수 없습니다."만, 결과 숨김, 미리보기 자리 "미리보기를 표시할 수 없습니다" |
+| `bad.txt` → REAL | 400, 200 | 오류 없음, "86 / 100"·`photographic_like` 문구·"가린 얼굴 없음", 미리보기 표시 |
+| GEN → REAL | **REAL 200 먼저, GEN 200 나중(실제 역전)** | REAL 결과 "86 / 100" 유지 — 늦은 GEN 응답이 버려짐 |
+| 11 MiB `big.jpg` → REAL | 413, 200 | REAL 결과만 |
+| REAL → `big.jpg` | 413 먼저, REAL 200 나중 | 413 문구 "파일 크기나 이미지 해상도가 너무 큽니다."만, 결과 숨김 |
+| `bad.txt` 처리 후 GEN(순차) | 400, 200 | 이전 오류 숨김, "0 / 100"·`synthetic_like`·"얼굴 1개를…" |
+
+- 키보드: 첫 Tab에서 `document.activeElement.id === 'file'`, `label.pick`에 `outline: solid`(스크린샷에 테두리 확인), Enter로 파일 선택기 열림(`filechooser` 이벤트).
+- 미리보기 오류: 깨진 이미지 아이콘 대신 "미리보기를 표시할 수 없습니다" 자리표시(스크린샷 확인).
+- localhost·blob·data 외 요청 0건. favicon 404가 사라졌다(콘솔 오류는 의도된 400·413 응답뿐).
+
+### Mutation testing(추적)
+
+| 변이 | 내용 | 결과 |
+| --- | --- | --- |
+| M1 | `Math.round` → `Math.floor` | 재실패: node 8 |
+| M2 | 시작 시 결과 숨김 삭제(:112) | 재실패: node 10 |
+| M3 | `image-orientation: none` 삭제 | 재실패: `test_demo_preview_ignores_exif_orientation` |
+| M11 | `.notice`에 `hidden` | 재실패: `test_demo_notices_are_never_hidden` |
+| M12 | `#faces`에 `hidden` | 재실패: node 9 |
+| M13 | 늦은 응답 무시(:122) 삭제 | 재실패: node 11 |
+| M14 | catch 분기의 순번 가드(:131) 제거 | 재실패: node 12 |
+| M15 | `accept`에 형식 목록 복원 | 재실패: `test_demo_does_not_copy_format_list` |
+| M16 | 미리보기 오류 시 자리표시 표시 삭제 | 재실패: node 13 |
+| **M17** | 순번 비교를 거부 처리 뒤로 이동(:122↔:123) — 늦게 온 이전 **HTTP 거부**가 최신 결과 위에 오류를 띄움 | **생존**(node·pytest 모두 통과) → T1 |
+| M18 | `GET /`이 요청마다 파일을 읽음 | 재실패: `test_demo_file_read_once_at_startup` |
+| M19 | `.dockerignore`에 `demo/` 복원 | 재실패: `test_demo_is_shipped_in_image` |
+| **M20** | 시작 시 이전 오류 숨김(:111) 삭제 — 오류 뒤 정상 업로드 시 이전 오류가 결과와 함께 남음 | **생존** → T2 |
+| M21 | 파일 입력 `display: none` 복원(H1 회귀) | 생존 → H8(비차단) |
+| M22 | 413 문구를 1차 문구로 되돌림 | 재실패: node 4 |
+
+### 차단(계약 의무)
+
+- **T1 — 늦게 도착한 이전 HTTP 거부를 버리는 분기 무잠금** (`demo/index.html:122-123`, 계획 :81 "늦게 도착한 이전 요청의 응답·실패는 버린다"). 코드는 현재 맞다. 그러나 셀 11(`tests/test_p07_demo.cjs:107`)은 "늦은 성공", 셀 12(:122)는 "늦은 네트워크 실패(catch)"만 다뤄, 순번 비교를 `!response.ok` 처리 뒤로 옮기는 M17이 생존한다. "앞 요청 4xx/5xx가 뒤 요청 성공보다 늦게 도착 → 결과 유지·오류 숨김" 셀이 필요하다.
+- **T2 — "새 파일을 고르면 이전 오류를 먼저 숨긴다" 무잠금** (`demo/index.html:111`, 계획 :81). M20 생존. 거부 → 정상 순차 업로드에서 `error.hidden === true`를 확인하는 셀이 없다(셀 12는 오류가 한 번도 표시되지 않은 상태라 이 줄과 무관). 실제 Chrome 순차 시나리오에서는 동작이 맞음을 확인했다.
+
+### 보강 권고(비차단)
+
+- **H8** — 키보드 초점 회귀 무잠금(`demo/index.html:29`). M21 생존. 접근성은 계약 조항이 아니므로 비차단.
+- **H9** — `tests/test_api.py:335` `Path('.dockerignore')`가 현재 작업 디렉터리에 의존한다. 저장소 루트가 아닌 곳에서 pytest를 돌리면 `FileNotFoundError`. 같은 파일의 `demo_html()`처럼 `__file__` 기준 경로가 안전하다.
+- **H10** — 계획 :79 "크기 한도·허용 형식 숫자"의 모호한 표현이 남아 있다. :82가 실질을 정했으므로 문구만 정리하면 된다.
+
+### 판정(추적 1)
+
+**조건부 합격** — 계획 P07-03 구현 세부 :81의 두 분기(늦게 도착한 이전 HTTP 거부 무시 T1, 새 선택 시 이전 오류 숨김 T2)에 회귀 셀을 추가해 M17·M20이 재실패해야 한다.
+
+- 1차 B1~B5는 모두 해소됐다. B1은 실제 Chrome에서 응답 역전(GEN→REAL, REAL→bad.txt, REAL→big.jpg)까지 재현해 마지막 선택만 반영됨을 확인했다. B5의 `accept="image/*"`는 설정 소유 값을 복제하지 않는 정당한 해소다.
+- H1(키보드 초점)·H2(413 문구)·H3(문구·얼굴 수 가시성)·H4(dockerignore)·H5(1회 읽기)·H6(미리보기 자리표시)·H7(favicon)은 모두 반영됐고, H1을 뺀 항목은 각각 셀로 잠겼다(M11·M12·M16·M18·M19·M22 재실패).
+- 코드 동작 결함은 발견하지 못했다. 남은 것은 계약 분기 두 개의 잠금뿐이다.
+
+### 미결 사항
+
+- 검증 전후 작업 트리 clean(본 기록 커밋 제외). API 컨테이너는 내렸다.
+- T1·T2 셀 추가 후 추적검증 2에서 M17·M20 재실패를 확인하면 P07-03을 Complete로 처리할 수 있다.
+
+### 재현
+
+```bash
+cd /mnt/f/devel/Tracepecter
+node --test tests/*.cjs
+docker compose run --rm -T dev python -m pytest -q
+git status --short                      # 빈 출력
+python3 /tmp/p0703/mut.py M17 && node --test tests/test_p07_demo.cjs   # 통과하면 T1 재현
+git checkout -- demo/index.html
+python3 /tmp/p0703/mut.py M20 && node --test tests/test_p07_demo.cjs   # 통과하면 T2 재현
+git checkout -- demo/index.html && git status --short
+docker compose --profile api up -d api && node /tmp/p0703/race2.cjs && docker compose --profile api down
+```
