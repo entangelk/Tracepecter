@@ -1,5 +1,6 @@
 """P07-02: POST /score의 응답 schema·거부 경로·기동 거부를 stub artifact로 잡는다."""
 import io
+import json
 import threading
 import time
 from pathlib import Path
@@ -265,3 +266,25 @@ def test_upload_is_not_written_to_named_file(client, monkeypatch):
     monkeypatch.setattr(builtins, 'open', guarded)
     assert post(client, encode('PNG')).status_code == 200
     assert writes == []
+
+
+NOTICES = ('이 점수는 이미지가 실제 촬영처럼 보이는 정도를 평가하며, 실제 촬영 여부를 증명하지 않습니다.',
+           '얼굴 영역은 점수에 반영되지 않습니다.')
+
+
+def test_demo_page_served_with_fixed_notices(client):
+    """GET /은 데모 HTML을 주고, 계획 P07-03의 고정 안내 문구 두 개를 그대로 담는다."""
+    response = client.get('/')
+    assert response.status_code == 200 and response.headers['content-type'].startswith('text/html')
+    assert all(notice in response.text for notice in NOTICES)
+    assert "fetch('/score'" in response.text and "body.append('image'" in response.text
+
+
+def test_demo_does_not_own_threshold(client, artifact):
+    """데모는 점수 경계를 따로 갖지 않는다. artifact threshold·확률 값이 페이지에 없다."""
+    import re
+    text = client.get('/').text
+    script = text[text.index('<script>'):]
+    threshold = json.loads(artifact['calibration'].read_text())['threshold_probability']
+    assert str(threshold) not in text and '23.5' not in text and '0.235' not in text
+    assert not re.search(r'realism_score\s*[<>]=?', script)  # 점수와 수를 비교해 분류하지 않는다

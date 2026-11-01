@@ -1,4 +1,4 @@
-"""P07-02: POST /score. 모델은 프로세스 시작 시 1회 로드하고, 업로드 원본은 저장하지 않는다.
+"""P07-02·03: POST /score와 정적 데모(GET /). 모델은 프로세스 시작 시 1회 로드하고, 업로드 원본은 저장하지 않는다.
 
 실행: uvicorn api.main:create_app --factory --host 0.0.0.0 --port 8000
 """
@@ -7,14 +7,18 @@ from __future__ import annotations
 import io
 import os
 import threading
+from pathlib import Path
 from typing import Literal
 
 import yaml
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 
 from src.inference import Scorer
+
+DEMO = Path(__file__).resolve().parent.parent / 'demo' / 'index.html'
 
 
 class ScoreResponse(BaseModel):
@@ -33,7 +37,12 @@ def create_app(config=None, scorer=None) -> FastAPI:
     # artifact 검증 실패는 여기서 예외로 올라가 서버 기동을 막는다.
     scorer = scorer or Scorer(settings['calibration'], settings['device'])
     lock = threading.Lock()  # 모델 1개를 공유하므로 동시 요청이 CPU·메모리를 겹쳐 쓰지 않게 직렬화한다
+    demo = DEMO.read_text(encoding='utf-8')
     app = FastAPI(title='Tracepecter')
+
+    @app.get('/', response_class=HTMLResponse)
+    def index():
+        return demo
 
     @app.post('/score', response_model=ScoreResponse)
     def score(image: UploadFile = File(...)):

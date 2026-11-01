@@ -78,6 +78,8 @@ docker compose --profile api up api
 curl -F "image=@photo.jpg" http://localhost:8000/score
 ```
 
+웹 데모는 같은 서버의 http://localhost:8000/ 이다(`demo/index.html`). 이미지를 고르면 원본 미리보기, 점수 막대와 `NN / 100`(반올림 표시), 분류 문구, 가린 얼굴 수, 고정 안내 문구 두 개를 보여 준다. 화면은 `POST /score` 응답만 표시하며 점수 경계를 따로 계산하지 않는다. 미리보기는 모델 입력과 같게 EXIF 회전을 적용하지 않는다.
+
 JPEG(다중 프레임 MPO 포함)·PNG·WebP를 받으며 형식은 파일 내용으로 판정한다. 거부 응답은 다음과 같다(설정 `configs/inference.yaml`).
 
 - 413: 10 MiB 초과, 또는 PIL 압축 폭탄 판정(픽셀 수가 `Image.MAX_IMAGE_PIXELS`의 2배 초과, `DecompressionBombError`)

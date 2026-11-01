@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tracepecter 데모</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #e2e0da;
+    --accent: #2f6f5e; --track: #e9e7e1; --bad: #a3402c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --panel: #201f1d; --text: #ecebe6; --muted: #a09f98; --line: #34332f;
+      --accent: #6cbfa6; --track: #2d2c29; --bad: #e08a74;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", "Noto Sans KR", sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  label.pick { display: inline-block; padding: 10px 16px; border-radius: 8px; background: var(--accent);
+               color: var(--panel); font-weight: 600; cursor: pointer; }
+  label.pick input { display: none; }
+  .frame { margin-top: 16px; border-radius: 8px; overflow: hidden; background: var(--track);
+           aspect-ratio: 4 / 5; display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+  /* 모델과 같은 방향으로 보이도록 EXIF 회전을 적용하지 않는다(학습·API와 같은 입력 규칙). */
+  .frame img { width: 100%; height: 100%; object-fit: contain; image-orientation: none; }
+  .result { margin-top: 20px; }
+  .result h2 { font-size: 14px; color: var(--muted); font-weight: 600; margin: 0 0 8px; }
+  .bar { height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+  .score { font-size: 32px; font-weight: 700; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+  .score small { font-size: 16px; color: var(--muted); font-weight: 500; }
+  .label { margin: 4px 0 0; font-weight: 600; }
+  .faces { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  .error { margin-top: 16px; color: var(--bad); font-weight: 600; }
+  .notice { margin-top: 20px; padding: 12px 14px; border-left: 3px solid var(--line);
+            color: var(--muted); font-size: 14px; }
+  .notice p { margin: 0; }
+  .notice p + p { margin-top: 4px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Photographic Realism</h1>
+  <p class="sub">패션 착용 이미지 한 장을 올리면 실제 촬영처럼 보이는 정도를 0~100점으로 보여 줍니다.</p>
+  <div class="panel">
+    <label class="pick">이미지 선택<input id="file" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <div class="frame" id="frame"><span id="placeholder">미리보기</span><img id="preview" alt="업로드한 원본 이미지" hidden></div>
+    <p class="error" id="error" role="alert" hidden></p>
+    <section class="result" id="result" aria-live="polite" hidden>
+      <h2>Photographic Realism</h2>
+      <div class="bar"><span id="bar"></span></div>
+      <p class="score"><span id="score"></span> <small>/ 100</small></p>
+      <p class="label" id="label"></p>
+      <p class="faces" id="faces"></p>
+    </section>
+    <div class="notice">
+      <p>이 점수는 이미지가 실제 촬영처럼 보이는 정도를 평가하며, 실제 촬영 여부를 증명하지 않습니다.</p>
+      <p>얼굴 영역은 점수에 반영되지 않습니다.</p>
+    </div>
+  </div>
+</main>
+<script>
+// 화면은 POST /score 응답만 표시한다. 점수 경계·분류는 서버(calibration artifact)가 정한다.
+const LABELS = {
+  photographic_like: '실제 착용 촬영과 유사한 이미지입니다.',
+  synthetic_like: '생성 이미지와 유사한 특성이 보입니다.',
+};
+const ERRORS = {
+  400: '이미지 파일을 읽을 수 없습니다.',
+  413: '파일이 너무 큽니다.',
+  415: '지원하지 않는 이미지 형식입니다.',
+};
+
+function render(result) {
+  const label = LABELS[result.classification];
+  if (label === undefined) throw new Error('unknown classification');
+  const faces = result.faces_anonymized;
+  return {
+    width: `${result.realism_score}%`,
+    score: String(Math.round(result.realism_score)),
+    label,
+    faces: faces === 0 ? '가린 얼굴 없음' : `얼굴 ${faces}개를 흰 원으로 가린 뒤 평가했습니다.`,
+  };
+}
+
+function errorMessage(status) {
+  return ERRORS[status] || `점수를 계산하지 못했습니다(HTTP ${status}).`;
+}
+
+const $ = id => document.getElementById(id);
+
+function showError(message) {
+  $('error').textContent = message;
+  $('error').hidden = false;
+}
+
+async function submit(file) {
+  $('error').hidden = true;
+  $('result').hidden = true;
+  if ($('preview').src) URL.revokeObjectURL($('preview').src);
+  $('preview').src = URL.createObjectURL(file);
+  $('preview').hidden = false;
+  $('placeholder').hidden = true;
+  const body = new FormData();
+  body.append('image', file);
+  try {
+    const response = await fetch('/score', {method: 'POST', body});
+    if (!response.ok) return showError(errorMessage(response.status));
+    const view = render(await response.json());
+    $('bar').style.width = view.width;
+    $('score').textContent = view.score;
+    $('label').textContent = view.label;
+    $('faces').textContent = view.faces;
+    $('result').hidden = false;
+  } catch (error) {
+    showError('점수를 계산하지 못했습니다.');
+  }
+}
+
+$('file').addEventListener('change', event => {
+  if (event.target.files.length) submit(event.target.files[0]);
+});
+</script>
+</body>
+</html>
