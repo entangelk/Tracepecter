@@ -288,3 +288,49 @@ def test_demo_does_not_own_threshold(client, artifact):
     threshold = json.loads(artifact['calibration'].read_text())['threshold_probability']
     assert str(threshold) not in text and '23.5' not in text and '0.235' not in text
     assert not re.search(r'realism_score\s*[<>]=?', script)  # 점수와 수를 비교해 분류하지 않는다
+
+
+def demo_html():
+    return (Path(__file__).resolve().parent.parent / 'demo' / 'index.html').read_text(encoding='utf-8')
+
+
+def test_demo_preview_ignores_exif_orientation():
+    """미리보기가 모델 입력과 같은 방향이 되도록 EXIF 회전을 끈다(계획 P07-03)."""
+    import re
+    rule = re.search(r'\.frame img \{([^}]*)\}', demo_html()).group(1)
+    assert 'image-orientation: none' in rule
+
+
+def test_demo_does_not_copy_format_list():
+    """파일 선택기는 일반 image/* 힌트만 쓴다. 허용 형식 목록은 설정이 소유한다."""
+    import re
+    text = demo_html()
+    assert re.findall(r'accept="([^"]*)"', text) == ['image/*']
+    assert 'image/webp' not in text and 'WEBP' not in text and 'MiB' not in text
+
+
+def test_demo_notices_are_never_hidden():
+    """고정 안내 문구 영역에 hidden 속성이나 숨김 CSS가 없다."""
+    import re
+    text = demo_html()
+    tag = re.search(r'<div class="notice"[^>]*>', text).group(0)
+    assert 'hidden' not in tag
+    for rule in re.findall(r'\.notice[^{]*\{([^}]*)\}', text):
+        assert 'display: none' not in rule and 'visibility: hidden' not in rule and 'opacity: 0' not in rule
+
+
+def test_demo_file_read_once_at_startup(settings, tmp_path, monkeypatch):
+    """데모 HTML은 앱 생성 시 한 번 읽는다. 이후 파일이 바뀌어도 응답은 같다."""
+    import api.main as main
+    page = tmp_path / 'index.html'
+    page.write_text('<p>first</p>', encoding='utf-8')
+    monkeypatch.setattr(main, 'DEMO', page)
+    client = TestClient(create_app(settings()))
+    page.write_text('<p>second</p>', encoding='utf-8')
+    assert client.get('/').text == '<p>first</p>'
+
+
+def test_demo_is_shipped_in_image():
+    """API가 시작 시 읽는 demo/는 Docker 빌드 컨텍스트에서 제외하지 않는다."""
+    ignored = Path('.dockerignore').read_text().split()
+    assert not {'demo', 'demo/', 'api', 'api/', 'src', 'src/', 'configs', 'configs/'} & set(ignored)
