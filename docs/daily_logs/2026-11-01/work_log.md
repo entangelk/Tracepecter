@@ -22,6 +22,15 @@
 - 추적검증 2 **합격**(`4dfd07f`). 남은 비차단 H6(검증을 두 번째 읽기로 하는 연속 재읽기 변형 M30 생존)도 반영: Scorer 생성 중 calibration 파일 읽기가 1회임을 고정하는 테스트(`f438858`) 추가, M30 재실패 확인. P07-01 Complete.
 - P07-02 구현: `requirements.txt`에 fastapi 0.162.0·uvicorn 0.54.0·python-multipart 0.0.33·httpx 0.28.1(TestClient용) 고정, dev 이미지 재빌드. `configs/inference.yaml`(calibration 경로·device cpu·10 MiB·JPEG/PNG/WEBP). `api/main.py`의 `create_app`이 `Scorer`를 1회 만들고 `POST /score`가 크기 413·식별 실패 400·형식 415·디코딩 실패 400·픽셀 폭탄 413으로 거부한다. 응답은 pydantic `ScoreResponse`(네 필드, 분류 Literal 두 개). compose `api` 서비스(profile api, 8000 포트). `tests/test_api.py` 22개 추가, 전체 344 passed / 1 skipped.
 - 실제 서버 호출(`docker compose --profile api up -d api`, CPU): REAL `998959.jpg` → 200 `85.53991233735206`·photographic_like·얼굴 0, GEN `gen_000006.png` → 200 `0.00044999178855562543`·synthetic_like·얼굴 1, 둘 다 `f5bf7f4d004f`. CLI 값과 같다. 텍스트 파일 → 400. 확인 후 서버를 내렸다.
+- P07-02 독립검증 1차 **조건부 합격**(`820740b`): B1 판정 순서 무테스트(M1·M2 생존), B2 설정 소유·배포값 무테스트(M12·M13·M14 생존), B3 계획 GPU 문구 자기모순(내가 같은 커밋에 넣은 "GPU 미제공"이 기존 "GPU는 설정으로 켠다"와 충돌), B4 "메모리에서만" 문구 부정확(1 MiB 초과 업로드는 Starlette 임시 파일), B5 MPO(다중 프레임 JPEG) 415 거부가 계약에 없음. 비차단 H1 lock 이유 오기, H2 README 거부 설명 부족, H3 Content-Type 무시 무테스트, H4 본문 한도, H5 중복 필드, H6 schema 타입.
+- 보강(`4d93758`):
+  - B1·B2: 판정 순서·설정 소유를 테스트로 고정했다. 이미지가 아닌 대용량 바이트는 413, 잘린 GIF·BMP는 415, 잘린 PNG·JPEG는 400이다. 설정의 formats와 device는 그대로 쓰인다. 배포 설정값 전체를 테스트로 고정했다.
+  - B3: 기존 계획 의도대로 정리했다. GPU는 `device: cuda` 설정과 CUDA 이미지(`train`)에서 같은 uvicorn 명령으로 켠다. 모순 문장은 지우고 README에 명령을 적었다.
+  - B4: 계획 문구를 실제 동작으로 고쳤다. 1 MiB 초과 업로드는 요청 동안 이름 없는 임시 파일로 받고, 서버가 경로가 있는 파일로 남기지 않는다.
+  - B5: `MPO`를 허용 목록에 넣었다. 계획이 받기로 한 JPEG 파일이고 CLI도 첫 프레임으로 점수를 내므로, API만 거부하는 것은 계약 의도와 어긋난다고 판단했다.
+  - H1~H6: lock 이유를 "공유 모델 1개의 CPU·메모리 직렬화"로 정정하고 직렬화 테스트를 추가했다. README 거부 표, Content-Type 무시 테스트, 중복 필드는 마지막 것을 쓴다는 문서·테스트를 넣었다. 본문 한도는 외부 배포 시 앞단 과제로 계획에 적었다. OpenAPI 필드 타입도 단언한다.
+  - 자체 변이 M1·M2·M7·M12·M14 모두 재실패, 복원 후 트리 깨끗. `tests/test_api.py` 34 passed.
+- GPU 경로 실측: GPU 사용률 15%에서 train 이미지를 재빌드하고 `device: cuda` 임시 설정으로 API를 띄웠다. REAL `998959.jpg` → 200 `85.53958214999422`, 10-25 CUDA CLI 값과 같다. 확인 후 컨테이너를 내리고 임시 설정을 지웠다.
 
 ## 결정
 
