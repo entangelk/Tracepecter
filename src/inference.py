@@ -15,7 +15,7 @@ from src.evaluate import load_model, file_sha256
 
 
 def load_calibration(path) -> dict:
-    return validate_calibration(json.loads(Path(path).read_text()))
+    return validate_calibration(json.loads(Path(path).read_bytes().decode('utf-8')))
 
 
 def validate_calibration(artifact) -> dict:
@@ -39,7 +39,7 @@ def model_version(checkpoint_sha256: str, calibration_sha256: str, anonymization
 class Scorer:
     def __init__(self, calibration, device='cpu'):
         raw = Path(calibration).read_bytes()  # 검증한 내용과 model_version의 hash가 같은 바이트를 가리킨다
-        artifact = validate_calibration(json.loads(raw))
+        artifact = validate_calibration(json.loads(raw.decode('utf-8')))
         model, config = load_model(artifact['checkpoint'], device, require_anonymization=True)
         self.model, self.device = model, device
         self.anonymizer = checkpoint_anonymizer(config, required=True)

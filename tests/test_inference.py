@@ -175,6 +175,31 @@ def test_model_version_follows_calibration_file(artifact):
     assert before != after
 
 
+def test_model_version_hashes_validated_bytes(artifact, monkeypatch):
+    """검증 뒤 파일을 다시 읽어 hash하는 변형을 잡는다. 생성 도중 파일이 바뀌어도 검증한 바이트의 hash를 쓴다."""
+    import src.inference as inference
+    original_bytes = artifact['calibration'].read_bytes()
+    original = inference.load_model
+    def swap(*args, **kwargs):
+        rewrite(artifact['calibration'], temperature=2.0)
+        return original(*args, **kwargs)
+    monkeypatch.setattr(inference, 'load_model', swap)
+    scorer = Scorer(artifact['calibration'])
+    expected = ':'.join([file_sha256(artifact['checkpoint']), hashlib.sha256(original_bytes).hexdigest(),
+                         artifact['spec_sha256']])
+    assert scorer.temperature == 1.5
+    assert scorer.model_version == hashlib.sha256(expected.encode()).hexdigest()[:12]
+
+
+def test_bom_rejected_by_both_loaders(artifact):
+    """load_calibration과 Scorer가 같은 입력 규칙(BOM 없는 UTF-8)을 쓴다."""
+    artifact['calibration'].write_bytes(b'\xef\xbb\xbf' + artifact['calibration'].read_bytes())
+    with pytest.raises(ValueError):
+        load_calibration(artifact['calibration'])
+    with pytest.raises(ValueError):
+        Scorer(artifact['calibration'])
+
+
 def test_non_finite_score_rejected(artifact, monkeypatch):
     """NaN 확률을 응답으로 내보내지 않는다."""
     scorer = Scorer(artifact['calibration'])
