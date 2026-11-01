@@ -778,7 +778,8 @@ Output:
 - `realism_score`: 보정된 확률 × 100(`100*sigmoid(logit/T)`). 별도 `confidence` 필드는 두지 않는다(DB-08 결정 2).
 - `classification`: `photographic_like` 또는 `synthetic_like` 2단계(DB-08 결정 1).
 - `faces_anonymized`: 점수 계산 전에 흰 원으로 가린 얼굴 수.
-- `model_version`: checkpoint·calibration artifact·익명화 규격 sha256 조합의 식별자(12자리).
+- `model_version`: checkpoint·calibration artifact·익명화 규격 sha256 조합의 식별자(12자리, 유도 규칙은 [P07 계획](plan/phase_7_api_demo.md)).
+- 위 값은 형식 예시다. `realism_score`는 반올림하지 않은 실수로 반환하고, 표시 자릿수는 화면이 정한다.
 
 Temperature와 확률 threshold는 calibration artifact가 소유한다. config는 artifact 경로만 가리키고 값을 복제하지 않는다(DB-08, 소유자 결정 2026-11-01).
 

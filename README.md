@@ -71,7 +71,7 @@ Score calibration은 P05, `POST /score` API와 웹 데모는 P07에서 제공한
 }
 ```
 
-`realism_score`가 보정된 확률(×100)이므로 별도 `confidence`는 없다. threshold는 calibration artifact가 소유한다([DB-08](docs/decision_briefs/DB-08_P07_response-contract.md)).
+위 값은 형식 예시이며 `realism_score`는 반올림하지 않은 실수로 반환한다. `realism_score`가 보정된 확률(×100)이므로 별도 `confidence`는 없다. threshold는 calibration artifact가 소유한다([DB-08](docs/decision_briefs/DB-08_P07_response-contract.md)).
 
 ## Metric
 

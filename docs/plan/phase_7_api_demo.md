@@ -45,7 +45,7 @@
 
 - `load_calibration` 검증(버전·방법·checkpoint hash·유한 온도·threshold 범위)과 `require_anonymization=True` 모델 로드를 그대로 쓴다. 검증을 약화하지 않는다.
 - 응답 필드는 `realism_score`, `classification`, `faces_anonymized`, `model_version` 네 개로 확정한다(DB-08 결정 1·2 A).
-- `model_version`: checkpoint sha256, calibration 파일 sha256, 익명화 규격 sha256을 정해진 순서로 이어 붙인 문자열의 sha256 앞 12자리. 셋 중 하나만 바뀌어도 값이 달라져야 하고(과소 엄격 가드), 같은 입력이면 같아야 한다(과잉 엄격 가드).
+- `model_version`: checkpoint sha256, calibration 파일 바이트의 sha256, 익명화 규격 binding sha256(각각 소문자 hex 64자)을 이 순서로 `:`로 이은 문자열(`<checkpoint>:<calibration>:<anonymization>`)의 sha256 hex 앞 12자리. calibration hash는 검증에 쓴 것과 같은 바이트에서 계산한다. 셋 중 하나만 바뀌어도 값이 달라져야 하고(과소 엄격 가드), 같은 입력이면 같아야 한다(과잉 엄격 가드).
 - 같은 이미지는 CLI와 코어에서 같은 점수를 낸다. 기존 score CLI 출력 형식은 유지하거나, 바꾸면 README를 같은 커밋에서 고친다.
 
 ### P07-02 — `POST /score` API

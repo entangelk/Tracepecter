@@ -1,6 +1,7 @@
 """P07-01: 공유 추론 코어의 응답 계약·model_version·threshold 경계를 잡는다."""
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -10,7 +11,7 @@ from PIL import Image
 
 from src.anonymize import Anonymizer, bind_spec
 from src.evaluate import file_sha256
-from src.inference import Scorer, model_version
+from src.inference import Scorer, load_calibration, model_version
 from src.model import RealismScorer, build_encoder
 from src.score import main as score
 
@@ -33,10 +34,17 @@ def artifact(tmp_path, monkeypatch):
     calibration = tmp_path / 'calibration.json'
     calibration.write_text(json.dumps(dict(version=1, method='temperature_scaling', checkpoint=str(checkpoint),
                                            checkpoint_sha256=file_sha256(checkpoint),
-                                           temperature=1.5, threshold_probability=0.5)))
+                                           temperature=1.5, threshold_probability=0.37)))
     image = tmp_path / 'image.png'
     Image.new('RGB', (40, 32), (120, 60, 30)).save(image)
-    return dict(calibration=calibration, checkpoint=checkpoint, image=image, spec_sha256=config['anonymization']['sha256'])
+    return dict(calibration=calibration, checkpoint=checkpoint, image=image, detector=detector,
+                spec_sha256=config['anonymization']['sha256'])
+
+
+def rewrite(path, **fields):
+    data = json.loads(path.read_text())
+    data.update(fields)
+    path.write_text(json.dumps(data))
 
 
 def test_model_version_is_stable_and_deterministic():
@@ -44,6 +52,11 @@ def test_model_version_is_stable_and_deterministic():
     first = model_version(*HASHES)
     assert first == model_version(*HASHES)
     assert len(first) == 12 and all(c in '0123456789abcdef' for c in first)
+
+
+def test_model_version_formula_is_literal():
+    """해시 함수·순서·구분자·앞 12자리를 같은 함수 없이 독립 계산값과 고정 문자열로 잠근다."""
+    assert model_version(*HASHES) == hashlib.sha256(':'.join(HASHES).encode()).hexdigest()[:12] == '30b19c9cb857'
 
 
 @pytest.mark.parametrize('position', [0, 1, 2])
@@ -69,8 +82,8 @@ def test_scorer_response_contract_and_cli_agree(artifact, capsys):
     assert 0 <= result['realism_score'] <= 100
     assert result['classification'] in ('photographic_like', 'synthetic_like')
     assert result['faces_anonymized'] == 2
-    assert result['model_version'] == model_version(file_sha256(artifact['checkpoint']),
-                                                    file_sha256(artifact['calibration']), artifact['spec_sha256'])
+    expected = ':'.join([file_sha256(artifact['checkpoint']), file_sha256(artifact['calibration']), artifact['spec_sha256']])
+    assert result['model_version'] == hashlib.sha256(expected.encode()).hexdigest()[:12]
     cli = score(['--image', str(artifact['image']), '--calibration', str(artifact['calibration'])])
     assert cli == result and json.loads(capsys.readouterr().out) == result
 
@@ -95,23 +108,69 @@ def test_scorer_converts_non_rgb_input(artifact):
     assert scorer(Image.new('L', (40, 32), 90))['faces_anonymized'] == 2
 
 
-def test_classification_boundary_belongs_to_photographic(artifact):
-    """확률이 threshold와 같으면 photographic_like, 바로 아래면 synthetic_like다(양방향 경계)."""
+def fixed_logit_scorer(artifact, monkeypatch, logit=0.625):
     scorer = Scorer(artifact['calibration'])
-    image = Image.new('RGB', (40, 32), (120, 60, 30))
-    probability = scorer(image)['realism_score'] / 100
-    scorer.threshold = probability
-    assert scorer(image)['classification'] == 'photographic_like'
-    scorer.threshold = probability + 1e-9
-    assert scorer(image)['classification'] == 'synthetic_like'
+    monkeypatch.setattr(scorer.model, 'forward_logits', lambda batch: torch.tensor([[logit]]))
+    return scorer
+
+
+def test_score_uses_artifact_temperature(artifact, monkeypatch):
+    """realism_score = 100*sigmoid(logit/T), T는 artifact 값(1.5). logit은 float32에서 정확한 0.625. T 무시·고정 변형을 잡는다."""
+    result = fixed_logit_scorer(artifact, monkeypatch)(Image.new('RGB', (40, 32)))
+    assert result['realism_score'] == pytest.approx(100 / (1 + math.exp(-0.625 / 1.5)), abs=1e-9)
+    assert result['realism_score'] != pytest.approx(100 / (1 + math.exp(-0.625)), abs=1e-3)
+
+
+@pytest.mark.parametrize('offset,expected', [(0., 'photographic_like'), (1e-9, 'synthetic_like'),
+                                             (-1e-9, 'photographic_like')])
+def test_classification_uses_artifact_threshold(artifact, monkeypatch, offset, expected):
+    """artifact threshold와 같은 확률은 photographic_like, 바로 위 threshold면 synthetic_like다.
+    threshold를 artifact 파일로만 바꾸므로 고정 0.5·인스턴스 우회 변형도 잡는다."""
+    probability = 1 / (1 + math.exp(-0.625 / 1.5))
+    rewrite(artifact['calibration'], threshold_probability=probability + offset)
+    result = fixed_logit_scorer(artifact, monkeypatch)(Image.new('RGB', (40, 32)))
+    assert result['classification'] == expected
+
+
+def test_fixture_threshold_separates_from_default(artifact, monkeypatch):
+    """확률 0.4~0.5 구간을 artifact threshold 0.37은 photographic_like로, 고정 0.5는 synthetic_like로 나눈다."""
+    result = fixed_logit_scorer(artifact, monkeypatch, logit=-0.375)(Image.new('RGB', (40, 32)))
+    assert 37 <= result['realism_score'] < 50 and result['classification'] == 'photographic_like'
+
+
+@pytest.mark.parametrize('field,value,message', [
+    ('version', 2, 'unsupported'), ('method', 'platt', 'unsupported'),
+    ('temperature', 0., 'temperature'), ('temperature', -1., 'temperature'),
+    ('temperature', float('nan'), 'temperature'), ('temperature', float('inf'), 'temperature'),
+    ('threshold_probability', -1e-9, 'threshold'), ('threshold_probability', 1 + 1e-9, 'threshold'),
+    ('threshold_probability', float('nan'), 'threshold'), ('checkpoint_sha256', '0' * 64, 'hash mismatch')])
+def test_invalid_calibration_rejected_at_startup(artifact, field, value, message):
+    """artifact 검증 분기마다 load_calibration과 Scorer 생성이 모두 거부한다(요청 전 기동 거부)."""
+    rewrite(artifact['calibration'], **{field: value})
+    with pytest.raises(ValueError, match=message):
+        load_calibration(artifact['calibration'])
+    with pytest.raises(ValueError, match=message):
+        Scorer(artifact['calibration'])
+
+
+@pytest.mark.parametrize('threshold', [0., 1.])
+def test_threshold_range_endpoints_accepted(artifact, threshold):
+    """threshold 범위 검증의 과잉 엄격 변형(0·1 거부)을 잡는다."""
+    rewrite(artifact['calibration'], threshold_probability=threshold)
+    assert Scorer(artifact['calibration']).threshold == threshold
+
+
+def test_detector_mismatch_rejected_by_scorer(artifact):
+    """checkpoint에 결합된 YuNet hash와 실제 파일이 다르면 Scorer 생성이 거부된다."""
+    artifact['detector'].write_bytes(b'other detector')
+    with pytest.raises(ValueError, match='face detector model sha256 mismatch'):
+        Scorer(artifact['calibration'])
 
 
 def test_model_version_follows_calibration_file(artifact):
     """같은 checkpoint라도 calibration 파일 내용이 바뀌면 model_version이 달라진다."""
     before = Scorer(artifact['calibration']).model_version
-    data = json.loads(artifact['calibration'].read_text())
-    data['temperature'] = 2.0
-    artifact['calibration'].write_text(json.dumps(data))
+    rewrite(artifact['calibration'], temperature=2.0)
     after = Scorer(artifact['calibration']).model_version
     assert before != after
 
