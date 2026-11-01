@@ -234,3 +234,34 @@ def test_requests_are_serialized(settings, artifact):
     for thread in threads:
         thread.join()
     assert state['peak'] == 1
+
+
+def test_mpo_follows_config(settings):
+    """MPO를 설정과 무관하게 JPEG로 취급하는 변형을 잡는다. JPEG만 허용하면 MPO는 415다."""
+    client = TestClient(create_app(settings(formats=['JPEG'])))
+    assert post(client, encode('JPEG')).status_code == 200
+    assert post(client, mpo()).status_code == 415
+
+
+def test_config_path_from_environment(settings, monkeypatch):
+    """인자가 없으면 TRACEPECTER_INFERENCE_CONFIG가 가리키는 설정을 쓴다."""
+    import api.main as main
+    seen = []
+    monkeypatch.setattr(main, 'Scorer', lambda calibration, device: seen.append(device) or Scorer(calibration))
+    monkeypatch.setenv('TRACEPECTER_INFERENCE_CONFIG', str(settings(device='cuda')))
+    create_app()
+    assert seen == ['cuda']
+
+
+def test_upload_is_not_written_to_named_file(client, monkeypatch):
+    """요청 처리 중 서버가 쓰기 모드로 파일을 열지 않는다(업로드 비저장)."""
+    import builtins
+    writes = []
+    original = builtins.open
+    def guarded(file, mode='r', *args, **kwargs):
+        if any(flag in mode for flag in 'wax+'):
+            writes.append(file)
+        return original(file, mode, *args, **kwargs)
+    monkeypatch.setattr(builtins, 'open', guarded)
+    assert post(client, encode('PNG')).status_code == 200
+    assert writes == []

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import io
+import os
 import threading
 from typing import Literal
 
@@ -23,7 +24,9 @@ class ScoreResponse(BaseModel):
     model_version: str
 
 
-def create_app(config='configs/inference.yaml', scorer=None) -> FastAPI:
+def create_app(config=None, scorer=None) -> FastAPI:
+    # 설정 파일 선택만 환경변수로 바꿀 수 있다. 값은 설정 파일이 소유한다.
+    config = config or os.environ.get('TRACEPECTER_INFERENCE_CONFIG', 'configs/inference.yaml')
     with open(config) as handle:
         settings = yaml.safe_load(handle)
     limit, formats = settings['max_upload_bytes'], set(settings['formats'])

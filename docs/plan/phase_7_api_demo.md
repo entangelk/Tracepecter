@@ -38,7 +38,7 @@
 | ID | 작업 | 선행 조건 | 완료 증거 | 상태 |
 | --- | --- | --- | --- | --- |
 | P07-01 | 공유 추론 코어 | DB-08 결정 1·2 | `src/inference.py`: artifact·모델·익명화기를 1회 로드하고 이미지 1장 → 응답 dict. `src/score.py`는 이 코어를 호출. `model_version` 유도·거부 경로 회귀 테스트 | **Complete**(2026-11-01) — [독립검증 추적 2 합격](../verifications/2026-11-01/p07_01_inference_core.md) |
-| P07-02 | `POST /score` API | P07-01 | `api/main.py`(FastAPI): 정상 응답 schema, 잘못된 이미지·형식·크기 거부, 시작 시 artifact 검증 실패면 기동 거부. TestClient 테스트와 실제 이미지 1장 호출 기록 | Implemented(2026-11-01, 독립검증 1차 조건부 합격 → 보강) |
+| P07-02 | `POST /score` API | P07-01 | `api/main.py`(FastAPI): 정상 응답 schema, 잘못된 이미지·형식·크기 거부, 시작 시 artifact 검증 실패면 기동 거부. TestClient 테스트와 실제 이미지 1장 호출 기록 | **Complete**(2026-11-01) — [독립검증 추적 합격](../verifications/2026-11-01/p07_02_score_api.md) |
 | P07-03 | Web Demo·실행 경로 | P07-02, DB-08 결정 3 | 업로드 → 원본 미리보기 → 점수·분류·가린 얼굴 수·고정 안내 문구 표시. compose 서비스, README Inference 절 갱신, 실제 이미지로 화면 확인 | Planned |
 
 ### P07-01 — 공유 추론 코어
@@ -55,15 +55,15 @@
 - 모델은 프로세스 시작 시 1회 로드한다. 요청마다 다시 읽지 않는다.
 - 테스트는 stub 모델 fixture로 schema·거부 경로·동일 입력 동일 출력을 확인하고, 실제 artifact 호출은 수동 실행 기록으로 남긴다.
 - 실행: compose에 `api` 서비스를 추가한다. 기본 device는 CPU로 두고 GPU는 설정으로 켠다. GPU 점유 정책(HANDOFF 주의)을 따른다.
-- 구현 세부(2026-11-01 확정):
+- 구현 세부(2026-11-01 구현자 정리, 독립검증 추적 합격. 소유자 확정 항목은 아님):
   - 형식은 파일 이름·Content-Type이 아니라 바이트를 PIL로 열어 얻은 format으로 판정한다. 허용 목록(`JPEG`·`MPO`·`PNG`·`WEBP`)·크기 한도(10 MiB)·device는 `configs/inference.yaml`이 소유한다. 휴대폰 Ultra HDR 사진처럼 PIL이 `MPO`로 여는 JPEG 파일은 CLI와 같이 첫 프레임으로 점수를 낸다.
-  - 판정 순서는 크기(413) → 식별 실패(400) → 허용 목록 밖 format(415) → 디코딩 실패·잘린 파일(400)이다. PIL 픽셀 폭탄 한도 초과(`DecompressionBombError`)는 413이다. `image` 필드가 없으면 FastAPI 검증으로 422다.
+  - 판정 순서는 크기(413) → 식별 실패(400) → 허용 목록 밖 format(415) → 디코딩 실패·잘린 파일(400)이다. PIL 압축 폭탄 판정(`DecompressionBombError`, 픽셀 수가 `MAX_IMAGE_PIXELS`의 2배 초과)은 413이다. 1~2배 구간은 PIL 경고만 나고 처리한다. `image` 필드가 없으면 FastAPI 검증으로 422다.
   - EXIF 회전은 적용하지 않는다. 학습·평가·CLI와 같은 입력 규칙이다.
   - 점수 계산은 lock으로 직렬화한다. 모델 1개를 공유하므로 동시 요청이 CPU·메모리를 겹쳐 쓰지 않게 하기 위해서다(얼굴 검출기는 호출마다 새로 만들어 공유 상태가 없다).
   - `image` 필드가 여러 개면 마지막 것을 쓴다.
   - 크기 판정은 요청 본문을 다 받은 뒤 한다. 외부 배포 시에는 앞단에서 요청 본문 한도를 둬야 한다(외부 배포는 범위 밖).
   - 비유한 점수는 코어가 예외를 내고 500으로 끝난다. 200 응답에 NaN이 실리지 않는다.
-  - 시작: `uvicorn api.main:create_app --factory`. `create_app`이 `Scorer`를 만들고 artifact 검증 실패는 기동 실패다. compose `api` 서비스는 CPU 이미지(`tracepecter/dev`)다. GPU는 설정의 `device`를 `cuda`로 바꾸고 CUDA 이미지(`train` 서비스)에서 같은 uvicorn 명령으로 실행한다(README). GPU 점유 정책을 따른다.
+  - 시작: `uvicorn api.main:create_app --factory`. `create_app`이 `Scorer`를 만들고 artifact 검증 실패는 기동 실패다. compose `api` 서비스는 CPU 이미지(`tracepecter/dev`)다. GPU는 `device: cuda`인 설정 파일을 `TRACEPECTER_INFERENCE_CONFIG`로 지정해 CUDA 이미지(`train` 서비스)에서 같은 uvicorn 명령으로 실행한다(README). 저장소 설정은 CPU 배포값으로 둔다. GPU 점유 정책을 따른다.
 
 ### P07-03 — Web Demo
 
