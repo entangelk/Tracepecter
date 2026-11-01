@@ -273,3 +273,85 @@ python3 /tmp/p0703/mut.py M20 && node --test tests/test_p07_demo.cjs   # 통과�
 git checkout -- demo/index.html && git status --short
 docker compose --profile api up -d api && node /tmp/p0703/race2.cjs && docker compose --profile api down
 ```
+
+---
+
+## 추적검증 2 (2026-11-01)
+
+### 대상 메타데이터
+
+- 요청자: 소유자(entangelk), 메인 세션 경유. 검증자: Claude Opus 5.5(독립 검증 서브에이전트, 구현·보강에 관여하지 않음).
+- 대상: 보강 커밋 `2100937`(`tests/test_p07_demo.cjs`, `tests/test_api.py`, 계획 :79 문구), 기록 커밋 `8c78c42`(작업 기록만). 검증 시작 시 HEAD `8c78c42`, 작업 트리 clean.
+- 정본 규격: 추적 1과 같음. 핵심은 계획 :81 "늦게 도착한 이전 요청의 응답·실패는 버린다. 새 파일을 고르면 이전 점수와 오류를 먼저 숨긴다."
+
+### 방법
+
+- 제품 코드 변경 여부: `git diff --stat 04de038 HEAD -- demo api .dockerignore compose.yaml` → 빈 출력. 화면 코드는 추적 1에서 실제 Chrome으로 확인한 `04de038`과 바이트 단위로 같으므로 브라우저 재현은 다시 돌리지 않았다(추적 1 표가 그대로 유효).
+- `node --test tests/*.cjs` → 18 pass(데모 15), exit 0.
+- `docker compose run --rm -T dev python -m pytest -q` → 367 passed, 1 skipped, exit 0(52.2s).
+- mutation: 사전 `git status --short` 빈 출력 → `/tmp/p0703/mut2.py <M>`(정확히 1회 일치 치환) → `node --test tests/test_p07_demo.cjs`와 `pytest tests/test_api.py -q -k demo` → `git checkout -- demo/index.html` → 종료 후 `git status --short` 빈 출력 재확인. GPU 미사용, 스크린샷 없음.
+
+### 새 셀 검토
+
+- `tests/test_p07_demo.cjs:145` (T1): 앞 요청 `bad.txt`, 뒤 요청 REAL. 뒤 성공을 먼저 끝내고 앞 요청의 415를 나중에 도착시킨 뒤 `result` 표시·`score === '86'`·`error` 숨김을 단언한다. 과소 엄격(늦은 거부가 덮음)과 과잉 엄격(최신 결과까지 숨김·지움) 양쪽을 한 셀이 잡는다.
+- `tests/test_p07_demo.cjs:159` (T2): 400 뒤 새 파일을 고르면 **응답 전에** `error.hidden === true`, 응답 후에도 숨김을 단언한다. "먼저 숨긴다"의 시점까지 고정한다.
+- `tests/test_api.py:339` (H8): 입력 규칙에 `display: none`·`visibility: hidden`이 없고, 입력 태그에 `hidden`이 없으며, `label.pick:focus-within`이 있는지 문자열로 확인한다.
+- `tests/test_api.py:333-336` (H9): `.dockerignore` 경로를 `__file__` 기준으로 고쳤다.
+- 계획 :79 (H10): "크기 한도 값과 허용 형식 목록은 설정 소유라 화면에 복제하지 않는다"로 정리돼 :82(`accept="image/*"`)와 모순이 없다.
+
+### Mutation testing(추적 2)
+
+| 변이 | 방향 | 내용 | 결과 |
+| --- | --- | --- | --- |
+| M17 | 과소 | 순번 비교를 거부 처리 뒤로 이동 | 재실패: node 14 |
+| M17b | 과소 | 순번 비교를 성공 응답에만 적용(`&& response.ok`) | 재실패: node 14 |
+| M17c | 과잉 | 거부 응답을 모두 조용히 버림 | 재실패: node 3·4·5·6·10·11·15 |
+| M23 | 과잉 | 늦은 응답이 오면 최신 결과를 숨기고 반환 | 재실패: node 14 |
+| M23b | 과소 | 직전 요청 하나는 늦어도 허용(`latest - 1`) | 재실패: node 11·14 |
+| M20 | 과소 | 새 선택 시 이전 오류 숨김 삭제 | 재실패: node 15 |
+| M20b | 과소 | 오류 숨김을 응답 도착 뒤로 이동 | 재실패: node 15("응답 전에 이미 숨김") |
+| M21 | — | 입력 `display: none` 복원 | 재실패: `test_demo_file_input_stays_focusable` |
+| M21b | — | 입력 `visibility: hidden` | 재실패: 같은 셀 |
+| M21c | — | 입력 태그에 `hidden` 속성 | 재실패: 같은 셀 |
+| M21d | — | `label.pick:focus-within` 외곽선 삭제 | 재실패: 같은 셀 |
+| M21e | — | 입력에 `tabindex="-1"` | **생존** → H11 |
+| M21f | — | `display:none`(공백 없음)을 규칙 앞에 추가 | **생존** → H11 |
+
+계획 :81의 두 분기는 과소·과잉 양방향에서 각자 이름 붙은 셀(14·15)로 잠겼다. 셀 11(늦은 성공)·12(늦은 네트워크 실패)·14(늦은 HTTP 거부)가 늦은 결과의 세 종류를 하나씩 맡는다.
+
+### 차단(계약 의무)
+
+없음. 추적 1의 T1·T2가 해소됐다.
+
+### 보강 권고(비차단)
+
+- **H11** — `tests/test_api.py:339`의 키보드 초점 셀은 CSS 문자열 일치라 `tabindex="-1"`(M21e)이나 공백 없는 `display:none`(M21f) 같은 변형을 놓친다. 접근성은 계약 조항이 아니므로 비차단이다. 필요하면 공백 정규화와 `tabindex` 검사, 또는 실제 브라우저 Tab 확인으로 보강할 수 있다.
+
+### 판정(추적 2)
+
+**합격**
+
+- 추적 1의 차단 T1·T2는 새 셀 `tests/test_p07_demo.cjs:145`·`:159`로 잠겼고, 과소 변이(M17·M17b·M20·M20b·M23b)와 과잉 변이(M17c·M23)가 모두 재실패한다.
+- 1차 B1~B5와 추적 1 H8~H10이 해소됐고, 제품 코드는 추적 1에서 실제 Chrome으로 확인한 상태(`04de038`)와 같다.
+- node 18/18, 전체 Python 367 passed / 1 skipped, 모두 exit 0.
+
+### 미결 사항
+
+- 검증 전후 작업 트리 clean(본 기록 커밋 제외). API 컨테이너는 띄우지 않았다.
+- P07-03 Complete 처리와 계획·HANDOFF·인포그래픽 갱신은 구현자 몫이다.
+
+### 재현
+
+```bash
+cd /mnt/f/devel/Tracepecter
+git diff --stat 04de038 HEAD -- demo api .dockerignore compose.yaml   # 빈 출력
+node --test tests/*.cjs
+docker compose run --rm -T dev python -m pytest -q
+git status --short                                                    # 빈 출력
+for m in M17 M17b M17c M23 M23b M20 M20b M21 M21b M21c M21d M21e M21f; do
+  python3 /tmp/p0703/mut2.py $m; node --test tests/test_p07_demo.cjs >/dev/null 2>&1; echo "$m node=$?"
+  docker compose run --rm -T dev python -m pytest tests/test_api.py -q -k demo | tail -1
+  git checkout -- demo/index.html
+done
+git status --short                                                    # 빈 출력
+```
