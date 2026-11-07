@@ -1,0 +1,16 @@
+{
+  "verified_inputs_sha256": {
+    "data/versions/p09_r1/metadata.csv": "5a323684dbf157a1db38201f8fe8007185a7809f2ab1ab9564f225faed682161",
+    "experiments/p09_leakage_repair/r1/grouping/final/group_lock.json": "0ff9e2c9b87a936bfc14aaed2ad94a3f77d09642d5b07e63f634bc9a380d3d99",
+    "reports/errors/review/p09_leakage_repair/r1/candidate_run_01/candidates.csv.gz": "bfab5981fd6f2c0f3566cbb8b897b1c2a625c14ac1dec52ec5c2527ce88a6e8e",
+    "experiments/p09_leakage_repair/r1/grouping/final/conservative_constraints.csv": "864d8015963a818661da5c71a93207f9594cc045e1e510f5f619368817af295d",
+    "experiments/p09_leakage_repair/r1/grouping/final/group_mapping.csv": "027dc0d086465bfe01c848b533422d8da97dfada26894e8f18ccf351258f8939",
+    "experiments/p09_leakage_repair/r1/grouping/final/summary.json": "d0d47d3c1f108f5538f155ae2601e9935e3b25b245b328ab2588edcefeae3fbc",
+    "experiments/p09_leakage_repair/r1/grouping/final/visual_reviews.csv": "70d6ab1c0d48490c704de25c4e82ab5319f86337307db3a4911385d89213848d"
+  },
+  "source_sha256": "b44faaf289918e8f68636fb8d69a70d7e14dc61e12f6f10c0213bf4f6446d6f8",
+  "outputs_sha256": {
+    "pairs.csv": "6e2d1a62f2b0a6cf384ac81e75a46ef9822cf2d2adae1efd9398015c9685d450",
+    "summary.json": "45fffc36a95919407a60ffd6b8371f99ee2247baa1aff77a931e74aa263b0f57"
+  }
+}

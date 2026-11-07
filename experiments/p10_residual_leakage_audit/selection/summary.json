@@ -1,0 +1,70 @@
+{
+  "seed": 20261107,
+  "strata": [
+    {
+      "stratum": "real_ge90",
+      "label": "1",
+      "cosine_min": 0.9,
+      "cosine_max": null,
+      "population": 236,
+      "selected": 236,
+      "mode": "all"
+    },
+    {
+      "stratum": "real_85_90",
+      "label": "1",
+      "cosine_min": 0.85,
+      "cosine_max": 0.9,
+      "population": 4419,
+      "selected": 100,
+      "mode": "sample"
+    },
+    {
+      "stratum": "real_80_85",
+      "label": "1",
+      "cosine_min": 0.8,
+      "cosine_max": 0.85,
+      "population": 17130,
+      "selected": 100,
+      "mode": "sample"
+    },
+    {
+      "stratum": "real_lt80",
+      "label": "1",
+      "cosine_min": null,
+      "cosine_max": 0.8,
+      "population": 404811,
+      "selected": 100,
+      "mode": "sample"
+    },
+    {
+      "stratum": "gen_ge95",
+      "label": "0",
+      "cosine_min": 0.95,
+      "cosine_max": null,
+      "population": 76,
+      "selected": 76,
+      "mode": "all"
+    },
+    {
+      "stratum": "gen_90_95",
+      "label": "0",
+      "cosine_min": 0.9,
+      "cosine_max": 0.95,
+      "population": 1677,
+      "selected": 100,
+      "mode": "sample"
+    },
+    {
+      "stratum": "gen_lt90",
+      "label": "0",
+      "cosine_min": null,
+      "cosine_max": 0.9,
+      "population": 8276,
+      "selected": 0,
+      "mode": "unreviewed"
+    }
+  ],
+  "reviewed_excluded": 1386,
+  "selected_pairs": 712
+}
