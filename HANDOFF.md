@@ -5,7 +5,7 @@
 ## 현재 상태
 
 - P00(프로젝트 초기화) **Complete** — 독립검증 초회+재검증 합격. 기록: `docs/verifications/2026-10-07/p00_initialization.md`.
-- 현재 `data/metadata.csv`는 **6,000행**(REAL 3,000 K-Fashion + GEN 3,000): train 3,780 / val 820 / test 800 / test_unseen 600(sd35_medium 전량). **선언된 ID·look_group 교차는0이지만 실제 같은 룩의 split 교차가 있어 데이터 독립성 감사는 불합격이다. 기존 metadata는 보존본이며 P09 새 metadata와 구분한다.** 현재 primary는 P09 수리 metadata `data/versions/p09_r1/metadata.csv`로 학습했다(알려진 같은 룩·확정 그룹 교차 0, 전체 후보 독립성 통과는 아님). P08 사전등록 통계 관문 통과와 구분한다.
+- 현재 `data/metadata.csv`는 **6,000행**(REAL 3,000 K-Fashion + GEN 3,000): train 3,780 / val 820 / test 800 / test_unseen 600(sd35_medium 전량). **선언된 ID·look_group 교차는0이지만 실제 같은 룩의 split 교차가 있어 데이터 독립성 감사는 불합격이다. 기존 metadata는 보존본이며 P09 새 metadata와 구분한다.** 현재 primary는 P09 수리 metadata `data/versions/p09_r1/metadata.csv`로 학습했다(P09 시점 알려진 같은 룩·확정 그룹 교차 0, 전체 후보 독립성 통과는 아님. **P10 감사에서 r1 경계 교차 같은 룩 6쌍 잠정 발견, 소유자 확인 대기**). P08 사전등록 통계 관문 통과와 구분한다.
 - 실행 환경: **Docker Compose**(소유자 결정 2026-10-07) — `Dockerfile`·`compose.yaml`·`Dockerfile.comfyui`(GPU, 생성 완료로 현재 정지 상태). `docker compose run --rm dev python -m pytest`. 의존성 canonical은 `requirements.txt`.
 - 생성 인프라: 5종 전 생성기 모델 확보 완료(`/mnt/f/AI/ComfyUI-models`, 38GB). 재사용 시 `docker compose --profile gpu up -d comfyui`.
 - primary: **SigLIP**, 실행 설정 `configs/primary.yaml`, checkpoint `checkpoints/leakage_repair/r1/best.pt`(P09-04 채택, 2026-10-25). 이전 P08 모델은 `configs/anonymized.yaml`·`checkpoints/anonymized/best.pt`로 보존. DINO 비교 모델은 `checkpoints/dino/best.pt`. [비교 근거·실험 기록](experiments/p03_comparison/README.md)과 [P03 계획](docs/plan/phase_3_baseline_comparison.md) 참고.
@@ -17,7 +17,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-> **다음 세션 시작 시:** 소유자가 2번 중 감사 후보 추가 검토를 먼저 하기로 했다(2026-11-07). [P10 계획](docs/plan/phase_10_residual_leakage_audit.md) 진행 중, [DB-09](docs/decision_briefs/DB-09_P10_residual-review-scope.md) A/R1 확정. 신규 수집·split 변경은 소유자 결정 없이 시작하지 않는다.
+> **다음 세션 시작 시:** 소유자가 2번 중 감사 후보 추가 검토를 먼저 하기로 했다(2026-11-07). [P10 계획](docs/plan/phase_10_residual_leakage_audit.md) 진행 중, [DB-09](docs/decision_briefs/DB-09_P10_residual-review-scope.md) A/R1 확정. **에이전트 판정 결과 r1 경계를 넘는 같은 룩 6쌍·미확정 3쌍(잠정)**([감사 보고](experiments/p10_residual_leakage_audit/README.md)). 소유자 확인 페이지 `reports/errors/review/p10_residual_leakage_audit/owner/index.html`(9쌍, 판정 비공개)의 CSV를 받으면 최종 판정을 고정하고, 확정 1건 이상이면 r2 수리 vs 한계 기록 결정 브리프를 쓴다. 소유자가 미확정을 확정으로 바꾸면 그 성분의 directed 이웃을 추가 검토해야 한다. 신규 수집·split 변경은 소유자 결정 없이 시작하지 않는다.
 
 1. **P07(API + Demo) Complete(2026-11-01)** — [계획](docs/plan/phase_7_api_demo.md), [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) A/A/A. 슬라이스별 독립검증 합격([01](docs/verifications/2026-11-01/p07_01_inference_core.md)·[02](docs/verifications/2026-11-01/p07_02_score_api.md)·[03](docs/verifications/2026-11-01/p07_03_web_demo.md)).
    - 실행: `docker compose --profile api up api` → 데모 http://localhost:8000/, API `POST /score`(CPU). GPU는 README 절차(`TRACEPECTER_INFERENCE_CONFIG`로 cuda 설정 + train 이미지). 응답 네 필드(`realism_score`·`classification`·`faces_anonymized`·`model_version`), 현재 `model_version` `f5bf7f4d004f`.
@@ -28,7 +28,7 @@
    - `POST /score`와 데모에 가린 얼굴 수(`faces_anonymized`)·artifact 조합 식별자(`model_version`)를 포함하고 원본 미리보기·익명화 표시를 제공한다. 기존 score CLI는 실제 이미지로 동작한다([README](README.md#calibrated-image-score)).
    - 소유자 확인(P08 301장·P09 180장)의 원본·변환본·최종 주석을 보존한다. 소유자 얼굴 확인은 눈·코·입 요소 수로 입력되므로 새 검토 페이지는 단위를 맞추고 변환을 merge 코드에 둔다([P09 진단 README](experiments/p09_leakage_repair/r1/diagnostic/README.md)). P08-07 실사 holdout은 기존 결정대로 P07 관문이 아니다.
    - P09 한계: 미검토946,311쌍·GEN 계보 공유·재분할 6,000장의 개발 평가·Q5를 유지한다. 남은 얼굴 상태 FP(6/127)가 익명화(8/601)보다 높게 관측됐다(허용폭 안).
-2. 감사의 pHash/embedding 후보 추가 검토·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
+2. 감사의 pHash/embedding 후보 추가 검토(P10 진행 중, 위 안내)·최종 독립 REAL/FAKE holdout(얼굴이 보이는 실사 포함, [P06-04 수집 방향](experiments/p06_failure_analysis/patterns/README.md#다음-데이터-수집-방향))·사람 평가가 남는다. 현재 Test A/B는 개발 평가이며 신규 수집·split 변경은 하지 않았다.
 3. score CLI는 채택된 P09 calibration artifact로 실행한다([README](README.md#calibrated-image-score)). 익명화 키가 없는 P05 baseline은 score에서 거부하고, offline 평가·calibration에서만 원본 입력으로 허용한다.
 
 ## 주의

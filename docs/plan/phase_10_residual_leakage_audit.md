@@ -1,6 +1,6 @@
 # P10 — P09 미검토 후보의 잔여 누출 감사
 
-**상태:** In Progress. [DB-09](../decision_briefs/DB-09_P10_residual-review-scope.md) 결정 1 A·결정 2 R1(2026-11-07).
+**상태:** In Progress — P10-01 Complete, P10-02 소유자 확인 대기. [DB-09](../decision_briefs/DB-09_P10_residual-review-scope.md) 결정 1 A·결정 2 R1(2026-11-07). [감사 보고](../../experiments/p10_residual_leakage_audit/README.md).
 
 ## 목표
 
@@ -16,11 +16,11 @@ P09-01이 미검토로 남긴 초기 후보 946,311쌍 가운데 현재 primary 
 
 | ID | 작업 | 완료 증거 | 상태 |
 | --- | --- | --- | --- |
-| P10-01 | 경계 교차 미검토 후보 추출·대역 분류·고정 seed 표본 선택 | `experiments/p10_residual_leakage_audit/selection/`의 선택 목록·대역별 모수·입력 lock, 결정성·경계 계산 테스트 | Planned |
-| P10-02 | 시각 판정(P09와 같은 판정 체계: 확정·다른 룩·미확정), 확정 관계의 directed top-10 확장 | 판정 CSV·비교 이미지 hash lock, 경계 교차 확정·미확정의 소유자 확인 원본·최종본 | Planned |
-| P10-03 | 결과 보고 | 경계별 확정·미확정 수, 표본 대역의 잔여율과 95% 상한(Clopper–Pearson), 한계 | Planned |
+| P10-01 | 경계 교차 미검토 후보 추출·대역 분류·고정 seed 표본 선택 | `experiments/p10_residual_leakage_audit/selection/`의 선택 목록·대역별 모수·입력 lock, 결정성·경계 계산 테스트 | Complete(712쌍) |
+| P10-02 | 시각 판정(P09와 같은 판정 체계: 확정·다른 룩·미확정), 확정 관계의 directed top-10 확장 | 판정 CSV·비교 이미지 hash lock, 경계 교차 확정·미확정의 소유자 확인 원본·최종본 | 에이전트 판정 813쌍·이웃 closure 0 완료, 소유자 확인 9쌍 대기 |
+| P10-03 | 결과 보고 | 경계별 확정·미확정 수, 표본 대역의 잔여율과 95% 상한(Clopper–Pearson), 한계 | 잠정 보고 작성, 소유자 확인 후 확정 |
 
-- 판정 체계와 이미지 비교 도구는 P09의 것을 재사용한다(`scripts/p09_review_pairs.py`). 새 코드는 선택·집계에 한정한다.
+- 판정 체계와 비교 시트 배치는 P09의 것을 따른다. P09 도구는 P09 후보 목록 전용이라 같은 배치의 `scripts/p10_review_sheets.py`를 따로 두었다(P09 source hash를 바꾸지 않기 위함). 이웃 확장은 P09 `review_neighbors`를 그대로 호출한다.
 - 출력은 새 경로 `experiments/p10_residual_leakage_audit/`에 둔다. 비교 이미지 사본은 비추적 `reports/errors/review/p10_residual_leakage_audit/`에 둔다.
 
 ## 완료 조건
