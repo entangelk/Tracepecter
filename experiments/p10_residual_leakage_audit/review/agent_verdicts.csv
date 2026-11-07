@@ -1,0 +1,713 @@
+a,b,verdict,reason,reviewer,sheet,pair_number,cosine,stratum,split_a,split_b
+231294,357399,different_look,청바지 찢김·밑단·신발·배경이 다름,Claude(agent),000.jpg,1,0.922696417,real_ge90,train,test
+20455,282156,different_look,청바지 색·찢김·프린트·신발이 다름,Claude(agent),000.jpg,2,0.912711541,real_ge90,train,val
+222162,499801,different_look,청바지 실루엣·상의·신발·배경 소품이 다름,Claude(agent),000.jpg,3,0.912479774,real_ge90,test,train
+249872,80485,different_look,바지 색·소재·신발이 다름,Claude(agent),000.jpg,4,0.912467992,real_ge90,train,test
+231204,62425,different_look,상의·신발·배경 소품이 다름,Claude(agent),000.jpg,5,0.912463287,real_ge90,train,val
+18087,258814,different_look,바지 색(베이지/분홍)·허리끈이 다름,Claude(agent),000.jpg,6,0.912420376,real_ge90,test,train
+1264276,135394,different_look,회색 핀턱 바지는 비슷하나 신발·상의·배경이 다름,Claude(agent),000.jpg,7,0.912248109,real_ge90,train,test
+230555,357319,different_look,청바지 색·밑단 롤업·상의·신발이 다름,Claude(agent),000.jpg,8,0.912143675,real_ge90,train,test
+327054,81481,different_look,치마 소재·신발·배경이 다름,Claude(agent),008.jpg,9,0.912124953,real_ge90,test,train
+230853,357259,different_look,같은 매장 배경이나 상의·신발·가방이 다름,Claude(agent),008.jpg,10,0.91203355,real_ge90,val,train
+296938,357399,different_look,청바지 찢김·신발·배경이 다름,Claude(agent),008.jpg,11,0.911977306,real_ge90,train,test
+1240756,218797,confirmed_same_look,"같은 회색 체크 티어드 원피스와 흰 선반 촬영 세트, 가방 유무만 다른 컷",Claude(agent),008.jpg,12,0.911898719,real_ge90,val,test
+826599,827135,different_look,흰 몰딩 배경은 같으나 꽃무늬 블라우스·청바지 찢김·신발이 다름,Claude(agent),008.jpg,13,0.91174044,real_ge90,val,train
+230192,230853,different_look,청바지 색·상의·신발이 다름,Claude(agent),008.jpg,14,0.911689497,real_ge90,train,val
+27466,331026,different_look,바지 색·상의·신발이 다름,Claude(agent),008.jpg,15,0.911679937,real_ge90,train,val
+230853,428135,different_look,청바지 색·상의·신발이 다름,Claude(agent),008.jpg,16,0.911658003,real_ge90,val,train
+1232525,1232644,different_look,코트 색·후드 유무가 다름,Claude(agent),016.jpg,17,0.911643604,real_ge90,train,test
+1110178,294738,different_look,청바지 색·상의·신발·배경이 다름,Claude(agent),016.jpg,18,0.911636514,real_ge90,test,train
+1263418,1267048,different_look,바지 색·허리 디테일·신발이 다름,Claude(agent),016.jpg,19,0.911598716,real_ge90,val,train
+1223816,230853,different_look,청바지 색·밑단·상의가 다름,Claude(agent),016.jpg,20,0.911498938,real_ge90,train,val
+1232644,206688,different_look,코트 색·후드·벨트가 다름,Claude(agent),016.jpg,21,0.911138737,real_ge90,test,train
+258859,269776,different_look,바지 색·라인 디테일이 다름,Claude(agent),016.jpg,22,0.91107063,real_ge90,train,test
+103866,357785,different_look,바지 색·상의·배경이 다름,Claude(agent),016.jpg,23,0.911003032,real_ge90,train,test
+781486,989737,different_look,멜빵 원피스 색·신발·배경이 다름,Claude(agent),016.jpg,24,0.910849124,real_ge90,val,test
+269776,362370,different_look,바지 색·트임·신발이 다름,Claude(agent),024.jpg,25,0.910797921,real_ge90,test,train
+410764,411323,different_look,체크 셔츠 색·패턴이 다름,Claude(agent),024.jpg,26,0.910636769,real_ge90,test,val
+1022815,1216634,different_look,치마 무늬·색·가방·신발이 다름,Claude(agent),024.jpg,27,0.910580489,real_ge90,train,test
+364523,424663,different_look,바지 색·상의·신발이 다름,Claude(agent),024.jpg,28,0.91044298,real_ge90,test,train
+1059407,1151688,different_look,검정 청바지 허리 밴드·자수/패치·배경 액자가 다름,Claude(agent),024.jpg,29,0.910393246,real_ge90,test,train
+294571,62425,different_look,청바지 색·상의·신발·배경이 다름,Claude(agent),024.jpg,30,0.910376029,real_ge90,train,val
+162523,490007,different_look,재킷 색·이너·가방이 다름,Claude(agent),024.jpg,31,0.910311134,real_ge90,train,val
+1207693,230555,different_look,청바지 찢김·상의·배경이 다름,Claude(agent),024.jpg,32,0.910310056,real_ge90,val,train
+296322,889180,different_look,검정 바지는 비슷하나 상의·신발·배경이 다름,Claude(agent),032.jpg,33,0.910290918,real_ge90,train,val
+568403,568442,unconfirmed,같은 콘크리트 벽·모델·검정 롱코트로 보이나 이너(회색/검정)·부츠 색이 달라 동일 룩 확정 보류,Claude(agent),032.jpg,34,0.910199997,real_ge90,test,train
+364523,63137,different_look,바지 색·상의가 다름,Claude(agent),032.jpg,35,0.910162559,real_ge90,test,train
+1207693,22418,different_look,청바지 찢김·신발·배경이 다름,Claude(agent),032.jpg,36,0.91006927,real_ge90,val,train
+140695,155679,different_look,바지 소재·밑단·신발·배경이 다름,Claude(agent),032.jpg,37,0.909763781,real_ge90,test,val
+1233583,1233589,confirmed_same_look,같은 갈색 후드 재킷·흰 티·회색 무지 배경의 전신/확대 컷,Claude(agent),032.jpg,38,0.909749428,real_ge90,val,train
+335364,428135,different_look,청바지 찢김·신발·배경이 다름,Claude(agent),032.jpg,39,0.909712184,real_ge90,test,train
+204417,226376,different_look,바지 색·상의·신발이 다름,Claude(agent),032.jpg,40,0.909709725,real_ge90,val,train
+422357,490007,different_look,체크 재킷 색·이너·가방이 다름,Claude(agent),040.jpg,41,0.909702822,real_ge90,train,val
+296278,498325,different_look,물결 밑단 청바지는 비슷하나 워싱 색·신발·배경이 다름,Claude(agent),040.jpg,42,0.909619714,real_ge90,train,val
+327603,424673,different_look,바지 색·밑단·배경이 다름,Claude(agent),040.jpg,43,0.909538112,real_ge90,train,test
+155647,204417,different_look,아이보리 끈 바지는 비슷하나 상의·신발·소품이 다름,Claude(agent),040.jpg,44,0.909529091,real_ge90,train,val
+521946,856264,different_look,검정 끈 바지는 비슷하나 상의·신발·배경이 다름,Claude(agent),040.jpg,45,0.90950744,real_ge90,val,test
+140695,155647,different_look,바지 색·소재·신발이 다름,Claude(agent),040.jpg,46,0.909488442,real_ge90,test,train
+140766,364523,different_look,바지 색·상의·신발이 다름,Claude(agent),040.jpg,47,0.909456478,real_ge90,train,test
+138895,346120,different_look,바지 앞단추·색·상의·배경이 다름,Claude(agent),040.jpg,48,0.909399797,real_ge90,test,train
+135394,19752,different_look,회색 바지는 비슷하나 상의·신발·양말이 다름,Claude(agent),048.jpg,49,0.90910597,real_ge90,test,train
+1086291,62492,different_look,데님 반바지 색·밑단·신발이 다름,Claude(agent),048.jpg,50,0.909082781,real_ge90,train,val
+166465,253357,different_look,원피스 색·소재가 다름,Claude(agent),048.jpg,51,0.909020059,real_ge90,train,val
+956837,956848,confirmed_same_look,같은 검정 플레어 미니스커트·흰 블라우스·레깅스·운동화와 나무 스툴/마른 가지/안내판 촬영 세트,Claude(agent),048.jpg,52,0.90887955,real_ge90,val,train
+155606,254088,different_look,검정 바지 실루엣·신발·배경이 다름,Claude(agent),048.jpg,53,0.908877455,real_ge90,test,train
+1077164,1254888,different_look,원피스 색·후드 유무가 다름,Claude(agent),048.jpg,54,0.908771151,real_ge90,test,val
+364523,518739,different_look,바지 색·포켓·상의가 다름,Claude(agent),048.jpg,55,0.908742489,real_ge90,test,train
+230923,62425,different_look,청바지 색·상의·신발이 다름,Claude(agent),048.jpg,56,0.908673003,real_ge90,train,val
+1208231,1210208,different_look,청바지 찢김·밑단·상의가 다름,Claude(agent),056.jpg,57,0.908601737,real_ge90,train,test
+489659,918978,unconfirmed,같은 베이지 린넨 반팔 재킷·반바지 세트와 검정 이너이나 배경·가방이 달라 동일 촬영 확정 보류,Claude(agent),056.jpg,58,0.908554977,real_ge90,val,train
+1184411,1223816,different_look,청바지 찢김·밑단·상의가 다름,Claude(agent),056.jpg,59,0.908548642,real_ge90,test,train
+296278,62425,different_look,청바지 실루엣·색·신발이 다름,Claude(agent),056.jpg,60,0.908540058,real_ge90,train,val
+139803,364523,different_look,바지 색·상의·신발이 다름,Claude(agent),056.jpg,61,0.908460719,real_ge90,train,test
+103866,1086064,different_look,바지 색·신발·배경이 다름,Claude(agent),056.jpg,62,0.908346102,real_ge90,train,test
+297086,357399,different_look,청바지 색·찢김·상의가 다름,Claude(agent),056.jpg,63,0.908272099,real_ge90,train,test
+18087,63137,different_look,바지 허리끈·색·상의가 다름,Claude(agent),056.jpg,64,0.908181274,real_ge90,test,train
+357399,428135,different_look,청바지 색·찢김·신발이 다름,Claude(agent),064.jpg,65,0.908153262,real_ge90,test,train
+300956,357319,different_look,청바지 색·밑단 롤업·신발이 다름,Claude(agent),064.jpg,66,0.908127601,real_ge90,train,test
+138895,63137,different_look,바지 앞단추·색·상의가 다름,Claude(agent),064.jpg,67,0.908060131,real_ge90,test,train
+1224880,80485,different_look,하의 종류·색이 다름,Claude(agent),064.jpg,68,0.908045119,real_ge90,train,test
+139519,254781,different_look,바지 색·상의·신발이 다름,Claude(agent),064.jpg,69,0.907944941,real_ge90,val,train
+335364,502448,different_look,청바지 색·밑단·신발·배경이 다름,Claude(agent),064.jpg,70,0.907867369,real_ge90,test,train
+140695,226376,different_look,바지 색·소재·신발이 다름,Claude(agent),064.jpg,71,0.907562822,real_ge90,test,train
+231294,498325,different_look,청바지 색·밑단·신발이 다름,Claude(agent),064.jpg,72,0.907552525,real_ge90,train,val
+185079,962969,different_look,청바지 색·상의·양말·배경이 다름,Claude(agent),072.jpg,73,0.907535745,real_ge90,train,test
+139562,158398,different_look,치마 색(벽돌/빨강)·단추 배치·배경이 다름,Claude(agent),072.jpg,74,0.907524379,real_ge90,val,train
+269776,424742,different_look,바지 색·라인 디테일·상의가 다름,Claude(agent),072.jpg,75,0.907519881,real_ge90,test,train
+344544,517715,different_look,바지 색·실루엣·신발·배경이 다름,Claude(agent),072.jpg,76,0.90740794,real_ge90,train,test
+230923,335364,different_look,청바지 색·찢김·상의가 다름,Claude(agent),072.jpg,77,0.907364708,real_ge90,train,test
+1117209,280888,different_look,체크 치마 실루엣(머메이드/H라인)·신발·배경이 다름,Claude(agent),072.jpg,78,0.907124985,real_ge90,train,test
+1134669,63137,different_look,바지 색·상의·신발·배경이 다름,Claude(agent),072.jpg,79,0.906986091,real_ge90,val,train
+1332887,693257,different_look,같은 몰딩/야자 배경이나 원피스 색·디자인·신발이 다름,Claude(agent),072.jpg,80,0.906861674,real_ge90,train,test
+140695,155502,different_look,바지 색·소재·상의·가방이 다름,Claude(agent),080.jpg,81,0.906811509,real_ge90,test,train
+768000,890864,different_look,같은 창가 실내 촬영 공간이나 착장이 완전히 다름,Claude(agent),080.jpg,82,0.906800178,real_ge90,test,train
+140695,424742,different_look,바지 색·소재·상의·신발이 다름,Claude(agent),080.jpg,83,0.906797457,real_ge90,test,train
+231863,30037,different_look,초록 롱셔츠는 비슷하나 이너·하의·배경이 다름,Claude(agent),080.jpg,84,0.906779064,real_ge90,val,train
+1026745,929233,different_look,재킷 색·하의·배경이 다름,Claude(agent),080.jpg,85,0.906572769,real_ge90,train,val
+155606,254781,different_look,검정 바지 실루엣·신발·배경이 다름,Claude(agent),080.jpg,86,0.906554438,real_ge90,test,train
+804029,925393,different_look,청바지 밑단·상의·신발·배경이 다름,Claude(agent),080.jpg,87,0.906541249,real_ge90,val,train
+280888,300558,different_look,체크 치마 색·벨트·상의·신발이 다름,Claude(agent),080.jpg,88,0.906457795,real_ge90,test,train
+1233449,433185,different_look,코트 색·소재·신발이 다름,Claude(agent),088.jpg,89,0.906445623,real_ge90,train,val
+342914,404904,different_look,청바지 색·실루엣·상의·배경이 다름,Claude(agent),088.jpg,90,0.906016142,real_ge90,train,val
+230853,297183,different_look,청바지 밑단·상의·신발·배경이 다름,Claude(agent),088.jpg,91,0.905971403,real_ge90,val,train
+717653,90490,different_look,플리츠 치마 색·상의·배경이 다름,Claude(agent),088.jpg,92,0.905883627,real_ge90,train,val
+134811,331026,different_look,바지 색·소재·신발·배경이 다름,Claude(agent),088.jpg,93,0.905841031,real_ge90,test,val
+424663,424673,confirmed_same_look,같은 카키 밴딩 바지·흰 티와 유리병 마른 가지/벽 메모 촬영 세트의 전신/확대 컷,Claude(agent),088.jpg,94,0.905840909,real_ge90,train,test
+1223816,357319,different_look,청바지 실루엣·상의·신발이 다름,Claude(agent),088.jpg,95,0.90578101,real_ge90,train,test
+1225177,1272276,different_look,베이지 바지는 비슷하나 상의·신발·배경 소품이 다름,Claude(agent),088.jpg,96,0.905769616,real_ge90,test,train
+135394,135648,different_look,회색 바지 핀턱 유무·상의·신발이 다름,Claude(agent),096.jpg,97,0.90566247,real_ge90,test,train
+147076,213696,different_look,같은 마네킹/나무 스텝 스툴 세트이나 치마 재단(솔기 A라인/개더)이 다름,Claude(agent),096.jpg,98,0.905660844,real_ge90,train,val
+1041244,1213258,different_look,청바지 색·밑단·신발·배경이 다름,Claude(agent),096.jpg,99,0.905656617,real_ge90,val,train
+1082475,357399,different_look,청바지 색·찢김·상의·신발이 다름,Claude(agent),096.jpg,100,0.905627922,real_ge90,train,test
+228047,953534,different_look,베이지 롱코트는 비슷하나 마네킹/착용·이너·배경이 다름,Claude(agent),096.jpg,101,0.90560343,real_ge90,test,train
+889872,947039,unconfirmed,얼굴 가림 모델의 갈색 재킷·청바지·베이지 구두가 비슷하나 촬영 공간(선반/창가)이 달라 동일 룩 확정 보류,Claude(agent),096.jpg,102,0.905570286,real_ge90,train,test
+1184411,1346312,different_look,청바지 찢김·상의·신발·배경이 다름,Claude(agent),096.jpg,103,0.905562937,real_ge90,test,train
+222162,230853,different_look,청바지 색·상의·신발·배경이 다름,Claude(agent),096.jpg,104,0.905511444,real_ge90,test,val
+404904,499801,different_look,청바지 색·실루엣·상의·배경이 다름,Claude(agent),104.jpg,105,0.905492165,real_ge90,val,train
+1017616,230555,different_look,청바지 찢김·신발·배경이 다름,Claude(agent),104.jpg,106,0.905456565,real_ge90,test,train
+231294,62425,different_look,청바지 밑단·상의·신발이 다름,Claude(agent),104.jpg,107,0.905456199,real_ge90,train,val
+135394,254781,different_look,바지 색·상의·신발이 다름,Claude(agent),104.jpg,108,0.905435095,real_ge90,test,train
+175505,453886,different_look,원피스 색·가방·배경이 다름,Claude(agent),104.jpg,109,0.905415676,real_ge90,test,val
+427878,998148,different_look,바지 색·상의·배경이 다름,Claude(agent),104.jpg,110,0.905356628,real_ge90,train,test
+175465,334205,different_look,원피스 무늬·소매가 다름,Claude(agent),104.jpg,111,0.905326847,real_ge90,train,test
+1081276,380906,different_look,검정 바지는 비슷하나 신발·가방·배경이 다름,Claude(agent),104.jpg,112,0.905184717,real_ge90,test,train
+27466,357785,different_look,바지 색·허리 디테일·상의가 다름,Claude(agent),112.jpg,113,0.905163701,real_ge90,train,test
+1223816,335364,different_look,청바지 색·밑단·신발이 다름,Claude(agent),112.jpg,114,0.905146111,real_ge90,train,test
+655115,798232,different_look,같은 창가 촬영 공간이나 원피스 색·디자인이 다름,Claude(agent),112.jpg,115,0.905124449,real_ge90,train,test
+346120,522396,different_look,바지 색·상의·신발·배경이 다름,Claude(agent),112.jpg,116,0.905089373,real_ge90,train,test
+1149731,889180,different_look,검정 바지는 비슷하나 상의·신발·배경이 다름,Claude(agent),112.jpg,117,0.905082751,real_ge90,train,val
+418947,953534,different_look,아이보리 코트는 비슷하나 이너·하의·배경이 다름,Claude(agent),112.jpg,118,0.905072953,real_ge90,test,train
+175505,428966,different_look,원피스 색·소매 디테일·배경이 다름,Claude(agent),112.jpg,119,0.904942382,real_ge90,test,train
+1083989,1083999,confirmed_same_look,같은 아이보리 턱 와이드 바지·파란 티·샌들과 그림 액자/헤링본 바닥 촬영 세트,Claude(agent),112.jpg,120,0.904891926,real_ge90,test,train
+166821,449742,different_look,셔츠 원피스 배색 패널 유무·신발이 다름,Claude(agent),120.jpg,121,0.904875651,real_ge90,val,train
+158398,331924,different_look,치마 색·단추·신발·배경이 다름,Claude(agent),120.jpg,122,0.9048452,real_ge90,train,test
+303533,77964,different_look,꽃무늬 원피스 색·목선·배경이 다름,Claude(agent),120.jpg,123,0.904804656,real_ge90,val,train
+1110178,1120224,different_look,바지 색·상의·신발·배경이 다름,Claude(agent),120.jpg,124,0.904711189,real_ge90,test,val
+155606,297086,different_look,바지 색·상의·배경이 다름,Claude(agent),120.jpg,125,0.904689884,real_ge90,test,train
+282156,283346,different_look,청바지 색·패치·배경이 다름,Claude(agent),120.jpg,126,0.904675674,real_ge90,val,train
+18936,317803,different_look,바지 색·상의가 다름,Claude(agent),120.jpg,127,0.904651333,real_ge90,val,train
+459182,532932,different_look,원피스 색·재단이 다름,Claude(agent),120.jpg,128,0.904645397,real_ge90,train,val
+355228,418947,different_look,코트 색·하의·신발이 다름,Claude(agent),128.jpg,129,0.904636852,real_ge90,val,test
+296322,335364,different_look,바지 색·상의·신발이 다름,Claude(agent),128.jpg,130,0.90459414,real_ge90,train,test
+1082948,520383,confirmed_same_look,같은 흰 크롭 바지·파란 티·흰 끈 신발과 책 선반/스툴 촬영 세트,Claude(agent),128.jpg,131,0.904567301,real_ge90,train,val
+319562,929233,different_look,재킷 색·하의·신발·배경이 다름,Claude(agent),128.jpg,132,0.904336786,real_ge90,train,val
+1132705,1208231,different_look,청바지 색·찢김·상의·신발이 다름,Claude(agent),128.jpg,133,0.904290534,real_ge90,val,train
+719158,998148,different_look,바지 색·상의·배경이 다름,Claude(agent),128.jpg,134,0.904244808,real_ge90,train,test
+418319,953148,different_look,회색 롱코트는 비슷하나 이너·하의·배경이 다름,Claude(agent),128.jpg,135,0.904228854,real_ge90,train,test
+158585,269776,different_look,바지 색·라인·상의·신발이 다름,Claude(agent),128.jpg,136,0.904206626,real_ge90,train,test
+1136681,424742,different_look,바지 색·상의·신발이 다름,Claude(agent),136.jpg,137,0.9042011,real_ge90,val,train
+1223816,404904,different_look,청바지 색·밑단·상의가 다름,Claude(agent),136.jpg,138,0.90413804,real_ge90,train,val
+139519,345717,different_look,바지 색·상의·배경이 다름,Claude(agent),136.jpg,139,0.904098501,real_ge90,val,train
+1016619,222107,different_look,청바지 색·밑단·신발·배경이 다름,Claude(agent),136.jpg,140,0.904016803,real_ge90,val,train
+291167,291687,different_look,같은 와이드 바지 실루엣이나 색(보라/자홍)·신발이 다른 색상 변형,Claude(agent),136.jpg,141,0.903953071,real_ge90,train,val
+258691,364523,different_look,바지 색·상의·배경이 다름,Claude(agent),136.jpg,142,0.903944594,real_ge90,train,test
+175505,240334,different_look,원피스 소매·벨트·가방·배경이 다름,Claude(agent),136.jpg,143,0.903928255,real_ge90,test,train
+363466,427440,different_look,치마 색·소재·상의가 다름,Claude(agent),136.jpg,144,0.903819798,real_ge90,test,train
+19455,288670,different_look,바지 색·실루엣이 다름,Claude(agent),144.jpg,145,0.903801614,real_ge90,train,val
+336197,62492,different_look,데님 반바지 찢김·밑단·신발이 다름,Claude(agent),144.jpg,146,0.903767415,real_ge90,train,val
+1263418,140766,different_look,바지 색·상의·신발·배경이 다름,Claude(agent),144.jpg,147,0.90374034,real_ge90,val,train
+1236748,62425,different_look,청바지 색·실루엣·신발이 다름,Claude(agent),144.jpg,148,0.903697211,real_ge90,train,val
+175505,400779,different_look,원피스 색·소재·배경이 다름,Claude(agent),144.jpg,149,0.903685563,real_ge90,test,train
+1224880,331026,different_look,하의 종류·색이 다름,Claude(agent),144.jpg,150,0.903658019,real_ge90,train,val
+1017616,231267,different_look,청바지 찢김·상의·신발이 다름,Claude(agent),144.jpg,151,0.903631648,real_ge90,test,train
+517715,517858,different_look,바지 색(아이보리/검정)·신발·배경이 다름,Claude(agent),144.jpg,152,0.903629155,real_ge90,test,train
+1211389,502006,different_look,청바지 색·찢김·신발·배경이 다름,Claude(agent),152.jpg,153,0.903526569,real_ge90,val,train
+404904,425930,different_look,청바지 색·밑단·상의가 다름,Claude(agent),152.jpg,154,0.903368628,real_ge90,val,train
+1225177,345071,different_look,바지 색·상의·배경이 다름,Claude(agent),152.jpg,155,0.903357387,real_ge90,test,train
+297183,335364,different_look,청바지 색·찢김·신발이 다름,Claude(agent),152.jpg,156,0.903341754,real_ge90,train,test
+498325,735867,different_look,청바지 색·상의·신발이 다름,Claude(agent),152.jpg,157,0.903321276,real_ge90,val,train
+140720,326069,different_look,같은 라탄 수납장 배경이나 청바지 색(연청/회청)·신발이 다름,Claude(agent),152.jpg,158,0.903289188,real_ge90,train,val
+203239,66279,different_look,치마 색·밑단 재단·배경이 다름,Claude(agent),152.jpg,159,0.903237813,real_ge90,train,test
+296938,498325,different_look,청바지 찢김·밑단·신발이 다름,Claude(agent),152.jpg,160,0.903206361,real_ge90,train,val
+767680,891471,different_look,같은 창가 촬영 공간이나 착장(노랑 코트/검정 원피스)이 다름,Claude(agent),160.jpg,161,0.903089944,real_ge90,val,train
+1249174,345344,different_look,바지 색·허리 디테일·신발이 다름,Claude(agent),160.jpg,162,0.903071998,real_ge90,val,train
+727158,804029,different_look,청바지 색·상의·신발·소품이 다름,Claude(agent),160.jpg,163,0.902989416,real_ge90,train,val
+155606,346120,different_look,바지 색·상의·배경이 다름,Claude(agent),160.jpg,164,0.902897606,real_ge90,test,train
+330614,364523,different_look,바지 색·포켓·상의가 다름,Claude(agent),160.jpg,165,0.902839751,real_ge90,train,test
+962969,966615,different_look,청바지 색·상의·배경이 다름,Claude(agent),160.jpg,166,0.902813181,real_ge90,test,train
+331026,522396,different_look,바지 실루엣·상의·배경이 다름,Claude(agent),160.jpg,167,0.902669142,real_ge90,val,test
+222162,294738,different_look,청바지 색·상의·신발·배경이 다름,Claude(agent),160.jpg,168,0.902640464,real_ge90,test,train
+1077164,739985,different_look,후드 원피스 색·배경이 다름,Claude(agent),168.jpg,169,0.902592218,real_ge90,test,val
+418157,418947,different_look,코트 색·하의가 다름,Claude(agent),168.jpg,170,0.90254548,real_ge90,train,test
+1225177,246777,different_look,바지 색·벨트·상의·신발이 다름,Claude(agent),168.jpg,171,0.902527807,real_ge90,test,train
+1254888,219011,different_look,원피스 색·소재·배경이 다름,Claude(agent),168.jpg,172,0.902392771,real_ge90,val,train
+1077164,332127,different_look,후드 원피스 색·배경이 다름,Claude(agent),168.jpg,173,0.902382963,real_ge90,test,train
+404904,408551,different_look,청바지 색·셔츠가 다름,Claude(agent),168.jpg,174,0.902364546,real_ge90,val,train
+297183,62425,different_look,청바지 실루엣·상의·신발이 다름,Claude(agent),168.jpg,175,0.902347752,real_ge90,train,val
+62492,8460,different_look,데님 반바지 포켓·밑단·신발이 다름,Claude(agent),168.jpg,176,0.902171509,real_ge90,val,test
+18998,337704,different_look,흰 바지 밑단 트임은 비슷하나 상의·신발·배경이 다름,Claude(agent),176.jpg,177,0.902161913,real_ge90,val,train
+121575,90490,different_look,치마 색·주름·상의·배경이 다름,Claude(agent),176.jpg,178,0.902141511,real_ge90,train,val
+1017616,1082475,different_look,청바지 색·찢김·신발·배경이 다름,Claude(agent),176.jpg,179,0.902109395,real_ge90,test,train
+1077164,1253433,different_look,후드 원피스 색·배색이 다름,Claude(agent),176.jpg,180,0.902080998,real_ge90,test,train
+249873,80485,different_look,바지 색·소재·신발이 다름,Claude(agent),176.jpg,181,0.902073657,real_ge90,train,test
+409649,411323,different_look,체크 셔츠 색·하의가 다름,Claude(agent),176.jpg,182,0.902032398,real_ge90,train,val
+1016619,924740,different_look,청바지 색·상의·배경이 다름,Claude(agent),176.jpg,183,0.90200636,real_ge90,val,train
+1210035,404904,different_look,청바지 색·상의·신발이 다름,Claude(agent),176.jpg,184,0.902005903,real_ge90,train,val
+336197,8460,different_look,데님 반바지 찢김·밑단 재단이 다름,Claude(agent),184.jpg,185,0.901959426,real_ge90,train,test
+140695,27466,different_look,바지 색·소재·신발이 다름,Claude(agent),184.jpg,186,0.901857851,real_ge90,test,train
+204417,364523,different_look,바지 색·상의가 다름,Claude(agent),184.jpg,187,0.901752924,real_ge90,val,test
+1099563,655115,different_look,원피스 색·디자인·배경이 다름,Claude(agent),184.jpg,188,0.901732811,real_ge90,val,train
+18087,204417,different_look,끈 바지 색(베이지/아이보리)·상의가 다름,Claude(agent),184.jpg,189,0.901727861,real_ge90,test,val
+282541,497703,different_look,청바지 색·실루엣·배경이 다름,Claude(agent),184.jpg,190,0.901713249,real_ge90,val,train
+255819,432607,different_look,블라우스 레이스 장식·소매가 다름,Claude(agent),184.jpg,191,0.901682709,real_ge90,test,train
+217393,331026,different_look,바지 소재·상의·배경이 다름,Claude(agent),184.jpg,192,0.901677553,real_ge90,train,val
+138895,140766,different_look,바지 색·앞단추·신발·배경이 다름,Claude(agent),192.jpg,193,0.901670865,real_ge90,test,train
+158585,359374,different_look,바지 색·허리끈·배경이 다름,Claude(agent),192.jpg,194,0.901654851,real_ge90,train,test
+551452,594751,different_look,같은 콘크리트 벽 촬영 세트의 검정 착장이나 스카프·치마/원피스 구성이 다름,Claude(agent),192.jpg,195,0.901642174,real_ge90,train,test
+120664,80485,different_look,바지 색·상의·가방이 다름,Claude(agent),192.jpg,196,0.901579339,real_ge90,train,test
+1225177,72883,different_look,바지 색·상의·배경이 다름,Claude(agent),192.jpg,197,0.901575406,real_ge90,test,train
+231294,335364,different_look,청바지 색·밑단·신발이 다름,Claude(agent),192.jpg,198,0.901571482,real_ge90,train,test
+231393,335364,different_look,청바지 색·밑단·상의가 다름,Claude(agent),192.jpg,199,0.901532804,real_ge90,train,test
+568442,594751,different_look,같은 콘크리트 벽 촬영 세트이나 코트 형태·하의(바지/스타킹)가 다름,Claude(agent),192.jpg,200,0.901430226,real_ge90,train,test
+1184411,231267,different_look,청바지 색·찢김·상의가 다름,Claude(agent),200.jpg,201,0.901427842,real_ge90,test,train
+216911,221151,different_look,원피스 색·소재·배경이 다름,Claude(agent),200.jpg,202,0.901425445,real_ge90,val,train
+140766,155606,different_look,바지 색·신발·배경이 다름,Claude(agent),200.jpg,203,0.901372091,real_ge90,train,test
+1110178,520103,different_look,플레어 하의 색·상의·신발이 다름,Claude(agent),200.jpg,204,0.901278855,real_ge90,test,train
+1207693,300956,different_look,청바지 찢김·신발·배경이 다름,Claude(agent),200.jpg,205,0.90126693,real_ge90,val,train
+140695,158585,different_look,바지 색·상의·신발이 다름,Claude(agent),200.jpg,206,0.901117646,real_ge90,test,train
+1006540,962969,different_look,청바지 색·상의·신발·배경이 다름,Claude(agent),200.jpg,207,0.901100798,real_ge90,train,test
+1208231,710049,different_look,청바지 색·상의·배경이 다름,Claude(agent),200.jpg,208,0.90108862,real_ge90,train,val
+140766,80485,different_look,바지 색·상의·신발·가방이 다름,Claude(agent),208.jpg,209,0.901085425,real_ge90,train,test
+139519,364523,different_look,바지 허리끈·상의·신발이 다름,Claude(agent),208.jpg,210,0.901069833,real_ge90,val,test
+18936,427878,different_look,바지 색·상의·신발이 다름,Claude(agent),208.jpg,211,0.901064852,real_ge90,val,train
+418947,774286,different_look,코트 색·하의·배경이 다름,Claude(agent),208.jpg,212,0.900970666,real_ge90,test,val
+1077164,359335,different_look,후드 원피스 색·소재·배경이 다름,Claude(agent),208.jpg,213,0.900969376,real_ge90,test,train
+498325,502006,different_look,청바지 색·찢김·신발·배경이 다름,Claude(agent),208.jpg,214,0.900960903,real_ge90,val,train
+123977,171807,different_look,검정 롱패딩이나 후드 털 색·이너·배경이 다름,Claude(agent),208.jpg,215,0.900875754,real_ge90,train,val
+139519,158585,different_look,바지 색·상의가 다름,Claude(agent),208.jpg,216,0.900845084,real_ge90,val,train
+1159014,460233,different_look,원피스 색·소매·목선이 다름,Claude(agent),216.jpg,217,0.900813604,real_ge90,val,train
+18087,424663,different_look,바지 색·상의·신발이 다름,Claude(agent),216.jpg,218,0.90064581,real_ge90,test,train
+282156,336342,different_look,청바지 색·프린트·밑단이 다름,Claude(agent),216.jpg,219,0.900590001,real_ge90,val,train
+335364,404904,different_look,청바지 색·찢김·상의가 다름,Claude(agent),216.jpg,220,0.900568493,real_ge90,test,val
+297086,517715,different_look,바지 색·상의·배경이 다름,Claude(agent),216.jpg,221,0.900528266,real_ge90,train,test
+222162,62425,different_look,청바지 실루엣·상의·신발이 다름,Claude(agent),216.jpg,222,0.900519662,real_ge90,test,val
+155647,155679,different_look,바지 색·밑단 롤업·신발이 다름,Claude(agent),216.jpg,223,0.900463214,real_ge90,train,val
+295098,889180,different_look,검정 바지 찢김·신발·배경이 다름,Claude(agent),216.jpg,224,0.900462274,real_ge90,train,val
+139519,226376,different_look,바지 색·허리끈·상의가 다름,Claude(agent),224.jpg,225,0.900389197,real_ge90,val,train
+1184411,336342,different_look,청바지 색·찢김·밑단이 다름,Claude(agent),224.jpg,226,0.900326372,real_ge90,test,train
+1082770,1083999,different_look,바지 색·벨트·신발이 다름,Claude(agent),224.jpg,227,0.900302447,real_ge90,test,train
+358391,516300,different_look,꽃무늬 원피스 길이·목선·배경이 다름,Claude(agent),224.jpg,228,0.900268888,real_ge90,test,train
+158398,291687,different_look,하의 종류·색이 다름,Claude(agent),224.jpg,229,0.900264255,real_ge90,train,val
+741915,856009,different_look,트렌치코트 색·벨트·배경이 다름,Claude(agent),224.jpg,230,0.900258983,real_ge90,train,val
+220104,421520,different_look,분홍 원피스 목선·벨트·배경이 다름,Claude(agent),224.jpg,231,0.900233593,real_ge90,train,test
+1194129,489659,different_look,린넨 반팔 재킷은 비슷하나 색·이너·하의(바지/반바지)·배경이 다름,Claude(agent),224.jpg,232,0.900148442,real_ge90,train,val
+18998,21700,different_look,흰 바지 실루엣·밑단·신발·배경이 다름,Claude(agent),232.jpg,233,0.900087933,real_ge90,val,train
+418947,420826,different_look,코트 색·소재·벨트가 다름,Claude(agent),232.jpg,234,0.900037315,real_ge90,test,train
+1257016,856264,different_look,검정 바지 허리끈·상의·신발·배경이 다름,Claude(agent),232.jpg,235,0.900025816,real_ge90,train,test
+1144283,222107,different_look,청바지 실루엣·상의·신발·배경이 다름,Claude(agent),232.jpg,236,0.900012369,real_ge90,test,train
+121575,264836,different_look,치마 밑단 재단·상의·신발이 다름,Claude(agent),232.jpg,237,0.896261138,real_85_90,train,test
+230853,296490,different_look,청바지 색·상의·신발이 다름,Claude(agent),232.jpg,238,0.895134753,real_85_90,val,train
+251004,420417,different_look,트렌치코트 색·패턴이 다름,Claude(agent),232.jpg,239,0.895021012,real_85_90,train,test
+404904,956628,different_look,바지 색·상의·배경이 다름,Claude(agent),232.jpg,240,0.89449251,real_85_90,val,train
+419444,534561,different_look,셔츠 원피스 색·벨트가 다름,Claude(agent),240.jpg,241,0.893356231,real_85_90,train,val
+72883,80485,different_look,바지 색·상의·신발·배경이 다름,Claude(agent),240.jpg,242,0.891962346,real_85_90,train,test
+1254888,467976,different_look,원피스 색·재단·배경이 다름,Claude(agent),240.jpg,243,0.891594589,real_85_90,val,train
+134811,140766,different_look,바지 색·상의·신발·배경이 다름,Claude(agent),240.jpg,244,0.891403238,real_85_90,test,train
+244368,992863,different_look,트렌치 재킷 길이·이너·하의가 다름,Claude(agent),240.jpg,245,0.89127342,real_85_90,val,test
+1332887,860815,different_look,같은 몰딩/야자 배경이나 원피스 색·소매가 다름,Claude(agent),240.jpg,246,0.889173039,real_85_90,train,val
+1207693,499018,different_look,청바지 찢김 크기·상의·배경이 다름,Claude(agent),240.jpg,247,0.889068652,real_85_90,val,train
+425455,956629,different_look,아이보리 바지 밑단·상의·신발·배경이 다름,Claude(agent),240.jpg,248,0.888884572,real_85_90,val,train
+517965,929425,different_look,바지 소재(코듀로이/면)·색·배경이 다름,Claude(agent),248.jpg,249,0.888190981,real_85_90,test,val
+204404,204417,different_look,바지 색·앞단추/허리끈이 다름,Claude(agent),248.jpg,250,0.887618482,real_85_90,train,val
+151995,468053,different_look,검정 원피스 허리끈 유무·신발·배경이 다름,Claude(agent),248.jpg,251,0.887425838,real_85_90,train,val
+1269212,1272811,different_look,바지 색·밑단·상의가 다름,Claude(agent),248.jpg,252,0.885112883,real_85_90,train,val
+712358,881919,different_look,베이지 크롭 재킷·치마 구성은 비슷하나 소재·신발·촬영 공간이 다름,Claude(agent),248.jpg,253,0.883827664,real_85_90,val,train
+1284181,1291120,different_look,하의 종류·색·상의가 다름,Claude(agent),248.jpg,254,0.883718499,real_85_90,train,val
+929425,953760,different_look,아이보리 바지는 비슷하나 상의·신발·배경이 다름,Claude(agent),248.jpg,255,0.883027648,real_85_90,val,train
+300956,773563,different_look,청바지 색·실루엣·배경이 다름,Claude(agent),248.jpg,256,0.882956828,real_85_90,train,test
+269837,290642,different_look,티셔츠 색·밑단 재단이 다름,Claude(agent),256.jpg,257,0.882314876,real_85_90,train,test
+222162,22473,different_look,청바지 색·포켓·신발·배경이 다름,Claude(agent),256.jpg,258,0.881999956,real_85_90,test,train
+1077694,448235,different_look,체크 원피스 색·배경이 다름,Claude(agent),256.jpg,259,0.880553778,real_85_90,train,val
+138895,331026,different_look,바지 앞단추·소재·신발·배경이 다름,Claude(agent),256.jpg,260,0.878999085,real_85_90,test,val
+152754,328306,different_look,체크 치마 색·패턴·주름이 다름,Claude(agent),256.jpg,261,0.87826671,real_85_90,val,train
+231267,337053,different_look,청바지 색·패치·신발이 다름,Claude(agent),256.jpg,262,0.875479926,real_85_90,train,val
+18087,18246,different_look,하의 길이(바지/반바지)·배경이 다름,Claude(agent),256.jpg,263,0.874625012,real_85_90,test,train
+135648,424673,different_look,바지 색·밑단이 다름,Claude(agent),256.jpg,264,0.874454681,real_85_90,train,test
+331924,345002,different_look,하의 색·종류가 다름,Claude(agent),264.jpg,265,0.874174453,real_85_90,test,train
+18246,336317,different_look,반바지/치마 색·종류가 다름,Claude(agent),264.jpg,266,0.87342448,real_85_90,train,test
+17671,99127,different_look,니트 색·하의가 다름,Claude(agent),264.jpg,267,0.872485898,real_85_90,train,test
+1134669,1264140,different_look,아이보리 바지 재단·상의·배경이 다름,Claude(agent),264.jpg,268,0.871296898,real_85_90,val,train
+253357,421520,different_look,원피스 색·소재·배경이 다름,Claude(agent),264.jpg,269,0.870411441,real_85_90,val,test
+1141124,712358,different_look,착장(탑·치마/재킷 세트)·촬영 공간이 다름,Claude(agent),264.jpg,270,0.867101436,real_85_90,test,val
+118,420417,different_look,코트 색·카라 디자인이 다름,Claude(agent),264.jpg,271,0.866690784,real_85_90,train,test
+212861,889180,different_look,청바지 색·밑단·배경이 다름,Claude(agent),264.jpg,272,0.866625859,real_85_90,train,val
+328786,330846,different_look,체크 치마 색·패턴이 다름,Claude(agent),272.jpg,273,0.86656189,real_85_90,train,val
+499801,8460,different_look,하의 종류(청바지/반바지)가 다름,Claude(agent),272.jpg,274,0.866535663,real_85_90,train,test
+517257,8460,different_look,반바지 색·찢김·밑단이 다름,Claude(agent),272.jpg,275,0.866158339,real_85_90,train,test
+102991,139562,different_look,치마 색·포켓/단추 디테일이 다름,Claude(agent),272.jpg,276,0.865536661,real_85_90,train,val
+502448,687305,different_look,청바지 색·상의·신발·배경이 다름,Claude(agent),272.jpg,277,0.86533211,real_85_90,train,val
+425930,8460,different_look,하의 종류(청바지/반바지)가 다름,Claude(agent),272.jpg,278,0.865002876,real_85_90,train,test
+231863,509376,different_look,롱 카디건 색·하의·배경이 다름,Claude(agent),272.jpg,279,0.864974105,real_85_90,val,train
+232178,241106,different_look,줄무늬 티 색·하의가 다름,Claude(agent),272.jpg,280,0.864899701,real_85_90,test,train
+117660,175465,different_look,원피스 무늬·소매·배경이 다름,Claude(agent),280.jpg,281,0.863824746,real_85_90,test,train
+1110178,1236748,different_look,청바지 색·실루엣·상의·신발이 다름,Claude(agent),280.jpg,282,0.863804049,real_85_90,test,train
+155800,254781,different_look,바지 색·트임·신발이 다름,Claude(agent),280.jpg,283,0.86347903,real_85_90,val,train
+1078462,200889,different_look,플리츠 바지 색·상의·신발이 다름,Claude(agent),280.jpg,284,0.863423515,real_85_90,train,val
+730940,767680,different_look,같은 창가 촬영 공간이나 착장이 다름,Claude(agent),280.jpg,285,0.862294039,real_85_90,test,val
+448235,453586,different_look,체크 원피스 색·소매·배경이 다름,Claude(agent),280.jpg,286,0.862204958,real_85_90,val,train
+200889,364714,different_look,플리츠 하의 색·무늬가 다름,Claude(agent),280.jpg,287,0.861935852,real_85_90,val,train
+20780,66279,different_look,하의 종류·색이 다름,Claude(agent),280.jpg,288,0.861156845,real_85_90,train,test
+1233449,959684,different_look,코트 색·소재·배경이 다름,Claude(agent),288.jpg,289,0.860421963,real_85_90,train,val
+252764,315333,different_look,원피스 밑단 재단·배경이 다름,Claude(agent),288.jpg,290,0.860318159,real_85_90,train,val
+366148,804055,different_look,재킷 색·패턴·하의가 다름,Claude(agent),288.jpg,291,0.859397683,real_85_90,val,train
+772823,923075,different_look,바지 색·상의·신발이 다름,Claude(agent),288.jpg,292,0.85939175,real_85_90,train,test
+170744,918978,different_look,상의 종류·색·하의·배경이 다름,Claude(agent),288.jpg,293,0.858998823,real_85_90,val,train
+273567,276809,different_look,검정 아우터 형태·하의·신발·배경이 다름,Claude(agent),288.jpg,294,0.858998149,real_85_90,train,test
+103866,155606,different_look,바지 색·신발·배경이 다름,Claude(agent),288.jpg,295,0.858983643,real_85_90,train,test
+105642,420417,different_look,코트 색·하의·배경이 다름,Claude(agent),288.jpg,296,0.858875243,real_85_90,train,test
+1263357,521840,different_look,와이드 바지 색·신발·배경이 다름,Claude(agent),296.jpg,297,0.858793668,real_85_90,val,train
+1037054,80485,different_look,바지 색·상의·배경이 다름,Claude(agent),296.jpg,298,0.858560997,real_85_90,val,test
+140492,357399,different_look,하의 색·종류가 다름,Claude(agent),296.jpg,299,0.857749115,real_85_90,train,test
+139519,204908,different_look,바지 색·포켓·신발·배경이 다름,Claude(agent),296.jpg,300,0.856787808,real_85_90,val,train
+332041,348408,different_look,원피스 색·소매가 다름,Claude(agent),296.jpg,301,0.856327866,real_85_90,val,train
+255292,535280,different_look,원피스 색·어깨 끈이 다름,Claude(agent),296.jpg,302,0.855936941,real_85_90,train,test
+1304934,1320391,different_look,상의·촬영 공간이 다름,Claude(agent),296.jpg,303,0.855713736,real_85_90,train,test
+18998,246777,different_look,바지 색·벨트·상의·신발이 다름,Claude(agent),296.jpg,304,0.855618693,real_85_90,val,train
+1109305,1252451,different_look,니트 색·하의·배경이 다름,Claude(agent),304.jpg,305,0.855537447,real_85_90,val,train
+1269212,18087,different_look,바지 색·허리끈·상의가 다름,Claude(agent),304.jpg,306,0.855254537,real_85_90,train,test
+1041244,231204,different_look,청바지 색·밑단·신발·배경이 다름,Claude(agent),304.jpg,307,0.855210621,real_85_90,val,train
+1273042,80485,different_look,바지 색·소재·신발이 다름,Claude(agent),304.jpg,308,0.854444599,real_85_90,train,test
+1106803,727318,different_look,원피스 색·촬영 공간이 다름,Claude(agent),304.jpg,309,0.854421023,real_85_90,train,val
+121543,440415,different_look,원피스 색·배색 라인이 다름,Claude(agent),304.jpg,310,0.854287966,real_85_90,train,val
+1159014,693719,different_look,원피스 색·소매·배경이 다름,Claude(agent),304.jpg,311,0.854279691,real_85_90,val,train
+1103682,962098,different_look,상의 색·하의·촬영 공간이 다름,Claude(agent),304.jpg,312,0.853823105,real_85_90,test,train
+718126,725767,different_look,아우터 색·하의·촬영 공간이 다름,Claude(agent),312.jpg,313,0.853694867,real_85_90,test,train
+1161642,183885,different_look,꽃무늬 하의/원피스 종류·상의가 다름,Claude(agent),312.jpg,314,0.85366491,real_85_90,test,train
+730940,890864,different_look,같은 창가 촬영 공간이나 착장이 다름,Claude(agent),312.jpg,315,0.853462295,real_85_90,test,train
+412882,510755,different_look,셔츠 색·하의가 다름,Claude(agent),312.jpg,316,0.853392334,real_85_90,train,test
+139519,345071,different_look,바지 색·허리 디테일·배경이 다름,Claude(agent),312.jpg,317,0.853104703,real_85_90,val,train
+158806,80485,different_look,바지 색·상의·신발이 다름,Claude(agent),312.jpg,318,0.853059705,real_85_90,train,test
+81481,90490,different_look,치마 색·주름·상의·배경이 다름,Claude(agent),312.jpg,319,0.852946608,real_85_90,train,val
+22923,62425,different_look,청바지 밑단·상의·신발이 다름,Claude(agent),312.jpg,320,0.852771411,real_85_90,train,val
+1041244,498694,different_look,청바지 색·상의·신발이 다름,Claude(agent),320.jpg,321,0.852740697,real_85_90,val,train
+222162,520103,different_look,하의 색(청/검정)·상의·신발이 다름,Claude(agent),320.jpg,322,0.852710122,real_85_90,test,train
+132710,45918,different_look,원피스 색·목선이 다름,Claude(agent),320.jpg,323,0.85258445,real_85_90,train,test
+168401,420417,different_look,코트 색·길이·하의가 다름,Claude(agent),320.jpg,324,0.852525947,real_85_90,train,test
+1100050,760146,different_look,아우터 색·촬영 공간이 다름,Claude(agent),320.jpg,325,0.852133664,real_85_90,test,train
+1345987,664099,different_look,상의·촬영 공간이 다름,Claude(agent),320.jpg,326,0.851974889,real_85_90,train,val
+1034021,418947,different_look,아우터 종류·색·배경이 다름,Claude(agent),320.jpg,327,0.851669573,real_85_90,train,test
+917969,985917,different_look,원피스 색·촬영 공간이 다름,Claude(agent),320.jpg,328,0.851593934,real_85_90,train,test
+169375,977241,different_look,카디건 색·소매가 다름,Claude(agent),328.jpg,329,0.850725915,real_85_90,train,test
+139562,140066,different_look,하의 종류·색이 다름,Claude(agent),328.jpg,330,0.850413616,real_85_90,val,train
+397268,787154,different_look,상의 색·바지 길이·배경이 다름,Claude(agent),328.jpg,331,0.850272102,real_85_90,test,train
+292334,303533,different_look,꽃무늬 원피스 색·목선이 다름,Claude(agent),328.jpg,332,0.850270236,real_85_90,train,val
+18936,72883,different_look,바지 실루엣·상의·배경이 다름,Claude(agent),328.jpg,333,0.850206976,real_85_90,val,train
+946010,966385,different_look,원피스 색·촬영 공간이 다름,Claude(agent),328.jpg,334,0.850199643,real_85_90,test,train
+1127235,314683,different_look,코트 색·패턴·배경이 다름,Claude(agent),328.jpg,335,0.85012867,real_85_90,train,test
+1075679,988957,different_look,원피스 무늬·촬영 공간이 다름,Claude(agent),328.jpg,336,0.850103397,real_85_90,val,train
+900268,900355,different_look,같은 매장 연속 번호이나 조끼 색·하의가 다름,Claude(agent),336.jpg,337,0.848934145,real_80_85,train,val
+1235996,217106,different_look,상의/하의 구성·색이 다름,Claude(agent),336.jpg,338,0.848333733,real_80_85,val,train
+1128198,420417,different_look,코트 색·카라가 다름,Claude(agent),336.jpg,339,0.847979667,real_80_85,val,test
+1152439,943818,different_look,같은 원형 거울 촬영 공간이나 아우터 색·형태·하의가 다름,Claude(agent),336.jpg,340,0.847104762,real_80_85,test,val
+1099563,922384,different_look,원피스 색·촬영 공간이 다름,Claude(agent),336.jpg,341,0.845591896,real_80_85,val,train
+330819,331006,different_look,치마 색·무늬가 다름,Claude(agent),336.jpg,342,0.845510166,real_80_85,val,train
+1254888,49231,different_look,원피스/니트 세트 구성·색이 다름,Claude(agent),336.jpg,343,0.844423218,real_80_85,val,test
+1072240,220104,different_look,원피스 색·목선·배경이 다름,Claude(agent),336.jpg,344,0.84375772,real_80_85,val,train
+727158,830701,different_look,하의 종류·색·배경이 다름,Claude(agent),344.jpg,345,0.843708829,real_80_85,train,test
+1229699,49231,different_look,아우터·하의 구성이 다름,Claude(agent),344.jpg,346,0.843276416,real_80_85,train,test
+384168,509901,different_look,카디건 색·배색 테두리·하의가 다름,Claude(agent),344.jpg,347,0.843147874,real_80_85,train,val
+239737,449742,different_look,원피스 색·단추가 다름,Claude(agent),344.jpg,348,0.843065185,real_80_85,test,train
+8727,962055,different_look,하의 색·실루엣이 다름,Claude(agent),344.jpg,349,0.842834773,real_80_85,val,train
+220584,460083,different_look,원피스 색·길이가 다름,Claude(agent),344.jpg,350,0.84252155,real_80_85,train,val
+1207693,1346312,different_look,청바지 색·찢김·배경이 다름,Claude(agent),344.jpg,351,0.840988925,real_80_85,val,train
+140859,315333,different_look,하의/원피스 종류·색이 다름,Claude(agent),344.jpg,352,0.839687334,real_80_85,train,val
+140781,266527,different_look,하의 종류(치마/반바지)·색이 다름,Claude(agent),352.jpg,353,0.838352868,real_80_85,train,test
+1233423,207753,different_look,원피스 색·벨트가 다름,Claude(agent),352.jpg,354,0.837804623,real_80_85,test,train
+1004693,649981,different_look,상의·촬영 공간이 다름,Claude(agent),352.jpg,355,0.835497207,real_80_85,train,test
+281090,65727,different_look,상의/아우터·청바지 색이 다름,Claude(agent),352.jpg,356,0.835377632,real_80_85,train,test
+1105529,881615,different_look,착장·촬영 공간이 다름,Claude(agent),352.jpg,357,0.8348185,real_80_85,train,test
+22131,331026,different_look,바지 색·소재·신발이 다름,Claude(agent),352.jpg,358,0.834183238,real_80_85,train,val
+1210208,231393,different_look,청바지 색·밑단·배경이 다름,Claude(agent),352.jpg,359,0.833965564,real_80_85,test,train
+1110178,230111,different_look,청바지 색·상의·배경이 다름,Claude(agent),352.jpg,360,0.832899989,real_80_85,test,train
+190741,87839,different_look,바지 무늬·색이 다름,Claude(agent),360.jpg,361,0.832273434,real_80_85,train,val
+253930,80485,different_look,바지 색·소재·배경이 다름,Claude(agent),360.jpg,362,0.83146513,real_80_85,train,test
+677599,824622,different_look,착장·촬영 공간이 다름,Claude(agent),360.jpg,363,0.830472324,real_80_85,val,test
+1213922,982258,different_look,치마 색·상의·배경이 다름,Claude(agent),360.jpg,364,0.830212519,real_80_85,test,train
+447627,449539,different_look,원피스 색·소재가 다름,Claude(agent),360.jpg,365,0.829952017,real_80_85,val,test
+1109305,804617,different_look,상의·하의·촬영 공간이 다름,Claude(agent),360.jpg,366,0.829685041,real_80_85,val,train
+1083660,155679,different_look,회색 바지 밑단·상의·신발이 다름,Claude(agent),360.jpg,367,0.828693599,real_80_85,train,val
+418157,929233,different_look,아우터 색·하의·배경이 다름,Claude(agent),360.jpg,368,0.827632115,real_80_85,train,val
+167904,345071,different_look,원피스/바지 종류·색이 다름,Claude(agent),368.jpg,369,0.826313262,real_80_85,test,train
+1225177,254525,different_look,하의 길이·색이 다름,Claude(agent),368.jpg,370,0.825182141,real_80_85,test,train
+278871,426698,different_look,착장 구성·색이 다름,Claude(agent),368.jpg,371,0.824069918,real_80_85,train,val
+37230,79573,different_look,원피스 색·배색이 다름,Claude(agent),368.jpg,372,0.823997797,real_80_85,test,train
+1211389,964685,different_look,꽃무늬 블라우스는 비슷하나 청바지 색·밑단·신발·배경이 다름,Claude(agent),368.jpg,373,0.823571432,real_80_85,val,train
+1210208,336342,different_look,청바지 색·찢김·상의가 다름,Claude(agent),368.jpg,374,0.823315273,real_80_85,test,train
+1016619,646833,different_look,바지 색·상의·배경이 다름,Claude(agent),368.jpg,375,0.823026717,real_80_85,val,train
+781486,947331,different_look,착장(멜빵 원피스/셔츠 원피스)·촬영 공간이 다름,Claude(agent),368.jpg,376,0.821796928,real_80_85,val,train
+196855,297086,different_look,착장(점프수트/바지)·색이 다름,Claude(agent),376.jpg,377,0.821761568,real_80_85,test,train
+748427,947039,different_look,상의·아우터·촬영 공간이 다름,Claude(agent),376.jpg,378,0.820676339,real_80_85,val,test
+834339,953148,different_look,코트 색·하의·촬영 공간이 다름,Claude(agent),376.jpg,379,0.820576178,real_80_85,train,test
+1107690,929561,different_look,착장 색·구성·촬영 공간이 다름,Claude(agent),376.jpg,380,0.820414734,real_80_85,train,test
+18087,254247,different_look,바지 색·상의·신발이 다름,Claude(agent),376.jpg,381,0.820338348,real_80_85,test,train
+1211908,1265380,different_look,바지 색·실루엣·신발이 다름,Claude(agent),376.jpg,382,0.819632523,real_80_85,test,train
+330846,346165,different_look,하의 종류·색이 다름,Claude(agent),376.jpg,383,0.818787402,real_80_85,val,train
+1273176,962969,different_look,바지 색·상의·배경이 다름,Claude(agent),376.jpg,384,0.818570179,real_80_85,train,test
+1016619,498618,different_look,바지 색·실루엣·배경이 다름,Claude(agent),384.jpg,385,0.817639992,real_80_85,val,train
+1207668,1261919,different_look,바지 색·소재·상의가 다름,Claude(agent),384.jpg,386,0.8167247,real_80_85,val,train
+1026745,1190371,different_look,아우터 색·종류·하의가 다름,Claude(agent),384.jpg,387,0.816215644,real_80_85,train,val
+1268657,254088,different_look,바지 색·상의·신발이 다름,Claude(agent),384.jpg,388,0.815837417,real_80_85,test,train
+712358,892466,different_look,착장(베이지 세트/빨강 카디건·체크 치마)·촬영 공간이 다름,Claude(agent),384.jpg,389,0.81533861,real_80_85,val,test
+1194208,383545,different_look,상의·청바지 색·신발이 다름,Claude(agent),384.jpg,390,0.815190626,real_80_85,test,val
+742796,945391,different_look,상의·촬영 공간이 다름,Claude(agent),384.jpg,391,0.814807863,real_80_85,train,test
+200889,430282,different_look,하의 무늬·색이 다름,Claude(agent),384.jpg,392,0.81463005,real_80_85,val,train
+1015611,955622,different_look,상의 색·신발·촬영 공간이 다름,Claude(agent),392.jpg,393,0.813769102,real_80_85,val,train
+1210208,294738,different_look,청바지 색·밑단·상의가 다름,Claude(agent),392.jpg,394,0.813558866,real_80_85,test,train
+1249619,497703,different_look,바지 색·소재·신발이 다름,Claude(agent),392.jpg,395,0.81217006,real_80_85,test,train
+1263418,1268657,different_look,바지 색·상의·신발이 다름,Claude(agent),392.jpg,396,0.811822224,real_80_85,val,test
+335364,520103,different_look,청바지 색·밑단·신발이 다름,Claude(agent),392.jpg,397,0.81157204,real_80_85,test,train
+1225177,288518,different_look,착장 구성·색이 다름,Claude(agent),392.jpg,398,0.811392133,real_80_85,test,train
+366492,959684,different_look,코트 소재(누빔)·색·배경이 다름,Claude(agent),392.jpg,399,0.811336967,real_80_85,train,val
+330846,63348,different_look,하의/원피스 종류·색이 다름,Claude(agent),392.jpg,400,0.811328796,real_80_85,val,train
+946133,961450,different_look,상의/아우터·하의·촬영 공간이 다름,Claude(agent),400.jpg,401,0.810257748,real_80_85,val,train
+689257,949634,different_look,코트 색·하의·촬영 공간이 다름,Claude(agent),400.jpg,402,0.809804869,real_80_85,test,train
+495126,929233,different_look,아우터 색·종류·배경이 다름,Claude(agent),400.jpg,403,0.809747133,real_80_85,train,val
+179327,269776,different_look,상의·바지 색·신발이 다름,Claude(agent),400.jpg,404,0.809012124,real_80_85,train,test
+1212308,496898,different_look,바지 색·종류·상의가 다름,Claude(agent),400.jpg,405,0.808998014,real_80_85,train,test
+213696,330586,different_look,치마 색·소재·배경이 다름,Claude(agent),400.jpg,406,0.808973747,real_80_85,val,train
+527963,924740,different_look,착장 색·구성·촬영 공간이 다름,Claude(agent),400.jpg,407,0.808693147,real_80_85,val,train
+1211908,152023,different_look,상의·바지 실루엣·배경이 다름,Claude(agent),400.jpg,408,0.808607733,real_80_85,test,train
+139562,941251,different_look,치마/코트 착장·촬영 공간이 다름,Claude(agent),408.jpg,409,0.808184843,real_80_85,val,train
+448235,531823,different_look,원피스 색·무늬가 다름,Claude(agent),408.jpg,410,0.80818176,real_80_85,val,test
+18936,22418,different_look,바지 종류·색이 다름,Claude(agent),408.jpg,411,0.808124387,real_80_85,val,train
+212960,366482,different_look,아우터 종류·색이 다름,Claude(agent),408.jpg,412,0.807891353,real_80_85,test,train
+169353,945342,different_look,카디건/코트 색·하의·촬영 공간이 다름,Claude(agent),408.jpg,413,0.807308267,real_80_85,train,test
+147076,66279,different_look,치마 색·소재·배경이 다름,Claude(agent),408.jpg,414,0.806796961,real_80_85,train,test
+1136681,1224880,different_look,하의 종류·색이 다름,Claude(agent),408.jpg,415,0.805732422,real_80_85,val,train
+1278147,947195,different_look,상의 색·촬영 공간이 다름,Claude(agent),408.jpg,416,0.805478784,real_80_85,val,train
+882202,950706,different_look,착장·촬영 공간이 다름,Claude(agent),416.jpg,417,0.805383501,real_80_85,test,train
+802730,802855,different_look,같은 촬영 공간 연속 번호이나 착장(후드·치마/코트)이 다름,Claude(agent),416.jpg,418,0.804864295,real_80_85,test,train
+1284454,468206,different_look,원피스 색·소재·배경이 다름,Claude(agent),416.jpg,419,0.804815827,real_80_85,val,train
+1224880,87839,different_look,하의 종류·무늬가 다름,Claude(agent),416.jpg,420,0.804421321,real_80_85,train,val
+1182991,159069,different_look,상의·바지 색·배경이 다름,Claude(agent),416.jpg,421,0.80437641,real_80_85,test,train
+1215034,330819,different_look,치마 색·길이가 다름,Claude(agent),416.jpg,422,0.804090798,real_80_85,test,val
+1023700,471910,different_look,착장 구성·배경이 다름,Claude(agent),416.jpg,423,0.802634547,real_80_85,test,train
+491483,898524,different_look,재킷 종류·하의·배경이 다름,Claude(agent),416.jpg,424,0.802585635,real_80_85,train,val
+1101258,939234,different_look,착장·촬영 공간이 다름,Claude(agent),424.jpg,425,0.802373669,real_80_85,train,val
+175505,261313,different_look,원피스 색·디자인·배경이 다름,Claude(agent),424.jpg,426,0.802366255,real_80_85,test,train
+1263418,296938,different_look,바지 색·종류·배경이 다름,Claude(agent),424.jpg,427,0.802189096,real_80_85,val,train
+900265,941082,different_look,착장(조끼·청바지/원피스)·촬영 공간이 다름,Claude(agent),424.jpg,428,0.801668995,real_80_85,train,test
+1022420,1072936,different_look,원피스 색·디자인·배경이 다름,Claude(agent),424.jpg,429,0.801490587,real_80_85,val,train
+1129005,1129238,different_look,같은 매장 연속 번호이나 코트 색·패턴이 다름,Claude(agent),424.jpg,430,0.801411167,real_80_85,val,train
+59127,852725,different_look,원피스 색·디자인·촬영 공간이 다름,Claude(agent),424.jpg,431,0.801328243,real_80_85,val,test
+8727,890127,different_look,하의 색·실루엣이 다름,Claude(agent),424.jpg,432,0.801139836,real_80_85,val,train
+1204742,330586,different_look,원피스/치마 종류·배경이 다름,Claude(agent),432.jpg,433,0.800944207,real_80_85,val,train
+421991,531823,different_look,원피스 무늬·디자인이 다름,Claude(agent),432.jpg,434,0.800652961,real_80_85,train,test
+1154143,856264,different_look,상의·바지 실루엣·배경이 다름,Claude(agent),432.jpg,435,0.800595638,real_80_85,train,test
+183942,205220,different_look,착장 종류·색이 다름,Claude(agent),432.jpg,436,0.800060591,real_80_85,test,train
+727158,962034,different_look,바지 색·상의·배경이 다름,Claude(agent),432.jpg,437,0.799084257,real_lt80,train,val
+1133475,200415,different_look,치마 색·종류가 다름,Claude(agent),432.jpg,438,0.798060846,real_lt80,train,test
+331026,432981,different_look,바지 색·상의·배경이 다름,Claude(agent),432.jpg,439,0.794844753,real_lt80,val,train
+1102478,722584,different_look,착장·촬영 공간이 다름,Claude(agent),432.jpg,440,0.785857781,real_lt80,test,train
+1249266,254247,different_look,바지 색·디테일·배경이 다름,Claude(agent),440.jpg,441,0.785168195,real_lt80,test,train
+1331504,521946,different_look,상의·바지 색·배경이 다름,Claude(agent),440.jpg,442,0.783887131,real_lt80,train,val
+1003757,955622,different_look,착장·촬영 공간이 다름,Claude(agent),440.jpg,443,0.777321184,real_lt80,test,train
+269776,291796,different_look,바지 색·상의가 다름,Claude(agent),440.jpg,444,0.773917112,real_lt80,test,train
+233992,255819,different_look,상의 종류·색이 다름,Claude(agent),440.jpg,445,0.773353375,real_lt80,train,test
+1292661,304870,different_look,바지 색·종류가 다름,Claude(agent),440.jpg,446,0.765352587,real_lt80,val,train
+1082692,18087,different_look,바지 색·앞단추·상의가 다름,Claude(agent),440.jpg,447,0.762816688,real_lt80,train,test
+1105574,132658,different_look,원피스 색·무늬가 다름,Claude(agent),440.jpg,448,0.760832273,real_lt80,test,train
+1295366,791294,different_look,착장 종류(멜빵 치마/멜빵 바지)·배경이 다름,Claude(agent),448.jpg,449,0.760755031,real_lt80,train,test
+1033596,1278147,different_look,착장 구성·색·배경이 다름,Claude(agent),448.jpg,450,0.75614503,real_lt80,train,val
+1215034,917969,different_look,착장 종류·색·촬영 공간이 다름,Claude(agent),448.jpg,451,0.755522013,real_lt80,test,train
+1082948,52081,different_look,착장 구성·색·배경이 다름,Claude(agent),448.jpg,452,0.752199379,real_lt80,train,test
+1161642,621652,different_look,하의 종류·색이 다름,Claude(agent),448.jpg,453,0.751269102,real_lt80,test,train
+1137945,738797,different_look,착장·촬영 공간이 다름,Claude(agent),448.jpg,454,0.748698237,real_lt80,train,test
+85003,977012,different_look,하의 종류·상의·배경이 다름,Claude(agent),448.jpg,455,0.747419599,real_lt80,train,test
+120562,943818,different_look,원피스/아우터 착장·촬영 공간이 다름,Claude(agent),448.jpg,456,0.747192741,real_lt80,train,val
+1223856,927021,different_look,착장 색·구성·배경이 다름,Claude(agent),456.jpg,457,0.743929136,real_lt80,train,test
+232178,476751,different_look,상의 종류·하의가 다름,Claude(agent),456.jpg,458,0.743820028,real_lt80,test,train
+835372,950135,different_look,치마 색·상의·배경이 다름,Claude(agent),456.jpg,459,0.739850095,real_lt80,test,train
+1173204,1195584,different_look,착장 종류·색·배경이 다름,Claude(agent),456.jpg,460,0.737195853,real_lt80,train,test
+1249619,956848,different_look,하의 종류·색·배경이 다름,Claude(agent),456.jpg,461,0.736858668,real_lt80,test,train
+381027,447627,different_look,착장 종류·색이 다름,Claude(agent),456.jpg,462,0.736358239,real_lt80,train,val
+1215323,335364,different_look,하의 종류·색이 다름,Claude(agent),456.jpg,463,0.730607939,real_lt80,train,test
+1214016,534561,different_look,치마/원피스 종류·색이 다름,Claude(agent),456.jpg,464,0.73007484,real_lt80,train,val
+726551,892466,different_look,착장 색·구성·촬영 공간이 다름,Claude(agent),464.jpg,465,0.727921512,real_lt80,train,test
+143809,833367,different_look,마네킹/착용·착장 구성이 다름,Claude(agent),464.jpg,466,0.726851791,real_lt80,train,val
+66279,9245,different_look,치마 색·길이가 다름,Claude(agent),464.jpg,467,0.722449913,real_lt80,test,train
+1195026,1202756,different_look,착장 종류·색이 다름,Claude(agent),464.jpg,468,0.722047037,real_lt80,test,train
+1002337,358899,different_look,착장 종류·색·배경이 다름,Claude(agent),464.jpg,469,0.721469876,real_lt80,val,train
+418425,870960,different_look,착장 종류·색이 다름,Claude(agent),464.jpg,470,0.713694125,real_lt80,test,train
+270496,298115,different_look,원피스 색·디자인이 다름,Claude(agent),464.jpg,471,0.713377181,real_lt80,val,train
+1201319,608281,different_look,원피스 색·무늬·배경이 다름,Claude(agent),464.jpg,472,0.711238757,real_lt80,test,train
+926783,956864,different_look,아우터 색·종류·하의가 다름,Claude(agent),472.jpg,473,0.710728896,real_lt80,test,train
+1165433,849929,different_look,상의 색·종류·배경이 다름,Claude(agent),472.jpg,474,0.708275448,real_lt80,test,train
+204404,312677,different_look,바지/원피스 종류·색이 다름,Claude(agent),472.jpg,475,0.708109871,real_lt80,train,val
+167418,366769,different_look,원피스/패딩 착장 종류·색이 다름,Claude(agent),472.jpg,476,0.707577983,real_lt80,val,train
+1130467,482372,different_look,착장 종류·색·배경이 다름,Claude(agent),472.jpg,477,0.703389484,real_lt80,train,val
+670608,956436,different_look,착장 구성·촬영 공간이 다름,Claude(agent),472.jpg,478,0.702568885,real_lt80,train,test
+1002263,699635,different_look,착장 종류·색·배경이 다름,Claude(agent),472.jpg,479,0.701045938,real_lt80,train,test
+1068997,193706,different_look,상의/원피스 종류·색이 다름,Claude(agent),472.jpg,480,0.700991932,real_lt80,train,test
+1041244,228279,different_look,착용/마네킹·착장 종류가 다름,Claude(agent),480.jpg,481,0.700816407,real_lt80,val,train
+1152157,560002,different_look,착장 색·구성·배경이 다름,Claude(agent),480.jpg,482,0.698092127,real_lt80,train,val
+1229331,440415,different_look,착장 종류·색이 다름,Claude(agent),480.jpg,483,0.697576139,real_lt80,test,val
+854936,872980,different_look,착장 구성·색이 다름,Claude(agent),480.jpg,484,0.696207256,real_lt80,train,test
+508427,741833,different_look,착장 종류·색·촬영 공간이 다름,Claude(agent),480.jpg,485,0.694970639,real_lt80,train,test
+376473,427855,different_look,상의/하의 구성·색이 다름,Claude(agent),480.jpg,486,0.689550942,real_lt80,test,train
+228047,590806,different_look,코트/원피스 종류·색이 다름,Claude(agent),480.jpg,487,0.68841408,real_lt80,test,train
+1244784,1338018,different_look,착장 종류·색·배경이 다름,Claude(agent),480.jpg,488,0.687933578,real_lt80,test,train
+1588,274243,different_look,아우터 종류·색이 다름,Claude(agent),488.jpg,489,0.686302672,real_lt80,val,train
+1243708,239737,different_look,치마/원피스 종류·색이 다름,Claude(agent),488.jpg,490,0.684139229,real_lt80,train,test
+391503,66279,different_look,상의/치마 종류·색이 다름,Claude(agent),488.jpg,491,0.681940261,real_lt80,train,test
+1150744,956848,different_look,코트/치마 착장·촬영 공간이 다름,Claude(agent),488.jpg,492,0.681084315,real_lt80,val,train
+366769,490448,different_look,아우터 종류·색·배경이 다름,Claude(agent),488.jpg,493,0.675933797,real_lt80,train,val
+1210035,45367,different_look,청바지/블라우스 종류가 다름,Claude(agent),488.jpg,494,0.671365137,real_lt80,train,test
+1233583,917681,different_look,착장 색·구성·촬영 공간이 다름,Claude(agent),488.jpg,495,0.669713778,real_lt80,val,train
+1059407,355228,different_look,바지/코트 착장 구성이 다름,Claude(agent),488.jpg,496,0.66965113,real_lt80,test,val
+1084412,926101,different_look,착장 종류·색·배경이 다름,Claude(agent),496.jpg,497,0.669426316,real_lt80,train,val
+678657,789961,different_look,상의 색·무늬·배경이 다름,Claude(agent),496.jpg,498,0.668111618,real_lt80,test,train
+3132,979062,different_look,착장 구성·색·배경이 다름,Claude(agent),496.jpg,499,0.666657092,real_lt80,val,train
+1079151,926783,different_look,청바지/아우터 착장·배경이 다름,Claude(agent),496.jpg,500,0.665771489,real_lt80,train,test
+756306,986966,different_look,착장 종류·색·배경이 다름,Claude(agent),496.jpg,501,0.665149797,real_lt80,train,val
+117660,166284,different_look,원피스/청바지 종류가 다름,Claude(agent),496.jpg,502,0.664874467,real_lt80,test,train
+309442,834339,different_look,카디건/코트 착장·배경이 다름,Claude(agent),496.jpg,503,0.664581868,real_lt80,test,train
+1031410,430389,different_look,아우터/원피스 종류·색이 다름,Claude(agent),496.jpg,504,0.662588912,real_lt80,train,val
+1269377,175579,different_look,바지/원피스 종류·색이 다름,Claude(agent),504.jpg,505,0.658274551,real_lt80,train,test
+202177,859377,different_look,상의 종류·착장·배경이 다름,Claude(agent),504.jpg,506,0.657370772,real_lt80,train,val
+240427,568403,different_look,원피스/코트 종류·색·배경이 다름,Claude(agent),504.jpg,507,0.656220212,real_lt80,train,test
+496148,835678,different_look,착장 구성·촬영 공간이 다름,Claude(agent),504.jpg,508,0.651583886,real_lt80,val,train
+1160241,193750,different_look,치마/원피스 무늬·종류가 다름,Claude(agent),504.jpg,509,0.651567396,real_lt80,test,train
+647756,837292,different_look,착장 종류·촬영 공간이 다름,Claude(agent),504.jpg,510,0.649666157,real_lt80,test,train
+1284627,218797,different_look,착장 종류·색·배경이 다름,Claude(agent),504.jpg,511,0.64630242,real_lt80,train,test
+117660,892858,different_look,원피스 색·무늬·촬영 공간이 다름,Claude(agent),504.jpg,512,0.644173301,real_lt80,test,train
+1172649,926714,different_look,조끼/패딩 착장·배경이 다름,Claude(agent),512.jpg,513,0.641363604,real_lt80,test,train
+472686,929425,different_look,원피스/바지 종류가 다름,Claude(agent),512.jpg,514,0.63505607,real_lt80,train,val
+101424,335831,different_look,바지 색·종류가 다름,Claude(agent),512.jpg,515,0.632948545,real_lt80,train,test
+1119392,830132,different_look,착장 종류·촬영 공간이 다름,Claude(agent),512.jpg,516,0.631701761,real_lt80,train,val
+34040,55498,different_look,치마/원피스 종류·색이 다름,Claude(agent),512.jpg,517,0.631505416,real_lt80,test,train
+328258,939234,different_look,착장 구성·촬영 공간이 다름,Claude(agent),512.jpg,518,0.627637462,real_lt80,train,val
+1151688,836055,different_look,청바지/코트 종류가 다름,Claude(agent),512.jpg,519,0.621046162,real_lt80,train,val
+1235996,518611,different_look,상의/바지 종류·색이 다름,Claude(agent),512.jpg,520,0.618305024,real_lt80,val,train
+1233423,606087,different_look,원피스/카디건 종류·색이 다름,Claude(agent),520.jpg,521,0.614250669,real_lt80,test,train
+18573,340069,different_look,원피스/니트·치마 착장이 다름,Claude(agent),520.jpg,522,0.613839692,real_lt80,train,val
+539881,959684,different_look,착장 종류·배경이 다름,Claude(agent),520.jpg,523,0.611314261,real_lt80,train,val
+1044788,1079151,different_look,착장 종류·색이 다름,Claude(agent),520.jpg,524,0.611041575,real_lt80,val,train
+1168527,157414,different_look,상의/바지 종류·색이 다름,Claude(agent),520.jpg,525,0.609753314,real_lt80,val,train
+608480,748427,different_look,착장 색·구성·촬영 공간이 다름,Claude(agent),520.jpg,526,0.608749432,real_lt80,train,val
+345717,576558,different_look,바지/코트 착장이 다름,Claude(agent),520.jpg,527,0.605035733,real_lt80,train,val
+215633,329737,different_look,착장 종류·색이 다름,Claude(agent),520.jpg,528,0.601096882,real_lt80,train,val
+1332250,369559,different_look,착장 구성·배경이 다름,Claude(agent),528.jpg,529,0.597410372,real_lt80,train,val
+460429,750349,different_look,원피스/바지 종류가 다름,Claude(agent),528.jpg,530,0.595574081,real_lt80,val,train
+876947,951223,different_look,원피스/바지 착장이 다름,Claude(agent),528.jpg,531,0.592255611,real_lt80,train,val
+388777,736563,different_look,상의/착장 구성이 다름,Claude(agent),528.jpg,532,0.581716575,real_lt80,val,train
+1189369,281336,different_look,착장 구성·배경이 다름,Claude(agent),528.jpg,533,0.578324611,real_lt80,val,train
+1235996,547256,different_look,착장 구성·색이 다름,Claude(agent),528.jpg,534,0.577473226,real_lt80,val,train
+609380,963708,different_look,니트 색·무늬·착장이 다름,Claude(agent),528.jpg,535,0.572460163,real_lt80,val,test
+1134351,201020,different_look,착장 종류·색이 다름,Claude(agent),528.jpg,536,0.544093886,real_lt80,test,train
+gen_001236,gen_001242,different_look,"카멜 코트 구도는 비슷하나 인물·단추·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,537,0.958572091,gen_ge95,test,train
+gen_000238,gen_000240,different_look,"검정 속옷 구도는 비슷하나 인물·체형·바닥이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,538,0.958385339,gen_ge95,test,train
+gen_000412,gen_002236,different_look,"갈색 코트 남성 구도는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,539,0.958339766,gen_ge95,train,val
+gen_002062,gen_002084,different_look,"빨강 홀터 원피스는 비슷하나 인물·목선·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,540,0.958277822,gen_ge95,val,train
+gen_001261,gen_001311,different_look,"회색 코트 구도는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,541,0.958149859,gen_ge95,train,test
+gen_001720,gen_002261,different_look,"베이지 코트는 비슷하나 인물·벨트·배경이 다름(생성기도 다름), 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,542,0.958023762,gen_ge95,train,test
+gen_001752,gen_001778,different_look,"카멜 코트 남성은 비슷하나 인물·신발·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,543,0.95764751,gen_ge95,val,train
+gen_000411,gen_002208,different_look,"갈색 코트 남성은 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),536.jpg,544,0.957645879,gen_ge95,val,train
+gen_002062,gen_002090,different_look,"빨강 홀터 원피스는 비슷하나 인물·목선·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,545,0.957593506,gen_ge95,val,train
+gen_002062,gen_002163,different_look,"빨강 홀터 원피스는 비슷하나 인물·헤어·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,546,0.957400537,gen_ge95,val,train
+gen_000417,gen_000433,different_look,"갈색 코트 남성은 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,547,0.957099845,gen_ge95,test,val
+gen_000423,gen_002244,different_look,"갈색 롱코트는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,548,0.956922077,gen_ge95,train,test
+gen_001236,gen_001298,different_look,"카멜 코트는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,549,0.956832164,gen_ge95,test,train
+gen_000436,gen_002197,different_look,"갈색 코트는 비슷하나 인물·벨트·구도가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,550,0.956641143,gen_ge95,train,val
+gen_000183,gen_001300,different_look,"회색 코트는 비슷하나 인물·신발·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,551,0.956302251,gen_ge95,val,train
+gen_002172,gen_002210,different_look,"갈색 코트는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),544.jpg,552,0.955936784,gen_ge95,train,test
+gen_000417,gen_002228,different_look,"갈색 코트 남성은 비슷하나 인물·넥타이·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,553,0.955762131,gen_ge95,test,train
+gen_000178,gen_001271,different_look,"카멜 코트는 비슷하나 목걸이·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,554,0.955701716,gen_ge95,train,val
+gen_000415,gen_000423,different_look,"갈색 롱코트는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,555,0.955553928,gen_ge95,val,train
+gen_000421,gen_002235,different_look,"겨자색 이너·갈색 코트는 비슷하나 인물·하의·배경 색이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,556,0.955195438,gen_ge95,train,test
+gen_000410,gen_000411,different_look,"갈색 코트 남성은 비슷하나 인물·이너·구도가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,557,0.95518057,gen_ge95,train,val
+gen_000422,gen_002289,different_look,"갈색 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,558,0.954921891,gen_ge95,val,test
+gen_000422,gen_002269,different_look,"갈색 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,559,0.954886705,gen_ge95,val,train
+gen_000411,gen_002178,different_look,"갈색 코트 남성은 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),552.jpg,560,0.954812755,gen_ge95,val,train
+gen_000421,gen_002202,different_look,"갈색 코트는 비슷하나 인물·이너·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,561,0.954495597,gen_ge95,train,val
+gen_002210,gen_002256,different_look,"갈색 코트는 비슷하나 인물·선글라스·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,562,0.954422475,gen_ge95,test,train
+gen_000164,gen_001269,different_look,"오버핏 코트는 비슷하나 색(회색/갈회색)·이너가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,563,0.954383992,gen_ge95,train,test
+gen_000417,gen_002188,different_look,"갈색 코트 남성은 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,564,0.954369022,gen_ge95,test,train
+gen_002197,gen_002256,different_look,"갈색 코트는 비슷하나 인물·벨트·선글라스가 다름, 같은 프롬프트·다른 seed의 독립 렌더",Claude(agent),560.jpg,565,0.954276605,gen_ge95,val,train
+gen_000436,gen_002261,different_look,"코트 색·벨트·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,566,0.954153171,gen_ge95,train,test
+gen_000413,gen_000415,different_look,"갈색 코트는 비슷하나 인물·하의·구도가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,567,0.954068034,gen_ge95,train,val
+gen_002184,gen_002246,different_look,"갈색 코트 남성은 비슷하나 인물·벨트·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),560.jpg,568,0.9538864,gen_ge95,val,test
+gen_002197,gen_002219,different_look,"갈색 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,569,0.95385203,gen_ge95,val,train
+gen_001224,gen_001236,different_look,"코트 색(베이지/카멜)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,570,0.953846415,gen_ge95,train,test
+gen_001232,gen_001296,different_look,"코트 색·배경(거리/공원)이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,571,0.953755081,gen_ge95,train,test
+gen_002203,gen_002251,different_look,"붉은 배경 갈색 코트는 비슷하나 인물·벨트·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,572,0.953584191,gen_ge95,train,val
+gen_002143,gen_002163,different_look,"주황 홀터 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,573,0.953573515,gen_ge95,val,train
+gen_002226,gen_002244,different_look,"갈색 롱코트는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,574,0.953538552,gen_ge95,train,test
+gen_002197,gen_002283,different_look,"갈색 코트는 비슷하나 인물·선글라스·가방이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,575,0.953451299,gen_ge95,val,train
+gen_000410,gen_002184,different_look,"갈색 코트 남성은 비슷하나 인물·구도·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),568.jpg,576,0.953386284,gen_ge95,train,val
+gen_001236,gen_001258,different_look,"카멜 코트는 비슷하나 배경 인물·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,577,0.95322626,gen_ge95,test,train
+gen_002197,gen_002209,different_look,"갈색 코트는 비슷하나 인물·선글라스·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,578,0.952998234,gen_ge95,val,train
+gen_000411,gen_002228,different_look,"갈색 코트 남성은 비슷하나 인물·넥타이가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,579,0.952973884,gen_ge95,val,train
+gen_001296,gen_001310,different_look,"코트 색(아이보리/연회색)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,580,0.95295986,gen_ge95,test,train
+gen_002350,gen_002366,different_look,"크롭 티·조거 구도는 비슷하나 배경 색·티/바지 색·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,581,0.952831443,gen_ge95,val,train
+gen_002175,gen_002220,different_look,"노랑 롱코트는 비슷하나 인물·이너·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,582,0.952807789,gen_ge95,train,test
+gen_000381,gen_000391,different_look,"빨강 홀터 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,583,0.952646011,gen_ge95,train,test
+gen_000436,gen_002187,different_look,"갈색 코트는 비슷하나 인물·이너·구도가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),576.jpg,584,0.952492907,gen_ge95,train,test
+gen_000429,gen_002224,different_look,"갈색 코트는 비슷하나 배경(노랑 벽/유리 건물)이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,585,0.952427224,gen_ge95,test,train
+gen_001242,gen_001296,different_look,"코트 색(카멜/아이보리)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,586,0.952222963,gen_ge95,train,test
+gen_001221,gen_001267,different_look,"카멜 코트 구도는 비슷하나 배경 건물·벨트가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,587,0.952202807,gen_ge95,train,test
+gen_002197,gen_002262,different_look,"갈색 코트는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,588,0.952004093,gen_ge95,val,train
+gen_000436,gen_002210,different_look,"갈색 코트는 비슷하나 인물·구도·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,589,0.951921813,gen_ge95,train,test
+gen_000308,gen_001772,different_look,"베이지 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,590,0.951877961,gen_ge95,train,val
+gen_000383,gen_002164,different_look,"빨강 홀터 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,591,0.951873151,gen_ge95,test,train
+gen_000430,gen_002187,different_look,"갈색 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),584.jpg,592,0.95175575,gen_ge95,train,test
+gen_002398,gen_002420,different_look,"남성 티·조거 구도는 비슷하나 티 색(겨자/검정)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,593,0.951732158,gen_ge95,test,train
+gen_001233,gen_001311,different_look,"회색 코트는 비슷하나 배경 인물·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,594,0.951491733,gen_ge95,train,test
+gen_002172,gen_002261,different_look,"코트 색·벨트·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,595,0.951355448,gen_ge95,train,test
+gen_002231,gen_002236,different_look,"갈색 코트 남성은 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,596,0.951279293,gen_ge95,train,val
+gen_000381,gen_000383,different_look,"빨강 홀터 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,597,0.951201746,gen_ge95,train,test
+gen_002202,gen_002268,different_look,"코트 색·이너·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,598,0.951181508,gen_ge95,val,train
+gen_000411,gen_002200,different_look,"갈색 코트 남성은 비슷하나 인물·넥타이·벨트가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,599,0.951174886,gen_ge95,val,train
+gen_000435,gen_002196,different_look,"갈색 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),592.jpg,600,0.950989461,gen_ge95,test,train
+gen_000183,gen_001288,different_look,"회색 코트는 비슷하나 배경 인물·구도가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,601,0.950847983,gen_ge95,val,test
+gen_002348,gen_002372,different_look,"주황 탑·바지 구도는 비슷하나 인물·배경 배색이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,602,0.950708789,gen_ge95,val,train
+gen_002210,gen_002287,different_look,"갈색 코트는 비슷하나 인물·이너·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,603,0.950705838,gen_ge95,test,train
+gen_002178,gen_002236,different_look,"갈색 코트 남성은 비슷하나 인물·이너가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,604,0.950641299,gen_ge95,train,val
+gen_001706,gen_001788,different_look,"카멜 코트·흰 이너는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,605,0.950633077,gen_ge95,val,train
+gen_001271,gen_001312,different_look,"카멜 코트는 비슷하나 목걸이·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,606,0.950541978,gen_ge95,val,train
+gen_000391,gen_002143,different_look,"빨강 홀터 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,607,0.950497078,gen_ge95,test,val
+gen_002197,gen_002226,different_look,"갈색 코트는 비슷하나 인물·벨트·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),600.jpg,608,0.950339913,gen_ge95,val,train
+gen_000422,gen_002227,different_look,"갈색 코트는 비슷하나 이너 색·하의·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,609,0.950260228,gen_ge95,val,train
+gen_002181,gen_002267,different_look,"갈색 코트 남성은 비슷하나 인물·헤어·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,610,0.950147423,gen_ge95,test,train
+gen_001752,gen_001796,different_look,"카멜 코트 남성은 비슷하나 인물·모자·신발이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,611,0.950144395,gen_ge95,val,train
+gen_001235,gen_001241,different_look,"회색 코트는 비슷하나 배경·벨트가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,612,0.950069804,gen_ge95,val,test
+gen_001261,gen_001314,different_look,"회색 코트는 비슷하나 인물·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,613,0.94850721,gen_90_95,train,val
+gen_001167,gen_001193,different_look,"검정 원피스 보행 구도는 비슷하나 배경(건물/검정 벽)이 다름, 같은 프롬프트·다른 seed의 독립 렌더",Claude(agent),608.jpg,614,0.947991403,gen_90_95,train,test
+gen_001301,gen_001335,different_look,"카멜 코트는 비슷하나 배경·구도가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,615,0.946875602,gen_90_95,val,train
+gen_002197,gen_002239,different_look,"갈색 코트는 비슷하나 인물·벨트·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),608.jpg,616,0.946169657,gen_90_95,val,train
+gen_000431,gen_001697,different_look,"갈색 롱코트이나 인물 성별·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,617,0.946085043,gen_90_95,val,train
+gen_001248,gen_001296,different_look,"코트 색(카멜/아이보리)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,618,0.944630215,gen_90_95,train,test
+gen_002054,gen_002152,different_look,"빨강 원피스는 비슷하나 인물·목선·초커가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,619,0.944203859,gen_90_95,val,train
+gen_001296,gen_001336,different_look,"코트 색·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,620,0.94301581,gen_90_95,test,train
+gen_001760,gen_001780,different_look,"베이지 코트는 비슷하나 인물 성별·이너가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,621,0.942592175,gen_90_95,test,val
+gen_000391,gen_002084,different_look,"빨강 홀터 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,622,0.941986892,gen_90_95,test,train
+gen_001766,gen_001772,different_look,"카멜 코트는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,623,0.941487606,gen_90_95,train,val
+gen_001239,gen_001287,different_look,"회색 코트는 비슷하나 벨트·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),616.jpg,624,0.941094495,gen_90_95,test,train
+gen_001716,gen_001805,different_look,"코트 색·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,625,0.941076066,gen_90_95,train,test
+gen_001271,gen_001335,different_look,"카멜 코트는 비슷하나 목걸이·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,626,0.939987545,gen_90_95,val,train
+gen_000417,gen_000431,different_look,"갈색 코트이나 인물 성별·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,627,0.939499383,gen_90_95,test,val
+gen_000415,gen_002172,different_look,"갈색 코트는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,628,0.939213704,gen_90_95,val,train
+gen_000383,gen_002052,different_look,"빨강 홀터 미니 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,629,0.938959054,gen_90_95,test,val
+gen_002172,gen_002233,different_look,"갈색 코트는 비슷하나 인물·벨트·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,630,0.938782924,gen_90_95,train,val
+gen_002074,gen_002076,different_look,"검정 광택 원피스는 비슷하나 인물·목선·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,631,0.93756193,gen_90_95,val,train
+gen_001772,gen_001776,different_look,"베이지 코트는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),624.jpg,632,0.93602344,gen_90_95,val,train
+gen_001735,gen_002260,different_look,"갈색 코트는 비슷하나 인물·구도·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,633,0.934889996,gen_90_95,test,train
+gen_001752,gen_001754,different_look,"카멜 코트 남성은 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,634,0.933458527,gen_90_95,val,test
+gen_001723,gen_001807,different_look,"카멜 코트는 비슷하나 인물·가방·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,635,0.931816181,gen_90_95,test,train
+gen_000305,gen_001723,different_look,"카멜 코트는 비슷하나 인물·신발·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,636,0.930718319,gen_90_95,val,test
+gen_002244,gen_002265,different_look,"갈색 코트는 비슷하나 인물·이너·배경 색이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,637,0.930635999,gen_90_95,test,train
+gen_000228,gen_001405,different_look,"검정 탑·쇼츠 구도는 비슷하나 인물·자세·탑 색이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,638,0.930225096,gen_90_95,train,val
+gen_001312,gen_001314,different_look,"코트 색(카멜/회색)이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,639,0.930113155,gen_90_95,train,val
+gen_002099,gen_002136,different_look,"겨자색 원피스는 비슷하나 인물·목선·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),632.jpg,640,0.930029904,gen_90_95,test,val
+gen_002215,gen_002224,different_look,"갈색 코트는 비슷하나 배경(흰 벽/유리 건물)·벨트가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,641,0.929174752,gen_90_95,val,train
+gen_000417,gen_001712,different_look,"갈색 코트 남성은 비슷하나 인물·이너·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,642,0.929081835,gen_90_95,test,train
+gen_000164,gen_000173,different_look,"회색 오버핏 코트 스튜디오 구도는 비슷하나 인물·이너(티/셔츠)가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,643,0.928727479,gen_90_95,train,test
+gen_001136,gen_001159,different_look,"슬립 원피스 색(검정/남색)·트임·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,644,0.928083908,gen_90_95,train,test
+gen_000310,gen_001724,different_look,"카멜 코트는 비슷하나 인물·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,645,0.928051694,gen_90_95,train,test
+gen_000417,gen_001752,different_look,"카멜 코트 남성은 비슷하나 인물·이너·신발이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,646,0.927776015,gen_90_95,test,val
+gen_000178,gen_001311,different_look,"코트 색(카멜/회색)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,647,0.927629199,gen_90_95,train,test
+gen_000437,gen_000491,different_look,"흰/회색 티·주황 조거는 비슷하나 인물·티 색·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),640.jpg,648,0.926312532,gen_90_95,val,train
+gen_002333,gen_002409,different_look,"노랑 티 구도는 비슷하나 하의 색·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,649,0.925956061,gen_90_95,val,train
+gen_002207,gen_002223,different_look,"코트 색(검정/갈색)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,650,0.9245401,gen_90_95,test,train
+gen_001734,gen_001773,different_look,"코트 색·인물·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,651,0.923423333,gen_90_95,train,test
+gen_000381,gen_002052,different_look,"빨강 홀터 미니 원피스는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,652,0.923137463,gen_90_95,train,val
+gen_001263,gen_001309,different_look,"회색 코트는 비슷하나 색조·인물·신발이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,653,0.922496777,gen_90_95,test,train
+gen_000385,gen_000391,different_look,"빨강 원피스 목선(V/홀터)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,654,0.921722043,gen_90_95,train,test
+gen_001696,gen_001707,different_look,"카멜 코트 남성은 비슷하나 인물·하의·모자가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,655,0.921566025,gen_90_95,train,val
+gen_000375,gen_002141,different_look,"빨강 원피스 소매·목선·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),648.jpg,656,0.921471275,gen_90_95,train,val
+gen_000159,gen_000177,different_look,"아이보리 코트는 비슷하나 이너·하의 색·신발이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,657,0.920625116,gen_90_95,train,test
+gen_000467,gen_002382,different_look,"흰 티·바지 구도는 비슷하나 바지 색·배경·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,658,0.920246504,gen_90_95,val,train
+gen_000491,gen_002508,different_look,"크롭 티·바지 색·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,659,0.918005341,gen_90_95,train,test
+gen_000128,gen_000154,different_look,"점프수트 색(회색/검정)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,660,0.917923494,gen_90_95,val,train
+gen_001316,gen_001326,different_look,"코트 색(카멜/회갈색)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,661,0.917802754,gen_90_95,train,test
+gen_001734,gen_001812,different_look,"코트 색·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,662,0.917548722,gen_90_95,train,val
+gen_000435,gen_001790,different_look,"갈색 코트는 비슷하나 인물·구도·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,663,0.917021442,gen_90_95,test,train
+gen_001235,gen_001293,different_look,"코트 색(회색/카멜)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),656.jpg,664,0.916378581,gen_90_95,val,train
+gen_000297,gen_001719,different_look,"카멜 코트는 비슷하나 인물·배경(스튜디오/거리)이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,665,0.916348675,gen_90_95,test,train
+gen_000473,gen_002347,different_look,"티·조거 구도는 비슷하나 티·바지 색·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,666,0.91629783,gen_90_95,train,val
+gen_001360,gen_001404,different_look,"검정 탑·하의 구도는 비슷하나 인물·신발·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,667,0.916255403,gen_90_95,train,test
+gen_001255,gen_001301,different_look,"코트 색(회색/카멜)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,668,0.915554151,gen_90_95,train,val
+gen_000377,gen_002075,different_look,"검정 민소매 원피스는 비슷하나 인물·배경 색이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,669,0.915359476,gen_90_95,val,test
+gen_001706,gen_001787,different_look,"갈색 코트는 비슷하나 소재(울/가죽)·하의·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,670,0.915291452,gen_90_95,val,test
+gen_001560,gen_001566,different_look,"검정 속옷 구도는 비슷하나 인물·탑 유무·자세가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,671,0.915085481,gen_90_95,train,test
+gen_002388,gen_002453,different_look,"티·바지 색·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),664.jpg,672,0.914538139,gen_90_95,val,train
+gen_000301,gen_001723,different_look,"코트 색·하의·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,673,0.913271099,gen_90_95,val,test
+gen_000168,gen_001313,different_look,"회색 코트는 비슷하나 배경·이너가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,674,0.913153725,gen_90_95,train,val
+gen_000181,gen_001326,different_look,"코트 색(진회색/회갈색)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,675,0.91296362,gen_90_95,train,test
+gen_000297,gen_001784,different_look,"코트 색(카멜/아이보리)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,676,0.912261555,gen_90_95,test,train
+gen_000286,gen_001747,different_look,"베이지 코트는 비슷하나 데님 재킷 이너·인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,677,0.912155585,gen_90_95,val,train
+gen_000437,gen_002486,different_look,"흰 티·주황 조거는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,678,0.911695352,gen_90_95,val,train
+gen_001221,gen_001741,different_look,"카멜 코트는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,679,0.910203658,gen_90_95,train,test
+gen_001702,gen_001736,different_look,"카멜 코트 남성은 비슷하나 방향(정면/후면)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),672.jpg,680,0.909370908,gen_90_95,test,train
+gen_000548,gen_000807,different_look,"코트 색(검정/진회색)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,681,0.908944974,gen_90_95,test_unseen,train
+gen_001244,gen_001266,different_look,"코트 색(베이지/갈색)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,682,0.908852063,gen_90_95,val,train
+gen_000478,gen_001923,different_look,"티 색·인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,683,0.90883902,gen_90_95,train,test
+gen_001143,gen_001207,different_look,"검정 원피스 길이·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,684,0.908646336,gen_90_95,train,val
+gen_002063,gen_002133,different_look,"빨강 홀터 원피스는 비슷하나 인물·벨트가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,685,0.908631449,gen_90_95,val,train
+gen_001313,gen_001319,different_look,"회색 코트는 비슷하나 배경·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,686,0.90852832,gen_90_95,val,train
+gen_000428,gen_002254,different_look,"코트 색(갈색/겨자)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,687,0.90781312,gen_90_95,train,val
+gen_000408,gen_002199,different_look,"코트 색(카멜/주황 갈색)·인물 성별이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),680.jpg,688,0.907164852,gen_90_95,train,test
+gen_001135,gen_001173,different_look,"검정 미니 원피스는 비슷하나 신발·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,689,0.907069691,gen_90_95,test,train
+gen_000420,gen_000427,different_look,"코트 색(갈색/빨강)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,690,0.906849982,gen_90_95,test,train
+gen_001259,gen_001269,different_look,"코트 색(카멜/회갈색)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,691,0.906777941,gen_90_95,train,test
+gen_001250,gen_001321,different_look,"베이지 코트는 비슷하나 측면/정면·이너·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,692,0.906610437,gen_90_95,train,val
+gen_000408,gen_000559,different_look,"코트 색(카멜/회청)·인물 성별이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,693,0.905392472,gen_90_95,train,test_unseen
+gen_000402,gen_002108,different_look,"빨강 홀터 원피스는 비슷하나 인물·벨트·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,694,0.905318642,gen_90_95,val,train
+gen_000758,gen_000802,different_look,"코트 색(카키/검정)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,695,0.905069114,gen_90_95,train,test
+gen_002427,gen_002429,different_look,"주황 셔츠 세트는 비슷하나 인물·배경 배색이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),688.jpg,696,0.904761065,gen_90_95,val,train
+gen_002189,gen_002233,different_look,"코트 색(겨자/카멜)·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,697,0.904724951,gen_90_95,test,val
+gen_002312,gen_002446,different_look,"탑 색·바지 색·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,698,0.904641039,gen_90_95,val,train
+gen_001710,gen_001789,different_look,"카멜 코트는 비슷하나 인물·이너·하의가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,699,0.904537819,gen_90_95,val,test
+gen_002256,gen_002266,different_look,"코트 소재·색(울 갈색/광택 겨자)이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,700,0.90404256,gen_90_95,train,val
+gen_000383,gen_002114,different_look,"빨강 원피스 소매·목선·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,701,0.903757036,gen_90_95,test,train
+gen_000142,gen_001207,different_look,"검정 원피스 소재(광택/저지)·길이가 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,702,0.902660961,gen_90_95,train,val
+gen_000037,gen_000755,different_look,"코트 색·인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,703,0.902609465,gen_90_95,test,train
+gen_002379,gen_002502,different_look,"주황 탑은 비슷하나 바지 색·인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),696.jpg,704,0.902542313,gen_90_95,train,test
+gen_001229,gen_001246,different_look,"코트 색(카멜/아이보리)·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,705,0.902183883,gen_90_95,val,train
+gen_000297,gen_002278,different_look,"코트 색·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,706,0.902041359,gen_90_95,test,train
+gen_001110,gen_001207,different_look,"검정 원피스 길이·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,707,0.901806791,gen_90_95,train,val
+gen_002299,gen_002458,different_look,"흰 탑·주황 바지는 비슷하나 탑 종류·인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,708,0.901412815,gen_90_95,train,val
+gen_001421,gen_001491,different_look,"검정 반바지 구도는 비슷하나 신발 유무·반바지 재단이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,709,0.901330284,gen_90_95,test,train
+gen_002301,gen_002444,different_look,"겨자색 탑·반바지는 비슷하나 인물·배경이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,710,0.901258545,gen_90_95,val,train
+gen_002312,gen_002522,different_look,"탑·바지 색·인물이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,711,0.901081134,gen_90_95,val,train
+gen_001350,gen_001549,different_look,"흰 티·검정 반바지는 비슷하나 배경·신발이 다름, 다른 프롬프트·seed의 독립 렌더",Claude(agent),704.jpg,712,0.901030113,gen_90_95,test,train

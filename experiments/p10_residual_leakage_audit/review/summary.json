@@ -1,0 +1,102 @@
+{
+  "agent_reviewer": "Claude(agent)",
+  "owner_confirmation": "pending",
+  "strata": [
+    {
+      "stratum": "real_ge90",
+      "population": 236,
+      "reviewed": 236,
+      "confirmed": 6,
+      "unconfirmed": 3,
+      "different": 227,
+      "cp95_upper_rate": null,
+      "cp95_upper_pairs": null,
+      "mode": "all"
+    },
+    {
+      "stratum": "real_85_90",
+      "population": 4419,
+      "reviewed": 100,
+      "confirmed": 0,
+      "unconfirmed": 0,
+      "different": 100,
+      "cp95_upper_rate": 0.0362,
+      "cp95_upper_pairs": 160,
+      "mode": "sample"
+    },
+    {
+      "stratum": "real_80_85",
+      "population": 17130,
+      "reviewed": 100,
+      "confirmed": 0,
+      "unconfirmed": 0,
+      "different": 100,
+      "cp95_upper_rate": 0.0362,
+      "cp95_upper_pairs": 620,
+      "mode": "sample"
+    },
+    {
+      "stratum": "real_lt80",
+      "population": 404811,
+      "reviewed": 100,
+      "confirmed": 0,
+      "unconfirmed": 0,
+      "different": 100,
+      "cp95_upper_rate": 0.0362,
+      "cp95_upper_pairs": 14661,
+      "mode": "sample"
+    },
+    {
+      "stratum": "gen_ge95",
+      "population": 76,
+      "reviewed": 76,
+      "confirmed": 0,
+      "unconfirmed": 0,
+      "different": 76,
+      "cp95_upper_rate": null,
+      "cp95_upper_pairs": null,
+      "mode": "all"
+    },
+    {
+      "stratum": "gen_90_95",
+      "population": 1677,
+      "reviewed": 100,
+      "confirmed": 0,
+      "unconfirmed": 0,
+      "different": 100,
+      "cp95_upper_rate": 0.0362,
+      "cp95_upper_pairs": 61,
+      "mode": "sample"
+    },
+    {
+      "stratum": "gen_lt90",
+      "population": 8276,
+      "reviewed": 0,
+      "confirmed": 0,
+      "unconfirmed": 0,
+      "different": 0,
+      "cp95_upper_rate": null,
+      "cp95_upper_pairs": null,
+      "mode": "unreviewed"
+    }
+  ],
+  "neighbors": {
+    "round_01_pairs": 101,
+    "round_01_verdicts": {
+      "different_look": 101
+    },
+    "closure_pending": 0
+  },
+  "crossing_by_boundary": {
+    "confirmed_same_look": {
+      "test|val": 1,
+      "train|val": 3,
+      "test|train": 2
+    },
+    "unconfirmed": {
+      "test|train": 2,
+      "train|val": 1
+    }
+  },
+  "upper_bound_method": "two-sided 95% Clopper-Pearson for 0 confirmed in a sample stratum: 1-0.025**(1/n); pair rate, not image count"
+}

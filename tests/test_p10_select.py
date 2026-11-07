@@ -62,3 +62,13 @@ def test_tampered_input_is_rejected(tmp_path, monkeypatch):
     monkeypatch.setattr(p10_select, 'METADATA', copy)
     with pytest.raises(ValueError, match='hash mismatch'):
         p10_select.verify_inputs()
+
+
+def test_owner_pairs_keep_only_boundary_crossing_unresolved_or_confirmed():
+    """Under-strict: crossing confirmed/unconfirmed pairs reach the owner. Over-strict: same-split or different-look pairs do not."""
+    from scripts.p10_owner_review import owner_pairs
+    rows = [dict(a='1', b='2', verdict='confirmed_same_look', split_a='train', split_b='val'),
+            dict(a='3', b='4', verdict='unconfirmed', split_a='test', split_b='train'),
+            dict(a='5', b='6', verdict='confirmed_same_look', split_a='train', split_b='train'),
+            dict(a='7', b='8', verdict='different_look', split_a='train', split_b='test')]
+    assert [r['a'] for r in owner_pairs(rows)] == ['1', '3']

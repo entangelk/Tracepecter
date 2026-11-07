@@ -1,0 +1,10 @@
+a,b,verdict,reason,reviewer,sheet,pair_number,cosine,stratum,split_a,split_b
+1240756,218797,confirmed_same_look,"같은 회색 체크 티어드 원피스와 흰 선반 촬영 세트, 가방 유무만 다른 컷",Claude(agent),008.jpg,12,0.911898719,real_ge90,val,test
+568403,568442,unconfirmed,같은 콘크리트 벽·모델·검정 롱코트로 보이나 이너(회색/검정)·부츠 색이 달라 동일 룩 확정 보류,Claude(agent),032.jpg,34,0.910199997,real_ge90,test,train
+1233583,1233589,confirmed_same_look,같은 갈색 후드 재킷·흰 티·회색 무지 배경의 전신/확대 컷,Claude(agent),032.jpg,38,0.909749428,real_ge90,val,train
+956837,956848,confirmed_same_look,같은 검정 플레어 미니스커트·흰 블라우스·레깅스·운동화와 나무 스툴/마른 가지/안내판 촬영 세트,Claude(agent),048.jpg,52,0.90887955,real_ge90,val,train
+489659,918978,unconfirmed,같은 베이지 린넨 반팔 재킷·반바지 세트와 검정 이너이나 배경·가방이 달라 동일 촬영 확정 보류,Claude(agent),056.jpg,58,0.908554977,real_ge90,val,train
+424663,424673,confirmed_same_look,같은 카키 밴딩 바지·흰 티와 유리병 마른 가지/벽 메모 촬영 세트의 전신/확대 컷,Claude(agent),088.jpg,94,0.905840909,real_ge90,train,test
+889872,947039,unconfirmed,얼굴 가림 모델의 갈색 재킷·청바지·베이지 구두가 비슷하나 촬영 공간(선반/창가)이 달라 동일 룩 확정 보류,Claude(agent),096.jpg,102,0.905570286,real_ge90,train,test
+1083989,1083999,confirmed_same_look,같은 아이보리 턱 와이드 바지·파란 티·샌들과 그림 액자/헤링본 바닥 촬영 세트,Claude(agent),112.jpg,120,0.904891926,real_ge90,test,train
+1082948,520383,confirmed_same_look,같은 흰 크롭 바지·파란 티·흰 끈 신발과 책 선반/스툴 촬영 세트,Claude(agent),128.jpg,131,0.904567301,real_ge90,train,val
