@@ -1,6 +1,6 @@
 # HANDOFF.md
 
-> 마지막 자가 검수: 2026-11-01
+> 마지막 자가 검수: 2026-11-07
 
 ## 현재 상태
 
@@ -17,7 +17,7 @@
 
 ## 다음 작업 (우선순위 순)
 
-> **다음 세션 시작 시:** P07까지 MVP 구현 페이즈는 끝났다. 아래 2번(감사 후보 추가 검토·최종 독립 holdout 수집·사람 평가) 중 무엇을 먼저 할지 소유자와 정한다. 신규 수집·split 변경은 소유자 결정 없이 시작하지 않는다.
+> **다음 세션 시작 시:** 소유자가 2번 중 감사 후보 추가 검토를 먼저 하기로 했다(2026-11-07). [P10 계획](docs/plan/phase_10_residual_leakage_audit.md)은 [DB-09](docs/decision_briefs/DB-09_P10_residual-review-scope.md)(검토 범위·판정 주체) 결정 대기다. 결정을 받은 뒤 P10-01부터 진행한다. 신규 수집·split 변경은 소유자 결정 없이 시작하지 않는다.
 
 1. **P07(API + Demo) Complete(2026-11-01)** — [계획](docs/plan/phase_7_api_demo.md), [DB-08](docs/decision_briefs/DB-08_P07_response-contract.md) A/A/A. 슬라이스별 독립검증 합격([01](docs/verifications/2026-11-01/p07_01_inference_core.md)·[02](docs/verifications/2026-11-01/p07_02_score_api.md)·[03](docs/verifications/2026-11-01/p07_03_web_demo.md)).
    - 실행: `docker compose --profile api up api` → 데모 http://localhost:8000/, API `POST /score`(CPU). GPU는 README 절차(`TRACEPECTER_INFERENCE_CONFIG`로 cuda 설정 + train 이미지). 응답 네 필드(`realism_score`·`classification`·`faces_anonymized`·`model_version`), 현재 `model_version` `f5bf7f4d004f`.
