@@ -13,8 +13,8 @@
 | [DB-06](DB-06_P06_face-exposure.md) | P06 | P06-04 → P08·P07 | 얼굴 노출 비대칭 대응(DB-03 재상정) | Resolved | 옵션 C: 공통 흰 원 익명화(학습·평가·추론) + 얼굴 노출 실사 평가 holdout | 2026-10-11 |
 | [DB-07](DB-07_P09_review-coverage.md) | P09 | P09-01~02 | 후보 검토 범위 | Resolved | A 방향: 우선순위 검토·미검토 범위 명시 | 2026-10-20 |
 | [DB-08](DB-08_P07_response-contract.md) | P07 | P07-01~03 | API 응답 분류 체계·confidence·데모 형태 | Resolved | 결정 1~3 모두 A: 2단계 분류·confidence 제외·정적 데모 1쪽 | 2026-11-01 |
-| [DB-09](DB-09_P10_residual-review-scope.md) | P10 | P10-01~02 | 잔여 후보 검토 범위·판정 주체 | Open | — | 2026-11-07 |
+| [DB-09](DB-09_P10_residual-review-scope.md) | P10 | P10-01~02 | 잔여 후보 검토 범위·판정 주체 | Resolved | 결정 1 A: 상위 전수+층화 표본 · 결정 2 R1: 에이전트 1차+경계 교차 확정·미확정 소유자 확인 | 2026-11-07 |
 
 ## 대기 중인 사항
 
-- **DB-09**(P10): P09 미검토 후보 중 r1 split 경계를 넘는 쌍의 검토 범위(상위 전수·층화 표본)와 판정 주체. 결정 전 P10 착수 보류.
+- 없음.
